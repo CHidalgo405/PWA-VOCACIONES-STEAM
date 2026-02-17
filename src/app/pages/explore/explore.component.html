@@ -1,0 +1,80 @@
+<div class="explore-container">
+  
+  <header class="sticky-header">
+    <div class="header-content">
+      <h2>Explorar</h2>
+      
+      <div class="search-bar">
+        <i class="search-icon">🔍</i>
+        <input type="text" placeholder="Buscar carreras, universidades..." [(ngModel)]="searchQuery">
+      </div>
+
+      <div class="tabs-container">
+        <button class="tab-btn" [class.active]="activeTab === 'universities'" (click)="switchTab('universities')">
+          Universidades
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'courses'" (click)="switchTab('courses')">
+          Cursos Online
+        </button>
+        <div class="tab-indicator" [class.right]="activeTab === 'courses'"></div>
+      </div>
+
+      <div class="filters-scroll">
+        <button *ngFor="let filter of filters" 
+                class="filter-chip" 
+                [class.selected]="selectedFilter === filter"
+                (click)="selectedFilter = filter">
+          {{ filter }}
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="content-grid">
+    
+    <ng-container *ngIf="activeTab === 'universities'">
+      <div class="card-university" *ngFor="let uni of universities">
+        <div class="card-image" [style.backgroundImage]="'url(' + uni.image + ')'">
+          <span class="rating-badge">⭐ {{ uni.rating }}</span>
+          <button class="favorite-btn">❤</button>
+        </div>
+        <div class="card-details">
+          <div class="uni-header">
+            <span class="uni-logo">{{ uni.logo }}</span>
+            <div class="uni-info">
+              <h3>{{ uni.name }}</h3>
+              <p class="location">📍 {{ uni.location }}</p>
+            </div>
+          </div>
+          <div class="tags-row">
+            <span class="tag" *ngFor="let tag of uni.tags">{{ tag }}</span>
+          </div>
+          <button class="btn-view">Ver Oferta Académica</button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="activeTab === 'courses'">
+      <div class="card-course" *ngFor="let course of courses">
+        <div class="course-image-container">
+          <img [src]="course.image" alt="Course">
+          <span class="level-badge">{{ course.level }}</span>
+        </div>
+        <div class="course-content">
+          <span class="provider">{{ course.provider }}</span>
+          <h3>{{ course.title }}</h3>
+          <div class="meta-info">
+            <span>⏱ {{ course.duration }}</span>
+            <span [class.free]="course.isFree" class="price-tag">
+              {{ course.isFree ? 'Gratis' : 'Premium' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+
+  <app-navbar></app-navbar>
+
+</div>

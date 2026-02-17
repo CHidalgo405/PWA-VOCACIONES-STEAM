@@ -1,0 +1,41 @@
+<div class="onboarding-wrapper">
+
+  <div class="visual-section" [style.background-color]="currentColor + '15'"> 
+    <div class="background-shape" [ngClass]="slides[currentIndex].bgShape" [style.background-color]="currentColor + '20'"></div>
+    
+    <div class="illustration-container">
+      <div class="emoji-placeholder">{{ slides[currentIndex].imgPlaceholder }}</div>
+    </div>
+  </div>
+
+  <div class="content-section">
+    
+    <div class="top-nav">
+      <span class="step-indicator">Paso {{ currentIndex + 1 }}/3</span>
+      <button class="btn-skip" (click)="skip()" *ngIf="currentIndex < 2">Omitir</button>
+    </div>
+
+    <div class="text-wrapper">
+      <div class="dots-container">
+        <span *ngFor="let slide of slides; let i = index" 
+              class="dot" 
+              [class.active]="i === currentIndex"
+              [style.background-color]="i === currentIndex ? slide.color : '#e0e0e0'">
+        </span>
+      </div>
+
+      <div class="text-content">
+        <h1 [style.color]="currentColor">{{ slides[currentIndex].title }}</h1>
+        <p>{{ slides[currentIndex].subtitle }}</p>
+      </div>
+    </div>
+
+    <div class="action-area">
+      <button class="btn-main" (click)="nextSlide()" [style.background-color]="'#1a1a1a'">
+        {{ currentIndex === slides.length - 1 ? 'COMENZAR' : 'SIGUIENTE' }}
+        <span class="btn-shadow" [style.background-color]="currentColor"></span>
+      </button>
+    </div>
+
+  </div>
+</div>

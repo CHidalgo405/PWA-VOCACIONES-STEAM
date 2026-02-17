@@ -1,0 +1,272 @@
+.explore-container {
+  padding-bottom: 90px; /* Espacio para el navbar */
+  background-color: var(--bg-app);
+  min-height: 100vh;
+}
+
+/* --- HEADER FIJO --- */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px); /* Efecto cristal */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  padding: 20px 20px 10px 20px;
+
+  /* En PC lo hacemos más ancho y centrado */
+  @media (min-width: 1024px) {
+    padding: 20px 10%;
+  }
+
+  h2 { margin: 0 0 15px 0; font-size: 1.5rem; color: var(--text-main); }
+
+  .search-bar {
+    position: relative;
+    margin-bottom: 15px;
+
+    input {
+      width: 100%;
+      padding: 12px 12px 12px 45px;
+      border-radius: 12px;
+      border: 1px solid #eee;
+      background: var(--bg-app);
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s;
+      box-sizing: border-box;
+
+      &:focus {
+        border-color: var(--steam-blue);
+        box-shadow: 0 0 0 4px rgba(7, 177, 201, 0.1);
+      }
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.5;
+    }
+  }
+
+  /* --- TABS ESTILO IOS --- */
+  .tabs-container {
+    position: relative;
+    display: flex;
+    background: var(--bg-app);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 15px;
+
+    .tab-btn {
+      flex: 1;
+      border: none;
+      background: none;
+      padding: 10px;
+      font-weight: 600;
+      z-index: 2;
+      cursor: pointer;
+      color: var(--text-light);
+      transition: color 0.3s;
+
+      &.active { color: var(--text-main); }
+    }
+
+    /* El indicador blanco que se desliza */
+    .tab-indicator {
+      position: absolute;
+      width: 50%;
+      height: calc(100% - 8px);
+      background: var(--white);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      top: 4px;
+      left: 4px;
+      transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+      &.right { transform: translateX(96%); } /* Mover a la derecha */
+    }
+  }
+
+  .filters-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    scrollbar-width: none; /* Firefox */
+    &::-webkit-scrollbar { display: none; } /* Chrome */
+
+    .filter-chip {
+      background: var(--white);
+      border: 1px solid #eee;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &.selected {
+        background: var(--steam-blue);
+        color: white;
+        border-color: var(--steam-blue);
+      }
+    }
+  }
+}
+
+/* --- GRID DE CONTENIDO --- */
+.content-grid {
+  padding: 20px;
+  display: grid;
+  gap: 20px;
+  /* RESPONSIVE AUTOMÁTICO: */
+  /* Si cabe, pon más columnas (minimo 300px cada una) */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+
+  @media (min-width: 1024px) {
+    padding: 20px 10%;
+  }
+}
+
+/* --- TARJETA DE UNIVERSIDAD --- */
+.card-university {
+  background: var(--white);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+  border: 1px solid #f0f0f0;
+
+  &:hover { transform: translateY(-5px); }
+
+  .card-image {
+    height: 160px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    
+    .rating-badge {
+      position: absolute;
+      top: 10px; left: 10px;
+      background: white;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    
+    .favorite-btn {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: rgba(0,0,0,0.3);
+      border: none;
+      color: white;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+  }
+
+  .card-details {
+    padding: 15px;
+
+    .uni-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+
+      .uni-logo { font-size: 1.5rem; background: #f5f5f5; padding: 5px; border-radius: 8px; }
+      
+      .uni-info {
+        h3 { margin: 0; font-size: 1rem; color: var(--text-main); }
+        .location { margin: 0; font-size: 0.8rem; color: var(--text-light); }
+      }
+    }
+
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 15px;
+
+      .tag {
+        font-size: 0.75rem;
+        background: var(--bg-app);
+        color: var(--text-light);
+        padding: 4px 8px;
+        border-radius: 6px;
+      }
+    }
+
+    .btn-view {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid var(--steam-blue);
+      color: var(--steam-blue);
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &:hover { background: var(--steam-blue); color: white; }
+    }
+  }
+}
+
+/* --- TARJETA DE CURSO (Estilo Horizontal Compacto) --- */
+.card-course {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 10px;
+  display: flex;
+  gap: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+  border: 1px solid #f0f0f0;
+  
+  .course-image-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+
+    img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .level-badge {
+      position: absolute;
+      bottom: 0; left: 0; width: 100%;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 0.6rem;
+      text-align: center;
+      padding: 2px 0;
+    }
+  }
+
+  .course-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .provider { font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+    h3 { margin: 4px 0 8px 0; font-size: 1rem; color: var(--text-main); line-height: 1.2; }
+    
+    .meta-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-light);
+
+      .price-tag.free { color: var(--steam-green); font-weight: 700; }
+    }
+  }
+}

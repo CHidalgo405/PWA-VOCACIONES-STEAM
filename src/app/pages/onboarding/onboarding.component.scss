@@ -1,0 +1,205 @@
+.onboarding-wrapper {
+  display: flex;
+  flex-direction: column; /* Móvil: Columna */
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--white);
+
+  /* --- DESKTOP (PC) --- */
+  @media (min-width: 1024px) {
+    flex-direction: row; /* PC: Fila (Izquierda/Derecha) */
+  }
+}
+
+/* ===========================
+   SECCIÓN VISUAL (Imagen)
+   =========================== */
+.visual-section {
+  flex: 1.2; /* En PC ocupa un poco más de espacio */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.5s ease;
+  
+  /* En móvil ocupa el 60% de la altura */
+  height: 60%;
+  @media (min-width: 1024px) {
+    height: 100%;
+    order: 1; /* A la izquierda */
+  }
+
+  .background-shape {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: 0;
+
+    &.circle { border-radius: 50%; transform: scale(1); }
+    &.blob { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: scale(1.1) rotate(45deg); }
+    &.square { border-radius: 20%; transform: scale(0.9) rotate(-15deg); }
+  }
+
+  .illustration-container {
+    z-index: 1;
+    animation: float 6s ease-in-out infinite;
+
+    .emoji-placeholder {
+      font-size: 150px;
+      /* Cuando tengas imágenes: 
+      width: 100%; max-width: 400px; height: auto;
+      */
+    }
+  }
+}
+
+/* ===========================
+   SECCIÓN DE CONTENIDO (Texto)
+   =========================== */
+.content-section {
+  flex: 0.8;
+  background-color: var(--white);
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  
+  /* Diseño Curvo en Móvil (como la referencia) */
+  border-radius: 30px 30px 0 0;
+  margin-top: -30px; /* Sube un poco sobre la imagen */
+  z-index: 10;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
+
+  /* En PC quitamos las curvas y centramos */
+  @media (min-width: 1024px) {
+    height: 100%;
+    border-radius: 0;
+    margin-top: 0;
+    order: 2; /* A la derecha */
+    justify-content: center;
+    padding: 0 80px; /* Más espacio lateral */
+    box-shadow: none;
+  }
+}
+
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  .step-indicator {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .btn-skip {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 0.9rem;
+    &:hover { color: var(--text-main); }
+  }
+}
+
+.text-wrapper {
+  margin-bottom: auto; /* Empuja el botón al fondo */
+  margin-top: 20px;
+  
+  @media (min-width: 1024px) {
+    margin-top: 0;
+    margin-bottom: 40px;
+  }
+}
+
+.dots-container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    
+    &.active {
+      width: 25px; /* Píldora estirada */
+      border-radius: 4px;
+    }
+  }
+}
+
+.text-content {
+  animation: fadeIn 0.5s ease-out;
+
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+    margin-bottom: 15px;
+    font-weight: 800;
+    color: var(--text-main);
+    
+    @media (min-width: 1024px) {
+      font-size: 2.5rem;
+    }
+  }
+
+  p {
+    font-size: 1rem;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+/* ===========================
+   BOTÓN PREMIUM
+   =========================== */
+.action-area {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.btn-main {
+  position: relative;
+  background-color: var(--dark-btn);
+  color: white;
+  border: none;
+  width: 100%;
+  max-width: 350px; /* Para que no sea gigante en PC */
+  padding: 18px;
+  border-radius: 50px; /* Píldora completa */
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: transform 0.2s ease;
+  z-index: 2;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  /* El brillo de color detrás del botón (Glow Effect) */
+  .btn-shadow {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    right: 20px;
+    bottom: -10px;
+    border-radius: 50px;
+    z-index: -1;
+    filter: blur(15px); /* Difumina el color */
+    opacity: 0.6;
+    transition: background-color 0.5s ease;
+  }
+}

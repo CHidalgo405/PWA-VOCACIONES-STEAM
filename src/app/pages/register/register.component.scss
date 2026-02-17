@@ -1,0 +1,196 @@
+/* --- Estilos Globales para Autenticación (Login/Registro) --- */
+
+/* Contenedor principal: En móvil ocupa todo, en PC centra el contenido */
+.auth-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centrado vertical */
+  align-items: center;     /* Centrado horizontal */
+  padding: 20px;
+  box-sizing: border-box; /* Importante para que el padding no rompa el ancho */
+  background-color: var(--bg-light);
+
+  /* RESPONSIVE: En pantallas grandes (Desktop/Tablet) añade un fondo decorativo */
+  @media (min-width: 768px) {
+    background: linear-gradient(135deg, rgba(7, 177, 201, 0.1) 0%, rgba(77, 176, 70, 0.1) 100%);
+  }
+}
+
+/* --- BOTONES PREMIUM STEAM --- */
+
+/* 1. Botón Principal (Gradiente y Glow) */
+.btn-primary {
+  position: relative;
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 50px; /* Píldora completa, más moderna */
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  z-index: 1;
+  
+  /* EL TRUCO DEL GRADIENTE ANIMADO */
+  background-size: 200% auto;
+  background-image: linear-gradient(to right, #07B1C9 0%, #4DB046 51%, #07B1C9 100%);
+  
+  /* Sombra inicial suave */
+  box-shadow: 0 4px 15px rgba(7, 177, 201, 0.3);
+
+  &:hover {
+    /* Al pasar el mouse, movemos el fondo para animar el gradiente */
+    background-position: right center; 
+    transform: translateY(-2px);
+    /* Intensificamos el brillo */
+    box-shadow: 0 8px 25px rgba(7, 177, 201, 0.5);
+  }
+
+  &:active {
+    transform: scale(0.98) translateY(0);
+    box-shadow: 0 4px 10px rgba(7, 177, 201, 0.3);
+  }
+}
+
+/* Variante para REGISTRO (Tonos Cálidos: Naranja/Rojo) */
+.btn-register-theme {
+  background-image: linear-gradient(to right, #F88718 0%, #E8372D 51%, #F88718 100%);
+  box-shadow: 0 4px 15px rgba(248, 135, 24, 0.3);
+
+  &:hover {
+    background-position: right center;
+    box-shadow: 0 8px 25px rgba(248, 135, 24, 0.5);
+  }
+}
+
+/* 2. Botones Sociales (Google / Apple / GitHub) */
+.social-btn-container {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.btn-social {
+  flex: 1; /* Para que ocupen el mismo ancho */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background-color: white;
+  border: 2px solid #F0F2F5;
+  border-radius: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  font-size: 0.95rem;
+
+  /* Icono dentro del botón */
+  img.social-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  &:hover {
+    border-color: #d1d5db;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background-color: #fafafa;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+/* La tarjeta del formulario */
+.auth-card {
+  width: 100%;
+  max-width: 400px; /* RESPONSIVE: Límite de ancho para que no se vea gigante en PC */
+  background-color: var(--white);
+  padding: 30px;
+  border-radius: 24px;
+  
+  /* Sombra suave para dar profundidad */
+  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+
+  /* Animación de entrada */
+  animation: slideUp 0.5s ease-out;
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+
+    h2 {
+      font-size: 1.8rem;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+    p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+  }
+}
+
+/* Estilos de los Inputs (Campos de texto) */
+.form-group {
+  margin-bottom: 20px;
+  position: relative;
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box; /* Clave para responsividad */
+
+    &:focus {
+      outline: none;
+      border-color: var(--steam-blue); /* Color Ciencia al enfocar */
+      box-shadow: 0 0 0 4px rgba(7, 177, 201, 0.1);
+    }
+  }
+}
+
+/* Botón de acción principal */
+.btn-block {
+  width: 100%;
+  display: block;
+  text-align: center;
+}
+
+/* Enlaces de texto (ej. "¿Olvidaste contraseña?") */
+.text-link {
+  color: var(--steam-blue);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

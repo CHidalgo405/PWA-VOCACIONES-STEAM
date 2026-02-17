@@ -1,0 +1,63 @@
+<div class="profile-container">
+  
+  <div class="profile-grid">
+    
+    <div class="identity-card">
+      <div class="avatar-wrapper">
+        <img [src]="user.avatar" alt="Avatar">
+        <span class="level-badge">Nvl {{ user.level }}</span>
+      </div>
+      <h2>{{ user.name }}</h2>
+      <p class="user-title">{{ user.title }}</p>
+      
+      <button class="btn-edit">Editar Perfil</button>
+    </div>
+
+    <div class="chart-card">
+      <h3>Tu ADN STEAM</h3>
+      <div class="chart-wrapper">
+        <canvas baseChart
+          [datasets]="radarChartDatasets"
+          [options]="radarChartOptions"
+          [labels]="radarChartLabels"
+          type="radar">
+        </canvas>
+      </div>
+    </div>
+
+    <div class="stats-column">
+      
+      <div class="badges-card">
+        <h3>Insignias</h3>
+        <div class="badges-grid">
+          <div class="badge-item" *ngFor="let badge of badges" [class.locked]="!badge.unlocked">
+            <div class="badge-icon">{{ badge.icon }}</div>
+            <span class="badge-name">{{ badge.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-list">
+        <div class="setting-item">
+          <span>🌙 Modo Oscuro</span>
+          <label class="switch">
+            <input type="checkbox">
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <span>🔔 Notificaciones</span>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <app-navbar></app-navbar>
+</div>

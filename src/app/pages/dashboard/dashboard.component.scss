@@ -1,0 +1,205 @@
+.dashboard-container {
+  padding: 20px;
+  max-width: 1200px; /* Ancho máximo en PC */
+  margin: 0 auto; /* Centrado en PC */
+  padding-bottom: 80px; /* Espacio para el Navbar fijo */
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* --- 1. Header --- */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+
+  .user-greeting {
+    .subtext { font-size: 0.9rem; color: var(--text-muted); }
+    h1 { margin: 0; font-size: 1.6rem; color: var(--text-dark); }
+  }
+
+  .user-avatar img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    cursor: pointer;
+  }
+}
+
+/* --- 2. Hero Card (Tarjeta Principal) --- */
+.cta-card {
+  background: linear-gradient(135deg, var(--steam-blue), #2980b9);
+  color: rgb(255, 255, 255);
+  border-radius: 24px;
+  padding: 25px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(7, 177, 201, 0.4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  /* Variante si ya hizo el test (color verde) */
+  &.test-done {
+    background: linear-gradient(135deg, var(--steam-green), #27ae60);
+    box-shadow: 0 10px 25px -5px rgba(77, 176, 70, 0.4);
+  }
+
+  .cta-content {
+    z-index: 2;
+    max-width: 65%;
+
+    .badge {
+      background: rgba(255,255,255,0.2);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    h2 { font-size: 1.4rem; margin: 10px 0; }
+    p { font-size: 0.9rem; margin-bottom: 15px; opacity: 0.9; }
+    
+    .btn-cta {
+      background: white;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      
+      &:active { transform: scale(0.95); }
+    }
+  }
+
+  .cta-image {
+    font-size: 5rem;
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    opacity: 0.8;
+    transform: rotate(-15deg);
+  }
+}
+
+/* --- 3. Scroll Horizontal (Categorías) --- */
+.scroll-section {
+  margin-top: 30px;
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    
+    h3 { margin: 0; font-size: 1.2rem; }
+    .see-all { color: var(--steam-blue); text-decoration: none; font-size: 0.9rem; }
+  }
+
+  .horizontal-scroll {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    /* Ocultar scrollbar pero permitir scroll */
+    scrollbar-width: none; 
+    &::-webkit-scrollbar { display: none; }
+
+    .category-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--white);
+      padding: 10px 15px;
+      border-radius: 15px;
+      min-width: 120px;
+      border: 1px solid transparent; /* Para el color dinámico */
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      cursor: pointer;
+      transition: transform 0.2s;
+
+      &:hover { transform: translateY(-3px); }
+
+      .cat-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+      .cat-name { font-weight: 600; font-size: 0.9rem; }
+    }
+  }
+}
+
+/* --- 4. Grid de Recomendaciones --- */
+.list-section {
+  margin-top: 30px;
+  h3 { margin-bottom: 15px; font-size: 1.2rem; }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Móvil: 1 columna */
+    gap: 15px;
+
+    /* RESPONSIVE TABLET/PC: 2 o 3 columnas */
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .content-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      background: var(--bg-light);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .card-info {
+      flex: 1;
+      h4 { margin: 0 0 5px 0; font-size: 1rem; color: var(--text-dark); }
+      p { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

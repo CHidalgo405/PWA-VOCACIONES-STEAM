@@ -1,1 +1,32 @@
-/* You can add global styles to this file, and also import other style files */
+/* src/styles.scss */
+:root {
+  --steam-blue: #07B1C9;
+  --steam-orange: #F88718;
+  --steam-green: #4DB046;
+  --steam-red: #E8372D;
+  
+  --dark-btn: #1a1a1a; /* Negro suave como la referencia */
+  --text-main: #222222;
+  --text-light: #888888;
+  --white: #ffffff;
+  --bg-app: #fdfdfd;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', 'Segoe UI', sans-serif; /* Recomiendo importar Poppins de Google Fonts si puedes */
+  background-color: var(--bg-app);
+}
+
+/* Animación de flotar para las imágenes */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Animación de entrada suave */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

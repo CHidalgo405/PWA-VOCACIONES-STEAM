@@ -1,0 +1,119 @@
+/* Contenedor que asegura que el nav esté siempre encima de todo */
+.navbar-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  pointer-events: none; /* Permite hacer clic en cosas a los lados del dock en PC */
+  display: flex;
+  justify-content: center;
+  padding-bottom: 0; /* En móvil va pegado */
+
+  /* TRANSICIÓN A PC (Escritorio) */
+  @media (min-width: 1024px) {
+    padding-bottom: 30px; /* Lo elevamos del suelo en PC */
+  }
+}
+
+/* El cuerpo del menú (La barra blanca) */
+.nav-dock {
+  pointer-events: auto; /* Reactivamos los clicks dentro del menú */
+  background: rgba(255, 255, 255, 0.85); /* Semitransparente */
+  backdrop-filter: blur(15px); /* Efecto cristal (Glassmorphism) */
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.05), 0 5px 15px rgba(0,0,0,0.05); /* Sombra suave arriba y abajo */
+  border-top: 1px solid rgba(255,255,255,0.5);
+  
+  /* DISEÑO MÓVIL (Por defecto) */
+  width: 100%;
+  height: 70px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 20px 20px 0 0; /* Curvas solo arriba */
+
+  /* DISEÑO PC (Floating Dock) */
+  @media (min-width: 1024px) {
+    width: auto; /* El ancho se adapta al contenido */
+    min-width: 400px; /* Pero con un mínimo para que no se vea chico */
+    height: 75px;
+    border-radius: 40px; /* Cápsula completa */
+    padding: 0 20px;
+    gap: 40px; /* Más espacio entre iconos */
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1); /* Sombra más fuerte para que flote */
+  }
+}
+
+/* Cada botón individual */
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--text-muted, #9CA3AF); /* Color gris desactivado */
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: relative;
+  padding: 5px 20px; /* Área táctil más grande */
+  border-radius: 20px;
+
+  /* Icono */
+  .icon-box {
+    font-size: 1.6rem;
+    margin-bottom: 2px;
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Círculo de fondo */
+  }
+
+  /* Texto */
+  .label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    opacity: 0.8;
+  }
+
+  /* --- ESTADO HOVER (PC) --- */
+  &:hover {
+    color: var(--steam-blue, #07B1C9);
+    background-color: rgba(7, 177, 201, 0.05); /* Fondo azul muy sutil al pasar mouse */
+    
+    .icon-box {
+      transform: translateY(-3px);
+    }
+  }
+
+  /* --- ESTADO ACTIVO (Seleccionado) --- */
+  &.active {
+    color: var(--steam-blue, #07B1C9);
+
+    .icon-box {
+      /* Aquí hacemos que el icono tenga un fondo de color suave */
+      background-color: rgba(7, 177, 201, 0.15); 
+      transform: translateY(-5px); /* Salta hacia arriba */
+      box-shadow: 0 4px 10px rgba(7, 177, 201, 0.2);
+    }
+
+    .label {
+      font-weight: 800;
+      opacity: 1;
+    }
+
+    /* Punto indicador debajo (Opcional, muy estético) */
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 5px;
+      width: 4px;
+      height: 4px;
+      background-color: var(--steam-blue, #07B1C9);
+      border-radius: 50%;
+      opacity: 1;
+    }
+  }
+}
