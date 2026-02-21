@@ -1,0 +1,97 @@
+<app-admin-sidebar></app-admin-sidebar>
+
+<div class="admin-layout-content">
+  
+  <header class="dashboard-header">
+    <div>
+      <h1>Resumen del Sistema</h1>
+      <p>Métricas principales de STEAM Vocations.</p>
+    </div>
+    <button class="btn-export">📥 Exportar PDF</button>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi-card" *ngFor="let kpi of kpis">
+      <div class="kpi-header">
+        <span class="kpi-icon" [style.background-color]="kpi.color + '20'">{{ kpi.icon }}</span>
+        <span class="kpi-trend" [style.color]="kpi.color">{{ kpi.trend }}</span>
+      </div>
+      <h3 class="kpi-value">{{ kpi.value }}</h3>
+      <p class="kpi-title">{{ kpi.title }}</p>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    
+    <div class="chart-card">
+      <h2>Distribución de Perfiles</h2>
+      <div class="chart-wrapper">
+        <canvas baseChart
+          [labels]="doughnutChartLabels"
+          [datasets]="doughnutChartDatasets"
+          [options]="doughnutChartOptions"
+          [legend]="true"
+          type="doughnut">
+        </canvas>
+      </div>
+    </div>
+
+    <div class="alerts-card">
+      <h2>Alertas del Sistema</h2>
+      <ul class="alerts-list">
+        <li class="alert-item warning">
+          <span class="icon">⚠️</span> Base de datos al 85% de capacidad.
+        </li>
+        <li class="alert-item success">
+          <span class="icon">✅</span> Sincronización de IA completada con éxito.
+        </li>
+        <li class="alert-item info">
+          <span class="icon">ℹ️</span> 15 nuevos usuarios requieren verificación.
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <h2>Últimos Tests Realizados</h2>
+      <a href="#" class="view-all">Ver todos</a>
+    </div>
+    
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Institución</th>
+            <th>Perfil STEAM</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of recentUsers">
+            <td>
+              <div class="user-info">
+                <div class="user-avatar">{{ user.name.charAt(0) }}</div>
+                <div>
+                  <strong>{{ user.name }}</strong>
+                  <span class="email">{{ user.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td>{{ user.institution }}</td>
+            <td><span class="badge" [ngClass]="user.profile | lowercase">{{ user.profile }}</span></td>
+            <td>{{ user.date }}</td>
+            <td>
+              <span class="status-dot" [class.done]="user.status === 'Completado'"></span>
+              {{ user.status }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,141 @@
+<app-admin-sidebar></app-admin-sidebar>
+
+<div class="admin-layout-content">
+  
+  <header class="page-header">
+    <div>
+      <h1>Banco de Preguntas</h1>
+      <p>Diseña y balancea el Test Vocacional STEAM.</p>
+    </div>
+    <button class="btn-primary" (click)="openModal('create')">+ Añadir Pregunta</button>
+  </header>
+
+  <div class="balance-panel">
+    <h3>Balance del Test (Activas)</h3>
+    <div class="balance-grid">
+      <div class="balance-card ciencia">
+        <span class="icon">⚛️</span>
+        <div class="info"><strong>{{ getCount('Ciencia') }}</strong> Ciencia</div>
+      </div>
+      <div class="balance-card tecnologia">
+        <span class="icon">💻</span>
+        <div class="info"><strong>{{ getCount('Tecnología') }}</strong> Tecnología</div>
+      </div>
+      <div class="balance-card ingenieria">
+        <span class="icon">⚙️</span>
+        <div class="info"><strong>{{ getCount('Ingeniería') }}</strong> Ingeniería</div>
+      </div>
+      <div class="balance-card artes">
+        <span class="icon">🎨</span>
+        <div class="info"><strong>{{ getCount('Artes') }}</strong> Artes</div>
+      </div>
+      <div class="balance-card matematicas">
+        <span class="icon">📐</span>
+        <div class="info"><strong>{{ getCount('Matemáticas') }}</strong> Matemáticas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    
+    <div class="toolbar">
+      <h2 *ngIf="!selectedQuestion">Preguntas Configuradas</h2>
+
+      <div class="action-bar" *ngIf="selectedQuestion">
+        <span class="selection-count">Pregunta #{{ selectedQuestion.id }} seleccionada</span>
+        <div class="action-buttons">
+          <button class="btn-action edit" (click)="openModal('edit')">✏️ Editar</button>
+          <button class="btn-action delete" (click)="deleteQuestion()">🗑️ Eliminar</button>
+          <button class="btn-action close" (click)="selectQuestion(selectedQuestion)">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50%;">Pregunta</th>
+            <th>Ponderación Principal</th>
+            <th>Secundaria</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let q of questions" 
+              (click)="selectQuestion(q)" 
+              [class.selected]="selectedQuestion?.id === q.id"
+              [class.inactive-row]="q.status === 'Inactivo'">
+            
+            <td class="question-text">{{ q.text }}</td>
+            <td><span class="badge" [ngClass]="q.category | lowercase">{{ q.category }}</span></td>
+            <td>
+              <span *ngIf="q.secondary !== 'Ninguna'" class="badge secondary">{{ q.secondary }}</span>
+              <span *ngIf="q.secondary === 'Ninguna'" class="text-muted">-</span>
+            </td>
+            <td>
+              <span class="status-dot" [class.active]="q.status === 'Activo'"></span>
+              {{ q.status }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" *ngIf="isModalOpen">
+  <div class="modal-box">
+    
+    <div class="modal-header">
+      <h2>{{ modalMode === 'create' ? 'Nueva Pregunta' : 'Editar Pregunta' }}</h2>
+      <button class="btn-close-modal" (click)="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <form (ngSubmit)="saveQuestion()" #testNgForm="ngForm">
+        
+        <div class="form-grid-test">
+          
+          <div class="input-group full-width">
+            <label>Texto de la Pregunta</label>
+            <textarea name="text" [(ngModel)]="questionForm.text" rows="3" placeholder="Ej: ¿Te gusta armar robots?" required></textarea>
+          </div>
+          
+          <div class="input-group">
+            <label>Categoría Principal (Suma +2 pts)</label>
+            <select name="category" [(ngModel)]="questionForm.category" required>
+              <option *ngFor="let cat of categories" [value]="cat" [disabled]="cat === 'Ninguna'">{{ cat }}</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label>Categoría Secundaria (Suma +1 pt)</label>
+            <select name="secondary" [(ngModel)]="questionForm.secondary">
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
+
+          <div class="input-group full-width" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+            <label class="switch">
+              <input type="checkbox" name="status" [checked]="questionForm.status === 'Activo'" 
+                     (change)="questionForm.status = questionForm.status === 'Activo' ? 'Inactivo' : 'Activo'">
+              <span class="slider round"></span>
+            </label>
+            <span style="font-weight: 600; color: #2C3E50;">
+              {{ questionForm.status === 'Activo' ? 'Pregunta Activa (Visible en el test)' : 'Pregunta Inactiva (Oculta)' }}
+            </span>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="!testNgForm.valid">Guardar Pregunta</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>

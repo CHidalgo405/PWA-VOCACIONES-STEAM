@@ -1,0 +1,105 @@
+/* --- IMPORTAMOS ESTILOS BASE DEL CRUD DE USUARIOS --- */
+/* (Asumiendo que los pones en un archivo global o los copias, aquí te pongo los específicos de esta vista) */
+
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+h1 { margin: 0; font-size: 1.8rem; color: #2C3E50; }
+p { margin: 5px 0 0; color: #7F8C8D; }
+.btn-primary { background: var(--steam-blue, #07B1C9); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; &:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(7,177,201,0.3); } &:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; } }
+.btn-secondary { background: white; color: #2C3E50; border: 1px solid #ddd; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; &:hover { background: #f5f5f5; } }
+
+/* =========================================
+   PANEL DE BALANCE (Exclusivo de Test)
+   ========================================= */
+.balance-panel {
+  margin-bottom: 30px;
+  h3 { font-size: 1rem; color: #7F8C8D; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  .balance-grid {
+    display: flex; gap: 15px; flex-wrap: wrap;
+    
+    .balance-card {
+      flex: 1; min-width: 140px;
+      background: white; border-radius: 15px; padding: 15px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f0f0f0;
+      transition: transform 0.2s;
+      
+      &:hover { transform: translateY(-3px); }
+      .icon { font-size: 1.5rem; }
+      .info { font-size: 0.9rem; color: #2C3E50; strong { font-size: 1.2rem; display: block; } }
+
+      /* Colores STEAM basados en tus imágenes */
+      &.ciencia { border-bottom: 3px solid #07B1C9; }
+      &.tecnologia { border-bottom: 3px solid #10b981; } // Verde esmeralda
+      &.ingenieria { border-bottom: 3px solid #4DB046; }
+      &.artes { border-bottom: 3px solid #F88718; }
+      &.matematicas { border-bottom: 3px solid #E8372D; }
+    }
+  }
+}
+
+/* =========================================
+   TABLA DE PREGUNTAS
+   ========================================= */
+.table-card { background: white; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.03); overflow: hidden; }
+.toolbar { padding: 20px 25px; border-bottom: 1px solid #f0f0f0; min-height: 70px; display: flex; align-items: center; h2 { margin: 0; font-size: 1.2rem; color: #2C3E50; } }
+
+/* Action Bar Dinámica */
+.action-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; background: rgba(7, 177, 201, 0.05); padding: 10px 15px; border-radius: 10px; border: 1px dashed var(--steam-blue); animation: fadeIn 0.3s ease; .selection-count { font-weight: 600; color: var(--steam-blue); font-size: 0.95rem; } .action-buttons { display: flex; gap: 10px; .btn-action { background: white; border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #2C3E50; &:hover { border-color: #bbb; } &.edit:hover { border-color: var(--steam-blue); color: var(--steam-blue); } &.delete:hover { border-color: #e74c3c; color: #e74c3c; } &.close { border: none; background: transparent; font-size: 1.2rem; padding: 0 5px; } } } }
+
+.table-responsive { width: 100%; overflow-x: auto; table { width: 100%; border-collapse: collapse; text-align: left; th { padding: 15px 25px; font-size: 0.85rem; color: #7F8C8D; border-bottom: 2px solid #f0f0f0; } td { padding: 15px 25px; font-size: 0.95rem; border-bottom: 1px solid #f0f0f0; cursor: pointer; } 
+    tr:hover td { background: #f9fafb; }
+    tr.selected td { background: rgba(7, 177, 201, 0.05); }
+    tr.selected td:first-child { border-left: 4px solid var(--steam-blue); }
+    
+    /* Efecto para filas inactivas (opacidad bajada) */
+    tr.inactive-row td { opacity: 0.5; }
+    
+    .question-text { font-weight: 500; color: #2C3E50; line-height: 1.4; }
+
+    /* BADGES DE COLORES STEAM */
+    .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      &.ciencia { background: rgba(7, 177, 201, 0.15); color: #07B1C9; }
+      &.tecnología { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+      &.ingeniería { background: rgba(77, 176, 70, 0.15); color: #4DB046; }
+      &.artes { background: rgba(248, 135, 24, 0.15); color: #F88718; }
+      &.matemáticas { background: rgba(232, 55, 45, 0.15); color: #E8372D; }
+      &.secondary { background: #f0f0f0; color: #7F8C8D; } /* Gris para secundarios */
+    }
+    
+    .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e74c3c; margin-right: 6px; &.active { background: #2ecc71; } }
+  }
+}
+
+/* =========================================
+   MODAL Y FORMULARIO GRID (TEST)
+   ========================================= */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+.modal-box { background: white; width: 100%; max-width: 650px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s ease-out; margin: 20px; }
+.modal-header { padding: 25px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; h2 { margin: 0; font-size: 1.4rem; color: #2C3E50; } .btn-close-modal { background: none; border: none; font-size: 1.5rem; color: #aaa; cursor: pointer; &:hover{ color: #333; } } }
+.modal-body { padding: 25px; }
+.modal-footer { padding-top: 25px; display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid #f0f0f0; margin-top: 10px; }
+
+.form-grid-test {
+  display: grid; gap: 20px;
+  grid-template-columns: 1fr;
+  @media (min-width: 768px) { grid-template-columns: 1fr 1fr; }
+}
+.full-width { grid-column: 1 / -1; }
+
+.input-group {
+  display: flex; flex-direction: column;
+  label { font-size: 0.85rem; color: #7F8C8D; margin-bottom: 8px; font-weight: 500; }
+  
+  textarea, select {
+    width: 100%; padding: 12px 15px; border: 1px solid #D1D5DB; border-radius: 10px;
+    font-size: 0.95rem; outline: none; transition: 0.3s; box-sizing: border-box; font-family: inherit;
+    &:focus { border-color: var(--steam-blue); box-shadow: 0 0 0 3px rgba(7,177,201,0.1); }
+  }
+  textarea { resize: vertical; min-height: 80px; }
+}
+
+/* TOGGLE SWITCH PARA ESTADO */
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; input { opacity: 0; width: 0; height: 0; } .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; &:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; } } input:checked + .slider { background-color: #2ecc71; } input:checked + .slider:before { transform: translateX(20px); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }

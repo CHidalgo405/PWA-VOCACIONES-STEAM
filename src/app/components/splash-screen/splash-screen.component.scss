@@ -1,0 +1,120 @@
+/* --- CONTENEDOR PRINCIPAL --- */
+.splash-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #FDFDFD; /* Fondo muy limpio como tu imagen */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Asegura que cubra TODA la app */
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+
+  &.fade-out {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* --- ANIMACIÓN DEL ÁTOMO (ÓRBITAS) --- */
+.spinner-box {
+  width: 250px;
+  height: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.leo {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+
+/* Colores STEAM exactos */
+.steam-blue-orbit {
+  width: 165px;
+  height: 165px;
+  border: 2px solid rgba(7, 177, 201, 0.6); /* #07B1C9 */
+  animation: spin3D 3s linear 0s infinite;
+}
+
+.steam-green-orbit {
+  width: 135px;
+  height: 135px;
+  border: 2px solid rgba(77, 176, 70, 0.6); /* #4DB046 */
+  animation: spin3D 2.5s linear 0.2s infinite;
+}
+
+.steam-orange-orbit {
+  width: 105px;
+  height: 105px;
+  border: 2px solid rgba(248, 135, 24, 0.6); /* #F88718 */
+  animation: spin3D 2s linear 0.4s infinite;
+}
+
+.steam-red-orbit {
+  width: 75px;
+  height: 75px;
+  border: 2px solid rgba(232, 55, 45, 0.6); /* #E8372D */
+  animation: spin3D 1.5s linear 0.6s infinite;
+}
+
+/* El punto brillante en el centro */
+.core-dot {
+  width: 16px;
+  height: 16px;
+  background-color: #07B1C9;
+  border-radius: 50%;
+  box-shadow: 0 0 20px 5px rgba(7, 177, 201, 0.4);
+  animation: pulseCore 1.5s ease-in-out infinite alternate;
+}
+
+/* --- TEXTO DE LA MARCA --- */
+.brand-container {
+  text-align: center;
+  animation: floatText 3s ease-in-out infinite alternate;
+}
+
+.brand-title {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: 4px;
+  margin: 0;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.brand-subtitle {
+  font-size: 1rem;
+  color: #7F8C8D;
+  margin-top: 10px;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+/* --- KEYFRAMES --- */
+@keyframes spin3D {
+  from {
+    transform: rotate3d(0.5, 0.5, 0.5, 360deg);
+  }
+  to {
+    transform: rotate3d(0deg, 0deg, 0deg, 0deg); /* Corrección para rotación suave */
+  }
+}
+
+@keyframes pulseCore {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 30px 10px rgba(7, 177, 201, 0.6); }
+}
+
+@keyframes floatText {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-5px); }
+}

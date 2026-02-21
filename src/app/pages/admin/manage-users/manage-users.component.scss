@@ -1,0 +1,139 @@
+/* --- HEADER DE LA PÁGINA --- */
+.page-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
+  h1 { margin: 0; font-size: 1.8rem; color: #2C3E50; }
+  p { margin: 5px 0 0; color: #7F8C8D; }
+}
+
+.btn-primary {
+  background: var(--steam-blue, #07B1C9); color: white; border: none; padding: 12px 24px;
+  border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s;
+  &:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(7,177,201,0.3); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+}
+.btn-secondary {
+  background: white; color: #2C3E50; border: 1px solid #ddd; padding: 12px 24px;
+  border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s;
+  &:hover { background: #f5f5f5; }
+}
+
+/* --- TABLA Y BARRA DE ACCIONES DINÁMICA --- */
+.table-card {
+  background: white; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.03); overflow: hidden;
+}
+
+.toolbar {
+  padding: 20px 25px; border-bottom: 1px solid #f0f0f0; min-height: 70px;
+  display: flex; align-items: center;
+  h2 { margin: 0; font-size: 1.2rem; color: #2C3E50; }
+}
+
+/* La barra que aparece al seleccionar (Estilo MacOS/Windows) */
+.action-bar {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  background: rgba(7, 177, 201, 0.05); /* Fondo azul sutil */
+  padding: 10px 15px; border-radius: 10px; border: 1px dashed var(--steam-blue);
+  animation: fadeIn 0.3s ease;
+
+  .selection-count { font-weight: 600; color: var(--steam-blue); font-size: 0.95rem; }
+  
+  .action-buttons {
+    display: flex; gap: 10px;
+    .btn-action {
+      background: white; border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; color: #2C3E50;
+      &:hover { border-color: #bbb; }
+      &.edit:hover { border-color: var(--steam-blue); color: var(--steam-blue); }
+      &.delete:hover { border-color: #e74c3c; color: #e74c3c; }
+      &.close { border: none; background: transparent; font-size: 1.2rem; padding: 0 5px; }
+    }
+  }
+}
+
+.table-responsive {
+  width: 100%; overflow-x: auto;
+  table {
+    width: 100%; border-collapse: collapse; text-align: left;
+    th { padding: 15px 25px; font-size: 0.85rem; color: #7F8C8D; border-bottom: 2px solid #f0f0f0; }
+    td { padding: 15px 25px; font-size: 0.95rem; border-bottom: 1px solid #f0f0f0; transition: background 0.2s; cursor: pointer; }
+    
+    /* EFECTO DE SELECCIÓN DE FILA (Highlight) */
+    tr:hover td { background: #f9fafb; }
+    tr.selected td {
+      background: rgba(7, 177, 201, 0.05); /* Fondo resaltado */
+    }
+    tr.selected td:first-child {
+      border-left: 4px solid var(--steam-blue); /* Borde indicador a la izquierda */
+    }
+
+    .role-badge { background: #f0f0f0; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+    .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e74c3c; margin-right: 6px; &.active { background: #2ecc71; } }
+  }
+}
+
+
+/* =========================================
+   ESTILOS DEL MODAL Y FORMULARIO (GRID)
+   ========================================= */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  display: flex; justify-content: center; align-items: center; z-index: 9999;
+}
+
+.modal-box {
+  background: white; width: 100%; max-width: 650px; /* Ancho para que el grid respire */
+  border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s ease-out; margin: 20px;
+}
+
+.modal-header {
+  padding: 25px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center;
+  h2 { margin: 0; font-size: 1.4rem; color: #2C3E50; }
+  .btn-close-modal { background: none; border: none; font-size: 1.5rem; color: #aaa; cursor: pointer; &:hover{ color: #333; } }
+}
+
+.modal-body { padding: 25px; }
+.modal-footer { padding-top: 25px; display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid #f0f0f0; margin-top: 10px; }
+
+/* LA MAGIA DEL GRID PARA EL FORMULARIO */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Móvil: Todo en 1 columna apilada */
+  gap: 20px;
+
+  /* PC: 2 Columnas */
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Campos que siempre ocupan todo el ancho (ej. Email) */
+.full-width { grid-column: 1 / -1; }
+
+.input-group {
+  display: flex; flex-direction: column;
+  label { font-size: 0.85rem; color: #7F8C8D; margin-bottom: 8px; font-weight: 500; }
+  
+  input {
+    width: 100%; padding: 12px 15px; border: 1px solid #D1D5DB; border-radius: 10px;
+    font-size: 0.95rem; outline: none; transition: 0.3s; box-sizing: border-box;
+    &:focus { border-color: var(--steam-blue); box-shadow: 0 0 0 3px rgba(7,177,201,0.1); }
+  }
+
+  /* Contenedor del ojo de contraseña */
+  .input-with-icon {
+    position: relative;
+    .icon-eye { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; filter: grayscale(1); opacity: 0.6; }
+  }
+
+  /* Las barritas de fuerza de contraseña de tu imagen */
+  .password-strength {
+    display: flex; align-items: center; gap: 4px; margin-top: 8px;
+    .strength-bar { height: 4px; width: 30px; background: #e0e0e0; border-radius: 2px; transition: 0.3s; &.active { background: #4DB046; } }
+    .strength-text { font-size: 0.75rem; color: #aaa; margin-left: 5px; }
+  }
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }

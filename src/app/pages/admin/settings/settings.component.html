@@ -1,0 +1,122 @@
+<app-admin-sidebar></app-admin-sidebar>
+
+<div class="admin-layout-content">
+  
+  <header class="page-header">
+    <div>
+      <h1>Configuración del Sistema</h1>
+      <p>Ajustes globales, integraciones y mantenimiento.</p>
+    </div>
+    <button class="btn-primary" (click)="saveSettings()">💾 Guardar Cambios</button>
+  </header>
+
+  <div class="toast-success" [class.show]="showSuccessToast">
+    ✅ ¡Configuración guardada exitosamente!
+  </div>
+
+  <div class="settings-grid">
+    
+    <div class="settings-card">
+      <div class="card-header">
+        <span class="icon">🏢</span>
+        <h2>General</h2>
+      </div>
+      <div class="card-body">
+        
+        <div class="input-group">
+          <label>Nombre de la Aplicación</label>
+          <input type="text" [(ngModel)]="settings.appName">
+        </div>
+
+        <div class="input-group">
+          <label>Correo de Soporte Técnico</label>
+          <input type="email" [(ngModel)]="settings.supportEmail">
+        </div>
+
+        <div class="input-group">
+          <label>Zona Horaria del Sistema</label>
+          <select [(ngModel)]="settings.timezone">
+            <option value="America/Mexico_City">Ciudad de México / Centro (UTC-6)</option>
+            <option value="America/Cancun">Cancún / Este (UTC-5)</option>
+            <option value="America/Tijuana">Tijuana / Pacífico (UTC-8)</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <div class="card-header">
+        <span class="icon">🧠</span>
+        <h2>Motor de Inteligencia Artificial</h2>
+      </div>
+      <div class="card-body">
+        
+        <div class="input-group">
+          <label>Proveedor de IA</label>
+          <select [(ngModel)]="settings.aiProvider">
+            <option value="gemini">Google Gemini Pro</option>
+            <option value="openai">OpenAI GPT-4</option>
+            <option value="claude">Anthropic Claude</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>API Key (Secreta)</label>
+          <input type="password" [(ngModel)]="settings.apiKey" placeholder="Ingresa tu clave de API">
+          <small class="help-text">Nunca compartas esta clave. Se encriptará en la base de datos.</small>
+        </div>
+
+        <div class="input-group">
+          <label>Temperatura (Creatividad): {{ settings.aiTemperature }}</label>
+          <div class="range-slider-container">
+            <span>0.0 (Preciso)</span>
+            <input type="range" min="0" max="1" step="0.1" [(ngModel)]="settings.aiTemperature">
+            <span>1.0 (Creativo)</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="settings-card full-width-card">
+      <div class="card-header">
+        <span class="icon">🛡️</span>
+        <h2>Sistema y Mantenimiento</h2>
+      </div>
+      <div class="card-body system-toggles">
+        
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <strong>Permitir Nuevos Registros</strong>
+            <p>Si se desactiva, nadie podrá crear cuentas nuevas desde la app.</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="settings.enableSignups">
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row warning-row">
+          <div class="toggle-info">
+            <strong>Modo Mantenimiento</strong>
+            <p>Bloquea el acceso a todos los estudiantes mostrando una pantalla de "Regresamos pronto".</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="settings.maintenanceMode">
+            <span class="slider round warning-slider"></span>
+          </label>
+        </div>
+
+        <div class="danger-zone">
+          <h3>Zona de Peligro</h3>
+          <p>Estas acciones no se pueden deshacer fácilmente.</p>
+          <button class="btn-danger-outline" (click)="clearCache()">🗑️ Limpiar Caché del Sistema</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>

@@ -1,6 +1,6 @@
 <div class="auth-container">
   <div class="auth-card">
-    
+
     <div class="auth-header">
       <div style="font-size: 3rem; margin-bottom: 10px;">👋</div>
       <h2>¡Hola de nuevo!</h2>
@@ -10,12 +10,12 @@
     <form>
       <div class="form-group">
         <label for="email">Correo Electrónico</label>
-        <input type="email" id="email" placeholder="ejemplo@estudiante.com" required>
+        <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="ejemplo@estudiante.com" required>
       </div>
 
       <div class="form-group">
         <label for="password">Contraseña</label>
-        <input type="password" id="password" placeholder="••••••••" required>
+        <input type="password" id="password" name="password" [(ngModel)]="password" placeholder="••••••••" required>
         <div style="text-align: right; margin-top: 5px;">
           <a routerLink="/forgot-password" class="text-link" style="font-size: 0.8rem;">¿Olvidaste tu contraseña?</a>
         </div>
@@ -27,17 +27,18 @@
 
       <div style="display: flex; align-items: center; margin: 30px 0;">
         <div style="flex: 1; height: 1px; background: #E0E0E0;"></div>
-        <span style="padding: 0 15px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">O continúa con</span>
+        <span style="padding: 0 15px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">O continúa
+          con</span>
         <div style="flex: 1; height: 1px; background: #E0E0E0;"></div>
       </div>
 
       <div class="social-btn-container">
-        
+
         <button type="button" class="btn-social">
           <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="social-icon" alt="G">
           Google
         </button>
-        
+
         <button type="button" class="btn-social">
           <img src="https://www.svgrepo.com/show/511330/apple-173.svg" class="social-icon" alt="A">
           Apple
@@ -49,7 +50,7 @@
 
     <div style="text-align: center; margin-top: 30px;">
       <p style="font-size: 0.9rem; color: var(--text-muted);">
-        ¿No tienes cuenta? 
+        ¿No tienes cuenta?
         <a routerLink="/register" class="text-link">Regístrate</a>
       </p>
     </div>

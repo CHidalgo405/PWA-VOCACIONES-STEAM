@@ -1,0 +1,121 @@
+<app-admin-sidebar></app-admin-sidebar>
+
+<div class="admin-layout-content">
+  
+  <header class="page-header">
+    <div>
+      <h1>Monitoreo de IA</h1>
+      <p>Supervisa las recomendaciones generadas por inteligencia artificial.</p>
+    </div>
+    <div class="api-status-badge">
+      <span class="pulse-dot"></span>
+      API {{ apiHealth.status }}
+    </div>
+  </header>
+
+  <div class="health-grid">
+    <div class="health-card">
+      <span class="label">Tasa de Éxito</span>
+      <span class="value success">{{ apiHealth.successRate }}</span>
+    </div>
+    <div class="health-card">
+      <span class="label">Latencia Promedio</span>
+      <span class="value">{{ apiHealth.latency }}</span>
+    </div>
+    <div class="health-card">
+      <span class="label">Tokens Consumidos</span>
+      <span class="value">{{ apiHealth.tokensUsed }}</span>
+    </div>
+  </div>
+
+  <div class="table-card">
+    
+    <div class="toolbar">
+      <h2 *ngIf="!selectedLog">Últimas Consultas</h2>
+
+      <div class="action-bar" *ngIf="selectedLog">
+        <span class="selection-count">Log {{ selectedLog.id }} seleccionado</span>
+        <div class="action-buttons">
+          <button class="btn-action edit" (click)="viewDetails()">👁️ Ver Detalles Raw</button>
+          <button class="btn-action close" (click)="selectLog(selectedLog)">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>ID / Fecha</th>
+            <th>Estudiante</th>
+            <th>Perfil Detectado</th>
+            <th>Latencia</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of logs" 
+              (click)="selectLog(log)" 
+              [class.selected]="selectedLog?.id === log.id">
+            
+            <td>
+              <strong>{{ log.id }}</strong><br>
+              <span class="text-muted" style="font-size: 0.8rem;">{{ log.date }}</span>
+            </td>
+            <td>{{ log.user }}</td>
+            <td><span class="role-badge">{{ log.profile }}</span></td>
+            <td><span class="latency-badge">{{ log.latency }}</span></td>
+            <td>
+              <span class="status-dot" [class.active]="log.status === 'Éxito'" [class.error]="log.status === 'Error'"></span>
+              {{ log.status }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" *ngIf="isModalOpen">
+  <div class="modal-box modal-large">
+    
+    <div class="modal-header">
+      <h2>Detalles de la Consulta: {{ selectedLog?.id }}</h2>
+      <button class="btn-close-modal" (click)="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      
+      <div class="log-meta">
+        <p><strong>Usuario:</strong> {{ selectedLog?.user }}</p>
+        <p><strong>Fecha:</strong> {{ selectedLog?.date }}</p>
+        <p><strong>Estado:</strong> 
+          <span [style.color]="selectedLog?.status === 'Éxito' ? '#2ecc71' : '#e74c3c'">
+            {{ selectedLog?.status }}
+          </span>
+        </p>
+      </div>
+
+      <div class="code-section">
+        <label>Prompt Enviado (Input)</label>
+        <div class="terminal-block">
+          <code>{{ selectedLog?.prompt }}</code>
+        </div>
+      </div>
+
+      <div class="code-section" style="margin-top: 20px;">
+        <label>Respuesta de la IA (Output Raw)</label>
+        <div class="terminal-block json-block" [class.error-block]="selectedLog?.status === 'Error'">
+          <pre><code>{{ selectedLog?.response }}</code></pre>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeModal()">Cerrar</button>
+    </div>
+
+  </div>
+</div>

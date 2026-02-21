@@ -30,3 +30,17 @@ body {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* --- CLASE ENVOLTORIO PARA EL PANEL ADMIN --- */
+.admin-layout-content {
+  min-height: 100vh;
+  background-color: var(--bg-light, #F4F6F8);
+  padding: 20px;
+  padding-top: 70px; /* Espacio arriba en móvil para el botón hamburguesa */
+
+  /* En PC empujamos el contenido a la derecha para dar espacio al Sidebar */
+  @media (min-width: 1024px) {
+    margin-left: 260px; /* Mismo ancho del sidebar */
+    padding: 40px; /* Más aire en PC */
+  }
+}
