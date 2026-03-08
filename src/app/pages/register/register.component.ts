@@ -32,36 +32,30 @@ export class RegisterComponent {
   }
 
   async enviarPruebaResend(email: string, codigo: string) {
-    const resendApiUrl = '/resend-api/emails';
-    const apiKey = 're_2YYoPemz_cpR9Qs5yjFA6rBoEognERb51'; // ⚠️ Solo para pruebas locales
-
     try {
-      const response = await fetch(resendApiUrl, {
+      const response = await fetch('/api/send-otp', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          from: 'STEAM Vocations <onboarding@resend.dev>',
-          // ⚠️ SOLO PARA PRUEBAS: Resend requiere enviar al correo registrado si no tienes dominio verificado.
-          // Cambiaremos 'email' (el del input) por tu correo de sandbox.
-          to: ['vocaciones.steam0@gmail.com'],
-          subject: 'Tu Código de Verificación',
-          html: `<strong>Tu código es: ${codigo}</strong> (Enviado a: ${email})`
-        })
+        body: JSON.stringify({ email, codigo })
       });
 
       if (response.ok) {
         localStorage.setItem('temp_otp', codigo);
         this.isVerificationStep = true;
       } else {
-        console.error('Error en Resend:', await response.text());
-        alert('No se pudo enviar el correo de prueba. Revisa la consola para más detalles.');
+        let errorMessage = 'No se pudo enviar el correo de prueba.';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) { }
+        console.error('Error en el servidor de OTP:', errorMessage);
+        alert('No se pudo enviar el código al correo. Revisa la consola para más detalles.');
       }
     } catch (error) {
       console.error('Error enviando correo:', error);
-      alert('No se pudo enviar el correo de prueba.');
+      alert('Hubo un problema de red al intentar enviar el correo de prueba.');
     }
   }
 
