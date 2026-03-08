@@ -34,11 +34,6 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-        // ⚠️ ATENCIÓN: Como usas Resend gratis sin dominio propio verificado,
-        // SOLO puedes enviar correos a la cuenta con la que te registraste en Resend.
-        // Si intentas enviar a un correo de un tercero, Resend arroja un Error 403.
-        // Para que NUNCA ruede tu app en pruebas, forzamos tu correo permitido aquí
-        // o puedes descomentar e intentar enviar al 'email' real si compraras un dominio.
         const destinationEmail = 'vocaciones.steam0@gmail.com';
 
         const { data, error } = await resend.emails.send({
