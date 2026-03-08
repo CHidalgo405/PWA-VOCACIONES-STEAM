@@ -1,9 +1,9 @@
-import { Resend } from 'resend';
+const { Resend } = require('resend');
 
 // Vercel leerá la llave desde sus variables de entorno automáticamente
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // Configuración de CORS por si es necesario
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
