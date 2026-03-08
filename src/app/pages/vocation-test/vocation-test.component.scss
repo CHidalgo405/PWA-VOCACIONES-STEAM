@@ -1,5 +1,5 @@
+@use 'sass:color';
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-
 $primary: #07B1C9;
 $primary-hover: #069ba8;
 $text-main: #222222;
@@ -373,7 +373,7 @@ $danger: #E8372D;
     transition: all 0.2s;
 
     &:hover {
-        background: darken($danger, 10%);
+        background: color.adjust($danger, $lightness: -10%);
         transform: translateY(-2px);
     }
 }

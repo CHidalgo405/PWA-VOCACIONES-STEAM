@@ -31,28 +31,19 @@
   <section class="scroll-section">
     <div class="section-header">
       <h3>Áreas STEAM</h3>
-      <a href="#" class="see-all">Ver todas</a>
+      <p class="section-subtitle">Explora los diferentes campos del futuro</p>
     </div>
 
     <div class="horizontal-scroll">
-      <div class="category-pill" *ngFor="let cat of categories" [style.border-color]="cat.color">
-        <span class="cat-icon" [style.background-color]="cat.color + '20'">{{ cat.icon }}</span>
-        <span class="cat-name">{{ cat.name }}</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="list-section">
-    <h3>Recomendado para ti</h3>
-
-    <div class="cards-grid">
-      <div class="content-card" *ngFor="let course of recommendedCourses">
-        <div class="card-icon">{{ course.image }}</div>
-        <div class="card-info">
-          <h4>{{ course.title }}</h4>
-          <p>{{ course.provider }} • {{ course.time }}</p>
+      <div class="category-card" *ngFor="let cat of categories" [style.border-color]="cat.color"
+        (click)="openAreaModal(cat)">
+        <div class="card-bg-glow" [style.background-color]="cat.color"></div>
+        <span class="cat-icon" [style.background-color]="cat.color + '20'" [style.color]="cat.color">{{ cat.icon
+          }}</span>
+        <div class="cat-info">
+          <span class="cat-name">{{ cat.name }}</span>
+          <span class="cat-desc">{{ cat.shortDesc }}</span>
         </div>
-        <button class="btn-icon">➜</button>
       </div>
     </div>
   </section>
@@ -61,4 +52,48 @@
 
   <app-navbar></app-navbar>
 
+</div>
+
+<!-- Modal de Detalle de Área STEAM -->
+<div class="area-modal-overlay" *ngIf="selectedArea" (click)="closeAreaModal()">
+  <div class="area-modal-content" (click)="$event.stopPropagation()">
+    <button class="btn-close" (click)="closeAreaModal()">✕</button>
+
+    <div class="modal-header"
+      [style.background]="'linear-gradient(135deg, ' + selectedArea.color + ' 0%, ' + selectedArea.color + 'dd 100%)'">
+      <div class="modal-icon-wrapper">
+        <div class="modal-icon">{{ selectedArea.icon }}</div>
+      </div>
+      <h2>{{ selectedArea.name }}</h2>
+      <p class="modal-short-desc">{{ selectedArea.shortDesc }}</p>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>¿Qué es?</h3>
+        <p>{{ selectedArea.description }}</p>
+      </div>
+
+      <div class="modal-section subjects-section">
+        <h3>Materias Predominantes</h3>
+        <div class="subjects-tags">
+          <span class="subject-tag" *ngFor="let subject of selectedArea.subjects" [style.color]="selectedArea.color"
+            [style.background-color]="selectedArea.color + '15'"
+            [style.border]="'1px solid ' + selectedArea.color + '40'">
+            {{ subject }}
+          </span>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <h3>Carreras Relacionadas</h3>
+        <div class="careers-grid">
+          <div class="career-item" *ngFor="let career of selectedArea.careers">
+            <span class="career-icon">{{ career.icon }}</span>
+            <span class="career-name">{{ career.name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

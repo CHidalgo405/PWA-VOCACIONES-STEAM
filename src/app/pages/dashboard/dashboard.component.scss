@@ -1,8 +1,11 @@
 .dashboard-container {
   padding: 20px;
-  max-width: 1200px; /* Ancho máximo en PC */
-  margin: 0 auto; /* Centrado en PC */
-  padding-bottom: 80px; /* Espacio para el Navbar fijo */
+  max-width: 1200px;
+  /* Ancho máximo en PC */
+  margin: 0 auto;
+  /* Centrado en PC */
+  padding-bottom: 80px;
+  /* Espacio para el Navbar fijo */
   animation: fadeIn 0.5s ease-out;
 }
 
@@ -14,8 +17,16 @@
   margin-bottom: 25px;
 
   .user-greeting {
-    .subtext { font-size: 0.9rem; color: var(--text-muted); }
-    h1 { margin: 0; font-size: 1.6rem; color: var(--text-dark); }
+    .subtext {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      color: var(--text-dark);
+    }
   }
 
   .user-avatar img {
@@ -23,7 +34,7 @@
     height: 50px;
     border-radius: 50%;
     border: 2px solid var(--white);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     cursor: pointer;
   }
 }
@@ -52,15 +63,24 @@
     max-width: 65%;
 
     .badge {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.2);
       padding: 5px 10px;
       border-radius: 20px;
       font-size: 0.75rem;
       font-weight: 600;
     }
-    h2 { font-size: 1.4rem; margin: 10px 0; }
-    p { font-size: 0.9rem; margin-bottom: 15px; opacity: 0.9; }
-    
+
+    h2 {
+      font-size: 1.4rem;
+      margin: 10px 0;
+    }
+
+    p {
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      opacity: 0.9;
+    }
+
     .btn-cta {
       background: white;
       color: #000;
@@ -69,10 +89,12 @@
       border-radius: 12px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       transition: transform 0.2s;
-      
-      &:active { transform: scale(0.95); }
+
+      &:active {
+        transform: scale(0.95);
+      }
     }
   }
 
@@ -86,120 +108,331 @@
   }
 }
 
-/* --- 3. Scroll Horizontal (Categorías) --- */
+/* --- 3. Tarjetas de Áreas STEAM --- */
 .scroll-section {
   margin-top: 30px;
 
   .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    
-    h3 { margin: 0; font-size: 1.2rem; }
-    .see-all { color: var(--steam-blue); text-decoration: none; font-size: 0.9rem; }
+    margin-bottom: 20px;
+
+    h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      color: var(--text-dark);
+    }
+
+    .section-subtitle {
+      margin: 5px 0 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
   }
 
   .horizontal-scroll {
     display: flex;
-    gap: 15px;
+    gap: 18px;
     overflow-x: auto;
-    padding-bottom: 10px;
+    padding-bottom: 25px;
+    padding-top: 10px;
     /* Ocultar scrollbar pero permitir scroll */
-    scrollbar-width: none; 
-    &::-webkit-scrollbar { display: none; }
+    scrollbar-width: none;
 
-    .category-pill {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-card {
+      position: relative;
       display: flex;
-      align-items: center;
-      gap: 10px;
+      flex-direction: column;
+      gap: 15px;
       background: var(--white);
-      padding: 10px 15px;
-      border-radius: 15px;
-      min-width: 120px;
-      border: 1px solid transparent; /* Para el color dinámico */
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      padding: 22px 20px;
+      border-radius: 24px;
+      min-width: 170px;
+      border: 1px solid transparent;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      overflow: hidden;
 
-      &:hover { transform: translateY(-3px); }
+      &:hover,
+      &:active {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+
+        .card-bg-glow {
+          opacity: 0.15;
+          transform: scale(1.5);
+        }
+      }
+
+      .card-bg-glow {
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        filter: blur(25px);
+        opacity: 0.08;
+        transition: all 0.4s ease;
+        z-index: 0;
+      }
 
       .cat-icon {
-        width: 35px;
-        height: 35px;
-        border-radius: 10px;
+        position: relative;
+        z-index: 1;
+        width: 55px;
+        height: 55px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
+        font-size: 1.8rem;
       }
-      .cat-name { font-weight: 600; font-size: 0.9rem; }
+
+      .cat-info {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .cat-name {
+          font-weight: 700;
+          font-size: 1.1rem;
+          color: var(--text-dark);
+        }
+
+        .cat-desc {
+          font-size: 0.85rem;
+          color: var(--text-muted);
+          line-height: 1.3;
+        }
+      }
     }
   }
 }
 
-/* --- 4. Grid de Recomendaciones --- */
-.list-section {
-  margin-top: 30px;
-  h3 { margin-bottom: 15px; font-size: 1.2rem; }
+/* --- 4. Modal de Área STEAM --- */
+.area-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  /* En móvil sube desde abajo */
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
 
-  .cards-grid {
-    display: grid;
-    grid-template-columns: 1fr; /* Móvil: 1 columna */
-    gap: 15px;
-
-    /* RESPONSIVE TABLET/PC: 2 o 3 columnas */
-    @media (min-width: 768px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    @media (min-width: 1024px) {
-      grid-template-columns: repeat(3, 1fr);
-    }
+  @media (min-width: 768px) {
+    align-items: center;
+    /* En escritorio es centrado */
   }
 
-  .content-card {
-    background: var(--white);
-    border-radius: 16px;
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    transition: all 0.2s;
-    cursor: pointer;
+  .area-modal-content {
+    background: var(--bg-light);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    border-radius: 35px 35px 0 0;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    @media (min-width: 768px) {
+      border-radius: 28px;
+      height: auto;
+      max-height: 85vh;
     }
 
-    .card-icon {
-      width: 50px;
-      height: 50px;
-      background: var(--bg-light);
-      border-radius: 12px;
+    /* Ocultar barra de scroll en modal webkit */
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    .btn-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      border: none;
+      color: white;
+      font-size: 1.2rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 10;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      transition: background 0.2s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.4);
+      }
     }
 
-    .card-info {
-      flex: 1;
-      h4 { margin: 0 0 5px 0; font-size: 1rem; color: var(--text-dark); }
-      p { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
+    .modal-header {
+      padding: 45px 30px 35px;
+      color: white;
+      text-align: center;
+      border-radius: 35px 35px 0 0;
+
+      @media (min-width: 768px) {
+        border-radius: 28px 28px 0 0;
+      }
+
+      .modal-icon-wrapper {
+        width: 90px;
+        height: 90px;
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+        .modal-icon {
+          font-size: 3.5rem;
+        }
+      }
+
+      h2 {
+        margin: 0 0 10px;
+        font-size: 2rem;
+        font-weight: 800;
+      }
+
+      .modal-short-desc {
+        margin: 0;
+        font-size: 1.1rem;
+        opacity: 0.95;
+        font-weight: 500;
+      }
     }
 
-    .btn-icon {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.2rem;
+    .modal-body {
+      padding: 35px 30px;
+      background: var(--white);
+
+      .modal-section {
+        margin-bottom: 30px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        h3 {
+          font-size: 1.2rem;
+          color: var(--text-dark);
+          margin-bottom: 15px;
+          font-weight: 700;
+        }
+
+        p {
+          font-size: 1rem;
+          color: var(--text-muted);
+          line-height: 1.6;
+          margin: 0;
+        }
+
+        .subjects-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+
+          .subject-tag {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+          }
+        }
+
+        .careers-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+          gap: 15px;
+
+          .career-item {
+            background: var(--bg-light);
+            padding: 18px 12px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s, background 0.2s;
+
+            &:hover {
+              transform: translateY(-3px);
+              background: #f4f7fa;
+            }
+
+            .career-icon {
+              font-size: 2.2rem;
+            }
+
+            .career-name {
+              font-size: 0.9rem;
+              font-weight: 600;
+              color: var(--text-dark);
+              line-height: 1.2;
+            }
+          }
+        }
+      }
     }
   }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(120px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
