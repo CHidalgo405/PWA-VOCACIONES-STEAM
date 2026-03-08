@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { BaseChartDirective } from 'ng2-charts'; // Importante para el gráfico
 import { ChartConfiguration, ChartOptions } from 'chart.js';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-profile',
@@ -14,7 +15,7 @@ import { ChartConfiguration, ChartOptions } from 'chart.js';
 })
 export class ProfileComponent {
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private authService: AuthService) { }
 
   user = {
     name: 'Alex Estudiante',
@@ -67,6 +68,7 @@ export class ProfileComponent {
   ];
 
   logout() {
+    this.authService.logout();
     this.router.navigate(['/welcome']);
     console.log('Cerrando sesión...');
   }

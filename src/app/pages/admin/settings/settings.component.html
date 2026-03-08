@@ -1,41 +1,54 @@
 <app-admin-sidebar></app-admin-sidebar>
 
 <div class="admin-layout-content">
-  
+
   <header class="page-header">
     <div>
       <h1>Configuración del Sistema</h1>
       <p>Ajustes globales, integraciones y mantenimiento.</p>
     </div>
-    <button class="btn-primary" (click)="saveSettings()">💾 Guardar Cambios</button>
+    <button class="btn-primary" (click)="saveSettings()" [disabled]="isSubmitting || !settingsForm.valid">
+      <span *ngIf="isSubmitting">⏳ Procesando...</span>
+      <span *ngIf="!isSubmitting">💾 Guardar Cambios</span>
+    </button>
   </header>
 
-  <div class="toast-success" [class.show]="showSuccessToast">
-    ✅ ¡Configuración guardada exitosamente!
+  <div class="toast-message" [class.show]="showSuccessToast"
+    style="position: fixed; top: 20px; right: 20px; background: #2C3E50; color: white; padding: 15px 25px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.3s ease, margin-top 0.3s ease; opacity: 0; pointer-events: none;"
+    [style.opacity]="showSuccessToast ? '1' : '0'">
+    {{ toastMessage || '✅ ¡Configuración guardada exitosamente!' }}
   </div>
 
-  <div class="settings-grid">
-    
+  <form #settingsForm="ngForm" (ngSubmit)="saveSettings()" class="settings-grid">
+
     <div class="settings-card">
       <div class="card-header">
         <span class="icon">🏢</span>
         <h2>General</h2>
       </div>
       <div class="card-body">
-        
+
         <div class="input-group">
-          <label>Nombre de la Aplicación</label>
-          <input type="text" [(ngModel)]="settings.appName">
+          <label>Nombre de la Aplicación <span style="color: red;">*</span></label>
+          <input type="text" name="appName" [(ngModel)]="settings.appName" required maxlength="50"
+            pattern="^(?!.*(.)\1{4})[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s,.'-]{3,50}$" #appNameModel="ngModel"
+            [ngClass]="{'invalid-input': appNameModel.invalid && appNameModel.touched}">
+          <small *ngIf="appNameModel.invalid && appNameModel.touched" style="color: red;">Ingresa un nombre válido (3-50
+            caracteres, sin repetir en exceso).</small>
         </div>
 
         <div class="input-group">
-          <label>Correo de Soporte Técnico</label>
-          <input type="email" [(ngModel)]="settings.supportEmail">
+          <label>Correo de Soporte Técnico <span style="color: red;">*</span></label>
+          <input type="email" name="supportEmail" [(ngModel)]="settings.supportEmail" required maxlength="100"
+            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" #emailModel="ngModel"
+            [ngClass]="{'invalid-input': emailModel.invalid && emailModel.touched}">
+          <small *ngIf="emailModel.invalid && emailModel.touched" style="color: red;">Ingresa un correo electrónico
+            válido.</small>
         </div>
 
         <div class="input-group">
-          <label>Zona Horaria del Sistema</label>
-          <select [(ngModel)]="settings.timezone">
+          <label>Zona Horaria del Sistema <span style="color: red;">*</span></label>
+          <select name="timezone" [(ngModel)]="settings.timezone" required>
             <option value="America/Mexico_City">Ciudad de México / Centro (UTC-6)</option>
             <option value="America/Cancun">Cancún / Este (UTC-5)</option>
             <option value="America/Tijuana">Tijuana / Pacífico (UTC-8)</option>
@@ -51,10 +64,10 @@
         <h2>Motor de Inteligencia Artificial</h2>
       </div>
       <div class="card-body">
-        
+
         <div class="input-group">
-          <label>Proveedor de IA</label>
-          <select [(ngModel)]="settings.aiProvider">
+          <label>Proveedor de IA <span style="color: red;">*</span></label>
+          <select name="aiProvider" [(ngModel)]="settings.aiProvider" required>
             <option value="gemini">Google Gemini Pro</option>
             <option value="openai">OpenAI GPT-4</option>
             <option value="claude">Anthropic Claude</option>
@@ -62,8 +75,12 @@
         </div>
 
         <div class="input-group">
-          <label>API Key (Secreta)</label>
-          <input type="password" [(ngModel)]="settings.apiKey" placeholder="Ingresa tu clave de API">
+          <label>API Key (Secreta) <span style="color: red;">*</span></label>
+          <input type="password" name="apiKey" [(ngModel)]="settings.apiKey" placeholder="Ingresa tu clave de API"
+            required minlength="10" maxlength="100" #apiKeyModel="ngModel"
+            [ngClass]="{'invalid-input': apiKeyModel.invalid && apiKeyModel.touched}">
+          <small *ngIf="apiKeyModel.invalid && apiKeyModel.touched" style="color: red;">La API Key es obligatoria y debe
+            tener al menos 10 caracteres.</small>
           <small class="help-text">Nunca compartas esta clave. Se encriptará en la base de datos.</small>
         </div>
 
@@ -71,7 +88,7 @@
           <label>Temperatura (Creatividad): {{ settings.aiTemperature }}</label>
           <div class="range-slider-container">
             <span>0.0 (Preciso)</span>
-            <input type="range" min="0" max="1" step="0.1" [(ngModel)]="settings.aiTemperature">
+            <input type="range" name="aiTemperature" min="0" max="1" step="0.1" [(ngModel)]="settings.aiTemperature">
             <span>1.0 (Creativo)</span>
           </div>
         </div>
@@ -85,14 +102,14 @@
         <h2>Sistema y Mantenimiento</h2>
       </div>
       <div class="card-body system-toggles">
-        
+
         <div class="toggle-row">
           <div class="toggle-info">
             <strong>Permitir Nuevos Registros</strong>
             <p>Si se desactiva, nadie podrá crear cuentas nuevas desde la app.</p>
           </div>
           <label class="switch">
-            <input type="checkbox" [(ngModel)]="settings.enableSignups">
+            <input type="checkbox" name="enableSignups" [(ngModel)]="settings.enableSignups">
             <span class="slider round"></span>
           </label>
         </div>
@@ -103,7 +120,7 @@
             <p>Bloquea el acceso a todos los estudiantes mostrando una pantalla de "Regresamos pronto".</p>
           </div>
           <label class="switch">
-            <input type="checkbox" [(ngModel)]="settings.maintenanceMode">
+            <input type="checkbox" name="maintenanceMode" [(ngModel)]="settings.maintenanceMode">
             <span class="slider round warning-slider"></span>
           </label>
         </div>
@@ -117,6 +134,6 @@
       </div>
     </div>
 
-  </div>
+  </form>
 
 </div>

@@ -10,19 +10,25 @@ import { ManageUsersComponent } from './pages/admin/manage-users/manage-users.co
 import { ManageTestComponent } from './pages/admin/manage-test/manage-test.component';
 import { AiLogsComponent } from './pages/admin/ai-logs/ai-logs.component';
 import { SettingsComponent } from './pages/admin/settings/settings.component';
+import { Error404Component } from './pages/error-404/error-404.component';
+import { VocationTestComponent } from './pages/vocation-test/vocation-test.component';
+import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/welcome', pathMatch: 'full' },
   { path: 'welcome', component: OnboardingComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'explore', component: ExploreComponent },
-  { path: 'profile', component: ProfileComponent },
+  { path: 'vocation-test', component: VocationTestComponent, canActivate: [authGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'explore', component: ExploreComponent, canActivate: [authGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'admin', redirectTo: '/admin/dashboard', pathMatch: 'full' },
-  { path: 'admin/dashboard', component: AdminDashboardComponent },
-  { path: 'admin/users', component: ManageUsersComponent },
-  { path: 'admin/test', component: ManageTestComponent },
-  { path: 'admin/ai-logs', component: AiLogsComponent },
-  { path: 'admin/settings', component: SettingsComponent },
+  { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [authGuard, adminGuard] },
+  { path: 'admin/users', component: ManageUsersComponent, canActivate: [authGuard, adminGuard] },
+  { path: 'admin/test', component: ManageTestComponent, canActivate: [authGuard, adminGuard] },
+  { path: 'admin/ai-logs', component: AiLogsComponent, canActivate: [authGuard, adminGuard] },
+  { path: 'admin/settings', component: SettingsComponent, canActivate: [authGuard, adminGuard] },
+  { path: '**', component: Error404Component }
 ];

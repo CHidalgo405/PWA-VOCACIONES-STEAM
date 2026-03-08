@@ -1,0 +1,109 @@
+<!-- Onboarding Screen -->
+<div class="vocation-container" *ngIf="viewState === 'onboarding'">
+    <div class="onboarding-card fade-in">
+        <div class="hero-icon">🚀</div>
+        <h1 class="main-title">¡Descubre tu camino STEAM!</h1>
+        <p class="description">
+            Te presentaremos algunas situaciones de la vida real. No hay respuestas correctas o incorrectas, solo elige
+            lo que te dicte tu instinto. Toma alrededor de 5 minutos.
+        </p>
+        <button class="primary-btn pulse-anim" (click)="startTest()">
+            ¡Estoy listo!
+        </button>
+    </div>
+</div>
+
+<!-- Questionnaire Screen -->
+<div class="vocation-container" *ngIf="viewState === 'questionnaire'">
+
+    <!-- Header / Progress Area -->
+    <div class="header-area slide-down">
+        <div class="top-bar">
+            <span class="progress-text">Pregunta {{ currentQuestionIndex + 1 }} de {{ questions.length }}</span>
+            <button class="btn-close" (click)="promptExit()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" [style.width]="progressPercentage + '%'"></div>
+        </div>
+    </div>
+
+    <!-- Context / Question Area -->
+    <div class="context-card fade-in">
+        <div class="context-image-wrapper" style="margin-bottom: 20px;">
+            <img [src]="currentQuestion.imagen_contexto_url" alt="Contexto"
+                style="width: 100%; border-radius: 12px; object-fit: cover; max-height: 250px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        </div>
+        <div style="margin-bottom: 12px;">
+            <span class="theme-tag"
+                style="background: rgba(7, 177, 201, 0.1); color: #07B1C9; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; text-transform: uppercase;">{{
+                currentQuestion.tema_etiqueta }}</span>
+        </div>
+        <p class="context-text" style="font-size: 16px; margin-top: 12px; margin-bottom: 12px;">{{
+            currentQuestion.contexto }}</p>
+        <h2 class="question-title">{{ currentQuestion.pregunta }}</h2>
+    </div>
+
+    <!-- Options Grid -->
+    <div class="options-grid fade-in">
+        <div class="option-card" *ngFor="let option of currentQuestion.opciones"
+            [class.selected]="selectedOptionId === option.id" (click)="selectOption(option.id)">
+            <div class="option-icon"
+                style="font-weight: 800; font-size: 24px; color: #07B1C9; width: 40px; text-align: center; margin-right: 16px; margin-left: 0;">
+                {{ option.id }}</div>
+            <div class="option-text-wrapper" style="flex: 1;">
+                <div class="option-text"
+                    style="font-weight: 500; font-size: 15px; margin-bottom: 4px; line-height: 1.4;">{{ option.texto }}
+                </div>
+                <div class="soft-skill"
+                    style="font-size: 12px; color: #888; font-style: italic; display: flex; align-items: center;">
+                    <span
+                        style="display: inline-block; width: 6px; height: 6px; background-color: #07B1C9; border-radius: 50%; margin-right: 6px;"></span>
+                    Habilidad: {{ option.habilidad_blanda }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Validation Toast/Alert -->
+    <div class="toast-alert" [class.show]="showAlert">
+        Selecciona una opción para continuar.
+    </div>
+
+    <!-- Navigation -->
+    <div class="bottom-nav slide-up">
+        <!-- A button to go back could be here, but requirement says hidden on Q1 
+         In this implementation, we simplify to just "Siguiente" as per most vocation tests -> forward only, 
+         or implement previous if needed. For now just Siguiente as requested. -->
+        <div class="nav-spacer"></div>
+        <button class="primary-btn nav-next" [class.disabled]="!selectedOptionId" (click)="nextQuestion()">
+            {{ currentQuestionIndex === questions.length - 1 ? 'Finalizar' : 'Siguiente' }}
+        </button>
+    </div>
+</div>
+
+<!-- Analyzing / Loading Screen -->
+<div class="vocation-container analyzing-state" *ngIf="viewState === 'analyzing'">
+    <div class="loading-content fade-in">
+        <div class="modern-spinner"></div>
+        <h2 class="loading-text">Analizando tus respuestas con Inteligencia Artificial...</h2>
+    </div>
+</div>
+
+<!-- Exit Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showExitModal" (click)="cancelExit()">
+    <div class="modal-card scale-in" (click)="$event.stopPropagation()">
+        <div class="modal-icon">⚠️</div>
+        <h3>¿Seguro que quieres salir?</h3>
+        <p>Tu progreso no se guardará y tendrás que iniciar de nuevo.</p>
+        <div class="modal-actions">
+            <button class="secondary-btn" (click)="cancelExit()">Cancelar</button>
+            <button class="danger-btn" (click)="confirmExit()">Sí, salir</button>
+        </div>
+    </div>
+</div>

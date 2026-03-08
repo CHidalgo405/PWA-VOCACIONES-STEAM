@@ -1,7 +1,31 @@
 <app-admin-sidebar></app-admin-sidebar>
 
 <div class="admin-layout-content">
-  
+
+  <!-- CAPA DE ALERTA PERSONALIZADA (SUPERPUESTA) PARA CAMBIOS SIN GUARDAR -->
+  <div class="custom-alert-overlay" *ngIf="showUnsavedOverlay">
+    <div class="alert-box">
+      <div class="alert-icon">⚠️</div>
+      <h3 style="margin: 0; color: #2C3E50;">¿Cambios sin guardar?</h3>
+      <p style="color: #7F8C8D; font-size: 0.95rem; text-align: center;">
+        Tienes datos sin guardar que se perderán si cambias de pregunta o cierras esta ventana. ¿Estás seguro de
+        continuar?
+      </p>
+      <div class="alert-actions"
+        style="display: flex; gap: 10px; width: 100%; justify-content: center; margin-top: 15px;">
+        <button class="btn-secondary" (click)="cancelUnsavedChanges()">Cancelar</button>
+        <button class="btn-primary" (click)="confirmUnsavedChanges()"
+          style="background: #e74c3c; border-color: #e74c3c;">Sí, descartar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-message" [class.show]="showToast"
+    style="position: fixed; top: 20px; right: 20px; background: #2C3E50; color: white; padding: 15px 25px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.3s ease, margin-top 0.3s ease; opacity: 0; pointer-events: none;"
+    [style.opacity]="showToast ? '1' : '0'">
+    {{ toastMessage }}
+  </div>
+
   <header class="page-header">
     <div>
       <h1>Banco de Preguntas</h1>
@@ -12,49 +36,75 @@
 
   <div class="balance-panel">
     <h3>Balance del Test (Activas)</h3>
-    <div class="balance-grid">
-      <div class="balance-card ciencia">
+    <div class="balance-grid" [class.has-active-filter]="filterCategory !== ''">
+      <div class="balance-card ciencia clickable-card" [class.active-filter]="filterCategory === 'Ciencia'"
+        (click)="toggleCategoryFilter('Ciencia')">
         <span class="icon">⚛️</span>
         <div class="info"><strong>{{ getCount('Ciencia') }}</strong> Ciencia</div>
       </div>
-      <div class="balance-card tecnologia">
+      <div class="balance-card tecnologia clickable-card" [class.active-filter]="filterCategory === 'Tecnología'"
+        (click)="toggleCategoryFilter('Tecnología')">
         <span class="icon">💻</span>
         <div class="info"><strong>{{ getCount('Tecnología') }}</strong> Tecnología</div>
       </div>
-      <div class="balance-card ingenieria">
+      <div class="balance-card ingenieria clickable-card" [class.active-filter]="filterCategory === 'Ingeniería'"
+        (click)="toggleCategoryFilter('Ingeniería')">
         <span class="icon">⚙️</span>
         <div class="info"><strong>{{ getCount('Ingeniería') }}</strong> Ingeniería</div>
       </div>
-      <div class="balance-card artes">
+      <div class="balance-card artes clickable-card" [class.active-filter]="filterCategory === 'Artes'"
+        (click)="toggleCategoryFilter('Artes')">
         <span class="icon">🎨</span>
         <div class="info"><strong>{{ getCount('Artes') }}</strong> Artes</div>
       </div>
-      <div class="balance-card matematicas">
+      <div class="balance-card matematicas clickable-card" [class.active-filter]="filterCategory === 'Matemáticas'"
+        (click)="toggleCategoryFilter('Matemáticas')">
         <span class="icon">📐</span>
         <div class="info"><strong>{{ getCount('Matemáticas') }}</strong> Matemáticas</div>
       </div>
     </div>
   </div>
 
-  <div class="table-card">
-    
-    <div class="toolbar">
-      <h2 *ngIf="!selectedQuestion">Preguntas Configuradas</h2>
+  <!-- BÚSQUEDA REDISEÑADA -->
+  <div class="premium-search-container">
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Buscar por palabra clave..." [(ngModel)]="searchTerm">
+    </div>
+    <select [(ngModel)]="filterCategory" class="search-select">
+      <option value="">Todas las Categorías</option>
+      <option *ngFor="let cat of categories" [value]="cat" [disabled]="cat === 'Ninguna'" [hidden]="cat === 'Ninguna'">
+        {{ cat }}</option>
+    </select>
+  </div>
 
-      <div class="action-bar" *ngIf="selectedQuestion">
-        <span class="selection-count">Pregunta #{{ selectedQuestion.id }} seleccionada</span>
-        <div class="action-buttons">
-          <button class="btn-action edit" (click)="openModal('edit')">✏️ Editar</button>
-          <button class="btn-action delete" (click)="deleteQuestion()">🗑️ Eliminar</button>
-          <button class="btn-action close" (click)="selectQuestion(selectedQuestion)">✕</button>
-        </div>
+  <div class="table-card" style="display: flex; flex-direction: column;">
+
+    <!-- BARRA DE ACCIONES AMPLIADA -->
+    <div class="toolbar">
+
+      <div class="toolbar-header">
+        <h2 *ngIf="selectedQuestions.length === 0">Preguntas Configuradas</h2>
+        <h2 *ngIf="selectedQuestions.length > 0" class="highlight">{{ selectedQuestions.length }} seleccionada(s)</h2>
       </div>
+
+      <div class="action-bar-full" *ngIf="selectedQuestions.length > 0">
+        <button class="btn-action edit flex-1" *ngIf="selectedQuestions.length === 1" (click)="openModal('edit')"
+          [disabled]="isSubmitting">✏️ Editar</button>
+        <button class="btn-action delete flex-1" (click)="deleteSelected()" [disabled]="isSubmitting">
+          <span *ngIf="isSubmitting">⏳</span>
+          <span *ngIf="!isSubmitting">🗑️</span> Eliminar
+        </button>
+        <button class="btn-action close flex-none" (click)="clearSelection()" [disabled]="isSubmitting">✕</button>
+      </div>
+
     </div>
 
     <div class="table-responsive">
       <table>
         <thead>
           <tr>
+            <th style="width: 40px; text-align: center;">✓</th>
             <th style="width: 50%;">Pregunta</th>
             <th>Ponderación Principal</th>
             <th>Secundaria</th>
@@ -62,77 +112,161 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let q of questions" 
-              (click)="selectQuestion(q)" 
-              [class.selected]="selectedQuestion?.id === q.id"
-              [class.inactive-row]="q.status === 'Inactivo'">
-            
-            <td class="question-text">{{ q.text }}</td>
+          <tr *ngFor="let q of paginatedQuestions" (click)="toggleSelection(q, $event)" [class.selected]="isSelected(q)"
+            [class.inactive-row]="q.status === 'Inactivo'" style="cursor: pointer;">
+
+            <td style="text-align: center;">
+              <input type="checkbox" [checked]="isSelected(q)"
+                (click)="$event.stopPropagation(); toggleSelection(q, $event)"
+                style="cursor: pointer; width: 16px; height: 16px;">
+            </td>
+
+            <td class="question-text">
+              <a href="javascript:void(0)" (click)="$event.stopPropagation(); openModal('view', q, $event)"
+                style="color: var(--primary-color); text-decoration: none; font-weight: bold;">
+                {{ q.text }}
+              </a>
+            </td>
+
             <td><span class="badge" [ngClass]="q.category | lowercase">{{ q.category }}</span></td>
             <td>
               <span *ngIf="q.secondary !== 'Ninguna'" class="badge secondary">{{ q.secondary }}</span>
               <span *ngIf="q.secondary === 'Ninguna'" class="text-muted">-</span>
             </td>
-            <td>
+            <td (click)="toggleStatus(q, $event)" class="clickable-status" title="Clic para alternar estado">
               <span class="status-dot" [class.active]="q.status === 'Activo'"></span>
               {{ q.status }}
             </td>
           </tr>
         </tbody>
       </table>
+      <div *ngIf="paginatedQuestions.length === 0" style="padding: 20px; text-align: center; color: var(--text-muted);">
+        No se encontraron preguntas que coincidan con la búsqueda.
+      </div>
     </div>
+
+    <!-- PAGINACIÓN PREMIUM -->
+    <div class="premium-pagination">
+      <div class="items-per-page-premium">
+        <label>Mostrar</label>
+        <div class="select-wrapper">
+          <select [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">
+            <option *ngFor="let option of itemsPerPageOptions" [value]="option">{{ option }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pagination-info">
+        <span class="page-text">Página <strong>{{ currentPage }}</strong> de <strong>{{ totalPages }}</strong></span>
+      </div>
+
+      <div class="pagination-actions">
+        <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" class="btn-pagination">
+          <span class="icon">&#8592;</span> Anterior
+        </button>
+        <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages" class="btn-pagination">
+          Siguiente <span class="icon">&#8594;</span>
+        </button>
+      </div>
+    </div>
+
   </div>
 
 </div>
 
+
 <div class="modal-overlay" *ngIf="isModalOpen">
   <div class="modal-box">
-    
-    <div class="modal-header">
-      <h2>{{ modalMode === 'create' ? 'Nueva Pregunta' : 'Editar Pregunta' }}</h2>
+
+    <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button type="button" *ngIf="modalMode !== 'create'" (click)="previousQuestion()"
+          [disabled]="viewedQuestionIndex <= 0" class="nav-arrow">
+          &#8592;
+        </button>
+
+        <h2 style="margin: 0;">{{ modalMode === 'create' ? 'Nueva Pregunta' : (modalMode === 'edit' ? 'Editar Pregunta'
+          : 'Detalles de la Pregunta') }}</h2>
+
+        <button type="button" *ngIf="modalMode !== 'create'" (click)="nextQuestion()"
+          [disabled]="viewedQuestionIndex >= filteredQuestionsList.length - 1" class="nav-arrow">
+          &#8594;
+        </button>
+      </div>
+
       <button class="btn-close-modal" (click)="closeModal()">✕</button>
     </div>
 
     <div class="modal-body">
       <form (ngSubmit)="saveQuestion()" #testNgForm="ngForm">
-        
-        <div class="form-grid-test">
-          
+
+        <div class="form-grid-test" [style.opacity]="modalMode === 'view' ? '0.8' : '1'">
+
           <div class="input-group full-width">
-            <label>Texto de la Pregunta</label>
-            <textarea name="text" [(ngModel)]="questionForm.text" rows="3" placeholder="Ej: ¿Te gusta armar robots?" required></textarea>
+            <label>Texto de la Pregunta <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
+            <textarea name="text" [(ngModel)]="questionForm.text" (ngModelChange)="onFormChange()" rows="3"
+              placeholder="Ej: ¿Te gusta armar robots?" [readonly]="modalMode === 'view'" required maxlength="250"
+              pattern="^(?!.*(.)\1{4})[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\?,¿!¡.\-']{5,250}$" #textModel="ngModel"
+              [ngClass]="{'invalid-input': textModel.invalid && textModel.touched}"></textarea>
+            <small *ngIf="textModel.invalid && textModel.touched && modalMode !== 'view'" style="color: red;">Ingresa
+              una pregunta válida (5-250
+              caracteres, sin letras repetidas excesivamente).</small>
           </div>
-          
+
           <div class="input-group">
-            <label>Categoría Principal (Suma +2 pts)</label>
-            <select name="category" [(ngModel)]="questionForm.category" required>
+            <label>Categoría Principal (Suma +2 pts) <span *ngIf="modalMode !== 'view'"
+                style="color: red;">*</span></label>
+            <select name="category" [(ngModel)]="questionForm.category" (ngModelChange)="onFormChange()"
+              [disabled]="modalMode === 'view'" required>
               <option *ngFor="let cat of categories" [value]="cat" [disabled]="cat === 'Ninguna'">{{ cat }}</option>
             </select>
           </div>
 
           <div class="input-group">
             <label>Categoría Secundaria (Suma +1 pt)</label>
-            <select name="secondary" [(ngModel)]="questionForm.secondary">
+            <select name="secondary" [(ngModel)]="questionForm.secondary" (ngModelChange)="onFormChange()"
+              [disabled]="modalMode === 'view'">
               <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
             </select>
           </div>
 
-          <div class="input-group full-width" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+          <div class="input-group full-width"
+            style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
             <label class="switch">
-              <input type="checkbox" name="status" [checked]="questionForm.status === 'Activo'" 
-                     (change)="questionForm.status = questionForm.status === 'Activo' ? 'Inactivo' : 'Activo'">
+              <input type="checkbox" name="status" [checked]="questionForm.status === 'Activo'"
+                [disabled]="modalMode === 'view'"
+                (change)="onFormChange(); questionForm.status = questionForm.status === 'Activo' ? 'Inactivo' : 'Activo'">
               <span class="slider round"></span>
             </label>
             <span style="font-weight: 600; color: #2C3E50;">
-              {{ questionForm.status === 'Activo' ? 'Pregunta Activa (Visible en el test)' : 'Pregunta Inactiva (Oculta)' }}
+              {{ questionForm.status === 'Activo' ? 'Pregunta Activa (Visible en el test)' : 'Pregunta Inactiva
+              (Oculta)' }}
             </span>
           </div>
 
         </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn-secondary" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="btn-primary" [disabled]="!testNgForm.valid">Guardar Pregunta</button>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+
+          <ng-container *ngIf="modalMode === 'view'">
+            <button type="button" class="btn-action delete" (click)="deleteQuestionFromModal()"
+              style="margin-right: auto;">
+              🗑️ Eliminar
+            </button>
+            <button type="button" class="btn-secondary" (click)="closeModal()">Cerrar</button>
+            <button type="button" class="btn-action edit" (click)="switchToEdit()">✏️ Editar</button>
+          </ng-container>
+
+          <ng-container *ngIf="modalMode !== 'view'">
+            <button type="button" class="btn-secondary" (click)="closeModal()"
+              [disabled]="isSubmitting">Cancelar</button>
+            <button type="submit" class="btn-primary" [disabled]="!testNgForm.valid || isSubmitting">
+              <span *ngIf="isSubmitting">⏳ Procesando...</span>
+              <span *ngIf="!isSubmitting">💾 Guardar Pregunta</span>
+            </button>
+          </ng-container>
+
         </div>
       </form>
     </div>

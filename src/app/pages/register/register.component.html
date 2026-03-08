@@ -1,57 +1,111 @@
 <div class="auth-container">
   <div class="auth-card">
-    
-    <div class="auth-header">
-      <div style="font-size: 3rem; margin-bottom: 10px;">🚀</div>
-      <h2>Crea tu cuenta</h2>
-      <p>Descubre qué carrera STEAM es para ti.</p>
-    </div>
 
-    <form>
-      <div class="form-group">
-        <label for="fullname">Nombre Completo</label>
-        <input type="text" id="fullname" placeholder="Tu nombre" required>
+    <ng-container *ngIf="!isVerificationStep">
+      <div class="auth-header">
+        <div style="font-size: 3rem; margin-bottom: 10px;">🚀</div>
+        <h2>Crea tu cuenta</h2>
+        <p>Descubre qué carrera STEAM es para ti.</p>
       </div>
 
-      <div class="form-group">
-        <label for="email">Correo Institucional / Personal</label>
-        <input type="email" id="email" placeholder="nombre@ejemplo.com" required>
-      </div>
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="fullname">Nombre Completo</label>
+          <input type="text" id="fullname" name="fullname" [(ngModel)]="fullname" placeholder="Tu nombre" required>
+        </div>
 
-      <div class="form-group">
-        <label for="password">Crear Contraseña</label>
-        <input type="password" id="password" placeholder="Mínimo 8 caracteres" required>
-      </div>
+        <div class="form-group">
+          <label for="email">Correo Institucional / Personal</label>
+          <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="nombre@ejemplo.com" required>
+        </div>
 
-      <button class="btn-primary btn-register-theme btn-block" style="margin-top: 25px;">
-        Crear mi Cuenta 🚀
-      </button>
+        <div class="form-group">
+          <label for="password">Crear Contraseña</label>
+          <div style="position: relative;">
+            <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password"
+              placeholder="Mínimo 8 caracteres" required
+              style="padding-right: 40px; width: 100%; box-sizing: border-box;">
+            <button type="button" (click)="togglePasswordVisibility()"
+              style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; display: flex;">
+              <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                </path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+          <div style="margin-top: 10px;">
+            <label
+              style="display: flex; align-items: center; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; font-weight: 500;">
+              <input type="checkbox" name="rememberMe" [(ngModel)]="rememberMe"
+                style="margin-right: 8px; width: auto; accent-color: var(--primary-color);"> Recordarme
+            </label>
+          </div>
+        </div>
 
-      <div style="display: flex; align-items: center; margin: 30px 0;">
-        <div style="flex: 1; height: 1px; background: #E0E0E0;"></div>
-        <span style="padding: 0 15px; color: var(--text-muted); font-size: 0.85rem;">O regístrate con</span>
-        <div style="flex: 1; height: 1px; background: #E0E0E0;"></div>
-      </div>
-
-       <div class="social-btn-container">
-        <button type="button" class="btn-social">
-          <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="social-icon" alt="G">
-          Google
+        <button type="submit" class="btn-primary btn-register-theme btn-block" style="margin-top: 25px;">
+          Crear mi Cuenta 🚀
         </button>
-        <button type="button" class="btn-social">
-          <img src="https://www.svgrepo.com/show/448224/facebook.svg" class="social-icon" alt="F">
-          Facebook
-        </button>
+
+        <div style="display: flex; align-items: center; margin: 30px 0;">
+          <div style="flex: 1; height: 1px; background: #E0E0E0;"></div>
+          <span style="padding: 0 15px; color: var(--text-muted); font-size: 0.85rem;">O regístrate con</span>
+          <div style="flex: 1; height: 1px; background: #E0E0E0;"></div>
+        </div>
+
+        <div class="social-btn-container">
+          <button type="button" class="btn-social">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="social-icon" alt="G">
+            Google
+          </button>
+          <button type="button" class="btn-social">
+            <img src="https://www.svgrepo.com/show/448224/facebook.svg" class="social-icon" alt="F">
+            Facebook
+          </button>
+        </div>
+      </form>
+
+      <div style="text-align: center; margin-top: 30px;">
+        <p style="font-size: 0.9rem; color: var(--text-muted);">
+          ¿Ya tienes cuenta?
+          <a routerLink="/login" class="text-link">Inicia sesión</a>
+        </p>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="isVerificationStep">
+      <div class="auth-header">
+        <div style="font-size: 3rem; margin-bottom: 10px;">📧</div>
+        <h2>Verifica tu correo</h2>
+        <p>Hemos enviado un código de 6 dígitos a <strong>{{ email }}</strong>.</p>
       </div>
 
-    </form>
+      <form (ngSubmit)="verificarCodigo()">
+        <div class="form-group">
+          <label for="codigo">Código de Verificación</label>
+          <input type="text" id="codigo" name="codigoIngresado" [(ngModel)]="codigoIngresado" placeholder="Ej. 123456"
+            required maxlength="6" style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
+        </div>
 
-    <div style="text-align: center; margin-top: 30px;">
-      <p style="font-size: 0.9rem; color: var(--text-muted);">
-        ¿Ya tienes cuenta? 
-        <a routerLink="/login" class="text-link">Inicia sesión</a>
-      </p>
-    </div>
+        <button type="submit" class="btn-primary btn-register-theme btn-block" style="margin-top: 25px;">
+          Validar Código
+        </button>
+
+        <div style="text-align: center; margin-top: 15px;">
+          <a href="javascript:void(0)" (click)="isVerificationStep = false; codigoIngresado = ''" class="text-link"
+            style="font-size: 0.9rem;">
+            Volver al registro
+          </a>
+        </div>
+      </form>
+    </ng-container>
 
   </div>
 </div>

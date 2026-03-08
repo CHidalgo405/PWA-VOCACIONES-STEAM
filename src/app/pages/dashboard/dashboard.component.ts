@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarComponent } from '../../components/navbar/navbar.component'; // Importamos el navbar
-import { RouterModule } from '@angular/router';
+import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,9 +12,15 @@ import { RouterModule } from '@angular/router';
 })
 export class DashboardComponent {
   userName = 'Estudiante'; // Esto vendría de tu base de datos
-  
+
+  constructor(private router: Router) { }
+
+  startTest() {
+    this.router.navigate(['/vocation-test']);
+  }
+
   // Estado del usuario: ¿Ya hizo el test?
-  hasTakenTest = false; 
+  hasTakenTest = false;
 
   // Categorías rápidas (STEAM)
   categories = [

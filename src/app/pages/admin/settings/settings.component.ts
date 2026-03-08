@@ -18,12 +18,12 @@ export class SettingsComponent {
     appName: 'STEAM Vocations',
     supportEmail: 'soporte@steamvocations.com',
     timezone: 'America/Mexico_City', // Zona horaria local (Córdoba, Veracruz)
-    
+
     // IA Integration
     aiProvider: 'gemini',
     apiKey: '************************',
     aiTemperature: 0.7, // Creatividad de la IA (0 a 1)
-    
+
     // Sistema
     maintenanceMode: false,
     enableSignups: true
@@ -31,21 +31,33 @@ export class SettingsComponent {
 
   // Variable para mostrar un mensaje de éxito al guardar
   showSuccessToast = false;
+  toastMessage = '';
+  isSubmitting = false;
 
   saveSettings() {
+    // Basic validation logic is handled via ngForm in HTML, checking empty values here just in case.
+    if (!this.settings.appName.trim() || !this.settings.supportEmail.trim() || !this.settings.apiKey.trim()) {
+      this.displayToast('Por favor, completa los campos obligatorios correctamente.', true);
+      return;
+    }
+
+    this.isSubmitting = true;
     console.log('Guardando configuración de la app...', this.settings);
-    
-    // Simulamos que se guarda en la base de datos y mostramos la notificación
-    this.showSuccessToast = true;
-    
-    // Ocultar la notificación después de 3 segundos
+
     setTimeout(() => {
-      this.showSuccessToast = false;
-    }, 3000);
+      this.isSubmitting = false;
+      this.displayToast('¡Configuración guardada exitosamente!');
+    }, 800);
+  }
+
+  displayToast(message: string, isError: boolean = false) {
+    this.toastMessage = message;
+    this.showSuccessToast = true;
+    setTimeout(() => this.showSuccessToast = false, 3000);
   }
 
   clearCache() {
-    if(confirm('¿Estás seguro de limpiar la caché del sistema? Esto puede cerrar la sesión de algunos usuarios.')) {
+    if (confirm('¿Estás seguro de limpiar la caché del sistema? Esto puede cerrar la sesión de algunos usuarios.')) {
       console.log('Caché limpiada.');
       alert('Caché del sistema liberada con éxito.');
     }

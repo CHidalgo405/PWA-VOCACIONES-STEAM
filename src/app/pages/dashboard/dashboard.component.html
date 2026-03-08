@@ -1,5 +1,5 @@
 <div class="dashboard-container">
-  
+
   <header class="header-section">
     <div class="user-greeting">
       <span class="subtext">Bienvenido de nuevo,</span>
@@ -16,11 +16,13 @@
         <span class="badge">Recomendado</span>
         <h2>{{ hasTakenTest ? 'Ver mis resultados' : 'Descubre tu Vocación' }}</h2>
         <p>
-          {{ hasTakenTest 
-            ? 'Explora las carreras que hacen match con tu perfil STEAM.' 
-            : 'Responde el test de aptitudes y encuentra tu carrera ideal.' }}
+          {{ hasTakenTest
+          ? 'Explora las carreras que hacen match con tu perfil STEAM.'
+          : 'Responde el test de aptitudes y encuentra tu carrera ideal.' }}
         </p>
-        <button class="btn-cta">{{ hasTakenTest ? 'Ver Análisis' : 'Comenzar Test' }}</button>
+        <button class="btn-cta" (click)="hasTakenTest ? null : startTest()">
+          {{ hasTakenTest ? 'Ver Análisis' : 'Comenzar Test' }}
+        </button>
       </div>
       <div class="cta-image">🚀</div>
     </div>
@@ -31,7 +33,7 @@
       <h3>Áreas STEAM</h3>
       <a href="#" class="see-all">Ver todas</a>
     </div>
-    
+
     <div class="horizontal-scroll">
       <div class="category-pill" *ngFor="let cat of categories" [style.border-color]="cat.color">
         <span class="cat-icon" [style.background-color]="cat.color + '20'">{{ cat.icon }}</span>
@@ -42,7 +44,7 @@
 
   <section class="list-section">
     <h3>Recomendado para ti</h3>
-    
+
     <div class="cards-grid">
       <div class="content-card" *ngFor="let course of recommendedCourses">
         <div class="card-icon">{{ course.image }}</div>

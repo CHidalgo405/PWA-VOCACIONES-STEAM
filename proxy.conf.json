@@ -1,0 +1,10 @@
+{
+    "/resend-api": {
+        "target": "https://api.resend.com",
+        "secure": false,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/resend-api": ""
+        }
+    }
+}
