@@ -1,8 +1,5 @@
 const { Resend } = require('resend');
 
-// Vercel leerá la llave desde sus variables de entorno automáticamente
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 module.exports = async function handler(req, res) {
     // Configuración de CORS por si es necesario
     res.setHeader('Access-Control-Allow-Credentials', true);
@@ -21,6 +18,13 @@ module.exports = async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Método no permitido' });
     }
+
+    if (!process.env.RESEND_API_KEY) {
+        console.error('CRITICAL ERROR: RESEND_API_KEY is missing in Vercel environment variables.');
+        return res.status(500).json({ error: 'El servidor no tiene configurada la llave de Resend.' });
+    }
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     // Extraemos el email y el código que nos manda el frontend
     const { email, codigo } = req.body;
