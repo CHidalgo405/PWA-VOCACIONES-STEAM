@@ -81,30 +81,35 @@
     </ng-container>
 
     <ng-container *ngIf="isVerificationStep">
-      <div class="auth-header">
-        <div style="font-size: 3rem; margin-bottom: 10px;">📧</div>
-        <h2>Verifica tu correo</h2>
-        <p>Hemos enviado un código de 6 dígitos a <strong>{{ email }}</strong>.</p>
+      <div class="auth-header" style="margin-bottom: 20px;">
+        <div style="font-size: 3.5rem; margin-bottom: 15px; animation: slideUp 0.5s ease-out;">📩</div>
+        <h2>Revisa tu bandeja de entrada</h2>
+        <p style="margin-top: 15px; font-size: 1.05rem; line-height: 1.5;">
+          Hemos enviado un enlace de activación a:<br>
+          <strong style="color: var(--steam-blue); font-size: 1.1rem;">{{ email }}</strong>
+        </p>
       </div>
 
-      <form (ngSubmit)="verificarCodigo()">
-        <div class="form-group">
-          <label for="codigo">Código de Verificación</label>
-          <input type="text" id="codigo" name="codigoIngresado" [(ngModel)]="codigoIngresado" placeholder="Ej. 123456"
-            required maxlength="6" style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
-        </div>
+      <div
+        style="text-align: center; padding: 20px; background: rgba(7, 177, 201, 0.05); border-radius: 16px; margin-bottom: 30px; border: 1px solid rgba(7, 177, 201, 0.1);">
+        <p style="margin: 0; color: var(--text-dark); font-size: 0.95rem;">
+          Por favor, haz clic en el enlace del correo para verificar tu cuenta antes de iniciar sesión en la plataforma
+          STEAM.
+        </p>
+      </div>
 
-        <button type="submit" class="btn-primary btn-register-theme btn-block" style="margin-top: 25px;">
-          Validar Código
-        </button>
+      <button routerLink="/login" class="btn-primary"
+        style="margin-top: 5px; background-image: linear-gradient(to right, #07B1C9 0%, #4DB046 100%);">
+        Ir al Inicio de Sesión
+      </button>
 
-        <div style="text-align: center; margin-top: 15px;">
-          <a href="javascript:void(0)" (click)="isVerificationStep = false; codigoIngresado = ''" class="text-link"
-            style="font-size: 0.9rem;">
-            Volver al registro
-          </a>
-        </div>
-      </form>
+      <div style="text-align: center; margin-top: 25px;">
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          ¿No recibiste el correo? Revisa tu carpeta de Spam o
+          <a href="javascript:void(0)" (click)="isVerificationStep = false; password = ''" class="text-link">intenta
+            registrarte otra vez</a>.
+        </p>
+      </div>
     </ng-container>
 
   </div>
