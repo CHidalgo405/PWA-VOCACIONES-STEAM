@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { Auth, sendPasswordResetEmail } from '@angular/fire/auth';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +8,21 @@ export class AuthService {
   // Use a signal for reactive state in Angular 16+
   private readonly USER_KEY = 'steam_pwa_user';
 
-  constructor() { }
+  constructor(private auth: Auth) { }
+
+  async resetPassword(email: string): Promise<void> {
+    try {
+      if (!this.auth) {
+        console.error('Firebase Auth is not initialized properly.');
+        // This throw allows the caller to catch it
+        throw new Error('Firebase Auth not available');
+      }
+      await sendPasswordResetEmail(this.auth, email);
+    } catch (error) {
+      console.error('Error sending password reset email:', error);
+      throw error;
+    }
+  }
 
   login(email: string, role: 'admin' | 'student', rememberMe: boolean = false) {
     const userData = { email, role, token: 'dummy-jwt-token' };

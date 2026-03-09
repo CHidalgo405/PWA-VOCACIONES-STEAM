@@ -10,6 +10,6 @@ export const adminGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Not an admin, redirect to dashboard or an unauthorized page
+  // Not an admin, securely redirect to dashboard
   return router.createUrlTree(['/dashboard']);
 };

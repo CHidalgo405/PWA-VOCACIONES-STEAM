@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-admin-sidebar',
@@ -12,11 +13,19 @@ import { RouterModule } from '@angular/router';
 export class AdminSidebarComponent {
   isMobileMenuOpen = false;
 
+  constructor(private authService: AuthService, private router: Router) { }
+
   toggleMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
   closeMenu() {
     this.isMobileMenuOpen = false;
+  }
+
+  logout() {
+    this.authService.logout();
+    this.closeMenu();
+    this.router.navigate(['/login']);
   }
 }

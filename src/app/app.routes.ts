@@ -11,15 +11,18 @@ import { ManageTestComponent } from './pages/admin/manage-test/manage-test.compo
 import { AiLogsComponent } from './pages/admin/ai-logs/ai-logs.component';
 import { SettingsComponent } from './pages/admin/settings/settings.component';
 import { Error404Component } from './pages/error-404/error-404.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { VocationTestComponent } from './pages/vocation-test/vocation-test.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/welcome', pathMatch: 'full' },
-  { path: 'welcome', component: OnboardingComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  { path: 'welcome', component: OnboardingComponent, canActivate: [guestGuard] },
+  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
+  { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'vocation-test', component: VocationTestComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'explore', component: ExploreComponent, canActivate: [authGuard] },
