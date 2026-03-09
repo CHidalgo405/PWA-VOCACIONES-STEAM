@@ -1,59 +1,96 @@
 <div class="profile-container">
-  
+
   <div class="profile-grid">
-    
-    <div class="identity-card">
-      <div class="avatar-wrapper">
-        <img [src]="user.avatar" alt="Avatar">
-        <span class="level-badge">Nvl {{ user.level }}</span>
-      </div>
-      <h2>{{ user.name }}</h2>
-      <p class="user-title">{{ user.title }}</p>
-      
-      <button class="btn-edit">Editar Perfil</button>
-    </div>
 
-    <div class="chart-card">
-      <h3>Tu ADN STEAM</h3>
-      <div class="chart-wrapper">
-        <canvas baseChart
-          [datasets]="radarChartDatasets"
-          [options]="radarChartOptions"
-          [labels]="radarChartLabels"
-          type="radar">
-        </canvas>
-      </div>
-    </div>
+    <!-- HEADER HERO SECTION: ID & Chart -->
+    <div class="header-section">
+      <div class="identity-card">
+        <div class="avatar-wrapper">
+          <img [src]="user.avatar" alt="Avatar">
+          <span class="level-badge">Nvl {{ user.level }}</span>
+        </div>
+        <h2>{{ user.name }}</h2>
+        <p class="user-title">{{ user.title }}</p>
+        <button class="btn-edit">Editar Perfil</button>
 
-    <div class="stats-column">
-      
-      <div class="badges-card">
-        <h3>Insignias</h3>
-        <div class="badges-grid">
-          <div class="badge-item" *ngFor="let badge of badges" [class.locked]="!badge.unlocked">
+        <div class="badges-mini-list">
+          <div class="badge-item" *ngFor="let badge of badges" [class.locked]="!badge.unlocked" [title]="badge.name">
             <div class="badge-icon">{{ badge.icon }}</div>
-            <span class="badge-name">{{ badge.name }}</span>
           </div>
         </div>
       </div>
 
-      <div class="settings-list">
-        <div class="setting-item">
-          <span>🌙 Modo Oscuro</span>
-          <label class="switch">
-            <input type="checkbox">
-            <span class="slider round"></span>
-          </label>
+      <div class="chart-card">
+        <h3>Tu ADN STEAM</h3>
+        <div class="chart-wrapper">
+          <canvas baseChart [datasets]="radarChartDatasets" [options]="radarChartOptions" [labels]="radarChartLabels"
+            type="radar">
+          </canvas>
         </div>
-        <div class="setting-item">
-          <span>🔔 Notificaciones</span>
-          <label class="switch">
-            <input type="checkbox" checked>
-            <span class="slider round"></span>
-          </label>
-        </div>
-        <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
       </div>
+    </div>
+
+    <!-- SETTINGS SECTION -->
+    <div class="settings-section">
+
+      <!-- CUENTA -->
+      <div class="settings-group">
+        <h3 class="group-title">Cuenta</h3>
+        <div class="settings-card">
+          <div class="setting-item" *ngFor="let item of accountSettings" (click)="handleAction(item.action)">
+            <div class="setting-left">
+              <span class="setting-icon">{{ item.icon }}</span>
+              <span class="setting-title">{{ item.title }}</span>
+            </div>
+            <span class="setting-arrow">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREFERENCIAS -->
+      <div class="settings-group">
+        <h3 class="group-title">Preferencias</h3>
+        <div class="settings-card">
+          <div class="setting-item" *ngFor="let item of preferencesSettings"
+            (click)="!item.isToggle && handleAction(item.action)">
+            <div class="setting-left">
+              <span class="setting-icon">{{ item.icon }}</span>
+              <span class="setting-title">{{ item.title }}</span>
+            </div>
+
+            <div class="setting-right">
+              <span *ngIf="item.value" class="setting-value">{{ item.value }}</span>
+              <span *ngIf="!item.isToggle && !item.value" class="setting-arrow">›</span>
+
+              <label *ngIf="item.isToggle" class="switch" (click)="$event.stopPropagation()">
+                <input type="checkbox" [checked]="item.toggleState" (change)="togglePreference(item)">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOPORTE -->
+      <div class="settings-group">
+        <h3 class="group-title">Soporte y Más</h3>
+        <div class="settings-card">
+          <div class="setting-item" *ngFor="let item of supportSettings" (click)="handleAction(item.action)">
+            <div class="setting-left">
+              <span class="setting-icon">{{ item.icon }}</span>
+              <span class="setting-title">{{ item.title }}</span>
+            </div>
+            <div class="setting-right">
+              <span *ngIf="item.value" class="setting-value">{{ item.value }}</span>
+              <span *ngIf="!item.value" class="setting-arrow">›</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-logout-premium" (click)="logout()">
+        <span class="icon">🚪</span> Cerrar Sesión
+      </button>
 
     </div>
 

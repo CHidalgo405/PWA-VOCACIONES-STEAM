@@ -1,169 +1,327 @@
+/* --- PREMIUM PROFILE STYLES --- */
 .profile-container {
   min-height: 100vh;
-  background-color: var(--bg-app); /* Gris muy claro */
-  padding: 20px;
-  padding-bottom: 90px; /* Espacio navbar */
+  background-color: #F8FAFC;
+  padding: 20px 20px 100px 20px;
+  font-family: 'Poppins', sans-serif;
 }
 
 /* --- GRID LAYOUT RESPONSIVE --- */
 .profile-grid {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: 1fr; /* Móvil: 1 columna */
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
 
-  /* TABLET (2 Columnas) */
-  @media (min-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-    .identity-card { grid-column: span 2; } /* La identidad ocupa todo el ancho */
-  }
-
-  /* DESKTOP (3 Columnas o Layout Asimétrico) */
+  /* DESKTOP (2 Columnas Asimétricas: PerfilIzq | AjustesDer) */
   @media (min-width: 1024px) {
-    grid-template-columns: 300px 1fr 300px; /* Izq Fija - Centro Flexible - Der Fija */
-    align-items: start;
-    max-width: 1400px;
-    margin: 0 auto;
+    flex-direction: row;
+    align-items: flex-start;
     padding-top: 40px;
 
-    .identity-card { grid-column: auto; height: 100%; } /* Vuelve a su columna */
+    .header-section {
+      flex: 0 0 320px;
+      position: sticky;
+      top: 40px;
+    }
+
+    .settings-section {
+      flex: 1;
+    }
   }
 }
 
-/* --- TARJETAS COMUNES --- */
-.identity-card, .chart-card, .badges-card, .settings-list {
-  background: var(--white);
-  border-radius: 24px;
-  padding: 25px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-  text-align: center;
+.header-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-/* 1. Identidad */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* --- TARJETAS COMUNES (EFECTO PREMIUM) --- */
+.identity-card,
+.chart-card,
+.badges-card,
+.settings-card {
+  background: #ffffff;
+  border-radius: 28px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.04);
+  padding: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 1. Identidad Hero */
 .identity-card {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  overflow: hidden;
+
+  /* Adorno de fondo gradiente superior */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(135deg, rgba(7, 177, 201, 0.15) 0%, rgba(77, 176, 70, 0.15) 100%);
+    z-index: 0;
+  }
+
+  >* {
+    z-index: 1;
+  }
+
+  /* Asegurar contenido por encima del gradiente */
 
   .avatar-wrapper {
     position: relative;
-    margin-bottom: 15px;
-    
+    margin-top: 10px;
+    margin-bottom: 20px;
+
     img {
-      width: 100px; height: 100px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
-      border: 4px solid var(--white);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      border: 5px solid white;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+      object-fit: cover;
     }
 
     .level-badge {
       position: absolute;
-      bottom: 0; right: -10px;
-      background: var(--steam-orange);
+      bottom: -4px;
+      right: 50%;
+      transform: translateX(50%);
+      background: linear-gradient(135deg, #F88718, #E8372D);
       color: white;
       font-size: 0.8rem;
-      padding: 4px 8px;
-      border-radius: 12px;
+      padding: 6px 14px;
+      border-radius: 20px;
       font-weight: 700;
-      border: 2px solid var(--white);
+      border: 3px solid white;
+      white-space: nowrap;
+      box-shadow: 0 4px 10px rgba(248, 135, 24, 0.4);
     }
   }
 
-  h2 { margin: 5px 0; font-size: 1.4rem; color: var(--text-main); }
-  .user-title { color: var(--steam-blue); font-weight: 600; margin: 0 0 20px 0; }
+  h2 {
+    margin: 5px 0 2px 0;
+    font-size: 1.6rem;
+    color: #1E293B;
+    font-weight: 800;
+  }
+
+  .user-title {
+    color: #07B1C9;
+    font-weight: 600;
+    margin: 0 0 24px 0;
+    font-size: 0.95rem;
+  }
 
   .btn-edit {
-    background: transparent;
-    border: 1px solid #e0e0e0;
-    padding: 8px 20px;
+    background: #F1F5F9;
+    border: none;
+    padding: 10px 24px;
     border-radius: 20px;
-    color: var(--text-light);
+    color: #475569;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
-    &:hover { border-color: var(--steam-blue); color: var(--steam-blue); }
+    transition: all 0.3s;
+    font-size: 0.9rem;
+
+    &:hover {
+      background: #07B1C9;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(7, 177, 201, 0.3);
+    }
+  }
+
+  /* Mini insignias de la card principal */
+  .badges-mini-list {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid #F1F5F9;
+    width: 100%;
+    justify-content: center;
+
+    .badge-item {
+      background: #F8FAFC;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+
+      &.locked {
+        opacity: 0.4;
+        filter: grayscale(1);
+      }
+    }
   }
 }
 
 /* 2. Gráfico (Chart) */
 .chart-card {
-  min-height: 400px; /* Altura mínima para que el gráfico respire */
+  min-height: 400px;
   display: flex;
   flex-direction: column;
+  padding: 30px 20px;
 
-  h3 { text-align: left; margin-top: 0; }
+  h3 {
+    margin-top: 0;
+    color: #1E293B;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+  }
 
   .chart-wrapper {
     flex: 1;
     position: relative;
     width: 100%;
     height: 100%;
-    /* Truco para centrar el canvas si sobra espacio */
     display: flex;
     align-items: center;
     justify-content: center;
   }
 }
 
-/* 3. Insignias */
-.badges-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 en fila */
-  gap: 10px;
-  margin-top: 15px;
+/* 3. SETTINGS GROUPS */
+.settings-group {
+  .group-title {
+    font-size: 1.1rem;
+    color: #64748B;
+    margin: 0 0 12px 18px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 
-  .badge-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    
-    .badge-icon {
-      font-size: 2rem;
-      background: var(--bg-app);
-      width: 50px; height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 5px;
-    }
-
-    .badge-name { font-size: 0.7rem; font-weight: 600; }
-
-    /* Estado Bloqueado (Gris) */
-    &.locked {
-      opacity: 0.5;
-      filter: grayscale(100%);
-    }
+  .settings-card {
+    padding: 10px 20px;
+    background: #ffffff;
+    border-radius: 28px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
   }
 }
 
-/* 4. Ajustes y Logout */
-.settings-list {
-  margin-top: 20px; /* En PC se separará solo si es necesario */
-  text-align: left;
-  
-  /* En PC lo pegamos arriba si está en la columna derecha */
-  @media (min-width: 1024px) { margin-top: 20px; }
+/* Items individuales de la lista de ajustes */
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 5px;
+  border-bottom: 1px solid #F1F5F9;
+  cursor: pointer;
+  transition: background-color 0.2s;
 
-  .setting-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 0;
-    border-bottom: 1px solid #f0f0f0;
-    font-size: 0.95rem;
+  &:last-child {
+    border-bottom: none;
   }
 
-  .btn-logout {
-    width: 100%;
-    margin-top: 20px;
-    padding: 12px;
-    background: #ffebee;
-    color: #d32f2f;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    &:hover { background: #ffcdd2; }
+  &:hover {
+    .setting-title {
+      color: #07B1C9;
+    }
+
+    .setting-icon {
+      transform: scale(1.1);
+    }
+  }
+
+  .setting-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .setting-icon {
+      font-size: 1.3rem;
+      background: #F8FAFC;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .setting-title {
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: #1E293B;
+      transition: color 0.2s;
+    }
+  }
+
+  .setting-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .setting-value {
+      color: #94A3B8;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+  }
+
+  .setting-arrow {
+    color: #CBD5E1;
+    font-size: 1.8rem;
+    line-height: 1;
+    font-weight: 300;
+    margin-top: -4px;
+  }
+}
+
+/* Botón Logout Estilo Premium */
+.btn-logout-premium {
+  width: 100%;
+  margin-top: 10px;
+  padding: 18px;
+  background: #FFF1F2;
+  color: #E11D48;
+  border: 1px solid rgba(225, 29, 72, 0.1);
+  border-radius: 24px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.05);
+
+  .icon {
+    font-size: 1.2rem;
+  }
+
+  &:hover {
+    background: #FFE4E6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(225, 29, 72, 0.15);
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 
@@ -171,29 +329,45 @@
 .switch {
   position: relative;
   display: inline-block;
-  width: 40px; height: 24px;
-  
-  input { opacity: 0; width: 0; height: 0; }
-  
+  width: 44px;
+  height: 26px;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
   .slider {
     position: absolute;
     cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #ccc;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #E2E8F0;
     transition: .4s;
-    &.round { border-radius: 34px; }
-    
+    border-radius: 34px;
+
     &:before {
       position: absolute;
       content: "";
-      height: 16px; width: 16px;
-      left: 4px; bottom: 4px;
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
       background-color: white;
-      transition: .4s;
+      transition: .4s cubic-bezier(0.34, 1.56, 0.64, 1);
       border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
   }
-  
-  input:checked + .slider { background-color: var(--steam-blue); }
-  input:checked + .slider:before { transform: translateX(16px); }
+
+  input:checked+.slider {
+    background-color: #07B1C9;
+  }
+
+  input:checked+.slider:before {
+    transform: translateX(18px);
+  }
 }

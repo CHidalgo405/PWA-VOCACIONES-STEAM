@@ -47,10 +47,10 @@ export class ProfileComponent {
 
   public radarChartDatasets: ChartConfiguration<'radar'>['data']['datasets'] = [
     {
-      data: [85, 90, 70, 60, 80], // Aquí irían los datos reales de la BD
+      data: [85, 90, 70, 60, 80],
       label: 'Aptitudes',
       fill: true,
-      backgroundColor: 'rgba(7, 177, 201, 0.2)', // Azul STEAM con transparencia
+      backgroundColor: 'rgba(7, 177, 201, 0.2)',
       borderColor: '#07B1C9',
       pointBackgroundColor: '#07B1C9',
       pointBorderColor: '#fff',
@@ -63,9 +63,37 @@ export class ProfileComponent {
   badges = [
     { icon: '🚀', name: 'Pionero', unlocked: true },
     { icon: '🧠', name: 'Cerebrito', unlocked: true },
-    { icon: '🎨', name: 'Creativo', unlocked: false }, // Bloqueada
+    { icon: '🎨', name: 'Creativo', unlocked: false },
     { icon: '🤝', name: 'Social', unlocked: false }
   ];
+
+  // --- SECCIONES PREMIUM DE AJUSTES ---
+  accountSettings = [
+    { icon: '🔒', title: 'Contraseña y Seguridad', action: 'security' },
+    { icon: '🔔', title: 'Notificaciones', action: 'notifications' },
+    { icon: '👤', title: 'Administrar Perfil', action: 'manage' }
+  ];
+
+  preferencesSettings = [
+    { icon: '🌙', title: 'Tema (Modo Oscuro)', action: 'theme', isToggle: true, toggleState: false },
+    { icon: '🌐', title: 'Idioma', action: 'language', value: 'Español' }
+  ];
+
+  supportSettings = [
+    { icon: '❓', title: 'Centro de ayuda', action: 'help' },
+    { icon: '🎧', title: 'Contactar soporte', action: 'contact' },
+    { icon: 'ℹ️', title: 'Acerca de la app', action: 'about', value: 'v1.0.0' }
+  ];
+
+  handleAction(action: string) {
+    console.log(`Ejecutando acción: ${action}`);
+    // Aquí puedes manejar la navegación o modales dependiendo de la acción
+  }
+
+  togglePreference(setting: any) {
+    setting.toggleState = !setting.toggleState;
+    console.log(`Ajuste ${setting.title} cambiado a ${setting.toggleState}`);
+  }
 
   logout() {
     this.authService.logout();
