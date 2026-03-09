@@ -1,14 +1,14 @@
 <div class="splash-container" *ngIf="showSplash" [class.fade-out]="fadeOut">
-  
+
   <div class="spinner-box">
     <div class="orbit steam-blue-orbit leo"></div>
-    
+
     <div class="orbit steam-green-orbit leo"></div>
-    
+
     <div class="orbit steam-orange-orbit leo"></div>
-    
+
     <div class="orbit steam-red-orbit leo"></div>
-    
+
     <div class="core-dot"></div>
   </div>
 
@@ -20,7 +20,7 @@
       <span style="color: #E8372D">A</span>
       <span style="color: #07B1C9">M</span>
     </h1>
-    <p class="brand-subtitle">Descubriendo tu vocación...</p>
+    <p class="brand-subtitle">{{ loadingText }}</p>
   </div>
 
 </div>

@@ -88,12 +88,10 @@
 </div>
 
 <!-- Analyzing / Loading Screen -->
-<div class="vocation-container analyzing-state" *ngIf="viewState === 'analyzing'">
-    <div class="loading-content fade-in">
-        <div class="modern-spinner"></div>
-        <h2 class="loading-text">Analizando tus respuestas con Inteligencia Artificial...</h2>
-    </div>
-</div>
+<app-splash-screen *ngIf="viewState === 'analyzing'"
+    loadingText="Analizando tus respuestas con Inteligencia Artificial..." [controlExternally]="true"
+    [isVisible]="true">
+</app-splash-screen>
 
 <!-- Exit Confirmation Modal -->
 <div class="modal-overlay" *ngIf="showExitModal" (click)="cancelExit()">

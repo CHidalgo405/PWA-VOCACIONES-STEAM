@@ -13,6 +13,7 @@ import { SettingsComponent } from './pages/admin/settings/settings.component';
 import { Error404Component } from './pages/error-404/error-404.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { VocationTestComponent } from './pages/vocation-test/vocation-test.component';
+import { TestResultComponent } from './pages/test-result/test-result.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { guestGuard } from './core/guards/guest.guard';
@@ -24,6 +25,7 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'vocation-test', component: VocationTestComponent, canActivate: [authGuard] },
+  { path: 'test-result', component: TestResultComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'explore', component: ExploreComponent, canActivate: [authGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },

@@ -1,0 +1,102 @@
+<div class="result-container">
+
+    <!-- VIEW 1: Profile Result & AI Search -->
+    <div class="view-profile" *ngIf="viewState === 'result'">
+
+        <div class="celebration-header">
+            <div class="confetti-icon">🎉</div>
+            <h1 class="result-title">¡Descubrimos tu Vocación!</h1>
+            <p class="result-subtitle">Tu perfil dominante es:</p>
+            <h2 class="profile-highlight">{{ userProfile.dominantTraits }}</h2>
+        </div>
+
+        <div class="glass-card profile-desc-card">
+            <p>{{ userProfile.description }}</p>
+        </div>
+
+        <div class="ai-search-banner">
+            <h3>Encuentra la universidad ideal</h3>
+            <p>Nuestra Inteligencia Artificial buscará los mejores programas para tu perfil cerca de ti.</p>
+
+            <div class="search-form">
+                <input type="text" [(ngModel)]="locationInput" placeholder="Ej. Córdoba, Veracruz o C.P. 94500"
+                    class="location-input">
+                <button class="btn-ai-search" (click)="startAISearch()" [disabled]="isSearching">
+                    Encontrar Universidades AI <span class="robot-icon">🤖</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY / FULL SCREEN SPLASH (for Simulation) -->
+    <app-splash-screen *ngIf="isSearching" [loadingText]="splashText" [controlExternally]="true"
+        [isVisible]="isSearching">
+    </app-splash-screen>
+
+    <!-- VIEW 2: Universities Grid -->
+    <div class="view-universities" *ngIf="viewState === 'universities' && !isSearching">
+
+        <div class="universities-header">
+            <button class="btn-back" (click)="goBackToResult()">← Volver al Perfil</button>
+            <h2>Top Recomendaciones para ti</h2>
+            <p>Basado en tu perfil de {{ userProfile.dominantTraits }} en {{ locationInput }}</p>
+        </div>
+
+        <div class="universities-grid">
+            <div class="uni-card" *ngFor="let uni of recommendedUniversities" (click)="openDetails(uni)">
+                <div class="uni-badge">{{ uni.suggestedMajor }}</div>
+                <h3 class="uni-name">{{ uni.name }}</h3>
+                <p class="uni-location">📍 {{ uni.location }}</p>
+                <p class="uni-match">{{ uni.matchReason }}</p>
+                <div class="card-footer">
+                    <span class="read-more">Ver detalles »</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OFF-CANVAS / MODAL DETALLES -->
+    <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()"></div>
+    <div class="details-panel" [class.open]="isModalOpen">
+        <div class="panel-header" *ngIf="selectedUniversity">
+            <button class="btn-close" (click)="closeModal()">✕</button>
+            <div class="panel-badge">{{ selectedUniversity.suggestedMajor }}</div>
+            <h2>{{ selectedUniversity.name }}</h2>
+            <p class="panel-location">📍 {{ selectedUniversity.location }}</p>
+        </div>
+
+        <div class="panel-body" *ngIf="selectedUniversity">
+            <div class="detail-section">
+                <h3>¿Por qué hace match contigo?</h3>
+                <p>{{ selectedUniversity.matchReason }}</p>
+            </div>
+
+            <div class="detail-section">
+                <h3>Fechas Clave</h3>
+                <div class="info-box date-box">
+                    <span class="icon">📅</span> {{ selectedUniversity.keyDates }}
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h3>Plan de Estudios Sugerido</h3>
+                <ul class="study-plan-list">
+                    <li *ngFor="let subject of selectedUniversity.studyPlan">
+                        <span class="bullet">•</span> {{ subject }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="panel-footer" *ngIf="selectedUniversity">
+            <button class="btn-secondary" (click)="saveToFavorites()">
+                <span class="icon">⭐</span> Guardar en favoritos
+            </button>
+            <a [href]="selectedUniversity.websiteUrl" target="_blank" class="btn-primary">
+                Ver sitio web oficial
+            </a>
+        </div>
+    </div>
+
+    <app-navbar></app-navbar>
+</div>

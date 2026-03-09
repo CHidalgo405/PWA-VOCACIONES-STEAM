@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
 
 interface Option {
     id: string;
@@ -22,7 +23,7 @@ interface Question {
 @Component({
     selector: 'app-vocation-test',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, SplashScreenComponent],
     templateUrl: './vocation-test.component.html',
     styleUrls: ['./vocation-test.component.scss']
 })
@@ -267,8 +268,8 @@ export class VocationTestComponent implements OnInit {
 
         // Simulate API call and Analysis
         setTimeout(() => {
-            // In a real app we'd save this score and navigate to results, but for now Dashboard
-            this.router.navigate(['/dashboard']);
+            // Save this score and navigate to results
+            this.router.navigate(['/test-result']);
         }, 3000);
     }
 
