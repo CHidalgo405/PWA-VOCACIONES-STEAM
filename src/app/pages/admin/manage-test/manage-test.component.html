@@ -36,31 +36,31 @@
 
   <div class="balance-panel">
     <h3>Balance del Test (Activas)</h3>
-    <div class="balance-grid" [class.has-active-filter]="filterCategory !== ''">
-      <div class="balance-card ciencia clickable-card" [class.active-filter]="filterCategory === 'Ciencia'"
-        (click)="toggleCategoryFilter('Ciencia')">
+    <div class="balance-grid" [class.has-active-filter]="filterTrait !== ''">
+      <div class="balance-card ciencia clickable-card" [class.active-filter]="filterTrait === 'ciencia'"
+        (click)="toggleCategoryFilter('ciencia')">
         <span class="icon">⚛️</span>
-        <div class="info"><strong>{{ getCount('Ciencia') }}</strong> Ciencia</div>
+        <div class="info"><strong>{{ getCount('ciencia') }}</strong> Ciencia</div>
       </div>
-      <div class="balance-card tecnologia clickable-card" [class.active-filter]="filterCategory === 'Tecnología'"
-        (click)="toggleCategoryFilter('Tecnología')">
+      <div class="balance-card tecnologia clickable-card" [class.active-filter]="filterTrait === 'tecnologia'"
+        (click)="toggleCategoryFilter('tecnologia')">
         <span class="icon">💻</span>
-        <div class="info"><strong>{{ getCount('Tecnología') }}</strong> Tecnología</div>
+        <div class="info"><strong>{{ getCount('tecnologia') }}</strong> Tecnología</div>
       </div>
-      <div class="balance-card ingenieria clickable-card" [class.active-filter]="filterCategory === 'Ingeniería'"
-        (click)="toggleCategoryFilter('Ingeniería')">
+      <div class="balance-card ingenieria clickable-card" [class.active-filter]="filterTrait === 'ingenieria'"
+        (click)="toggleCategoryFilter('ingenieria')">
         <span class="icon">⚙️</span>
-        <div class="info"><strong>{{ getCount('Ingeniería') }}</strong> Ingeniería</div>
+        <div class="info"><strong>{{ getCount('ingenieria') }}</strong> Ingeniería</div>
       </div>
-      <div class="balance-card artes clickable-card" [class.active-filter]="filterCategory === 'Artes'"
-        (click)="toggleCategoryFilter('Artes')">
+      <div class="balance-card artes clickable-card" [class.active-filter]="filterTrait === 'artes'"
+        (click)="toggleCategoryFilter('artes')">
         <span class="icon">🎨</span>
-        <div class="info"><strong>{{ getCount('Artes') }}</strong> Artes</div>
+        <div class="info"><strong>{{ getCount('artes') }}</strong> Artes</div>
       </div>
-      <div class="balance-card matematicas clickable-card" [class.active-filter]="filterCategory === 'Matemáticas'"
-        (click)="toggleCategoryFilter('Matemáticas')">
+      <div class="balance-card matematicas clickable-card" [class.active-filter]="filterTrait === 'matematicas'"
+        (click)="toggleCategoryFilter('matematicas')">
         <span class="icon">📐</span>
-        <div class="info"><strong>{{ getCount('Matemáticas') }}</strong> Matemáticas</div>
+        <div class="info"><strong>{{ getCount('matematicas') }}</strong> Matemáticas</div>
       </div>
     </div>
   </div>
@@ -71,10 +71,9 @@
       <span class="search-icon">🔍</span>
       <input type="text" placeholder="Buscar por palabra clave..." [(ngModel)]="searchTerm">
     </div>
-    <select [(ngModel)]="filterCategory" class="search-select">
-      <option value="">Todas las Categorías</option>
-      <option *ngFor="let cat of categories" [value]="cat" [disabled]="cat === 'Ninguna'" [hidden]="cat === 'Ninguna'">
-        {{ cat }}</option>
+    <select [(ngModel)]="filterTrait" (change)="currentPage = 1" class="search-select">
+      <option value="">Todas las Aptitudes</option>
+      <option *ngFor="let trait of traitOptions" [value]="trait.value">{{ trait.label }}</option>
     </select>
   </div>
 
@@ -105,15 +104,35 @@
         <thead>
           <tr>
             <th style="width: 40px; text-align: center;">✓</th>
-            <th style="width: 50%;">Pregunta</th>
-            <th>Ponderación Principal</th>
-            <th>Secundaria</th>
+            <th style="width: 50%;">Pregunta (Orden)</th>
+            <th>Aptitudes STEAM Evaluadas</th>
             <th>Estado</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody *ngIf="isLoading">
+          <!-- SKELETON ROWS -->
+          <tr *ngFor="let i of skeletonArray" class="skeleton-row">
+            <td><div class="shimmer" style="width: 16px; height: 16px; border-radius: 4px; margin: 0 auto;"></div></td>
+            <td>
+              <div class="shimmer" style="width: 80%; height: 16px; border-radius: 4px; margin-bottom: 6px;"></div>
+              <div class="shimmer" style="width: 40%; height: 12px; border-radius: 4px;"></div>
+            </td>
+            <td>
+              <div class="shimmer" style="width: 90%; height: 20px; border-radius: 12px;"></div>
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <div class="shimmer" style="width: 8px; height: 8px; border-radius: 50%;"></div>
+                <div class="shimmer" style="width: 50px; height: 16px; border-radius: 4px;"></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+        <tbody *ngIf="!isLoading">
+          <!-- REAL ROWS -->
           <tr *ngFor="let q of paginatedQuestions" (click)="toggleSelection(q, $event)" [class.selected]="isSelected(q)"
-            [class.inactive-row]="q.status === 'Inactivo'" style="cursor: pointer;">
+            [class.inactive-row]="!q.isActive" style="cursor: pointer;">
 
             <td style="text-align: center;">
               <input type="checkbox" [checked]="isSelected(q)"
@@ -124,24 +143,32 @@
             <td class="question-text">
               <a href="javascript:void(0)" (click)="$event.stopPropagation(); openModal('view', q, $event)"
                 style="color: var(--primary-color); text-decoration: none; font-weight: bold;">
-                {{ q.text }}
+                <span style="color: #7F8C8D; margin-right: 5px;">#{{ q.order }}.</span> {{ q.text }}
               </a>
             </td>
 
-            <td><span class="badge" [ngClass]="q.category | lowercase">{{ q.category }}</span></td>
             <td>
-              <span *ngIf="q.secondary !== 'Ninguna'" class="badge secondary">{{ q.secondary }}</span>
-              <span *ngIf="q.secondary === 'Ninguna'" class="text-muted">-</span>
+              <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                <span *ngFor="let opt of q.options" class="badge {{ opt.steamTrait }}" [title]="opt.text">
+                  {{ opt.letter }} ({{ opt.steamTrait }})
+                </span>
+                <span *ngIf="!q.options || q.options.length === 0" class="text-muted">Sin opciones</span>
+              </div>
             </td>
             <td (click)="toggleStatus(q, $event)" class="clickable-status" title="Clic para alternar estado">
-              <span class="status-dot" [class.active]="q.status === 'Activo'"></span>
-              {{ q.status }}
+              <span class="status-dot" [class.active]="q.isActive"></span>
+              {{ q.isActive ? 'Activo' : 'Inactivo' }}
             </td>
           </tr>
         </tbody>
       </table>
-      <div *ngIf="paginatedQuestions.length === 0" style="padding: 20px; text-align: center; color: var(--text-muted);">
-        No se encontraron preguntas que coincidan con la búsqueda.
+      
+      <!-- EMPTY STATE -->
+      <div *ngIf="!isLoading && paginatedQuestions.length === 0" class="empty-state-card">
+        <div class="empty-icon">📝</div>
+        <h3>No hay preguntas en esta categoría</h3>
+        <p>Intenta buscar con otras palabras base o limpia los filtros del panel de balance.</p>
+        <button class="btn-secondary" style="margin-top: 15px;" (click)="searchTerm = ''; filterTrait = ''">Mostrar Todas</button>
       </div>
     </div>
 
@@ -174,102 +201,175 @@
 
 </div>
 
-
 <div class="modal-overlay" *ngIf="isModalOpen">
-  <div class="modal-box">
 
-    <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+  <!-- Flechas de navegación externas (view y edit) -->
+  <button type="button" *ngIf="modalMode !== 'create'" (click)="previousQuestion()"
+    [disabled]="viewedQuestionIndex <= 0" class="nav-arrow-side prev"
+    [class.hidden]="false">
+    &#8592;
+  </button>
 
-      <div style="display: flex; align-items: center; gap: 15px;">
-        <button type="button" *ngIf="modalMode !== 'create'" (click)="previousQuestion()"
-          [disabled]="viewedQuestionIndex <= 0" class="nav-arrow">
-          &#8592;
-        </button>
+  <div class="modal-box" [class.view-mode]="modalMode === 'view' || modalMode === 'edit'">
 
-        <h2 style="margin: 0;">{{ modalMode === 'create' ? 'Nueva Pregunta' : (modalMode === 'edit' ? 'Editar Pregunta'
-          : 'Detalles de la Pregunta') }}</h2>
+    <button class="btn-close-modal-floating" (click)="closeModal()">✕</button>
 
-        <button type="button" *ngIf="modalMode !== 'create'" (click)="nextQuestion()"
-          [disabled]="viewedQuestionIndex >= filteredQuestionsList.length - 1" class="nav-arrow">
-          &#8594;
-        </button>
+    <!-- SIDEBAR (View y Edit) -->
+    <div class="modal-sidebar" *ngIf="modalMode === 'view' || modalMode === 'edit'">
+
+      <!-- Número de orden como "avatar" -->
+      <div class="question-order-badge">
+        <span class="order-number">#{{ questionForm.order }}</span>
+        <span class="order-label">Orden</span>
       </div>
 
-      <button class="btn-close-modal" (click)="closeModal()">✕</button>
+      <p class="sidebar-question-preview">{{ questionForm.text | slice:0:80 }}{{ questionForm.text?.length > 80 ? '...' : '' }}</p>
+
+      <!-- Badges de aptitudes STEAM de las opciones -->
+      <div class="sidebar-traits">
+        <span *ngFor="let opt of questionForm.options" class="sidebar-trait-badge {{ opt.steamTrait }}">
+          {{ opt.letter }}. {{ opt.steamTrait | titlecase }}
+        </span>
+        <span *ngIf="!questionForm.options || questionForm.options.length === 0" style="color: #94a3b8; font-size: 0.85rem;">Sin opciones</span>
+      </div>
+
+      <!-- Estado visual -->
+      <div class="sidebar-status" [class.active]="questionForm.status === 'Activo'">
+        <span class="status-indicator"></span>
+        {{ questionForm.status === 'Activo' ? 'Activa' : 'Inactiva' }}
+      </div>
+
+      <div class="sidebar-menu" style="margin-top: 20px;">
+        <button class="menu-item active">{{ modalMode === 'edit' ? '✏️ Editando' : '📋 Detalles' }}</button>
+        <button class="menu-item">📊 Estadísticas</button>
+      </div>
+
+      <!-- Botón volver a vista (solo edit) -->
+      <button *ngIf="modalMode === 'edit'" type="button" class="btn-back-to-view"
+        (click)="modalMode = 'view'; isFormDirty = false;">
+        ← Cancelar edición
+      </button>
     </div>
 
-    <div class="modal-body">
-      <form (ngSubmit)="saveQuestion()" #testNgForm="ngForm">
+    <!-- ÁREA DE CONTENIDO -->
+    <div class="modal-content-area">
+      <div class="modal-header-split">
+        <h2>{{ modalMode === 'create' ? 'Nueva Pregunta' : (modalMode === 'edit' ? 'Editar Pregunta' : 'Detalles de la Pregunta') }}</h2>
+      </div>
 
-        <div class="form-grid-test" [style.opacity]="modalMode === 'view' ? '0.8' : '1'">
+      <div class="modal-body">
+        <form (ngSubmit)="saveQuestion()" #testNgForm="ngForm">
 
-          <div class="input-group full-width">
-            <label>Texto de la Pregunta <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
-            <textarea name="text" [(ngModel)]="questionForm.text" (ngModelChange)="onFormChange()" rows="3"
-              placeholder="Ej: ¿Te gusta armar robots?" [readonly]="modalMode === 'view'" required maxlength="250"
-              pattern="^(?!.*(.)\1{4})[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\?,¿!¡.\-']{5,250}$" #textModel="ngModel"
-              [ngClass]="{'invalid-input': textModel.invalid && textModel.touched}"></textarea>
-            <small *ngIf="textModel.invalid && textModel.touched && modalMode !== 'view'" style="color: red;">Ingresa
-              una pregunta válida (5-250
-              caracteres, sin letras repetidas excesivamente).</small>
+          <div class="form-grid-test">
+
+            <!-- Orden + Texto -->
+            <div class="input-group full-width" style="display: flex; gap: 15px;">
+              <div style="flex: 0 0 100px;">
+                <label>Nº Orden <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
+                <input type="number" name="order" [(ngModel)]="questionForm.order"
+                  (ngModelChange)="onFormChange()" [readonly]="modalMode === 'view'"
+                  required min="1" max="999">
+              </div>
+              <div style="flex: 1;">
+                <label>Texto de la Pregunta <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
+                <textarea name="text" [(ngModel)]="questionForm.text"
+                  (ngModelChange)="onFormChange()" rows="3"
+                  placeholder="Ej: ¿Te gusta armar robots?" [readonly]="modalMode === 'view'"
+                  required maxlength="250" #textModel="ngModel"
+                  [ngClass]="{'invalid-input': textModel.invalid && textModel.touched && modalMode !== 'view'}"></textarea>
+              </div>
+            </div>
+
+            <!-- Opciones de Respuesta -->
+            <div class="input-group full-width">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <label style="margin: 0;">Opciones de Respuesta <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
+                <button *ngIf="modalMode !== 'view'" type="button" class="btn-add-option" (click)="addOption()">+ Añadir Opción</button>
+              </div>
+
+              <div *ngFor="let opt of questionForm.options; let i = index" class="option-card">
+                <div class="option-letter-badge {{ opt.steamTrait }}">{{ opt.letter }}</div>
+                <div class="option-fields">
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div style="flex: 0 0 70px;">
+                      <label style="font-size: 0.75rem;">Letra</label>
+                      <input type="text" [(ngModel)]="opt.letter" name="letter_{{i}}"
+                        (ngModelChange)="onFormChange()" [readonly]="modalMode === 'view'"
+                        maxlength="3" required style="text-align: center; text-transform: uppercase; padding: 8px;">
+                    </div>
+                    <div style="flex: 2; min-width: 160px;">
+                      <label style="font-size: 0.75rem;">Texto de la opción</label>
+                      <input type="text" [(ngModel)]="opt.text" name="optText_{{i}}"
+                        (ngModelChange)="onFormChange()" [readonly]="modalMode === 'view'"
+                        placeholder="Ej: Me gusta programar..." required>
+                    </div>
+                    <div style="flex: 1; min-width: 140px;">
+                      <label style="font-size: 0.75rem;">Aptitud STEAM</label>
+                      <select [(ngModel)]="opt.steamTrait" name="trait_{{i}}"
+                        (ngModelChange)="onFormChange()" [disabled]="modalMode === 'view'" required>
+                        <option *ngFor="let t of traitOptions" [value]="t.value">{{ t.label }}</option>
+                      </select>
+                    </div>
+                    <div style="display: flex; align-items: flex-end;"
+                      *ngIf="modalMode !== 'view' && questionForm.options.length > 1">
+                      <button type="button" class="btn-remove-option" (click)="removeOption(i)" title="Eliminar opción">✕</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Toggle Estado -->
+            <div class="input-group full-width" style="flex-direction: row; align-items: center; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+              <label class="switch">
+                <input type="checkbox" name="status"
+                  [checked]="questionForm.status === 'Activo'"
+                  [disabled]="modalMode === 'view'"
+                  (change)="onFormChange(); questionForm.status = questionForm.status === 'Activo' ? 'Inactivo' : 'Activo'">
+                <span class="slider round"></span>
+              </label>
+              <div>
+                <span style="font-weight: 600; color: #1e293b; font-size: 0.95rem;">
+                  {{ questionForm.status === 'Activo' ? 'Pregunta Activa' : 'Pregunta Inactiva' }}
+                </span>
+                <p style="margin: 2px 0 0; color: #64748b; font-size: 0.8rem;">
+                  {{ questionForm.status === 'Activo' ? 'Visible en el test vocacional' : 'Oculta del test vocacional' }}
+                </p>
+              </div>
+            </div>
+
           </div>
 
-          <div class="input-group">
-            <label>Categoría Principal (Suma +2 pts) <span *ngIf="modalMode !== 'view'"
-                style="color: red;">*</span></label>
-            <select name="category" [(ngModel)]="questionForm.category" (ngModelChange)="onFormChange()"
-              [disabled]="modalMode === 'view'" required>
-              <option *ngFor="let cat of categories" [value]="cat" [disabled]="cat === 'Ninguna'">{{ cat }}</option>
-            </select>
+          <!-- Footer -->
+          <div class="modal-footer">
+            <ng-container *ngIf="modalMode === 'view'">
+              <button type="button" class="btn-action delete" (click)="deleteQuestionFromModal()" style="margin-right: auto;">
+                🗑️ Eliminar
+              </button>
+              <button type="button" class="btn-secondary" (click)="closeModal()">Cerrar</button>
+              <button type="button" class="btn-primary" (click)="switchToEdit()">✏️ Editar</button>
+            </ng-container>
+
+            <ng-container *ngIf="modalMode !== 'view'">
+              <button type="button" class="btn-secondary" (click)="closeModal()" [disabled]="isSubmitting">Cancelar</button>
+              <button type="submit" class="btn-primary" [disabled]="!testNgForm.valid || isSubmitting">
+                <span *ngIf="isSubmitting">⏳ Procesando...</span>
+                <span *ngIf="!isSubmitting">💾 Guardar Pregunta</span>
+              </button>
+            </ng-container>
           </div>
 
-          <div class="input-group">
-            <label>Categoría Secundaria (Suma +1 pt)</label>
-            <select name="secondary" [(ngModel)]="questionForm.secondary" (ngModelChange)="onFormChange()"
-              [disabled]="modalMode === 'view'">
-              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-            </select>
-          </div>
-
-          <div class="input-group full-width"
-            style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
-            <label class="switch">
-              <input type="checkbox" name="status" [checked]="questionForm.status === 'Activo'"
-                [disabled]="modalMode === 'view'"
-                (change)="onFormChange(); questionForm.status = questionForm.status === 'Activo' ? 'Inactivo' : 'Activo'">
-              <span class="slider round"></span>
-            </label>
-            <span style="font-weight: 600; color: #2C3E50;">
-              {{ questionForm.status === 'Activo' ? 'Pregunta Activa (Visible en el test)' : 'Pregunta Inactiva
-              (Oculta)' }}
-            </span>
-          </div>
-
-        </div>
-
-        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-
-          <ng-container *ngIf="modalMode === 'view'">
-            <button type="button" class="btn-action delete" (click)="deleteQuestionFromModal()"
-              style="margin-right: auto;">
-              🗑️ Eliminar
-            </button>
-            <button type="button" class="btn-secondary" (click)="closeModal()">Cerrar</button>
-            <button type="button" class="btn-action edit" (click)="switchToEdit()">✏️ Editar</button>
-          </ng-container>
-
-          <ng-container *ngIf="modalMode !== 'view'">
-            <button type="button" class="btn-secondary" (click)="closeModal()"
-              [disabled]="isSubmitting">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="!testNgForm.valid || isSubmitting">
-              <span *ngIf="isSubmitting">⏳ Procesando...</span>
-              <span *ngIf="!isSubmitting">💾 Guardar Pregunta</span>
-            </button>
-          </ng-container>
-
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
 
   </div>
+
+  <!-- Flecha siguiente -->
+  <button type="button" *ngIf="modalMode !== 'create'" (click)="nextQuestion()"
+    [disabled]="viewedQuestionIndex >= filteredQuestionsList.length - 1"
+    class="nav-arrow-side next">
+    &#8594;
+  </button>
+
 </div>

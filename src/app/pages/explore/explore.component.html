@@ -32,49 +32,165 @@
 
   <div class="content-grid">
     
-    <ng-container *ngIf="activeTab === 'universities'">
-      <div class="card-university" *ngFor="let uni of universities">
-        <div class="card-image" [style.backgroundImage]="'url(' + uni.image + ')'">
-          <span class="rating-badge">⭐ {{ uni.rating }}</span>
-          <button class="favorite-btn">❤</button>
-        </div>
-        <div class="card-details">
-          <div class="uni-header">
-            <span class="uni-logo">{{ uni.logo }}</span>
-            <div class="uni-info">
-              <h3>{{ uni.name }}</h3>
-              <p class="location">📍 {{ uni.location }}</p>
-            </div>
-          </div>
-          <div class="tags-row">
-            <span class="tag" *ngFor="let tag of uni.tags">{{ tag }}</span>
-          </div>
-          <button class="btn-view">Ver Oferta Académica</button>
-        </div>
+    <div class="recommendation-banner" *ngIf="!hasTakenTest">
+      <div class="banner-icon">💡</div>
+      <div class="banner-text">
+        <h3>¿Aún no sabes qué estudiar?</h3>
+        <p>Realiza el test vocacional para obtener sugerencias personalizadas y adaptadas a tus intereses y aptitudes.</p>
       </div>
+      <button class="btn-banner" routerLink="/vocation-test">Hacer Test</button>
+    </div>
+
+    <ng-container *ngIf="activeTab === 'universities'">
+      <!-- SKELETONS UNIVERSIDADES -->
+      <ng-container *ngIf="isLoading">
+        <div class="card-university skeleton-card" *ngFor="let i of skeletonArray">
+          <div class="card-image shimmer"></div>
+          <div class="card-details">
+            <div class="uni-header">
+              <div class="uni-logo shimmer" style="width: 40px; height: 40px; border-radius: 8px;"></div>
+              <div class="uni-info" style="width: 70%;">
+                <div class="shimmer" style="height: 16px; width: 100%; border-radius: 4px; margin-bottom: 8px;"></div>
+                <div class="shimmer" style="height: 12px; width: 60%; border-radius: 4px;"></div>
+              </div>
+            </div>
+            <div class="tags-row">
+              <div class="tag shimmer" style="width: 60px; height: 20px;"></div>
+              <div class="tag shimmer" style="width: 80px; height: 20px;"></div>
+            </div>
+            <div class="shimmer" style="width: 100%; height: 36px; border-radius: 10px; margin-top: 10px;"></div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- RESULTADOS REALES -->
+      <ng-container *ngIf="!isLoading">
+        <div class="card-university" *ngFor="let uni of filteredUniversities">
+          <div class="card-image" [style.backgroundImage]="'url(' + uni.image + ')'">
+            <span class="rating-badge">⭐ {{ uni.rating }}</span>
+            <button class="favorite-btn">❤</button>
+          </div>
+          <div class="card-details">
+            <div class="uni-header">
+              <span class="uni-logo">{{ uni.logo }}</span>
+              <div class="uni-info">
+                <h3>{{ uni.name }}</h3>
+                <p class="location">📍 {{ uni.location }}</p>
+              </div>
+            </div>
+            <div class="tags-row">
+              <span class="tag" *ngFor="let tag of uni.tags">{{ tag }}</span>
+            </div>
+            <button class="btn-view">Ver Oferta Académica</button>
+          </div>
+        </div>
+
+        <!-- EMPTY STATE UNIVERSIDADES -->
+        <div class="empty-state-container full-width-grid" *ngIf="filteredUniversities.length === 0">
+          <div class="empty-icon">📭</div>
+          <h3>No encontramos universidades</h3>
+          <p>Intenta con otros términos de búsqueda o filtros diferentes.</p>
+        </div>
+      </ng-container>
     </ng-container>
 
     <ng-container *ngIf="activeTab === 'courses'">
-      <div class="card-course" *ngFor="let course of courses">
-        <div class="course-image-container">
-          <img [src]="course.image" alt="Course">
-          <span class="level-badge">{{ course.level }}</span>
-        </div>
-        <div class="course-content">
-          <span class="provider">{{ course.provider }}</span>
-          <h3>{{ course.title }}</h3>
-          <div class="meta-info">
-            <span>⏱ {{ course.duration }}</span>
-            <span [class.free]="course.isFree" class="price-tag">
-              {{ course.isFree ? 'Gratis' : 'Premium' }}
-            </span>
+      <!-- SKELETONS CURSOS -->
+      <ng-container *ngIf="isLoading">
+        <div class="card-course skeleton-card" *ngFor="let i of skeletonArray">
+          <div class="course-image-container shimmer" style="width: 80px; height: 80px; border-radius: 12px;"></div>
+          <div class="course-content" style="width: 100%;">
+            <div class="shimmer" style="height: 12px; width: 40%; border-radius: 4px; margin-bottom: 8px;"></div>
+            <div class="shimmer" style="height: 16px; width: 80%; border-radius: 4px; margin-bottom: 12px;"></div>
+            <div style="display: flex; justify-content: space-between; width: 100%;">
+              <div class="shimmer" style="height: 12px; width: 30%; border-radius: 4px;"></div>
+              <div class="shimmer" style="height: 12px; width: 20%; border-radius: 4px;"></div>
+            </div>
           </div>
         </div>
-      </div>
+      </ng-container>
+
+      <!-- RESULTADOS REALES -->
+      <ng-container *ngIf="!isLoading">
+        <div class="card-course" *ngFor="let course of filteredCourses" (click)="openCourseDetail(course)" style="cursor: pointer;">
+          <div class="course-image-container">
+            <img [src]="course.image" alt="Course">
+            <span class="level-badge">{{ course.level }}</span>
+          </div>
+          <div class="course-content">
+            <span class="provider">{{ course.provider }}</span>
+            <h3>{{ course.title }}</h3>
+            <div class="meta-info">
+              <span>⏱ {{ course.duration }}</span>
+              <span [class.free]="course.isFree" class="price-tag">
+                {{ course.isFree ? 'Gratis' : 'Premium' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- EMPTY STATE CURSOS -->
+        <div class="empty-state-container full-width-grid" *ngIf="filteredCourses.length === 0">
+          <div class="empty-icon">🔍</div>
+          <h3>No hay cursos que coincidan</h3>
+          <p>Prueba buscando otras habilidades o plataformas.</p>
+        </div>
+      </ng-container>
     </ng-container>
 
   </div>
 
   <app-navbar></app-navbar>
 
+</div>
+
+<!-- MODAL DE DETALLES DEL CURSO (Tipo App Store) -->
+<div class="course-modal-overlay" *ngIf="isCourseModalOpen" (click)="closeCourseModal()">
+  <div class="course-modal-content" (click)="$event.stopPropagation()" [class.slide-up]="isCourseModalOpen">
+    
+    <div class="modal-header-image" [style.backgroundImage]="'url(' + selectedCourse?.image + ')'">
+      <button class="btn-close-modal" (click)="closeCourseModal()">✕</button>
+      <div class="image-gradient-overlay"></div>
+    </div>
+
+    <div class="modal-body-scroll">
+      
+      <div class="course-header-info">
+        <span class="provider-badge">{{ selectedCourse?.provider }}</span>
+        <h2>{{ selectedCourse?.title }}</h2>
+        <div class="meta-tags">
+          <span class="tag">⏱ {{ selectedCourse?.duration }}</span>
+          <span class="tag">📈 {{ selectedCourse?.level }}</span>
+          <span class="tag highlight" *ngIf="selectedCourse?.isFree">🎁 Gratis</span>
+        </div>
+      </div>
+
+      <div class="course-section">
+        <h3>Sobre este curso</h3>
+        <p class="description-text">
+          Este programa está diseñado para llevarte desde los conceptos básicos hasta el dominio práctico. Aprenderás a través de módulos interactivos, proyectos reales y evaluaciones continuas. Ideal para estudiantes que buscan potenciar sus habilidades STEAM.
+        </p>
+      </div>
+
+      <div class="course-section">
+        <h3>Temario (Syllabus)</h3>
+        <div class="syllabus-list">
+          <div class="syllabus-item" *ngFor="let item of courseSyllabus">
+            <div class="module-number">{{ item.module }}</div>
+            <div class="module-info">
+              <h4>{{ item.title }}</h4>
+              <span>{{ item.duration }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-action-footer">
+      <button class="btn-favorite-large">❤</button>
+      <button class="btn-primary-large">Inscribirme Ahora</button>
+    </div>
+
+  </div>
 </div>

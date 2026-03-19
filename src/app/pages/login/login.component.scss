@@ -55,6 +55,35 @@
     transform: scale(0.98) translateY(0);
     box-shadow: 0 4px 10px rgba(7, 177, 201, 0.3);
   }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+/* Botón bloqueado (cuenta suspendida temporalmente) */
+.btn-blocked {
+  background-image: linear-gradient(to right, #9ca3af 0%, #6b7280 51%, #9ca3af 100%) !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.85;
+}
+
+/* Spinner de carga dentro del botón */
+.btn-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Variante para REGISTRO (Tonos Cálidos: Naranja/Rojo) */

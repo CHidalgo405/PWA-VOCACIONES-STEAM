@@ -62,7 +62,24 @@
             <th>Estado</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody *ngIf="isLoading">
+          <!-- SKELETON ROWS -->
+          <tr *ngFor="let i of skeletonArray" class="skeleton-row">
+            <td><div class="shimmer" style="width: 16px; height: 16px; border-radius: 4px; margin: 0 auto;"></div></td>
+            <td><div class="shimmer" style="width: 120px; height: 16px; border-radius: 4px;"></div></td>
+            <td><div class="shimmer" style="width: 150px; height: 16px; border-radius: 4px;"></div></td>
+            <td><div class="shimmer" style="width: 70px; height: 20px; border-radius: 12px;"></div></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <div class="shimmer" style="width: 8px; height: 8px; border-radius: 50%;"></div>
+                <div class="shimmer" style="width: 50px; height: 16px; border-radius: 4px;"></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+        <tbody *ngIf="!isLoading">
+          <!-- RESULTADOS REALES -->
           <tr *ngFor="let u of paginatedUsers" (click)="toggleUserSelection(u, $event)" [class.selected]="isSelected(u)"
             style="cursor: pointer;">
             <td style="text-align: center;">
@@ -73,20 +90,25 @@
             <td>
               <a href="javascript:void(0)" (click)="$event.stopPropagation(); openModal('view', u, $event)"
                 style="color: var(--primary-color); text-decoration: none; font-weight: bold;">
-                {{ u.nombre }} {{ u.apellidos }}
+                {{ u.fullname }}
               </a>
             </td>
             <td>{{ u.email }}</td>
-            <td><span class="role-badge">{{ u.rol }}</span></td>
+            <td><span class="role-badge">{{ u.role === 'admin' ? 'Admin' : 'Estudiante' }}</span></td>
             <td>
-              <span class="status-dot" [class.active]="u.estado === 'Activo'"></span>
-              {{ u.estado }}
+              <span class="status-dot" [class.active]="u.isEmailVerified"></span>
+              {{ u.isEmailVerified ? 'Activo' : 'Inactivo' }}
             </td>
           </tr>
         </tbody>
       </table>
-      <div *ngIf="paginatedUsers.length === 0" style="padding: 20px; text-align: center; color: var(--text-muted);">
-        No se encontraron usuarios que coincidan con la búsqueda.
+      
+      <!-- EMPTY STATE -->
+      <div *ngIf="!isLoading && paginatedUsers.length === 0" class="empty-state-card">
+        <div class="empty-icon">🕵️‍♂️</div>
+        <h3>No se encontraron usuarios</h3>
+        <p>No hay estudiantes ni administradores que coincidan con tu búsqueda actual.</p>
+        <button class="btn-secondary" style="margin-top: 15px;" (click)="searchTerm = ''; filterRole = ''">Limpiar Filtros</button>
       </div>
     </div>
 
@@ -136,117 +158,176 @@
 </div>
 
 <div class="modal-overlay" *ngIf="isModalOpen">
-  <div class="modal-box">
 
-    <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
-      <div style="display: flex; align-items: center; gap: 15px;">
-        <button type="button" *ngIf="modalMode !== 'create'" (click)="previousUser()" [disabled]="viewedUserIndex <= 0"
-          class="nav-arrow">
-          &#8592;
-        </button>
+  <!-- Flechas de Navegación (visibles en view y edit) -->
+  <button type="button" *ngIf="modalMode !== 'create'" (click)="previousUser()" [disabled]="viewedUserIndex <= 0"
+    class="nav-arrow-side prev" [class.hidden]="false">
+    &#8592;
+  </button>
 
-        <h2 style="margin: 0;">{{ modalMode === 'create' ? 'Crear Nuevo Usuario' : (modalMode === 'edit' ? 'Editar
-          Usuario' : 'Detalles del Usuario') }}</h2>
+  <div class="modal-box" [class.view-mode]="modalMode === 'view' || modalMode === 'edit'">
 
-        <button type="button" *ngIf="modalMode !== 'create'" (click)="nextUser()"
-          [disabled]="viewedUserIndex >= filteredUsersList.length - 1" class="nav-arrow">
-          &#8594;
-        </button>
+    <button class="btn-close-modal-floating" (click)="closeModal()">✕</button>
+
+    <!-- SIDEBAR DEL MODAL (En View y Edit Mode) -->
+    <div class="modal-sidebar" *ngIf="modalMode === 'view' || modalMode === 'edit'">
+      <div class="avatar-container">
+        <img *ngIf="userForm.avatarUrl" [src]="userForm.avatarUrl" alt="Avatar">
+        <div *ngIf="!userForm.avatarUrl" class="avatar-placeholder">
+          {{ userForm.nombre.charAt(0) | uppercase }}{{ userForm.apellidos.charAt(0) | uppercase }}
+        </div>
       </div>
-      <button class="btn-close-modal" (click)="closeModal()">✕</button>
+      <h3 class="sidebar-name">{{ userForm.nombre }} {{ userForm.apellidos }}</h3>
+      <p class="sidebar-role">{{ userForm.role === 'admin' ? 'Administrador' : 'Estudiante' }}</p>
+
+      <div class="sidebar-menu">
+        <button class="menu-item active">{{ modalMode === 'edit' ? '✏️ Editando' : '👤 Detalles de Cuenta' }}</button>
+        <button class="menu-item" *ngIf="userForm.role === 'student'">📊 Progreso STEAM</button>
+        <button class="menu-item">⚙️ Preferencias</button>
+      </div>
+
+      <!-- Botón de volver a vista (solo en edit) -->
+      <button *ngIf="modalMode === 'edit'" type="button" class="btn-back-to-view" (click)="modalMode = 'view'; isFormDirty = false;">
+        ← Cancelar edición
+      </button>
     </div>
 
-    <div class="modal-body">
-      <form (ngSubmit)="saveUser()" #userNgForm="ngForm">
-        <div class="form-grid" [style.opacity]="modalMode === 'view' ? '0.8' : '1'">
+    <!-- CONTENIDO DEL MODAL -->
+    <div class="modal-content-area">
+      <div class="modal-header">
+        <h2>
+          {{ modalMode === 'create' ? 'Crear Nuevo Usuario' :
+            (modalMode === 'edit' ? 'Editar Información' : 'Detalles de Cuenta') }}
+        </h2>
+      </div>
 
-          <div class="input-group">
-            <label>Nombre <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
-            <input type="text" name="nombre" [(ngModel)]="userForm.nombre" (ngModelChange)="onFormChange()"
-              placeholder="Nombre" [readonly]="modalMode === 'view'" required maxlength="50"
-              pattern="^(?!.*(.)\1{3})[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s,.'-]{2,50}$" #nombreModel="ngModel"
-              [ngClass]="{'invalid-input': nombreModel.invalid && nombreModel.touched}">
-            <small *ngIf="nombreModel.invalid && nombreModel.touched && modalMode !== 'view'"
-              style="color: red;">Ingresa un nombre válido.</small>
-          </div>
+      <div class="modal-body">
+        <form (ngSubmit)="saveUser()" #userNgForm="ngForm">
 
-          <div class="input-group">
-            <label>Apellidos <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
-            <input type="text" name="apellidos" [(ngModel)]="userForm.apellidos" (ngModelChange)="onFormChange()"
-              placeholder="Apellidos" [readonly]="modalMode === 'view'" required maxlength="50"
-              pattern="^(?!.*(.)\1{3})[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s,.'-]{2,50}$" #apellidoModel="ngModel"
-              [ngClass]="{'invalid-input': apellidoModel.invalid && apellidoModel.touched}">
-            <small *ngIf="apellidoModel.invalid && apellidoModel.touched && modalMode !== 'view'"
-              style="color: red;">Ingresa apellidos válidos.</small>
-          </div>
-
-          <div class="input-group full-width">
-            <label>Email <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
-            <input type="email" name="email" [(ngModel)]="userForm.email" (ngModelChange)="onFormChange()"
-              placeholder="nombre@ejemplo.com" [readonly]="modalMode === 'view'" required maxlength="100"
-              pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" #emailModel="ngModel"
-              [ngClass]="{'invalid-input': emailModel.invalid && emailModel.touched}">
-            <small *ngIf="emailModel.invalid && emailModel.touched && modalMode !== 'view'" style="color: red;">Ingresa
-              un correo electrónico válido.</small>
-          </div>
-
-          <div class="input-group" *ngIf="modalMode !== 'view'">
-            <label>Contraseña <span *ngIf="modalMode === 'create'" style="color: red;">*</span></label>
-            <div class="input-with-icon">
-              <input [type]="showPassword ? 'text' : 'password'" name="password" [(ngModel)]="userForm.password"
-                (ngModelChange)="onFormChange()" placeholder="••••••••" minlength="8" maxlength="30"
-                [required]="modalMode === 'create'">
-              <span class="icon-eye" (click)="togglePasswordVisibility('pass')" style="cursor: pointer;">
-                {{ showPassword ? '👁️' : '🕶️' }}
-              </span>
+          <div class="form-grid">
+            <!-- Nombres -->
+            <div class="input-group">
+              <label>Nombre <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
+              <input type="text" name="nombre" [(ngModel)]="userForm.nombre" (ngModelChange)="onFormChange()"
+                placeholder="Nombre" [readonly]="modalMode === 'view'" required maxlength="50"
+                pattern="^(?!.*(.)\\1{3})[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s,.'-]{2,50}$" #nombreModel="ngModel"
+                [ngClass]="{'invalid-input': nombreModel.invalid && nombreModel.touched && modalMode !== 'view'}">
             </div>
-            <div class="password-strength">
-              <div class="strength-bar" [class.active]="userForm.password.length > 0"></div>
-              <div class="strength-bar" [class.active]="userForm.password.length > 5"></div>
-              <div class="strength-bar" [class.active]="userForm.password.length >= 8"></div>
-              <span class="strength-text">Mínimo 8 caracteres</span>
+
+            <div class="input-group">
+              <label>Apellidos <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
+              <input type="text" name="apellidos" [(ngModel)]="userForm.apellidos" (ngModelChange)="onFormChange()"
+                placeholder="Apellidos" [readonly]="modalMode === 'view'" required maxlength="50"
+                pattern="^(?!.*(.)\\1{3})[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s,.'-]{2,50}$" #apellidoModel="ngModel"
+                [ngClass]="{'invalid-input': apellidoModel.invalid && apellidoModel.touched && modalMode !== 'view'}">
             </div>
+
+            <div class="input-group full-width">
+              <label>Email <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
+              <input type="email" name="email" [(ngModel)]="userForm.email" (ngModelChange)="onFormChange()"
+                placeholder="nombre@ejemplo.com" [readonly]="modalMode === 'view'" required maxlength="100"
+                pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$" #emailModel="ngModel"
+                [ngClass]="{'invalid-input': emailModel.invalid && emailModel.touched && modalMode !== 'view'}">
+            </div>
+
+            <!-- Campos extra en modo View -->
+            <ng-container *ngIf="modalMode === 'view'">
+              <div class="input-group">
+                <label>Título</label>
+                <div class="readonly-value">{{ userForm.title || 'Sin título definido' }}</div>
+              </div>
+
+              <div class="input-group">
+                <label>Nivel de Estudiante</label>
+                <div class="readonly-value">{{ userForm.level }}</div>
+              </div>
+
+              <div class="input-group">
+                <label>Estado de Verificación</label>
+                <div class="readonly-value">
+                  <span class="status-dot" [class.active]="userForm.isEmailVerified"></span>
+                  {{ userForm.isEmailVerified ? 'Correo Verificado' : 'Pendiente' }}
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label>Fecha de Registro</label>
+                <div class="readonly-value">{{ userForm.createdAt | date:'mediumDate' }}</div>
+              </div>
+            </ng-container>
+
+            <!-- Campos extra en modo Edit (readonly) -->
+            <ng-container *ngIf="modalMode === 'edit'">
+              <div class="input-group">
+                <label>Estado de Verificación</label>
+                <div class="readonly-value">
+                  <span class="status-dot" [class.active]="userForm.isEmailVerified"></span>
+                  {{ userForm.isEmailVerified ? 'Correo Verificado' : 'Pendiente' }}
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label>Fecha de Registro</label>
+                <div class="readonly-value">{{ userForm.createdAt | date:'mediumDate' }}</div>
+              </div>
+            </ng-container>
+
+            <!-- Contraseñas (Solo Create/Edit) -->
+            <ng-container *ngIf="modalMode !== 'view'">
+              <div class="input-group">
+                <label>Contraseña <span *ngIf="modalMode === 'create'" style="color: red;">*</span></label>
+                <div class="input-with-icon">
+                  <input [type]="showPassword ? 'text' : 'password'" name="password" [(ngModel)]="userForm.password"
+                    (ngModelChange)="onFormChange()" placeholder="••••••••" minlength="8" maxlength="30"
+                    [required]="modalMode === 'create'">
+                  <span class="icon-eye" (click)="togglePasswordVisibility('pass')" style="cursor: pointer;">
+                    {{ showPassword ? '👁️' : '🕶️' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label>Repetir contraseña <span *ngIf="modalMode === 'create'" style="color: red;">*</span></label>
+                <div class="input-with-icon">
+                  <input [type]="showConfirmPassword ? 'text' : 'password'" name="confirmPassword"
+                    [(ngModel)]="userForm.confirmPassword" (ngModelChange)="onFormChange()" placeholder="••••••••"
+                    minlength="8" maxlength="30" [required]="modalMode === 'create'">
+                  <span class="icon-eye" (click)="togglePasswordVisibility('confirm')" style="cursor: pointer;">
+                    {{ showConfirmPassword ? '👁️' : '🕶️' }}
+                  </span>
+                </div>
+              </div>
+            </ng-container>
+
           </div>
 
-          <div class="input-group" *ngIf="modalMode !== 'view'">
-            <label>Repetir contraseña <span *ngIf="modalMode === 'create'" style="color: red;">*</span></label>
-            <div class="input-with-icon">
-              <input [type]="showConfirmPassword ? 'text' : 'password'" name="confirmPassword"
-                [(ngModel)]="userForm.confirmPassword" (ngModelChange)="onFormChange()" placeholder="••••••••"
-                minlength="8" maxlength="30" [required]="modalMode === 'create'">
-              <span class="icon-eye" (click)="togglePasswordVisibility('confirm')" style="cursor: pointer;">
-                {{ showConfirmPassword ? '👁️' : '🕶️' }}
-              </span>
-            </div>
-            <small
-              *ngIf="userForm.password && userForm.confirmPassword && userForm.password !== userForm.confirmPassword"
-              style="color: red; display: block; margin-top: 5px;">Las contraseñas no coinciden.</small>
+          <div class="modal-footer">
+            <ng-container *ngIf="modalMode === 'view'">
+              <button type="button" class="btn-action delete" (click)="deleteUserFromModal()" style="margin-right: auto;">
+                🗑️ Eliminar
+              </button>
+              <button type="button" class="btn-primary" (click)="switchToEdit()">✏️ Editar Información</button>
+            </ng-container>
+
+            <ng-container *ngIf="modalMode !== 'view'">
+              <button type="button" class="btn-secondary" (click)="closeModal()"
+                [disabled]="isSubmitting">Cancelar</button>
+              <button type="submit" class="btn-primary"
+                [disabled]="!userNgForm.valid || isSubmitting || (modalMode === 'create' && (!userForm.password || userForm.password !== userForm.confirmPassword))">
+                <span *ngIf="isSubmitting">⏳ Procesando...</span>
+                <span *ngIf="!isSubmitting">💾 Guardar</span>
+              </button>
+            </ng-container>
           </div>
 
-        </div>
-        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-
-          <ng-container *ngIf="modalMode === 'view'">
-            <button type="button" class="btn-action delete" (click)="deleteUserFromModal()" style="margin-right: auto;">
-              🗑️ Eliminar
-            </button>
-            <button type="button" class="btn-secondary" (click)="closeModal()">Cerrar</button>
-            <button type="button" class="btn-action edit" (click)="switchToEdit()">✏️ Editar</button>
-          </ng-container>
-
-          <ng-container *ngIf="modalMode !== 'view'">
-            <button type="button" class="btn-secondary" (click)="closeModal()"
-              [disabled]="isSubmitting">Cancelar</button>
-            <button type="submit" class="btn-primary"
-              [disabled]="!userNgForm.valid || isSubmitting || (modalMode === 'create' && (!userForm.password || userForm.password !== userForm.confirmPassword))">
-              <span *ngIf="isSubmitting">⏳ Procesando...</span>
-              <span *ngIf="!isSubmitting">💾 Guardar</span>
-            </button>
-          </ng-container>
-
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-
   </div>
+
+  <!-- Flecha Siguiente -->
+  <button type="button" *ngIf="modalMode !== 'create'" (click)="nextUser()"
+    [disabled]="viewedUserIndex >= filteredUsersList.length - 1" class="nav-arrow-side next">
+    &#8594;
+  </button>
 </div>

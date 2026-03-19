@@ -6,10 +6,14 @@
     <div class="header-section">
       <div class="identity-card">
         <div class="avatar-wrapper">
-          <img [src]="user.avatar" alt="Avatar">
-          <span class="level-badge">Nvl {{ user.level }}</span>
+          <img [src]="user.avatar" alt="Avatar" style="object-fit: cover; border-radius: 50%;">
+          <button class="avatar-edit-btn" (click)="fileInputHero.click()" title="Cambiar foto de perfil">
+            <span class="edit-icon">✏️</span>
+          </button>
+          <input type="file" #fileInputHero (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
         </div>
         <h2>{{ user.name }}</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -5px; margin-bottom: 5px;">{{ user.email }} | {{ user.role === 'admin' ? 'Administrador' : 'Estudiante' }}</p>
         <p class="user-title">{{ user.title }}</p>
         <button class="btn-edit">Editar Perfil</button>
 
@@ -97,4 +101,218 @@
   </div>
 
   <app-navbar></app-navbar>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-message" [class.show]="showToast"
+    style="position: fixed; top: 20px; right: 20px; background: #2C3E50; color: white; padding: 15px 25px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.3s ease, margin-top 0.3s ease; opacity: 0; pointer-events: none;"
+    [style.opacity]="showToast ? '1' : '0'">
+    {{ toastMessage }}
+  </div>
+
+  <!-- OVERLAY PARA TODOS LOS MODALES -->
+  <div class="modal-overlay" *ngIf="activeModal !== null" (click)="closeModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+
+      <!-- 1. MODAL: EDITAR PERFIL -->
+      <ng-container *ngIf="activeModal === 'editProfile'">
+        <div class="modal-header">
+          <h2>Editar Perfil</h2>
+          <button class="btn-close-modal" (click)="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="saveProfile()" #editForm="ngForm">
+            <div class="avatar-edit-section" style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px;">
+              <img [src]="profileForm.avatar" alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+              <button type="button" class="btn-secondary" style="font-size: 0.8rem; padding: 8px 15px;" (click)="fileInput.click()">Cambiar Foto</button>
+              <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
+              <small *ngIf="avatarError" style="color: #e74c3c; text-align: center; margin-top: 5px;">{{ avatarError }}</small>
+            </div>
+            <div class="form-grid">
+              <div class="input-group">
+                <label>Nombre</label>
+                <input type="text" name="firstName" [(ngModel)]="profileForm.firstName" required>
+              </div>
+              <div class="input-group">
+                <label>Apellidos</label>
+                <input type="text" name="lastName" [(ngModel)]="profileForm.lastName" required>
+              </div>
+              <div class="input-group full-width">
+                <label>Título STEAM</label>
+                <input type="text" name="title" [(ngModel)]="profileForm.title" required>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn-secondary" (click)="closeModal()" [disabled]="isSubmitting">Cancelar</button>
+              <button type="submit" class="btn-primary" [disabled]="!editForm.form.valid || isSubmitting">
+                <span *ngIf="isSubmitting">⏳ Guardando...</span>
+                <span *ngIf="!isSubmitting">💾 Guardar Cambios</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </ng-container>
+
+      <!-- 2. MODAL: SEGURIDAD (CONTRASEÑA) -->
+      <ng-container *ngIf="activeModal === 'security'">
+        <div class="modal-header">
+          <h2>Cambiar Contraseña</h2>
+          <button class="btn-close-modal" (click)="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="savePassword()" #pwdForm="ngForm">
+            <div class="form-grid" style="display: flex; flex-direction: column; gap: 15px;">
+              <div class="input-group full-width">
+                <label>Contraseña Actual</label>
+                <input type="password" name="currentPassword" [(ngModel)]="passwordForm.currentPassword" required>
+              </div>
+              <div class="input-group full-width">
+                <label>Nueva Contraseña</label>
+                <input type="password" name="newPassword" [(ngModel)]="passwordForm.newPassword" required minlength="8">
+              </div>
+              <div class="input-group full-width">
+                <label>Confirmar Nueva Contraseña</label>
+                <input type="password" name="confirmPassword" [(ngModel)]="passwordForm.confirmPassword" required minlength="8">
+                <small *ngIf="passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword" style="color: #e74c3c; margin-top: 5px;">Las contraseñas no coinciden.</small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn-secondary" (click)="closeModal()" [disabled]="isSubmitting">Cancelar</button>
+              <button type="submit" class="btn-primary" [disabled]="!pwdForm.form.valid || isSubmitting || passwordForm.newPassword !== passwordForm.confirmPassword">
+                <span *ngIf="isSubmitting">⏳ Procesando...</span>
+                <span *ngIf="!isSubmitting">🔒 Actualizar Contraseña</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </ng-container>
+
+      <!-- 3. MODAL: NOTIFICACIONES -->
+      <ng-container *ngIf="activeModal === 'notifications'">
+        <div class="modal-header">
+          <h2>Preferencias de Notificación</h2>
+          <button class="btn-close-modal" (click)="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="settings-group" style="margin-top: 0;">
+            <div class="settings-card" style="box-shadow: none; border: 1px solid #eee;">
+              <div class="setting-item" style="cursor: default;" (click)="notificationSettings.pushEnabled = !notificationSettings.pushEnabled">
+                <div class="setting-left">
+                  <span class="setting-icon">📱</span>
+                  <span class="setting-title">Notificaciones Push</span>
+                </div>
+                <div class="setting-right">
+                  <label class="switch" (click)="$event.stopPropagation()">
+                    <input type="checkbox" [(ngModel)]="notificationSettings.pushEnabled">
+                    <span class="slider round"></span>
+                  </label>
+                </div>
+              </div>
+              <div class="setting-item" style="cursor: default;" (click)="notificationSettings.emailMarketing = !notificationSettings.emailMarketing">
+                <div class="setting-left">
+                  <span class="setting-icon">💌</span>
+                  <span class="setting-title">Correos Promocionales</span>
+                </div>
+                <div class="setting-right">
+                  <label class="switch" (click)="$event.stopPropagation()">
+                    <input type="checkbox" [(ngModel)]="notificationSettings.emailMarketing">
+                    <span class="slider round"></span>
+                  </label>
+                </div>
+              </div>
+              <div class="setting-item" style="cursor: default;" (click)="notificationSettings.weeklySummary = !notificationSettings.weeklySummary">
+                <div class="setting-left">
+                  <span class="setting-icon">📊</span>
+                  <span class="setting-title">Resumen Semanal</span>
+                </div>
+                <div class="setting-right">
+                  <label class="switch" (click)="$event.stopPropagation()">
+                    <input type="checkbox" [(ngModel)]="notificationSettings.weeklySummary">
+                    <span class="slider round"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeModal()" [disabled]="isSubmitting">Cerrar</button>
+            <button type="button" class="btn-primary" (click)="saveNotifications()" [disabled]="isSubmitting">
+               <span *ngIf="isSubmitting">⏳ Guardando...</span>
+               <span *ngIf="!isSubmitting">💾 Guardar</span>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- 4. MODAL: AYUDA Y CONTACTO -->
+      <ng-container *ngIf="activeModal === 'help'">
+        <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+          <h2 style="font-size: 1.6rem; margin-bottom: 10px;">Centro de Ayuda 🚀</h2>
+          <button class="btn-close-modal" (click)="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" style="padding-top: 10px;">
+          <p style="color: #64748B; margin-bottom: 25px;">¿Tienes dudas sobre STEAM Vocations? Estamos aquí para ayudarte a encontrar tu camino.</p>
+          
+          <div style="background: #F8FAFC; border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px dashed #CBD5E1;">
+            <h3 style="margin: 0 0 10px 0; color: #1E293B; font-size: 1.1rem;">Contáctanos directamente</h3>
+            <p style="margin: 0 0 5px 0; color: #475569; display: flex; align-items: center; gap: 10px;">
+              <span>📧</span> <strong>soporte&#64;steamvocations.app</strong>
+            </p>
+            <p style="margin: 0; color: #475569; display: flex; align-items: center; gap: 10px;">
+              <span>🕒</span> Lunes a Viernes, 9:00 AM - 6:00 PM (UTC-6)
+            </p>
+          </div>
+
+          <button class="btn-primary" style="width: 100%; display: flex; justify-content: center; gap: 10px; align-items: center;" (click)="openSupportMailer()">
+            <span>✉️</span> Enviar un mensaje ahora
+          </button>
+        </div>
+      </ng-container>
+
+      <!-- 5. MODAL: DETALLES DE INSIGNIA -->
+      <ng-container *ngIf="activeModal === 'badge' && selectedBadge">
+        <div class="modal-header" style="border-bottom: none; display: flex; justify-content: flex-end;">
+          <button class="btn-close-modal" (click)="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 0;">
+          
+          <div class="badge-icon-giant" [style.filter]="selectedBadge.unlocked ? 'none' : 'grayscale(1) opacity(0.5)'" style="font-size: 5rem; background: #F8FAFC; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px;">
+            {{ selectedBadge.icon }}
+          </div>
+          
+          <h2 style="font-size: 1.8rem; margin: 0 0 10px 0; color: #1E293B;">{{ selectedBadge.name }}</h2>
+          
+          <div [ngClass]="selectedBadge.unlocked ? 'status-unlocked' : 'status-locked'" style="padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; margin-bottom: 20px;"
+               [style.background]="selectedBadge.unlocked ? '#DCFCE7' : '#F1F5F9'"
+               [style.color]="selectedBadge.unlocked ? '#166534' : '#64748B'">
+            {{ selectedBadge.unlocked ? '🌟 Insignia Desbloqueada' : '🔒 Insignia Bloqueada' }}
+          </div>
+
+          <p style="color: #64748B; line-height: 1.6; padding: 0 20px;">
+            {{ selectedBadge.unlocked 
+              ? 'Has demostrado habilidades excepcionales en esta área. ¡Sigue así!'
+              : 'Sigue interactuando con la plataforma, completa más módulos y descubre nuevas áreas para desbloquear este logro.' }}
+          </p>
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
+
+  <!-- OVERLAY ESPECIAL CERRAR SESIÓN -->
+  <div class="custom-alert-overlay" *ngIf="activeModal === 'logout'">
+    <div class="alert-box" style="border-top: 5px solid #2C3E50;">
+      <div class="alert-icon">🚪</div>
+      <h3 style="margin: 0; color: #2C3E50;">¿Cerrar Sesión?</h3>
+      <p style="color: #7F8C8D; font-size: 0.95rem; text-align: center;">
+        Tendrás que volver a ingresar tus credenciales para acceder a tu perfil STEAM.
+      </p>
+      <div class="alert-actions"
+        style="display: flex; gap: 10px; width: 100%; justify-content: center; margin-top: 15px;">
+        <button class="btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button class="btn-primary" (click)="confirmLogout()"
+          style="background: #e74c3c; border-color: #e74c3c;">Sí, cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+
 </div>

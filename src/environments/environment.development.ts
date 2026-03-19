@@ -1,5 +1,5 @@
 export const environment = {
-  production: true,
+  production: false,
   apiUrl: 'https://api-gateway-production-ba33.up.railway.app/api/v1',
   firebase: {
     apiKey: "AIzaSyA2BneURMKEgZgIMQYJPlGv5qib7jUP6os",

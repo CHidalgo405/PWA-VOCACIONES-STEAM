@@ -1,0 +1,298 @@
+.favorites-container {
+  padding-bottom: 90px;
+  background-color: var(--bg-app);
+  min-height: 100vh;
+}
+
+/* --- HEADER FIJO --- */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  padding: 20px 20px 10px 20px;
+
+  @media (min-width: 1024px) {
+    padding: 20px 10%;
+  }
+
+  h2 { margin: 0; font-size: 1.5rem; color: var(--text-main); }
+  .subtitle { margin: 5px 0 15px 0; font-size: 0.9rem; color: var(--text-light); }
+
+  /* TABS ESTILO IOS */
+  .tabs-container {
+    position: relative;
+    display: flex;
+    background: var(--bg-app);
+    border-radius: 12px;
+    padding: 4px;
+
+    .tab-btn {
+      flex: 1;
+      border: none;
+      background: none;
+      padding: 10px;
+      font-weight: 600;
+      z-index: 2;
+      cursor: pointer;
+      color: var(--text-light);
+      transition: color 0.3s;
+
+      &.active { color: var(--text-main); }
+    }
+
+    .tab-indicator {
+      position: absolute;
+      width: 50%;
+      height: calc(100% - 8px);
+      background: var(--white);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      top: 4px;
+      left: 4px;
+      transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+      &.right { transform: translateX(96%); }
+    }
+  }
+}
+
+/* --- GRID DE CONTENIDO --- */
+.content-grid {
+  padding: 20px;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+
+  @media (min-width: 1024px) {
+    padding: 20px 10%;
+  }
+}
+
+/* --- TARJETA DE UNIVERSIDAD --- */
+.card-university {
+  background: var(--white);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+  border: 1px solid #f0f0f0;
+
+  &:hover { transform: translateY(-5px); }
+
+  .card-image {
+    height: 160px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    
+    .rating-badge {
+      position: absolute;
+      top: 10px; left: 10px;
+      background: white;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    
+    .favorite-btn {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: rgba(0,0,0,0.3);
+      border: none;
+      color: white;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: all 0.2s;
+      font-size: 1rem;
+
+      &.active {
+        background: var(--white);
+        color: #FF4757;
+      }
+
+      &:hover { transform: scale(1.1); }
+    }
+  }
+
+  .card-details {
+    padding: 15px;
+
+    .uni-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+
+      .uni-logo { font-size: 1.5rem; background: #f5f5f5; padding: 5px; border-radius: 8px; }
+      
+      .uni-info {
+        h3 { margin: 0; font-size: 1rem; color: var(--text-main); }
+        .location { margin: 0; font-size: 0.8rem; color: var(--text-light); }
+      }
+    }
+
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 15px;
+
+      .tag {
+        font-size: 0.75rem;
+        background: var(--bg-app);
+        color: var(--text-light);
+        padding: 4px 8px;
+        border-radius: 6px;
+      }
+    }
+
+    .btn-view {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid var(--steam-blue);
+      color: var(--steam-blue);
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &:hover { background: var(--steam-blue); color: white; }
+    }
+  }
+}
+
+/* --- TARJETA DE CURSO --- */
+.card-course {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  gap: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+  border: 1px solid #f0f0f0;
+  
+  .course-image-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+
+    img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .level-badge {
+      position: absolute;
+      bottom: 0; left: 0; width: 100%;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 0.6rem;
+      text-align: center;
+      padding: 2px 0;
+    }
+  }
+
+  .course-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .provider { font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+    h3 { margin: 4px 0 8px 0; font-size: 0.95rem; color: var(--text-main); line-height: 1.2; }
+    
+    .meta-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-light);
+
+      .remove-btn {
+        background: none;
+        border: none;
+        color: #FF4757;
+        font-size: 0.8rem;
+        cursor: pointer;
+        padding: 4px;
+        font-weight: 600;
+
+        &:hover { text-decoration: underline; }
+      }
+    }
+  }
+}
+
+/* --- EMPTY STATE Y SKELETONS --- */
+.full-width-grid {
+  grid-column: 1 / -1;
+}
+
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: var(--white);
+  border-radius: 16px;
+  border: 1px dashed #E2E8F0;
+  text-align: center;
+  margin-top: 20px;
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.8;
+  }
+
+  h3 { margin: 0 0 10px 0; color: #1E293B; font-size: 1.3rem; font-weight: 700; }
+  p { margin: 0 0 20px 0; color: #64748B; font-size: 0.95rem; max-width: 400px; }
+
+  .btn-primary-outline {
+    background: transparent;
+    color: var(--steam-blue);
+    border: 2px solid var(--steam-blue);
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--steam-blue);
+      color: white;
+      box-shadow: 0 4px 10px rgba(7, 177, 201, 0.2);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+.skeleton-card {
+  pointer-events: none;
+  
+  .shimmer {
+    background: #F1F5F9;
+    background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.6) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 100%);
+    background-repeat: no-repeat;
+    background-size: 800px 100%;
+    animation: shimmer 1.5s infinite linear forwards;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}

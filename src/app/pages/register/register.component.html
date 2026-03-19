@@ -61,14 +61,10 @@
         </div>
 
         <div class="social-btn-container">
-          <button type="button" class="btn-social">
+          <a href="javascript:void(0)" class="btn-social" (click)="simularLoginGoogle($event)" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center;">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="social-icon" alt="G">
-            Google
-          </button>
-          <button type="button" class="btn-social">
-            <img src="https://www.svgrepo.com/show/448224/facebook.svg" class="social-icon" alt="F">
-            Facebook
-          </button>
+            Continuar con Google
+          </a>
         </div>
       </form>
 
@@ -83,30 +79,26 @@
     <ng-container *ngIf="isVerificationStep">
       <div class="auth-header" style="margin-bottom: 20px;">
         <div style="font-size: 3.5rem; margin-bottom: 15px; animation: slideUp 0.5s ease-out;">📩</div>
-        <h2>Revisa tu bandeja de entrada</h2>
+        <h2>Código de Verificación</h2>
         <p style="margin-top: 15px; font-size: 1.05rem; line-height: 1.5;">
-          Hemos enviado un enlace de activación a:<br>
+          Hemos enviado un código de seguridad de 6 dígitos a:<br>
           <strong style="color: var(--steam-blue); font-size: 1.1rem;">{{ email }}</strong>
         </p>
       </div>
 
-      <div
-        style="text-align: center; padding: 20px; background: rgba(7, 177, 201, 0.05); border-radius: 16px; margin-bottom: 30px; border: 1px solid rgba(7, 177, 201, 0.1);">
-        <p style="margin: 0; color: var(--text-dark); font-size: 0.95rem;">
-          Por favor, haz clic en el enlace del correo para verificar tu cuenta antes de iniciar sesión en la plataforma
-          STEAM.
-        </p>
+      <div class="form-group" style="text-align: center; margin-bottom: 30px;">
+        <input type="text" [(ngModel)]="verificationCode" maxlength="6" class="otp-input" placeholder="000000" style="text-transform: uppercase;" />
       </div>
 
-      <button routerLink="/login" class="btn-primary"
+      <button (click)="onVerifyOTP()" class="btn-primary"
         style="margin-top: 5px; background-image: linear-gradient(to right, #07B1C9 0%, #4DB046 100%);">
-        Ir al Inicio de Sesión
+        Verificar Código
       </button>
 
       <div style="text-align: center; margin-top: 25px;">
         <p style="font-size: 0.85rem; color: var(--text-muted);">
           ¿No recibiste el correo? Revisa tu carpeta de Spam o
-          <a href="javascript:void(0)" (click)="isVerificationStep = false; password = ''" class="text-link">intenta
+          <a href="javascript:void(0)" (click)="isVerificationStep = false; password = ''; verificationCode = ''" class="text-link">intenta
             registrarte otra vez</a>.
         </p>
       </div>

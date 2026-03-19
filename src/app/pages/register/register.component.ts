@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { Auth, createUserWithEmailAndPassword, sendEmailVerification } from '@angular/fire/auth';
+import { ToastService } from '../../core/services/toast.service';
+import { catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -22,52 +24,81 @@ export class RegisterComponent {
 
   // Loading state during registration request
   isRegistering = false;
+  isVerifying = false;
 
   private router = inject(Router);
   private authService = inject(AuthService);
-  private firebaseAuth = inject(Auth);
+  private toastService = inject(ToastService);
+
+  verificationCode = '';
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
 
-  async onSubmit() {
+  simularLoginGoogle(event: Event) {
+    event.preventDefault();
+    this.authService.loginWithGoogle();
+  }
+
+  onSubmit() {
     if (!this.email || !this.fullname || !this.password) {
-      alert('Por favor, completa todos los campos.');
+      this.toastService.showToast('Por favor, completa todos los campos.', 'warning');
       return;
     }
 
     this.isRegistering = true;
 
-    try {
-      // 1. Create User in Firebase
-      const userCredential = await createUserWithEmailAndPassword(this.firebaseAuth, this.email, this.password);
-
-      // 2. Send the verification email to the user
-      await sendEmailVerification(userCredential.user);
-
-      // 3. Optional: Register user locally on your database or keep a session record
-      // This is currently handled by your custom authService if needed, but Firebase maintains the real session.
-      // this.authService.login(this.email, 'student', this.rememberMe);
-
-      // 4. Show the "Check your inbox" screen
-      this.isVerificationStep = true;
+    this.authService.register(this.email, this.fullname, this.password).pipe(
+      catchError(err => {
+        this.isRegistering = false;
+        if (err.status === 409) {
+          this.toastService.showToast('El correo electrónico ya se encuentra registrado.', 'warning');
+        } else if (err.status === 400) {
+          this.toastService.showToast('Datos inválidos. Verifica tu información.', 'error');
+        } else if (err.status === 0) {
+          this.toastService.showToast('No se pudo conectar al servidor.', 'error');
+        } else {
+          this.toastService.showToast(err.error?.message || 'Error al completar el registro.', 'error');
+        }
+        return of(null);
+      })
+    ).subscribe(res => {
       this.isRegistering = false;
-
-    } catch (error: any) {
-      console.error('Error registrando usuario:', error);
-      this.isRegistering = false;
-
-      // Friendly error handling
-      if (error.code === 'auth/email-already-in-use') {
-        alert('Este correo electrónico ya está registrado.');
-      } else if (error.code === 'auth/weak-password') {
-        alert('La contraseña es demasiado débil. Usa al menos 6 caracteres.');
-      } else if (error.code === 'auth/invalid-email') {
-        alert('El correo electrónico no es válido.');
-      } else {
-        alert('Ocurrió un error al crear la cuenta. Por favor, intenta de nuevo.');
+      if (res) {
+        this.toastService.showToast('Registro exitoso. Ingresa el código enviado.', 'success');
+        // Mostrar la pantalla de verificación OTP
+        this.isVerificationStep = true;
       }
+    });
+  }
+
+  onVerifyOTP() {
+    if (!this.verificationCode || this.verificationCode.length !== 6) {
+      this.toastService.showToast('Por favor, ingresa el código de 6 dígitos.', 'warning');
+      return;
     }
+
+    this.isVerifying = true;
+
+    this.authService.verifyOtp(this.email, this.verificationCode, 'register').pipe(
+      catchError(err => {
+        this.isVerifying = false;
+        if (err.status === 401 || err.status === 400 || err.status === 403) {
+          this.toastService.showToast('El código es incorrecto o ha expirado.', 'error');
+        } else if (err.status === 0) {
+          this.toastService.showToast('No se pudo conectar al servidor.', 'error');
+        } else {
+          this.toastService.showToast(err.error?.message || 'Error al verificar el código.', 'error');
+        }
+        return of(null);
+      })
+    ).subscribe(res => {
+      this.isVerifying = false;
+      if (res) {
+        this.toastService.showToast('¡Cuenta verificada y activada con éxito!', 'success');
+        this.router.navigate(['/dashboard']);
+      }
+    });
   }
 }

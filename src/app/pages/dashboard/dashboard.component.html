@@ -6,25 +6,36 @@
       <h1>{{ userName }} 👋</h1>
     </div>
     <div class="user-avatar" routerLink="/profile">
-      <img src="https://ui-avatars.com/api/?name=User+Steam&background=07B1C9&color=fff" alt="Perfil">
+      <img [src]="avatarUrl" alt="Perfil">
     </div>
   </header>
 
-  <section class="hero-section">
-    <div class="cta-card" [class.test-done]="hasTakenTest">
+  <section class="hero-section" *ngIf="!hasTakenTest">
+    <div class="cta-card">
       <div class="cta-content">
         <span class="badge">Recomendado</span>
-        <h2>{{ hasTakenTest ? 'Ver mis resultados' : 'Descubre tu Vocación' }}</h2>
-        <p>
-          {{ hasTakenTest
-          ? 'Explora las carreras que hacen match con tu perfil STEAM.'
-          : 'Responde el test de aptitudes y encuentra tu carrera ideal.' }}
-        </p>
-        <button class="btn-cta" (click)="hasTakenTest ? null : startTest()">
-          {{ hasTakenTest ? 'Ver Análisis' : 'Comenzar Test' }}
+        <h2>Descubre tu Vocación</h2>
+        <p>Responde el test de aptitudes y encuentra tu carrera ideal.</p>
+        <button class="btn-cta" (click)="startTest()">
+          Comenzar Test
         </button>
       </div>
       <div class="cta-image">🚀</div>
+    </div>
+  </section>
+
+  <section class="results-hero-section" *ngIf="hasTakenTest">
+    <div class="results-card">
+      <div class="results-content">
+        <span class="badge badge-success">¡Test Completado!</span>
+        <h2>Tu perfil STEAM</h2>
+        <p>Hemos analizado tus respuestas y tienes opciones afines a tus intereses. Explora tus recomendaciones y análisis.</p>
+        <div class="actions-row">
+          <button class="btn-primary" routerLink="/test-result">Ver Análisis</button>
+          <button class="btn-outline-small" (click)="startTest()">Reintentar Test</button>
+        </div>
+      </div>
+      <div class="results-image">🎯</div>
     </div>
   </section>
 
@@ -95,5 +106,25 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Modal de Bienvenida -->
+<div class="welcome-modal-overlay" *ngIf="showWelcomeModal">
+  <div class="welcome-modal-content">
+    <div class="modal-header-welcome">
+      <div class="icon-pulse">✨</div>
+      <h2>¡Bienvenido a Vocaciones STEAM!</h2>
+    </div>
+    <div class="modal-body-welcome">
+      <p>Estamos emocionados de acompañarte en este viaje de descubrimiento. Aquí podrás:</p>
+      <ul>
+        <li>🧬 Explorar diferentes áreas y carreras</li>
+        <li>📝 Realizar el test vocacional para conocer tu perfil</li>
+        <li>📚 Encontrar universidades y cursos sugeridos para ti</li>
+      </ul>
+      <p><strong>¿Listo para empezar?</strong> Te sugerimos hacer el test primero para recibir sugerencias personalizadas.</p>
+    </div>
+    <button class="btn-primary-large" (click)="closeWelcomeModal()">Comenzar mi aventura</button>
   </div>
 </div>

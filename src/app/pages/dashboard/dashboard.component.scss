@@ -52,11 +52,7 @@
   justify-content: space-between;
   align-items: center;
 
-  /* Variante si ya hizo el test (color verde) */
-  &.test-done {
-    background: linear-gradient(135deg, var(--steam-green), #27ae60);
-    box-shadow: 0 10px 25px -5px rgba(77, 176, 70, 0.4);
-  }
+  /* Eliminamos test-done porque usamos results-card */
 
   .cta-content {
     z-index: 2;
@@ -105,6 +101,94 @@
     bottom: -10px;
     opacity: 0.8;
     transform: rotate(-15deg);
+  }
+}
+
+/* --- 2.5 Results Hero Card --- */
+.results-hero-section {
+  .results-card {
+    background: linear-gradient(135deg, var(--steam-green), #27ae60);
+    color: white;
+    border-radius: 24px;
+    padding: 25px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(77, 176, 70, 0.4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .results-content {
+      z-index: 2;
+      max-width: 65%;
+
+      .badge-success {
+        background: rgba(255, 255, 255, 0.25);
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        margin: 12px 0 8px;
+      }
+
+      p {
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        opacity: 0.95;
+      }
+
+      .actions-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+
+        .btn-primary {
+          background: white;
+          color: var(--steam-green);
+          border: none;
+          padding: 10px 18px;
+          border-radius: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+          transition: transform 0.2s;
+
+          &:active {
+            transform: scale(0.95);
+          }
+        }
+
+        .btn-outline-small {
+          background: transparent;
+          color: white;
+          border: 1.5px solid rgba(255,255,255,0.6);
+          padding: 10px 16px;
+          border-radius: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s, border-color 0.2s;
+
+          &:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: white;
+          }
+        }
+      }
+    }
+
+    .results-image {
+      font-size: 6rem;
+      position: absolute;
+      right: -15px;
+      bottom: -15px;
+      opacity: 0.85;
+      transform: rotate(5deg);
+    }
   }
 }
 
@@ -435,4 +519,111 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* --- 5. Modal de Bienvenida --- */
+.welcome-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.4s ease-out;
+
+  .welcome-modal-content {
+    background: var(--white);
+    width: 100%;
+    max-width: 450px;
+    border-radius: 28px;
+    padding: 35px 30px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+
+    .modal-header-welcome {
+      margin-bottom: 25px;
+
+      .icon-pulse {
+        font-size: 4rem;
+        margin: 0 auto 15px;
+        animation: pulseHeart 2s infinite ease-in-out;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--steam-blue);
+        margin: 0;
+        line-height: 1.2;
+      }
+    }
+
+    .modal-body-welcome {
+      text-align: left;
+      color: var(--text-dark);
+      font-size: 1.05rem;
+      margin-bottom: 30px;
+      line-height: 1.5;
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+
+        li {
+          margin-bottom: 12px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: var(--bg-light);
+          padding: 12px 15px;
+          border-radius: 12px;
+        }
+      }
+
+      strong {
+        color: var(--steam-blue);
+      }
+    }
+
+    .btn-primary-large {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--steam-blue), #2980b9);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(7, 177, 201, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(7, 177, 201, 0.4);
+      }
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
+}
+
+@keyframes scaleUp {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pulseHeart {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }

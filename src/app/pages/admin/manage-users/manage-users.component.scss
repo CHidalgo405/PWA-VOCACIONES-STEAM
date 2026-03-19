@@ -331,37 +331,187 @@
 .modal-box {
   background: white;
   width: 100%;
-  max-width: 650px;
-  /* Ancho para que el grid respire */
+  max-width: 550px;
   border-radius: 20px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s ease-out;
   margin: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: max-width 0.3s ease;
+
+  &.view-mode {
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      min-height: 500px;
+    }
+  }
+}
+
+.btn-close-modal-floating {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  font-size: 1.2rem;
+  color: #7F8C8D;
+  cursor: pointer;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f0f0f0;
+    color: #333;
+  }
+}
+
+/* SIDEBAR DEL MODAL */
+.modal-sidebar {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid #e2e8f0;
+
+  @media (min-width: 768px) {
+    width: 280px;
+    flex-shrink: 0;
+  }
+
+  .avatar-container {
+    width: 120px;
+    height: 120px;
+    border-radius: 30px; /* Squircle effect like Apple */
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-placeholder {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary-color, #07B1C9);
+      background: rgba(7, 177, 201, 0.1);
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .sidebar-name {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #1e293b;
+    text-align: center;
+    font-weight: 700;
+  }
+
+  .sidebar-role {
+    margin: 5px 0 25px;
+    color: var(--primary-color, #07B1C9);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .sidebar-menu {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .menu-item {
+      background: transparent;
+      border: none;
+      padding: 12px 15px;
+      text-align: left;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #64748b;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      &:hover {
+        background: rgba(0,0,0,0.03);
+        color: #1e293b;
+      }
+
+      &.active {
+        background: white;
+        color: var(--primary-color, #07B1C9);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      }
+    }
+  }
+
+  .btn-back-to-view {
+    margin-top: auto;
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: center;
+
+    &:hover {
+      background: rgba(0,0,0,0.04);
+      color: #1e293b;
+      border-color: #cbd5e1;
+    }
+  }
+}
+
+.modal-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  overflow-y: auto;
 }
 
 .modal-header {
-  padding: 25px;
+  padding-bottom: 20px;
   border-bottom: 1px solid #f0f0f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-bottom: 25px;
 
   h2 {
     margin: 0;
-    font-size: 1.4rem;
-    color: #2C3E50;
-  }
-
-  .btn-close-modal {
-    background: none;
-    border: none;
     font-size: 1.5rem;
-    color: #aaa;
-    cursor: pointer;
-
-    &:hover {
-      color: #333;
-    }
+    color: #1e293b;
+    font-weight: 700;
   }
 }
 
@@ -423,6 +573,34 @@
     }
   }
 
+  .readonly-value {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: #1e293b;
+    background: #f8fafc;
+    font-weight: 500;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e74c3c;
+      margin-right: 8px;
+
+      &.active {
+        background: #2ecc71;
+      }
+    }
+  }
+
   /* Contenedor del ojo de contraseña */
   .input-with-icon {
     position: relative;
@@ -466,31 +644,55 @@
   }
 }
 
-/* Flechas de navegación del modal */
-.nav-arrow {
-  background: var(--bg-surface, white);
-  border: 1px solid var(--border-color, #ddd);
-  border-radius: 5px;
-  width: 35px;
-  height: 35px;
+/* Flechas de navegación externas del modal */
+.nav-arrow-side {
+  background: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #07B1C9;
+  color: #1e293b;
   font-size: 1.5rem;
-  font-weight: bold;
-  transition: 0.2s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10000; /* Sobre el overlay */
+
+  &.prev {
+    left: 20px;
+    @media (min-width: 1100px) { left: calc(50% - 530px); }
+  }
+
+  &.next {
+    right: 20px;
+    @media (min-width: 1100px) { right: calc(50% - 530px); }
+  }
 
   &:not(:disabled):hover {
-    background: #07B1C9;
+    background: var(--primary-color, #07B1C9);
     color: white;
-    transform: scale(1.05);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 8px 25px rgba(7, 177, 201, 0.4);
   }
 
   &:disabled {
-    opacity: 0.4;
+    opacity: 0.3;
     cursor: not-allowed;
+    background: #f1f5f9;
+    color: #94a3b8;
+    box-shadow: none;
+  }
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%) scale(0.8);
   }
 }
 
@@ -690,5 +892,70 @@
       width: 100%;
       justify-content: center;
     }
+  }
+}
+
+/* =========================================
+   ESTADOS VACÍOS Y SKELETONS (LOADING)
+   ========================================= */
+
+/* Empty State */
+.empty-state-card {
+  padding: 60px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .empty-icon {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+    opacity: 0.8;
+  }
+
+  h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.3rem;
+    color: #2C3E50;
+  }
+
+  p {
+    margin: 0;
+    color: #7F8C8D;
+    font-size: 0.95rem;
+    max-width: 400px;
+  }
+}
+
+/* Skeletons */
+.skeleton-row {
+  pointer-events: none;
+  
+  td {
+    padding: 15px 25px;
+  }
+}
+
+.shimmer {
+  background: #F1F5F9;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.6) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite linear forwards;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
   }
 }

@@ -1,20 +1,39 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FormsModule } from '@angular/forms'; // Para el buscador
+import { RouterModule } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-explore',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, FormsModule],
+  imports: [CommonModule, NavbarComponent, FormsModule, RouterModule],
   templateUrl: './explore.component.html',
   styleUrls: ['./explore.component.scss']
 })
-export class ExploreComponent {
+export class ExploreComponent implements OnInit {
   
+  hasTakenTest = false;
+
+  constructor(private authService: AuthService) {}
+
   activeTab: 'universities' | 'courses' = 'universities';
   searchQuery: string = '';
   selectedFilter: string = 'Todas';
+  isLoading: boolean = true;
+  skeletonArray = Array(4).fill(0); // Array ficticio para renderizar 4 skeletons
+
+  // Variables para el Modal de Detalles del Curso
+  isCourseModalOpen: boolean = false;
+  selectedCourse: any = null;
+  
+  // Datos simulados para el temario del curso (Syllabus)
+  courseSyllabus = [
+    { module: 1, title: 'Introducción y Conceptos Básicos', duration: '2h 15m' },
+    { module: 2, title: 'Herramientas y Entorno de Trabajo', duration: '3h 40m' },
+    { module: 3, title: 'Proyecto Práctico Final', duration: '5h 00m' }
+  ];
 
   // Filtros rápidos (Chips)
   filters = ['Todas', 'Ingeniería', 'Salud', 'Artes', 'Tecnología'];
@@ -67,7 +86,58 @@ export class ExploreComponent {
     }
   ];
 
+  ngOnInit() {
+    this.simulateFetch();
+    this.authService.currentUser$.subscribe(user => {
+      if (user?.id) {
+        this.hasTakenTest = localStorage.getItem(`hasTakenTest_${user.id}`) === 'true';
+      }
+    });
+  }
+
+  simulateFetch() {
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 1500);
+  }
+
+  // Getters computados para el filtrado en tiempo real
+  get filteredUniversities() {
+    return this.universities.filter(uni => {
+      const matchesSearch = uni.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                            uni.location.toLowerCase().includes(this.searchQuery.toLowerCase());
+      const matchesFilter = this.selectedFilter === 'Todas' || uni.tags.includes(this.selectedFilter);
+      return matchesSearch && matchesFilter;
+    });
+  }
+
+  get filteredCourses() {
+    return this.courses.filter(course => {
+      const matchesSearch = course.title.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                            course.provider.toLowerCase().includes(this.searchQuery.toLowerCase());
+      // Nota: Asumiendo que cursos podrían no tener arr de tags, filtramos solo por Todas por ahora, o podrías agregar lógica extra.
+      const matchesFilter = this.selectedFilter === 'Todas'; 
+      return matchesSearch && matchesFilter;
+    });
+  }
+
   switchTab(tab: 'universities' | 'courses') {
     this.activeTab = tab;
+    // Opcional: Volver a simular carga al cambiar de pestaña
+    // this.simulateFetch();
+  }
+
+  // Métodos para el Modal
+  openCourseDetail(course: any) {
+    this.selectedCourse = course;
+    this.isCourseModalOpen = true;
+  }
+
+  closeCourseModal() {
+    this.isCourseModalOpen = false;
+    setTimeout(() => {
+      this.selectedCourse = null; // Limpiar después de la animación
+    }, 300);
   }
 }

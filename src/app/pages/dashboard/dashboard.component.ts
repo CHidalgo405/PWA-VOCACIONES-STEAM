@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { RouterModule, Router } from '@angular/router';
+import { AuthService, Usuario } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,13 +11,51 @@ import { RouterModule, Router } from '@angular/router';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   userName = 'Estudiante'; // Esto vendría de tu base de datos
+  userProfile?: Usuario;
+  avatarUrl = '';
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private authService: AuthService) { }
+
+  showWelcomeModal = false;
+
+  ngOnInit() {
+    this.authService.obtenerPerfil().subscribe(usuario => {
+      this.userProfile = usuario;
+      this.userName = usuario.nombre;
+      if (usuario.fotoUrl) {
+        this.avatarUrl = usuario.fotoUrl;
+      } else {
+        const initials = this.userName.split(' ').map(n => n[0]).join('').substring(0, 2);
+        this.avatarUrl = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff`;
+      }
+
+      // Check first-time login
+      if (usuario.id) {
+        const hasSeenWelcome = localStorage.getItem(`hasSeenWelcome_${usuario.id}`);
+        if (!hasSeenWelcome) {
+          this.showWelcomeModal = true;
+          document.body.style.overflow = 'hidden';
+        }
+
+        // Mock test completion state for now
+        const hasTakenTest = localStorage.getItem(`hasTakenTest_${usuario.id}`);
+        this.hasTakenTest = hasTakenTest === 'true';
+      }
+    });
+  }
 
   startTest() {
     this.router.navigate(['/vocation-test']);
+  }
+
+  closeWelcomeModal() {
+    this.showWelcomeModal = false;
+    document.body.style.overflow = '';
+    if (this.userProfile?.id) {
+      localStorage.setItem(`hasSeenWelcome_${this.userProfile.id}`, 'true');
+    }
   }
 
   // Estado del usuario: ¿Ya hizo el test?

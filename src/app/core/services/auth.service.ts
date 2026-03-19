@@ -1,60 +1,168 @@
-import { Injectable, signal } from '@angular/core';
-import { Auth, sendPasswordResetEmail } from '@angular/fire/auth';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject, of, map, catchError, tap, throwError } from 'rxjs';
+import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
+
+export interface Usuario {
+  id?: string;
+  nombre: string;
+  email: string;
+  role: 'admin' | 'student';
+  fotoUrl?: string;
+  title?: string;
+  level?: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // Use a signal for reactive state in Angular 16+
   private readonly USER_KEY = 'steam_pwa_user';
+  private readonly TOKEN_KEY = 'steam_pwa_token';
 
-  constructor(private auth: Auth) { }
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
-  async resetPassword(email: string): Promise<void> {
-    try {
-      if (!this.auth) {
-        console.error('Firebase Auth is not initialized properly.');
-        // This throw allows the caller to catch it
-        throw new Error('Firebase Auth not available');
-      }
-      await sendPasswordResetEmail(this.auth, email);
-    } catch (error) {
-      console.error('Error sending password reset email:', error);
-      throw error;
+  // currentUser subject to react to user changes
+  private currentUserSubject = new BehaviorSubject<Usuario | null>(this.getCurrentUser());
+  public currentUser$ = this.currentUserSubject.asObservable();
+
+  constructor() { }
+
+  // ---------------------------------------------------------
+  // REST API ENDPOINTS
+  // ---------------------------------------------------------
+
+  register(email: string, fullname: string, password: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/register`, { email, fullname, password });
+  }
+
+  verifyOtp(email: string, code: string, purpose: 'register' | 'recovery'): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/verify-otp`, { email, code, purpose }).pipe(
+      tap((res: any) => {
+        if (res.accessToken) {
+          this.setSession(res.accessToken, res.user);
+        }
+      })
+    );
+  }
+
+  login(email: string, password: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/login`, { email, password }).pipe(
+      tap((res: any) => {
+        if (res.accessToken) {
+          this.setSession(res.accessToken, res.user);
+        }
+      })
+    );
+  }
+
+  // Se solicita la recuperación (Reemplazado Firebase por llamada API HTTP Real)
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  // Se restablece la contraseña usando el OTP
+  resetPassword(email: string, code: string, newPassword: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/reset-password`, { email, code, newPassword });
+  }
+
+  loginWithGoogle() {
+    window.location.href = 'https://api-gateway-production-ba33.up.railway.app/api/v1/auth/google';
+  }
+
+  // Handle Google Callback Token Backup
+  handleGoogleCallback(token: string) {
+    if (token) {
+      localStorage.setItem(this.TOKEN_KEY, token);
+      this.getProfileFromServer().subscribe({
+        next: (user) => {
+          this.setCurrentUser(user);
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          console.error("Error fetching google profile", err);
+          this.logout();
+        }
+      });
     }
   }
 
-  login(email: string, role: 'admin' | 'student', rememberMe: boolean = false) {
-    const userData = { email, role, token: 'dummy-jwt-token' };
-    if (rememberMe) {
-      localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
-    } else {
-      sessionStorage.setItem(this.USER_KEY, JSON.stringify(userData));
-    }
+  obtenerPerfil(): Observable<Usuario> {
+    return this.getProfileFromServer();
+  }
+
+  getProfileFromServer(): Observable<Usuario> {
+    return this.http.get<any>(`${environment.apiUrl}/users/profile`).pipe(
+      map(res => {
+        // Transform incoming data to internal Usuario model
+        const user: Usuario = {
+           id: res.id,
+           nombre: res.fullname || res.nombre,
+           email: res.email,
+           role: res.role,
+           fotoUrl: res.avatarUrl || res.fotoUrl,
+           title: res.title,
+           level: res.level
+        };
+        this.setCurrentUser(user);
+        return user;
+      })
+    );
+  }
+
+  // ---------------------------------------------------------
+  // SESSION MANAGEMENT
+  // ---------------------------------------------------------
+
+  private setSession(token: string, user: any, rememberMe: boolean = true) {
+    // Standardize user object
+    const usuario: Usuario = {
+      id: user.id,
+      nombre: user.fullname,
+      email: user.email,
+      role: user.role,
+      fotoUrl: user.avatarUrl,
+      title: user.title,
+      level: user.level
+    };
+
+    localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+    
+    this.currentUserSubject.next(usuario);
+  }
+
+  private setCurrentUser(usuario: Usuario) {
+    localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+    this.currentUserSubject.next(usuario);
   }
 
   logout() {
     sessionStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem(this.TOKEN_KEY);
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/welcome']);
   }
 
   isAuthenticated(): boolean {
-    return !!sessionStorage.getItem(this.USER_KEY) || !!localStorage.getItem(this.USER_KEY);
+    return !!localStorage.getItem(this.TOKEN_KEY);
   }
 
   isAdmin(): boolean {
-    const userStr = sessionStorage.getItem(this.USER_KEY) || localStorage.getItem(this.USER_KEY);
-    if (!userStr) return false;
-    try {
-      const user = JSON.parse(userStr);
-      return user.role === 'admin';
-    } catch {
-      return false;
-    }
+    const user = this.getCurrentUser();
+    return user ? user.role === 'admin' : false;
   }
 
-  getCurrentUser() {
+  getCurrentUser(): Usuario | null {
     const userStr = sessionStorage.getItem(this.USER_KEY) || localStorage.getItem(this.USER_KEY);
-    return userStr ? JSON.parse(userStr) : null;
+    if (!userStr) return null;
+    try {
+      return JSON.parse(userStr);
+    } catch {
+      return null;
+    }
   }
 }

@@ -1,7 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // Necesario para ngModel
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
+import { AdminService, AdminUser } from '../../../core/services/admin.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { catchError } from 'rxjs/operators';
+import { of, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-manage-users',
@@ -10,34 +15,10 @@ import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-s
   templateUrl: './manage-users.component.html',
   styleUrls: ['./manage-users.component.scss']
 })
-export class ManageUsersComponent {
+export class ManageUsersComponent implements OnInit {
 
-  // --- DATOS SIMULADOS DE LA TABLA ---
-  users = [
-    { id: 1, nombre: 'Ana', apellidos: 'García López', email: 'ana@ejemplo.com', rol: 'Estudiante', estado: 'Activo' },
-    { id: 2, nombre: 'Carlos', apellidos: 'Ruiz', email: 'carlos@ejemplo.com', rol: 'Estudiante', estado: 'Inactivo' },
-    { id: 3, nombre: 'Lucía', apellidos: 'Méndez', email: 'lucia@ejemplo.com', rol: 'Admin', estado: 'Activo' },
-    { id: 4, nombre: 'Juan', apellidos: 'Pérez', email: 'juan@ejemplo.com', rol: 'Estudiante', estado: 'Activo' },
-    { id: 5, nombre: 'María', apellidos: 'Rodríguez', email: 'maria@ejemplo.com', rol: 'Admin', estado: 'Activo' },
-    { id: 6, nombre: 'Pedro', apellidos: 'Sánchez', email: 'pedro@ejemplo.com', rol: 'Estudiante', estado: 'Inactivo' },
-    { id: 7, nombre: 'Laura', apellidos: 'Martínez', email: 'laura@ejemplo.com', rol: 'Estudiante', estado: 'Activo' },
-    { id: 8, nombre: 'Diego', apellidos: 'Gómez', email: 'diego@ejemplo.com', rol: 'Admin', estado: 'Activo' },
-    { id: 9, nombre: 'Elena', apellidos: 'Fernández', email: 'elena@ejemplo.com', rol: 'Estudiante', estado: 'Activo' },
-    { id: 10, nombre: 'Miguel', apellidos: 'Torres', email: 'miguel@ejemplo.com', rol: 'Estudiante', estado: 'Inactivo' },
-    { id: 11, nombre: 'Sofía', apellidos: 'Vázquez', email: 'sofia@ejemplo.com', rol: 'Estudiante', estado: 'Activo' },
-    { id: 12, nombre: 'Javier', apellidos: 'Castro', email: 'javier@ejemplo.com', rol: 'Admin', estado: 'Inactivo' },
-    { id: 13, nombre: 'Carmen', apellidos: 'Navarro', email: 'carmen@ejemplo.com', rol: 'Estudiante', estado: 'Activo' },
-    { id: 14, nombre: 'Alejandro', apellidos: 'Morales', email: 'alejandro@ejemplo.com', rol: 'Estudiante', estado: 'Activo' },
-    { id: 15, nombre: 'Isabel', apellidos: 'Ortega', email: 'isabel@ejemplo.com', rol: 'Estudiante', estado: 'Inactivo' },
-    { id: 16, nombre: 'Ricardo', apellidos: 'Delgado', email: 'ricardo@ejemplo.com', rol: 'Admin', estado: 'Activo' },
-    { id: 17, nombre: 'Beatriz', apellidos: 'Marín', email: 'beatriz@ejemplo.com', rol: 'Estudiante', estado: 'Activo' },
-    { id: 18, nombre: 'Fernando', apellidos: 'Rubio', email: 'fernando@ejemplo.com', rol: 'Estudiante', estado: 'Inactivo' },
-    { id: 19, nombre: 'Marta', apellidos: 'Sanz', email: 'marta@ejemplo.com', rol: 'Estudiante', estado: 'Activo' },
-    { id: 20, nombre: 'Hugo', apellidos: 'Jiménez', email: 'hugo@ejemplo.com', rol: 'Admin', estado: 'Activo' },
-    { id: 21, nombre: 'Paula', apellidos: 'Iglesias', email: 'paula@ejemplo.com', rol: 'Estudiante', estado: 'Activo' },
-    { id: 22, nombre: 'Jorge', apellidos: 'Herrero', email: 'jorge@ejemplo.com', rol: 'Estudiante', estado: 'Inactivo' },
-    { id: 23, nombre: 'Raquel', apellidos: 'Medina', email: 'raquel@ejemplo.com', rol: 'Estudiante', estado: 'Activo' }
-  ];
+  // --- DATOS REALES DE LA TABLA ---
+  users: AdminUser[] = [];
 
   // --- VARIABLES DE ESTADO ---
   selectedUsers: any[] = []; // Guarda los usuarios seleccionados
@@ -56,13 +37,49 @@ export class ManageUsersComponent {
   itemsPerPage = 10;
   itemsPerPageOptions = [5, 10, 25, 50];
 
+  isLoading = true;
+  skeletonArray = Array(5).fill(0); // 5 filas de skeleton
+
+  constructor(private adminService: AdminService, private toastService: ToastService, private authService: AuthService) {}
+
+  ngOnInit() {
+    this.loadUsers();
+  }
+
+  loadUsers() {
+    this.isLoading = true;
+    this.adminService.getAllUsers().pipe(
+      catchError(err => {
+        this.isLoading = false;
+        this.toastService.showToast('Error cargando los usuarios. ' + (err.error?.message || ''), 'error');
+        return of([]);
+      })
+    ).subscribe((data: AdminUser[]) => {
+      this.isLoading = false;
+      this.users = data;
+    });
+  }
+
   // --- VARIABLES DEL FORMULARIO ---
   userForm = {
     nombre: '',
     apellidos: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'student',
+    title: '',
+    level: 1,
+    isEmailVerified: false,
+    settings: {
+      darkMode: false,
+      language: 'Español',
+      pushEnabled: false,
+      emailMarketing: false
+    },
+    createdAt: '',
+    updatedAt: '',
+    avatarUrl: null as string | null
   };
 
   showPassword = false;
@@ -74,12 +91,17 @@ export class ManageUsersComponent {
   // --- FUNCIONES DE LA TABLA ---
   get filteredUsersList() {
     return this.users.filter(u => {
+      const splitName = u.fullname ? u.fullname.split(' ') : [''];
+      const nombre = splitName[0];
+      const apellidos = splitName.slice(1).join(' ');
+
       const matchesSearch =
-        u.nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        u.apellidos.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        apellidos.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         u.email.toLowerCase().includes(this.searchTerm.toLowerCase());
 
-      const matchesRole = this.filterRole ? u.rol === this.filterRole : true;
+      const normalizedRole = u.role === 'admin' ? 'Admin' : 'Estudiante';
+      const matchesRole = this.filterRole ? normalizedRole === this.filterRole : true;
 
       return matchesSearch && matchesRole;
     });
@@ -138,19 +160,53 @@ export class ManageUsersComponent {
       this.loadUserForm(this.selectedUsers[0]);
     } else {
       // Create mode
-      this.userForm = { nombre: '', apellidos: '', email: '', password: '', confirmPassword: '' };
+      this.userForm = { 
+        nombre: '', 
+        apellidos: '', 
+        email: '', 
+        password: '', 
+        confirmPassword: '',
+        role: 'student',
+        title: '',
+        level: 1,
+        isEmailVerified: false,
+        settings: {
+          darkMode: false,
+          language: 'Español',
+          pushEnabled: false,
+          emailMarketing: false
+        },
+        createdAt: '',
+        updatedAt: '',
+        avatarUrl: null
+      };
       this.viewedUserIndex = -1;
     }
     this.isModalOpen = true;
   }
 
   loadUserForm(user: any) {
+    // Si viene la API string fullname, lo separamos para el form frontend visual
+    const splitName = user.fullname ? user.fullname.split(' ') : [''];
     this.userForm = {
-      nombre: user.nombre,
-      apellidos: user.apellidos,
-      email: user.email,
+      nombre: splitName[0] || '',
+      apellidos: splitName.slice(1).join(' ') || '',
+      email: user.email || '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      role: user.role || 'student',
+      title: user.title || '',
+      level: user.level || 1,
+      isEmailVerified: !!user.isEmailVerified,
+      settings: user.settings ? { ...user.settings } : {
+        darkMode: false,
+        language: 'Español',
+        pushEnabled: false,
+        emailMarketing: false
+      },
+      createdAt: user.createdAt || '',
+      updatedAt: user.updatedAt || '',
+      avatarUrl: user.avatarUrl || null
     };
     this.isFormDirty = false;
   }
@@ -231,33 +287,41 @@ export class ManageUsersComponent {
 
     this.isSubmitting = true;
 
-    setTimeout(() => {
-      if (this.modalMode === 'edit') {
-        const user = this.filteredUsersList[this.viewedUserIndex];
-        const originalIndex = this.users.findIndex(u => u.id === user.id);
-        if (originalIndex > -1) {
-          this.users[originalIndex].nombre = this.userForm.nombre;
-          this.users[originalIndex].apellidos = this.userForm.apellidos;
-          this.users[originalIndex].email = this.userForm.email;
-        }
-      } else {
-        const newId = (this.users.length > 0 ? Math.max(...this.users.map(u => u.id)) : 0) + 1;
-        this.users.unshift({
-          id: newId,
-          nombre: this.userForm.nombre,
-          apellidos: this.userForm.apellidos,
-          email: this.userForm.email,
-          rol: 'Estudiante',
-          estado: 'Activo'
-        });
-      }
+    const payload = {
+      fullname: `${this.userForm.nombre.trim()} ${this.userForm.apellidos.trim()}`,
+      email: this.userForm.email.trim()
+    };
 
-      this.isSubmitting = false;
-      this.isFormDirty = false;
-      this.displayToast(this.modalMode === 'create' ? 'Usuario creado exitosamente.' : 'Usuario actualizado exitosamente.');
-      this.isModalOpen = false;
-      // Actualizar listado y selección si fuese necesario
-    }, 800);
+    if (this.modalMode === 'edit') {
+      const user = this.filteredUsersList[this.viewedUserIndex];
+      this.adminService.updateUser(user.id, payload).subscribe({
+        next: (res) => {
+          this.isSubmitting = false;
+          this.isFormDirty = false;
+          this.displayToast('Usuario actualizado exitosamente.');
+          this.isModalOpen = false;
+          this.loadUsers();
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.displayToast('Error actualizando: ' + (err.error?.message || ''), true);
+        }
+      });
+    } else {
+      this.authService.register(payload.email, payload.fullname, this.userForm.password).subscribe({
+        next: (res) => {
+          this.isSubmitting = false;
+          this.isFormDirty = false;
+          this.displayToast('Usuario creado exitosamente. Se le ha enviado el código OTP.');
+          this.isModalOpen = false;
+          this.loadUsers();
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.displayToast('Error al crear usuario: ' + (err.error?.message || ''), true);
+        }
+      });
+    }
   }
 
   deleteSelectedUsers() {
@@ -270,26 +334,41 @@ export class ManageUsersComponent {
 
     if (confirm(msg)) {
       this.isSubmitting = true;
-      setTimeout(() => {
-        this.users = this.users.filter(u => !this.selectedUsers.some(su => su.id === u.id));
-        this.isSubmitting = false;
-        this.displayToast(count > 1 ? 'Usuarios eliminados correctamente.' : 'Usuario eliminado correctamente.');
-        this.selectedUsers = [];
-      }, 600);
+      const deleteObservables = this.selectedUsers.map(su => this.adminService.deleteUser(su.id));
+
+      forkJoin(deleteObservables).subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.displayToast(count > 1 ? 'Usuarios eliminados correctamente.' : 'Usuario eliminado correctamente.');
+          this.selectedUsers = [];
+          this.loadUsers();
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.displayToast('Hubo un error al eliminar algunos usuarios.', true);
+          this.loadUsers();
+        }
+      });
     }
   }
 
   deleteUserFromModal() {
     const user = this.filteredUsersList[this.viewedUserIndex];
-    if (confirm(`¿Estás seguro de eliminar a ${user.nombre}?`)) {
+    if (confirm(`¿Estás seguro de eliminar a ${user.fullname}?`)) {
       this.isSubmitting = true;
-      setTimeout(() => {
-        this.users = this.users.filter(u => u.id !== user.id);
-        this.selectedUsers = this.selectedUsers.filter(u => u.id !== user.id);
-        this.isSubmitting = false;
-        this.displayToast('Usuario eliminado correctamente.');
-        this.isModalOpen = false;
-      }, 600);
+      this.adminService.deleteUser(user.id).subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.selectedUsers = this.selectedUsers.filter(u => u.id !== user.id);
+          this.displayToast('Usuario eliminado correctamente.');
+          this.isModalOpen = false;
+          this.loadUsers();
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.displayToast('Error al eliminar: ' + (err.error?.message || ''), true);
+        }
+      });
     }
   }
 
@@ -299,8 +378,6 @@ export class ManageUsersComponent {
   }
 
   displayToast(message: string, isError: boolean = false) {
-    this.toastMessage = message;
-    this.showToast = true;
-    setTimeout(() => this.showToast = false, 3000);
+    this.toastService.showToast(message, isError ? 'error' : 'success');
   }
 }

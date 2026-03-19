@@ -581,6 +581,336 @@ p {
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s ease-out;
   margin: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: max-width 0.3s ease;
+
+  &.view-mode {
+    max-width: 960px;
+    display: flex;
+    flex-direction: column;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      min-height: 520px;
+    }
+  }
+}
+
+/* Botón flotante de cerrar */
+.btn-close-modal-floating {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  font-size: 1.2rem;
+  color: #7F8C8D;
+  cursor: pointer;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f0f0f0;
+    color: #333;
+  }
+}
+
+/* Flechas de navegación externas */
+.nav-arrow-side {
+  background: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e293b;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10000;
+
+  &.prev { left: 20px; @media (min-width: 1100px) { left: calc(50% - 550px); } }
+  &.next { right: 20px; @media (min-width: 1100px) { right: calc(50% - 550px); } }
+
+  &:not(:disabled):hover {
+    background: var(--primary-color, #07B1C9);
+    color: white;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 8px 25px rgba(7, 177, 201, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: #f1f5f9;
+    color: #94a3b8;
+    box-shadow: none;
+  }
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%) scale(0.8);
+  }
+}
+
+/* SIDEBAR DEL MODAL */
+.modal-sidebar {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 35px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid #e2e8f0;
+
+  @media (min-width: 768px) {
+    width: 260px;
+    flex-shrink: 0;
+  }
+
+  .question-order-badge {
+    width: 100px;
+    height: 100px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, var(--primary-color, #07B1C9), #0891b2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 25px rgba(7, 177, 201, 0.3);
+
+    .order-number {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: white;
+      line-height: 1;
+    }
+
+    .order-label {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.8);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+  }
+
+  .sidebar-question-preview {
+    font-size: 0.85rem;
+    color: #475569;
+    text-align: center;
+    font-style: italic;
+    line-height: 1.5;
+    margin: 0 0 16px;
+    max-width: 200px;
+  }
+
+  .sidebar-traits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 14px;
+
+    .sidebar-trait-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+
+      &.ciencia    { background: rgba(7,177,201,0.15); color: #07B1C9; }
+      &.tecnologia { background: rgba(16,185,129,0.15); color: #10b981; }
+      &.ingenieria { background: rgba(77,176,70,0.15); color: #4DB046; }
+      &.artes      { background: rgba(248,135,24,0.15); color: #F88718; }
+      &.matematicas{ background: rgba(232,55,45,0.15); color: #E8372D; }
+    }
+  }
+
+  .sidebar-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #e74c3c;
+    background: rgba(231,76,60,0.08);
+    padding: 6px 14px;
+    border-radius: 20px;
+
+    &.active {
+      color: #2ecc71;
+      background: rgba(46,204,113,0.1);
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+  }
+
+  .sidebar-menu {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .menu-item {
+      background: transparent;
+      border: none;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #64748b;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &:hover { background: rgba(0,0,0,0.03); color: #1e293b; }
+      &.active {
+        background: white;
+        color: var(--primary-color, #07B1C9);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      }
+    }
+  }
+
+  .btn-back-to-view {
+    margin-top: auto;
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: center;
+
+    &:hover { background: rgba(0,0,0,0.03); color: #1e293b; border-color: #cbd5e1; }
+  }
+}
+
+/* ÁREA DE CONTENIDO DEL MODAL */
+.modal-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+
+  .modal-header-split {
+    padding: 25px 30px 18px;
+    border-bottom: 1px solid #f0f0f0;
+
+    h2 {
+      margin: 0;
+      font-size: 1.4rem;
+      color: #1e293b;
+      font-weight: 700;
+    }
+  }
+
+  .modal-body { padding: 20px 30px; }
+  .modal-footer {
+    padding: 18px 30px;
+    border-top: 1px solid #f0f0f0;
+    margin-top: auto;
+  }
+}
+
+/* TARJETAS DE OPCIÓN (rediseño premium) */
+.option-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+  background: #f8fafc;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: border-color 0.2s;
+
+  &:hover { border-color: #cbd5e1; }
+
+  .option-letter-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    color: white;
+    flex-shrink: 0;
+    background: #94a3b8;
+
+    &.ciencia    { background: #07B1C9; }
+    &.tecnologia { background: #10b981; }
+    &.ingenieria { background: #4DB046; }
+    &.artes      { background: #F88718; }
+    &.matematicas{ background: #E8372D; }
+  }
+
+  .option-fields { flex: 1; }
+}
+
+/* Botón añadir opción */
+.btn-add-option {
+  background: transparent;
+  border: 1px dashed var(--steam-blue, #07B1C9);
+  color: var(--steam-blue, #07B1C9);
+  padding: 5px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(7,177,201,0.05);
+  }
+}
+
+/* Botón eliminar opción */
+.btn-remove-option {
+  background: transparent;
+  border: 1px solid #fca5a5;
+  color: #e74c3c;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  &:hover { background: #fee2e2; }
 }
 
 .modal-header {
@@ -880,5 +1210,70 @@ p {
       width: 100%;
       justify-content: center;
     }
+  }
+}
+
+/* =========================================
+   ESTADOS VACÍOS Y SKELETONS (LOADING)
+   ========================================= */
+
+/* Empty State */
+.empty-state-card {
+  padding: 60px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .empty-icon {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+    opacity: 0.8;
+  }
+
+  h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.3rem;
+    color: #2C3E50;
+  }
+
+  p {
+    margin: 0;
+    color: #7F8C8D;
+    font-size: 0.95rem;
+    max-width: 400px;
+  }
+}
+
+/* Skeletons */
+.skeleton-row {
+  pointer-events: none;
+  
+  td {
+    padding: 15px 25px;
+  }
+}
+
+.shimmer {
+  background: #F1F5F9;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.6) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite linear forwards;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
   }
 }

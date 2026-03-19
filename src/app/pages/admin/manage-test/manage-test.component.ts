@@ -1,7 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
+import { AdminService, AdminTestQuestion } from '../../../core/services/admin.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { catchError } from 'rxjs/operators';
+import { of, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-manage-test',
@@ -10,25 +14,19 @@ import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-s
   templateUrl: './manage-test.component.html',
   styleUrls: ['./manage-test.component.scss']
 })
-export class ManageTestComponent {
+export class ManageTestComponent implements OnInit {
 
-  // --- DATOS SIMULADOS ---
-  questions = [
-    { id: 1, text: '¿Disfrutas armar y desarmar aparatos electrónicos para ver cómo funcionan?', category: 'Ingeniería', secondary: 'Tecnología', status: 'Activo' },
-    { id: 2, text: '¿Te resulta fácil expresar tus emociones a través del dibujo, la música o la escritura?', category: 'Artes', secondary: 'Ninguna', status: 'Activo' },
-    { id: 3, text: '¿Te intriga saber de qué están compuestos los materiales y cómo reaccionan entre sí?', category: 'Ciencia', secondary: 'Matemáticas', status: 'Inactivo' },
-    { id: 4, text: '¿Se te da bien resolver problemas lógicos o rompecabezas numéricos?', category: 'Matemáticas', secondary: 'Tecnología', status: 'Activo' },
-    { id: 5, text: '¿Te interesa investigar el comportamiento de los seres vivos en su entorno natural?', category: 'Ciencia', secondary: 'Ninguna', status: 'Activo' },
-    { id: 6, text: '¿Te gusta diseñar y programar aplicaciones o videojuegos?', category: 'Tecnología', secondary: 'Ingeniería', status: 'Activo' },
-    { id: 7, text: '¿Disfrutas analizando datos estadísticos para encontrar patrones?', category: 'Matemáticas', secondary: 'Ciencia', status: 'Activo' },
-    { id: 8, text: '¿Te apasiona la creación de maquetas o estructuras arquitectónicas?', category: 'Artes', secondary: 'Ingeniería', status: 'Inactivo' },
-    { id: 9, text: '¿Te sientes cómodo liderando proyectos técnicos en equipo?', category: 'Ingeniería', secondary: 'Ninguna', status: 'Activo' },
-    { id: 10, text: '¿Te gusta experimentar con nuevas herramientas digitales para el diseño gráfico?', category: 'Tecnología', secondary: 'Artes', status: 'Activo' },
-    { id: 11, text: '¿Te gusta experimentar con nuevas herramientas digitales para el diseño gráfico?', category: 'Tecnología', secondary: 'Artes', status: 'Activo' },
+  // --- DATOS REALES ---
+  questions: AdminTestQuestion[] = [];
+
+  // Rasgos STEAM para las opciones y filtros
+  traitOptions = [
+    { value: 'ciencia', label: 'Ciencia' },
+    { value: 'tecnologia', label: 'Tecnología' },
+    { value: 'ingenieria', label: 'Ingeniería' },
+    { value: 'artes', label: 'Artes' },
+    { value: 'matematicas', label: 'Matemáticas' }
   ];
-
-  // Categorías STEAM para los selectores del formulario
-  categories = ['Ciencia', 'Tecnología', 'Ingeniería', 'Artes', 'Matemáticas', 'Ninguna'];
 
   // --- VARIABLES DE ESTADO ---
   selectedQuestions: any[] = [];
@@ -41,26 +39,59 @@ export class ManageTestComponent {
   pendingNavigationAction: (() => void) | null = null;
 
   searchTerm: string = '';
-  filterCategory: string = '';
+  filterTrait: string = '';
 
   // --- PAGINACIÓN ---
   currentPage = 1;
   itemsPerPage: number | string = 10;
   itemsPerPageOptions = [5, 10, 25, 50];
 
+  isLoading = true;
+  skeletonArray = Array(5).fill(0);
+
+  constructor(private adminService: AdminService, private toastService: ToastService) {}
+
+  ngOnInit() {
+    this.loadQuestions();
+  }
+
+  loadQuestions() {
+    this.isLoading = true;
+    this.adminService.getAllQuestions().pipe(
+      catchError(err => {
+        this.isLoading = false;
+        this.displayToast('Error cargando preguntas. ' + (err.error?.message || ''), true);
+        return of([]);
+      })
+    ).subscribe((data: AdminTestQuestion[]) => {
+      this.isLoading = false;
+      this.questions = data;
+    });
+  }
+
   isSubmitting = false;
   toastMessage = '';
   showToast = false;
 
   // --- FORMULARIO ---
-  questionForm = { text: '', category: 'Ciencia', secondary: 'Ninguna', status: 'Activo' };
+  questionForm: any = { 
+    text: '', 
+    order: 1, 
+    status: 'Activo', 
+    isActive: true, 
+    options: [
+      { text: '', letter: 'A', steamTrait: 'ciencia' }
+    ] 
+  };
 
   // --- FUNCIONES DE TABLA / BUSQUEDA / PAGINACION ---
   get filteredQuestionsList() {
     return this.questions.filter(q => {
       const matchesSearch = q.text.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchesCategory = this.filterCategory ? q.category === this.filterCategory : true;
-      return matchesSearch && matchesCategory;
+      const matchesTrait = this.filterTrait 
+        ? (q.options || []).some((opt: any) => opt.steamTrait === this.filterTrait) 
+        : true;
+      return matchesSearch && matchesTrait;
     });
   }
 
@@ -84,11 +115,11 @@ export class ManageTestComponent {
     this.currentPage = 1;
   }
 
-  toggleCategoryFilter(category: string) {
-    if (this.filterCategory === category) {
-      this.filterCategory = ''; // Deseleccionar si ya estaba activo
+  toggleCategoryFilter(traitValue: string) {
+    if (this.filterTrait === traitValue) {
+      this.filterTrait = ''; // Deseleccionar si ya estaba activo
     } else {
-      this.filterCategory = category;
+      this.filterTrait = traitValue;
     }
     this.currentPage = 1; // Reiniciar paginación al filtrar
   }
@@ -114,18 +145,35 @@ export class ManageTestComponent {
 
   toggleStatus(q: any, event: Event) {
     event.stopPropagation();
+    const newStatus = !q.isActive;
 
-    // Cambiamos el estado de manera directa
-    const newStatus = q.status === 'Activo' ? 'Inactivo' : 'Activo';
+    // Se envía el payload completo para que la API persista el cambio correctamente
+    const fullPayload = {
+      text: q.text,
+      order: q.order,
+      options: (q.options || []).map((o: any) => ({
+        ...(o.id ? { id: o.id } : {}),
+        text: o.text,
+        letter: o.letter,
+        steamTrait: o.steamTrait
+      })),
+      isActive: newStatus
+    };
 
-    // Actualizamos la lista original
-    const index = this.questions.findIndex(item => item.id === q.id);
-    if (index > -1) {
-      this.questions[index].status = newStatus;
-
-      // Feedback visual rápido
-      this.displayToast(`Pregunta #${q.id} marcada como ${newStatus}.`);
-    }
+    this.adminService.updateQuestion(q.id, fullPayload).pipe(
+      catchError(err => {
+        this.displayToast('Error al actualizar estado.', true);
+        return of(null);
+      })
+    ).subscribe(res => {
+      if (res !== null) {
+        const index = this.questions.findIndex(item => item.id === q.id);
+        if (index > -1) {
+          this.questions[index].isActive = newStatus;
+          this.displayToast(`Pregunta ${newStatus ? 'activada' : 'desactivada'} correctamente.`);
+        }
+      }
+    });
   }
 
   // --- MODAL Y FORMULARIO ---
@@ -141,15 +189,44 @@ export class ManageTestComponent {
       this.viewedQuestionIndex = this.filteredQuestionsList.findIndex(item => item.id === this.selectedQuestions[0].id);
       this.loadQuestionForm(this.selectedQuestions[0]);
     } else {
-      this.questionForm = { text: '', category: 'Ciencia', secondary: 'Ninguna', status: 'Activo' };
+      this.questionForm = { 
+        text: '', 
+        order: this.filteredQuestionsList.length + 1, 
+        status: 'Activo', 
+        isActive: true, 
+        options: [
+          { text: '', letter: 'A', steamTrait: 'ciencia' },
+          { text: '', letter: 'B', steamTrait: 'tecnologia' }
+        ] 
+      };
       this.viewedQuestionIndex = -1;
     }
     this.isModalOpen = true;
   }
 
   loadQuestionForm(q: any) {
-    this.questionForm = { ...q };
+    this.questionForm = { 
+      text: q.text,
+      order: q.order || 1,
+      status: q.isActive !== false ? 'Activo' : 'Inactivo',
+      isActive: q.isActive !== false,
+      options: q.options && q.options.length > 0 ? q.options.map((o: any) => ({ ...o })) : [
+        { text: '', letter: 'A', steamTrait: 'ciencia' }
+      ]
+    };
     this.isFormDirty = false;
+  }
+
+  addOption() {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const nextLetter = letters[this.questionForm.options.length % 26];
+    this.questionForm.options.push({ text: '', letter: nextLetter, steamTrait: 'ciencia' });
+    this.onFormChange();
+  }
+
+  removeOption(index: number) {
+    this.questionForm.options.splice(index, 1);
+    this.onFormChange();
   }
 
   onFormChange() {
@@ -221,45 +298,84 @@ export class ManageTestComponent {
       return;
     }
 
+    if (!document.forms[0].checkValidity()) {
+      this.displayToast('Verifica que todos los campos requeridos y opciones estén llenos correctamente.', true);
+      return;
+    }
+
     this.isSubmitting = true;
+    
+    // Clean up options before sending (ensure text and traits are set)
+    const formattedOptions = this.questionForm.options.map((opt: any) => ({
+      text: opt.text.trim(),
+      letter: opt.letter.trim().toUpperCase() || 'A',
+      steamTrait: opt.steamTrait
+    }));
 
-    setTimeout(() => {
-      if (this.modalMode === 'edit') {
-        const q = this.filteredQuestionsList[this.viewedQuestionIndex];
-        const originalIndex = this.questions.findIndex(item => item.id === q.id);
-        if (originalIndex > -1) {
-          this.questions[originalIndex] = { id: q.id, ...this.questionForm };
+    const payload = {
+      text: this.questionForm.text.trim(),
+      order: this.questionForm.order || 1,
+      options: formattedOptions,
+      isActive: this.questionForm.status === 'Activo'
+    };
+
+    if (this.modalMode === 'edit') {
+      const q = this.filteredQuestionsList[this.viewedQuestionIndex];
+      this.adminService.updateQuestion(q.id, payload).subscribe({
+        next: (res) => {
+          this.isSubmitting = false;
+          this.isFormDirty = false;
+          this.displayToast('Pregunta guardada exitosamente.');
+          this.isModalOpen = false;
+          this.loadQuestions();
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.displayToast('Error al actualizar: ' + (err.error?.message || ''), true);
         }
-      } else {
-        const newId = (this.questions.length > 0 ? Math.max(...this.questions.map(item => item.id)) : 0) + 1;
-        this.questions.unshift({ id: newId, ...this.questionForm });
-      }
-
-      this.isSubmitting = false;
-      this.isFormDirty = false;
-      this.displayToast(this.modalMode === 'create' ? 'Pregunta añadida existosamente.' : 'Pregunta guardada exitosamente.');
-      this.isModalOpen = false;
-    }, 800);
+      });
+    } else {
+      this.adminService.createQuestion(payload).subscribe({
+        next: (res) => {
+          this.isSubmitting = false;
+          this.isFormDirty = false;
+          this.displayToast('Pregunta añadida existosamente.');
+          this.isModalOpen = false;
+          this.loadQuestions();
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.displayToast('Error al crear: ' + (err.error?.message || ''), true);
+        }
+      });
+    }
   }
 
   deleteSelected() {
     if (this.selectedQuestions.length === 0) return;
     const count = this.selectedQuestions.length;
 
-    // Podemos seguir usando el confirm nativo para eliminar (es destructivo pero seguro)
-    // O si prefieres lo cambiamos a otro modal. Usaremos confirm por simplicidad de eliminación.
     const msg = count > 1
       ? `¿Estás seguro de eliminar a las ${count} preguntas seleccionadas?`
       : '¿Eliminar esta pregunta definitivamente?';
 
     if (confirm(msg)) {
       this.isSubmitting = true;
-      setTimeout(() => {
-        this.questions = this.questions.filter(q => !this.selectedQuestions.some(sq => sq.id === q.id));
-        this.isSubmitting = false;
-        this.displayToast(count > 1 ? 'Preguntas eliminadas correctamente.' : 'Pregunta eliminada correctamente.');
-        this.selectedQuestions = [];
-      }, 600);
+      const deleteObservables = this.selectedQuestions.map(sq => this.adminService.deleteQuestion(sq.id));
+
+      forkJoin(deleteObservables).subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.displayToast(count > 1 ? 'Preguntas eliminadas correctamente.' : 'Pregunta eliminada correctamente.');
+          this.selectedQuestions = [];
+          this.loadQuestions();
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.displayToast('Hubo un error al eliminar algunas preguntas.', true);
+          this.loadQuestions();
+        }
+      });
     }
   }
 
@@ -267,24 +383,30 @@ export class ManageTestComponent {
     const q = this.filteredQuestionsList[this.viewedQuestionIndex];
     if (confirm(`¿Eliminar la pregunta #${q.id} definitivamente?`)) {
       this.isSubmitting = true;
-      setTimeout(() => {
-        this.questions = this.questions.filter(item => item.id !== q.id);
-        this.selectedQuestions = this.selectedQuestions.filter(item => item.id !== q.id);
-        this.isSubmitting = false;
-        this.displayToast('Pregunta eliminada correctamente.');
-        this.isModalOpen = false;
-      }, 600);
+      this.adminService.deleteQuestion(q.id).subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.selectedQuestions = this.selectedQuestions.filter(item => item.id !== q.id);
+          this.displayToast('Pregunta eliminada correctamente.');
+          this.isModalOpen = false;
+          this.loadQuestions();
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.displayToast('Error al eliminar: ' + (err.error?.message || ''), true);
+        }
+      });
     }
   }
 
   displayToast(message: string, isError: boolean = false) {
-    this.toastMessage = message;
-    this.showToast = true;
-    setTimeout(() => this.showToast = false, 3000);
+    this.toastService.showToast(message, isError ? 'error' : 'success');
   }
 
-  // --- FUNCIÓN PARA EL DASHBOARD DE BALANCE ---
-  getCount(cat: string): number {
-    return this.questions.filter(q => q.category === cat && q.status === 'Activo').length;
+  getCount(traitValue: string): number {
+    return this.questions.reduce((sum, q) => {
+      if (q.isActive === false) return sum;
+      return sum + (q.options || []).filter(o => o.steamTrait === traitValue).length;
+    }, 0);
   }
 }
