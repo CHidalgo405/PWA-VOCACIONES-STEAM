@@ -26,6 +26,11 @@ export class LoginComponent {
   isVerifying = false;
   verificationCode = '';
 
+  // Rate limiting state
+  failedAttempts = 0;
+  MAX_ATTEMPTS = 5;
+  BLOCK_TIME_MINUTES = 5;
+
   constructor(private router: Router, private authService: AuthService, private toastService: ToastService) { }
 
   login() {
@@ -43,23 +48,44 @@ export class LoginComponent {
         this.isLoading = false;
 
         if (err.status === 429) {
-          // Account locked — too many failed login attempts
+          // Account locked — too many failed login attempts (already handled by backend)
           const apiMsg = err.error?.message || 'Demasiados intentos fallidos. Por favor, intenta más tarde.';
           this.toastService.showToast(apiMsg, 'warning', 'Cuenta Bloqueada');
           this.isBlocked = true;
 
           // Try to parse remaining minutes from the API message to auto-unblock
           const match = apiMsg.match(/(\d+)\s*minuto/i);
-          const minutes = match ? parseInt(match[1], 10) : 30;
+          const minutes = match ? parseInt(match[1], 10) : this.BLOCK_TIME_MINUTES;
           setTimeout(() => { this.isBlocked = false; }, minutes * 60 * 1000);
 
         } else if (err.status === 401 || err.status === 403) {
-          const attemptsMsg = err.error?.message;
-          this.toastService.showToast(
-            attemptsMsg || 'Credenciales incorrectas o acceso denegado.',
-            'error',
-            'Acceso Denegado'
-          );
+          this.failedAttempts++;
+          const remaining = this.MAX_ATTEMPTS - this.failedAttempts;
+
+          if (this.failedAttempts >= this.MAX_ATTEMPTS) {
+            this.isBlocked = true;
+            this.toastService.showToast(
+              `Has superado el límite de intentos. Por favor, espera ${this.BLOCK_TIME_MINUTES} minutos.`,
+              'error',
+              'Cuenta Bloqueada'
+            );
+            setTimeout(() => {
+              this.isBlocked = false;
+              this.failedAttempts = 0;
+            }, this.BLOCK_TIME_MINUTES * 60 * 1000);
+          } else if (this.failedAttempts >= 2) {
+            this.toastService.showToast(
+              `Credenciales incorrectas. ¡Cuidado! Te quedan solo ${remaining} intentos.`,
+              'warning',
+              'Aviso de Seguridad'
+            );
+          } else {
+            this.toastService.showToast(
+              err.error?.message || 'Credenciales incorrectas.',
+              'error',
+              'Acceso Denegado'
+            );
+          }
         } else if (err.status === 0) {
           this.toastService.showToast('No se pudo conectar al servidor.', 'error', 'Sin Conexión');
         } else {
@@ -73,6 +99,7 @@ export class LoginComponent {
     ).subscribe(res => {
       this.isLoading = false;
       if (res) {
+        this.failedAttempts = 0; // Reset counter on success
         if (res.accessToken) {
           // Si el servidor envía el token directamente (ej. admin bypass o no requiere 2FA)
           this.toastService.showToast('¡Inicio de sesión exitoso!', 'success', '¡Bienvenido!');
