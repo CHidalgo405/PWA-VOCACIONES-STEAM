@@ -1,11 +1,12 @@
 <div class="auth-container">
   <div class="auth-card">
 
-    <div class="auth-header">
-      <div style="font-size: 3rem; margin-bottom: 10px;">👋</div>
-      <h2>¡Hola de nuevo!</h2>
-      <p>Ingresa para continuar tu camino STEAM.</p>
-    </div>
+    <ng-container *ngIf="!isVerificationStep">
+      <div class="auth-header">
+        <div style="font-size: 3rem; margin-bottom: 10px;">👋</div>
+        <h2>¡Hola de nuevo!</h2>
+        <p>Ingresa para continuar tu camino STEAM.</p>
+      </div>
 
     <form>
       <div class="form-group">
@@ -71,12 +72,42 @@
 
     </form>
 
-    <div style="text-align: center; margin-top: 30px;">
-      <p style="font-size: 0.9rem; color: var(--text-muted);">
-        ¿No tienes cuenta?
-        <a routerLink="/register" class="text-link">Regístrate</a>
-      </p>
-    </div>
+      <div style="text-align: center; margin-top: 30px;">
+        <p style="font-size: 0.9rem; color: var(--text-muted);">
+          ¿No tienes cuenta?
+          <a routerLink="/register" class="text-link">Regístrate</a>
+        </p>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="isVerificationStep">
+      <div class="auth-header" style="margin-bottom: 20px;">
+        <div style="font-size: 3.5rem; margin-bottom: 15px; animation: slideUp 0.5s ease-out;">📩</div>
+        <h2>Código de Verificación</h2>
+        <p style="margin-top: 15px; font-size: 1.05rem; line-height: 1.5;">
+          Hemos enviado un código de seguridad de 6 dígitos a:<br>
+          <strong style="color: var(--steam-blue); font-size: 1.1rem;">{{ email }}</strong>
+        </p>
+      </div>
+
+      <div class="form-group" style="text-align: center; margin-bottom: 30px;">
+        <input type="text" [(ngModel)]="verificationCode" maxlength="6" class="otp-input" placeholder="000000" style="text-transform: uppercase;" />
+      </div>
+
+      <button (click)="onVerifyOTP()" class="btn-primary"
+        [disabled]="isVerifying"
+        style="margin-top: 5px; background-image: linear-gradient(to right, #07B1C9 0%, #4DB046 100%);">
+        <span *ngIf="isVerifying" class="btn-spinner"></span>
+        <span *ngIf="!isVerifying">Verificar Código</span>
+      </button>
+
+      <div style="text-align: center; margin-top: 25px;">
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          ¿No recibiste el correo? Revisa tu carpeta de Spam o
+          <a href="javascript:void(0)" (click)="isVerificationStep = false; verificationCode = ''" class="text-link">volver al inicio de sesión</a>.
+        </p>
+      </div>
+    </ng-container>
 
   </div>
 </div>

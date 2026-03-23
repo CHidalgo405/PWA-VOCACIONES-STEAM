@@ -58,6 +58,16 @@ export class AuthService {
     );
   }
 
+  verifyLogin(email: string, code: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/verify-login`, { email, code }).pipe(
+      tap((res: any) => {
+        if (res.accessToken) {
+          this.setSession(res.accessToken, res.user);
+        }
+      })
+    );
+  }
+
   // Se solicita la recuperación (Reemplazado Firebase por llamada API HTTP Real)
   forgotPassword(email: string): Observable<any> {
     return this.http.post(`${environment.apiUrl}/auth/forgot-password`, { email });
