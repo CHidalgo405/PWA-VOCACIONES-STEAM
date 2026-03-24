@@ -5,19 +5,16 @@ import { environment } from '../../../environments/environment';
 
 export interface Option {
   id: string;
-  texto: string;
-  valor_steam: string;
-  valor_riasec: string;
-  habilidad_blanda: string;
+  text: string;
+  letter: string;
+  steamTrait: string;
 }
 
 export interface Question {
-  id: number;
-  tema_etiqueta: string;
-  contexto: string;
-  imagen_contexto_url: string;
-  pregunta: string;
-  opciones: Option[];
+  id: string;
+  text: string;
+  order: number;
+  options: Option[];
 }
 
 export interface UniversityRecommendation {

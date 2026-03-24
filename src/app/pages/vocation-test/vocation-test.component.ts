@@ -30,7 +30,7 @@ export class VocationTestComponent implements OnInit {
         ciencia: 0,
         tecnologia: 0,
         ingenieria: 0,
-        arte: 0,
+        artes: 0,
         matematicas: 0
     };
 
@@ -66,7 +66,7 @@ export class VocationTestComponent implements OnInit {
             ciencia: 0,
             tecnologia: 0,
             ingenieria: 0,
-            arte: 0,
+            artes: 0,
             matematicas: 0
         };
     }
@@ -95,9 +95,9 @@ export class VocationTestComponent implements OnInit {
     const currentQ = this.currentQuestion;
     this.userAnswers[currentQ.id.toString()] = this.selectedOptionId;
 
-    const selectedOption = currentQ.opciones.find(o => o.id === this.selectedOptionId);
+    const selectedOption = currentQ.options.find(o => o.id === this.selectedOptionId);
         if (selectedOption) {
-            const tagKey = selectedOption.valor_steam.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const tagKey = selectedOption.steamTrait.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             if (this.profileScores[tagKey] !== undefined) {
                 this.profileScores[tagKey]++;
             }

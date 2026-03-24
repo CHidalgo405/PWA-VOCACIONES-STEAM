@@ -35,36 +35,29 @@
 
     <!-- Context / Question Area -->
     <div class="context-card fade-in">
-        <div class="context-image-wrapper" style="margin-bottom: 20px;">
-            <img [src]="currentQuestion.imagen_contexto_url" alt="Contexto"
-                style="width: 100%; border-radius: 12px; object-fit: cover; max-height: 250px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-        </div>
-        <div style="margin-bottom: 12px;">
+        <div style="margin-bottom: 12px; margin-top: 15px;">
             <span class="theme-tag"
-                style="background: rgba(7, 177, 201, 0.1); color: #07B1C9; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; text-transform: uppercase;">{{
-                currentQuestion.tema_etiqueta }}</span>
+                style="background: rgba(7, 177, 201, 0.1); color: #07B1C9; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; text-transform: uppercase;">Prueba STEAM</span>
         </div>
-        <p class="context-text" style="font-size: 16px; margin-top: 12px; margin-bottom: 12px;">{{
-            currentQuestion.contexto }}</p>
-        <h2 class="question-title">{{ currentQuestion.pregunta }}</h2>
+        <h2 class="question-title">{{ currentQuestion.text }}</h2>
     </div>
 
     <!-- Options Grid -->
     <div class="options-grid fade-in">
-        <div class="option-card" *ngFor="let option of currentQuestion.opciones"
+        <div class="option-card" *ngFor="let option of currentQuestion.options"
             [class.selected]="selectedOptionId === option.id" (click)="selectOption(option.id)">
             <div class="option-icon"
                 style="font-weight: 800; font-size: 24px; color: #07B1C9; width: 40px; text-align: center; margin-right: 16px; margin-left: 0;">
-                {{ option.id }}</div>
+                {{ option.letter }}</div>
             <div class="option-text-wrapper" style="flex: 1;">
                 <div class="option-text"
-                    style="font-weight: 500; font-size: 15px; margin-bottom: 4px; line-height: 1.4;">{{ option.texto }}
+                    style="font-weight: 500; font-size: 15px; margin-bottom: 4px; line-height: 1.4;">{{ option.text }}
                 </div>
                 <div class="soft-skill"
-                    style="font-size: 12px; color: #888; font-style: italic; display: flex; align-items: center;">
+                    style="font-size: 12px; color: #888; font-style: italic; display: flex; align-items: center; text-transform: capitalize;">
                     <span
                         style="display: inline-block; width: 6px; height: 6px; background-color: #07B1C9; border-radius: 50%; margin-right: 6px;"></span>
-                    Habilidad: {{ option.habilidad_blanda }}
+                    Aptitud: {{ option.steamTrait }}
                 </div>
             </div>
         </div>

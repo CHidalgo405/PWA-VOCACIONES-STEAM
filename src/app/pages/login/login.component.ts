@@ -138,17 +138,27 @@ export class LoginComponent {
 
           if (this.otpFailedAttempts >= this.MAX_OTP_ATTEMPTS) {
             this.toastService.showToast(
-              'Has superado el límite de intentos de verificación. El código ha sido invalidado.',
+              `Has superado el límite de intentos de verificación. Espera ${this.BLOCK_TIME_MINUTES} minutos para volver a intentarlo.`,
               'error',
-              'Código Agotado'
+              'Cuenta Bloqueada'
             );
-            // Reset to initial login step
+            
+            this.isBlocked = true;
+            this.failedAttempts = this.MAX_ATTEMPTS;
+
+            // Retornamos al inicio de sesión principal pero bloqueado
             setTimeout(() => {
               this.isVerificationStep = false;
               this.otpFailedAttempts = 0;
               this.verificationCode = '';
-              // Also reset email/password? Usually better to just stay on login
             }, 2000);
+
+            // Desbloquear después del tiempo estipulado
+            setTimeout(() => {
+              this.isBlocked = false;
+              this.failedAttempts = 0;
+            }, this.BLOCK_TIME_MINUTES * 60 * 1000);
+
           } else if (remaining === 1) {
             this.toastService.showToast(
               'Código incorrecto. ¡Cuidado! Te queda solo 1 intento.',
