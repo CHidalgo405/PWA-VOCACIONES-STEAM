@@ -157,7 +157,8 @@ export class ManageTestComponent implements OnInit {
         letter: o.letter,
         steamTrait: o.steamTrait
       })),
-      isActive: newStatus
+      isActive: newStatus,
+      status: newStatus ? 'activo' : 'inactivo'
     };
 
     this.adminService.updateQuestion(q.id, fullPayload).pipe(
@@ -316,7 +317,8 @@ export class ManageTestComponent implements OnInit {
       text: this.questionForm.text.trim(),
       order: this.questionForm.order || 1,
       options: formattedOptions,
-      isActive: this.questionForm.status === 'Activo'
+      isActive: this.questionForm.status === 'Activo',
+      status: this.questionForm.status === 'Activo' ? 'activo' : 'inactivo'
     };
 
     if (this.modalMode === 'edit') {

@@ -26,6 +26,7 @@ export interface AdminTestQuestion {
   text: string;
   order: number;
   isActive?: boolean;
+  status?: string;
   options: AdminTestOption[];
 }
 
