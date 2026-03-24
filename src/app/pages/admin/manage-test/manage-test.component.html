@@ -132,7 +132,7 @@
         <tbody *ngIf="!isLoading">
           <!-- REAL ROWS -->
           <tr *ngFor="let q of paginatedQuestions" (click)="toggleSelection(q, $event)" [class.selected]="isSelected(q)"
-            [class.inactive-row]="!q.isActive" style="cursor: pointer;">
+            [class.inactive-row]="q.status !== 'activo'" style="cursor: pointer;">
 
             <td style="text-align: center;">
               <input type="checkbox" [checked]="isSelected(q)"
@@ -156,8 +156,8 @@
               </div>
             </td>
             <td (click)="toggleStatus(q, $event)" class="clickable-status" title="Clic para alternar estado">
-              <span class="status-dot" [class.active]="q.isActive"></span>
-              {{ q.isActive ? 'Activo' : 'Inactivo' }}
+              <span class="status-dot" [class.active]="q.status === 'activo'"></span>
+              {{ q.status === 'activo' ? 'Activo' : 'Inactivo' }}
             </td>
           </tr>
         </tbody>
@@ -234,9 +234,9 @@
       </div>
 
       <!-- Estado visual -->
-      <div class="sidebar-status" [class.active]="questionForm.status === 'Activo'">
+      <div class="sidebar-status" [class.active]="questionForm.status === 'activo'">
         <span class="status-indicator"></span>
-        {{ questionForm.status === 'Activo' ? 'Activa' : 'Inactiva' }}
+        {{ questionForm.status === 'activo' ? 'Activa' : 'Inactiva' }}
       </div>
 
       <div class="sidebar-menu" style="margin-top: 20px;">
@@ -323,17 +323,17 @@
             <div class="input-group full-width" style="flex-direction: row; align-items: center; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
               <label class="switch">
                 <input type="checkbox" name="status"
-                  [checked]="questionForm.status === 'Activo'"
+                  [checked]="questionForm.status === 'activo'"
                   [disabled]="modalMode === 'view'"
-                  (change)="onFormChange(); questionForm.status = questionForm.status === 'Activo' ? 'Inactivo' : 'Activo'">
+                  (change)="onFormChange(); questionForm.status = questionForm.status === 'activo' ? 'inactivo' : 'activo'">
                 <span class="slider round"></span>
               </label>
               <div>
                 <span style="font-weight: 600; color: #1e293b; font-size: 0.95rem;">
-                  {{ questionForm.status === 'Activo' ? 'Pregunta Activa' : 'Pregunta Inactiva' }}
+                  {{ questionForm.status === 'activo' ? 'Pregunta Activa' : 'Pregunta Inactiva' }}
                 </span>
                 <p style="margin: 2px 0 0; color: #64748b; font-size: 0.8rem;">
-                  {{ questionForm.status === 'Activo' ? 'Visible en el test vocacional' : 'Oculta del test vocacional' }}
+                  {{ questionForm.status === 'activo' ? 'Visible en el test vocacional' : 'Oculta del test vocacional' }}
                 </p>
               </div>
             </div>

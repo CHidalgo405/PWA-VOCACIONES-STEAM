@@ -77,8 +77,7 @@ export class ManageTestComponent implements OnInit {
   questionForm: any = { 
     text: '', 
     order: 1, 
-    status: 'Activo', 
-    isActive: true, 
+    status: 'activo', 
     options: [
       { text: '', letter: 'A', steamTrait: 'ciencia' }
     ] 
@@ -145,7 +144,7 @@ export class ManageTestComponent implements OnInit {
 
   toggleStatus(q: any, event: Event) {
     event.stopPropagation();
-    const newStatus = !q.isActive;
+    const newStatus = q.status === 'activo' ? 'inactivo' : 'activo';
 
     // Se envía el payload completo para que la API persista el cambio correctamente
     const fullPayload = {
@@ -157,8 +156,7 @@ export class ManageTestComponent implements OnInit {
         letter: o.letter,
         steamTrait: o.steamTrait
       })),
-      isActive: newStatus,
-      status: newStatus ? 'activo' : 'inactivo'
+      status: newStatus
     };
 
     this.adminService.updateQuestion(q.id, fullPayload).pipe(
@@ -170,8 +168,8 @@ export class ManageTestComponent implements OnInit {
       if (res !== null) {
         const index = this.questions.findIndex(item => item.id === q.id);
         if (index > -1) {
-          this.questions[index].isActive = newStatus;
-          this.displayToast(`Pregunta ${newStatus ? 'activada' : 'desactivada'} correctamente.`);
+          this.questions[index].status = newStatus;
+          this.displayToast(`Pregunta ${newStatus === 'activo' ? 'activada' : 'desactivada'} correctamente.`);
         }
       }
     });
@@ -193,8 +191,7 @@ export class ManageTestComponent implements OnInit {
       this.questionForm = { 
         text: '', 
         order: this.filteredQuestionsList.length + 1, 
-        status: 'Activo', 
-        isActive: true, 
+        status: 'activo', 
         options: [
           { text: '', letter: 'A', steamTrait: 'ciencia' },
           { text: '', letter: 'B', steamTrait: 'tecnologia' }
@@ -209,8 +206,7 @@ export class ManageTestComponent implements OnInit {
     this.questionForm = { 
       text: q.text,
       order: q.order || 1,
-      status: q.isActive !== false ? 'Activo' : 'Inactivo',
-      isActive: q.isActive !== false,
+      status: q.status === 'activo' ? 'activo' : 'inactivo',
       options: q.options && q.options.length > 0 ? q.options.map((o: any) => ({ ...o })) : [
         { text: '', letter: 'A', steamTrait: 'ciencia' }
       ]
@@ -317,8 +313,7 @@ export class ManageTestComponent implements OnInit {
       text: this.questionForm.text.trim(),
       order: this.questionForm.order || 1,
       options: formattedOptions,
-      isActive: this.questionForm.status === 'Activo',
-      status: this.questionForm.status === 'Activo' ? 'activo' : 'inactivo'
+      status: this.questionForm.status
     };
 
     if (this.modalMode === 'edit') {
@@ -407,7 +402,7 @@ export class ManageTestComponent implements OnInit {
 
   getCount(traitValue: string): number {
     return this.questions.reduce((sum, q) => {
-      if (q.isActive === false) return sum;
+      if (q.status !== 'activo') return sum;
       return sum + (q.options || []).filter(o => o.steamTrait === traitValue).length;
     }, 0);
   }
