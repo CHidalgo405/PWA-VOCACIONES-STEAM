@@ -1,7 +1,10 @@
+<div class="toast-backdrop" *ngIf="toasts.length > 0"></div>
+
 <div class="toast-container" *ngIf="toasts.length > 0">
-  <div *ngFor="let toast of toasts"
+  <div *ngFor="let toast of toasts; let i = index"
        class="toast-card"
        [ngClass]="'toast-' + toast.type"
+       [style.--toast-idx]="toasts.length - 1 - i"
        (click)="removeToast(toast.id)">
 
     <!-- Icon badge -->

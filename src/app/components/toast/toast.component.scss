@@ -6,29 +6,48 @@ $dark: #1a2332;
 $text-muted: #6b7280;
 $white: #FFFFFF;
 
-// --- Positioning ---
+// --- Background Backdrop ---
+.toast-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10, 15, 25, 0.4);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 9998;
+  opacity: 0;
+  animation: backdropFadeIn 0.3s forwards;
+}
+
+@keyframes backdropFadeIn {
+  to { opacity: 1; }
+}
+
+// --- Positioning Container ---
 .toast-container {
   position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: 35%; // Center-top placement allows stacking space above and below
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 9999;
+  width: 90%;
+  max-width: 340px;
+  height: 200px; // Provide a bounding box so absolute items don't collapse layout
+  pointer-events: none; // Let clicks pass through container to backdrop/items
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  pointer-events: none;
+  justify-content: center;
 }
 
 // --- Card Shell ---
 .toast-card {
-  position: relative;
+  position: absolute;
   pointer-events: auto;
-  cursor: pointer;
-  width: 220px;
+  cursor: default;
+  width: 100%;
   background: $white;
   border-radius: 20px;
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.12),
-    0 4px 12px rgba(0, 0, 0, 0.06);
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -36,13 +55,19 @@ $white: #FFFFFF;
   overflow: visible;
   border: 1px solid rgba(0, 0, 0, 0.06);
 
-  // Entrance animation
-  animation: toastSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  // Stacking logic based on CSS variable --toast-idx
+  // Newer toasts have 0, older have 1, 2, ...
+  z-index: calc(100 - var(--toast-idx));
+  transform: translateY(calc(var(--toast-idx) * 16px)) scale(calc(1 - var(--toast-idx) * 0.06));
+  opacity: calc(1 - var(--toast-idx) * 0.25);
 
+  // Animation and transitions
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+  animation: toastSpawn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+  // Interactivity for front toast only (or minor bump for others)
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.16);
-    transition: all 0.2s ease;
+    transform: translateY(calc(var(--toast-idx) * 16px - 4px)) scale(calc(1 - var(--toast-idx) * 0.06));
   }
 
   // Colored top accent strip
@@ -50,7 +75,7 @@ $white: #FFFFFF;
     content: '';
     display: block;
     width: 100%;
-    height: 6px;
+    height: 8px;
     border-radius: 20px 20px 0 0;
   }
 
@@ -60,25 +85,37 @@ $white: #FFFFFF;
   &.toast-info::before    { background: $cyan; }
 }
 
+@keyframes toastSpawn {
+  from {
+    margin-top: -60px;
+    opacity: 0;
+  }
+  to {
+    margin-top: 0;
+    // Opacity interpolates to default element opacity determined by var
+  }
+}
+
 // --- Circular Icon Badge ---
 .toast-badge {
-  margin-top: -18px;
+  margin-top: -24px;
   margin-bottom: 0.75rem;
+  z-index: 10;
 }
 
 .toast-icon-circle {
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid $white;
+  border: 4px solid $white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
   svg {
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     color: $white;
     stroke: $white;
   }
@@ -92,7 +129,7 @@ $white: #FFFFFF;
 // --- Text Content ---
 .toast-content {
   text-align: center;
-  padding: 0 1.1rem;
+  padding: 0 1.25rem;
   position: relative;
   width: 100%;
   box-sizing: border-box;
@@ -100,73 +137,51 @@ $white: #FFFFFF;
 
 .toast-close-btn {
   position: absolute;
-  top: -1rem;
-  right: 0.5rem;
+  top: -1.2rem;
+  right: 0.2rem;
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   color: #c4c4c4;
   cursor: pointer;
   line-height: 1;
-  padding: 0;
+  padding: 8px;
   transition: color 0.2s;
 
   &:hover { color: $dark; }
 }
 
 .toast-title {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: $dark;
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.4rem;
   font-family: 'Inter', sans-serif;
   letter-spacing: -0.01em;
 }
 
 .toast-message {
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   color: $text-muted;
   margin: 0;
   font-family: 'Inter', sans-serif;
   font-weight: 400;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
-// --- Animation ---
-@keyframes toastSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-// --- Mobile ---
+// --- Mobile specific adjustments ---
 @media (max-width: 600px) {
   .toast-container {
-    top: auto;
-    bottom: 1.5rem;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    align-items: center;
+    top: 30%; // Slightly higher on mobile to give room for keyboard or elements below
   }
-
+  
   .toast-card {
-    animation: toastSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    // If it's a mobile screen, the stacking offset can be slightly larger for tap targets
+    transform: translateY(calc(var(--toast-idx) * 20px)) scale(calc(1 - var(--toast-idx) * 0.05));
+    
+    &:hover {
+      transform: translateY(calc(var(--toast-idx) * 20px - 2px)) scale(calc(1 - var(--toast-idx) * 0.05));
+    }
   }
 }
 
-@keyframes toastSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
