@@ -77,8 +77,31 @@ export class TestResultComponent {
   }
 
   saveToFavorites() {
-    console.log(`Guardado en favoritos: ${this.selectedUniversity?.name}`);
-    alert(`¡${this.selectedUniversity?.name} guardada en tus favoritos!`);
+    if (!this.selectedUniversity) return;
+    
+    const savedUniversities = JSON.parse(localStorage.getItem('favorite_universities') || '[]');
+    
+    // Verificar si ya existe
+    const isAlreadySaved = savedUniversities.some((u: any) => u.name === this.selectedUniversity?.name);
+    
+    if (!isAlreadySaved) {
+      const newFav = {
+        id: this.selectedUniversity.id || new Date().getTime(),
+        name: this.selectedUniversity.name,
+        location: this.selectedUniversity.location,
+        image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000', // Foto de stock genérica de universidad
+        logo: '🎓',
+        tags: [this.selectedUniversity.suggestedMajor, 'Selección IA'],
+        rating: 4.8
+      };
+      
+      savedUniversities.push(newFav);
+      localStorage.setItem('favorite_universities', JSON.stringify(savedUniversities));
+      
+      alert(`¡${this.selectedUniversity.name} guardada en tus favoritos!`);
+    } else {
+      alert(`¡Esta universidad ya se encuentra en tus favoritos!`);
+    }
   }
 
   goBackToResult() {

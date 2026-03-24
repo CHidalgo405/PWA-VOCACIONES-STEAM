@@ -114,13 +114,40 @@ export class VocationTestComponent implements OnInit {
   finishTest() {
     this.viewState = 'analyzing';
 
+    const mockResult: TestSubmissionResponse = {
+      testId: 'mock-' + new Date().getTime(),
+      scores: this.profileScores,
+      dominantTraits: 'Tecnología + Ciencia (Simulado)',
+      aiProfileDescription: 'Eres una persona curiosa con una gran afinidad por la tecnología y la innovación. Tienes perfil analítico, ideal para ingeniería o ciencias de la computación.',
+      recommendations: [
+        {
+          id: 1,
+          name: 'Universidad Tecnológica (UTCV)',
+          location: 'Veracruz, 5km',
+          suggestedMajor: 'Ingeniería de Software',
+          matchReason: 'Combina perfectamente con tu perfil tecnológico y analítico.',
+          keyDates: 'Examen de Admisión: Junio 2026',
+          studyPlan: ['Programación Avanzada', 'Redes', 'Bases de Datos'],
+          websiteUrl: 'https://www.utcv.edu.mx'
+        },
+        {
+          id: 2,
+          name: 'Instituto Politécnico Nacional (IPN)',
+          location: 'Ciudad de México',
+          suggestedMajor: 'Ing. Mecatrónica',
+          matchReason: 'Ideal para tus habilidades lógicas y tu interés en proyectos físicos.',
+          keyDates: 'Convocatoria: Febrero 2026',
+          studyPlan: ['Robótica', 'Sistemas Digitales', 'Física'],
+          websiteUrl: 'https://www.ipn.mx'
+        }
+      ]
+    };
+
     // Llamada API a TestService (esperando datos IA)
     this.testService.submitTest(this.userAnswers).pipe(
       catchError(err => {
-        console.error("Error al enviar el test:", err);
-        // Fallback or show error message
-        this.router.navigate(['/dashboard']);
-        return of(null);
+        console.warn("API falló o no disponible, usando resultado simulado...", err);
+        return of(mockResult);
       })
     ).subscribe(res => {
       if (res) {
@@ -134,7 +161,11 @@ export class VocationTestComponent implements OnInit {
         }
 
         localStorage.setItem('latest_test_result', JSON.stringify(res));
-        this.router.navigate(['/test-result']);
+        
+        // Simular tiempo de análisis para la animación
+        setTimeout(() => {
+          this.router.navigate(['/test-result']);
+        }, 3000);
       }
     });
   }

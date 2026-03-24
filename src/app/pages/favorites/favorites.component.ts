@@ -51,7 +51,25 @@ export class FavoritesComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.loadFavorites();
     this.simulateFetch();
+  }
+
+  loadFavorites() {
+    const savedUni = JSON.parse(localStorage.getItem('favorite_universities') || 'null');
+    const savedCourses = JSON.parse(localStorage.getItem('favorite_courses') || 'null');
+
+    if (savedUni) {
+      this.favoriteUniversities = savedUni;
+    } else {
+      localStorage.setItem('favorite_universities', JSON.stringify(this.favoriteUniversities));
+    }
+    
+    if (savedCourses) {
+      this.favoriteCourses = savedCourses;
+    } else {
+      localStorage.setItem('favorite_courses', JSON.stringify(this.favoriteCourses));
+    }
   }
 
   simulateFetch() {
@@ -68,8 +86,10 @@ export class FavoritesComponent implements OnInit {
   removeFromFavorites(type: 'university' | 'course', id: number) {
     if (type === 'university') {
       this.favoriteUniversities = this.favoriteUniversities.filter(u => u.id !== id);
+      localStorage.setItem('favorite_universities', JSON.stringify(this.favoriteUniversities));
     } else {
       this.favoriteCourses = this.favoriteCourses.filter(c => c.id !== id);
+      localStorage.setItem('favorite_courses', JSON.stringify(this.favoriteCourses));
     }
   }
 }
