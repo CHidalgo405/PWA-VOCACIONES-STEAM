@@ -25,6 +25,9 @@ export class LoginComponent {
   isVerificationStep = false;
   isVerifying = false;
   verificationCode = '';
+  otpFailedAttempts = 0;
+  readonly MAX_OTP_ATTEMPTS = 3;
+
 
   // Rate limiting state
   failedAttempts = 0;
@@ -128,8 +131,37 @@ export class LoginComponent {
     this.authService.verifyLogin(this.email, this.verificationCode).pipe(
       catchError(err => {
         this.isVerifying = false;
+        
         if (err.status === 401 || err.status === 400 || err.status === 403) {
-          this.toastService.showToast('El código es incorrecto o ha expirado.', 'error');
+          this.otpFailedAttempts++;
+          const remaining = this.MAX_OTP_ATTEMPTS - this.otpFailedAttempts;
+
+          if (this.otpFailedAttempts >= this.MAX_OTP_ATTEMPTS) {
+            this.toastService.showToast(
+              'Has superado el límite de intentos de verificación. El código ha sido invalidado.',
+              'error',
+              'Código Agotado'
+            );
+            // Reset to initial login step
+            setTimeout(() => {
+              this.isVerificationStep = false;
+              this.otpFailedAttempts = 0;
+              this.verificationCode = '';
+              // Also reset email/password? Usually better to just stay on login
+            }, 2000);
+          } else if (remaining === 1) {
+            this.toastService.showToast(
+              'Código incorrecto. ¡Cuidado! Te queda solo 1 intento.',
+              'warning',
+              'Aviso de Seguridad'
+            );
+          } else {
+            this.toastService.showToast(
+              err.error?.message || 'El código es incorrecto o ha expirado.',
+              'error',
+              'Código Incorrecto'
+            );
+          }
         } else if (err.status === 0) {
           this.toastService.showToast('No se pudo conectar al servidor.', 'error');
         } else {
@@ -140,6 +172,7 @@ export class LoginComponent {
     ).subscribe(res => {
       this.isVerifying = false;
       if (res && res.accessToken) {
+        this.otpFailedAttempts = 0;
         this.toastService.showToast('¡Inicio de sesión exitoso!', 'success', '¡Bienvenido!');
         if (this.authService.isAdmin()) {
           this.router.navigate(['/admin']);

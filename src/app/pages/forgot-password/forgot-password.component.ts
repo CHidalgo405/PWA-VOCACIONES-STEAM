@@ -26,6 +26,8 @@ export class ForgotPasswordComponent {
   step: 'email' | 'otp' = 'email';
   isLoading = false;
   isBlocked = false;
+  otpFailedAttempts = 0;
+  readonly MAX_OTP_ATTEMPTS = 3;
 
   constructor() {
     this.emailForm = this.fb.group({
@@ -67,6 +69,7 @@ export class ForgotPasswordComponent {
     ).subscribe(res => {
       this.isLoading = false;
       if (res) {
+        this.otpFailedAttempts = 0;
         localStorage.setItem('recovery_email', email);
         this.toastService.showToast('Código enviado. Revisa tu correo.', 'success', 'Código Enviado');
         this.step = 'otp';
@@ -97,15 +100,36 @@ export class ForgotPasswordComponent {
           const apiMsg = err.error?.message || 'Demasiados intentos incorrectos. El código ha sido eliminado.';
           this.toastService.showToast(apiMsg, 'error', 'Código Agotado');
           this.otpForm.reset();
+          this.otpFailedAttempts = 0;
           // Return to email step so user can request a fresh OTP
           setTimeout(() => { this.step = 'email'; }, 1500);
         } else if (err.status === 400 || err.status === 401 || err.status === 403) {
-          const attemptsMsg = err.error?.message;
-          this.toastService.showToast(
-            attemptsMsg || 'El código es incorrecto o ha expirado.',
-            'warning',
-            'Código Incorrecto'
-          );
+          this.otpFailedAttempts++;
+          const remaining = this.MAX_OTP_ATTEMPTS - this.otpFailedAttempts;
+          
+          if (this.otpFailedAttempts >= this.MAX_OTP_ATTEMPTS) {
+             this.toastService.showToast(
+              'Has superado el límite de intentos. El código ha sido invalidado.',
+              'error',
+              'Código Agotado'
+            );
+            this.otpForm.reset();
+            this.otpFailedAttempts = 0;
+            setTimeout(() => { this.step = 'email'; }, 1500);
+          } else if (remaining === 1) {
+            this.toastService.showToast(
+              'Código incorrecto. ¡Cuidado! Te queda solo 1 intento.',
+              'warning',
+              'Aviso de Seguridad'
+            );
+          } else {
+            const attemptsMsg = err.error?.message;
+            this.toastService.showToast(
+              attemptsMsg || 'El código es incorrecto o ha expirado.',
+              'warning',
+              'Código Incorrecto'
+            );
+          }
         } else {
           this.toastService.showToast(
             err.error?.message || 'Error al verificar el código.',
@@ -117,6 +141,7 @@ export class ForgotPasswordComponent {
     ).subscribe(res => {
       this.isLoading = false;
       if (res) {
+        this.otpFailedAttempts = 0;
         this.toastService.showToast('Código validado con éxito.', 'success', '¡Verificado!');
         localStorage.setItem('recovery_otp_validated', inputOtp);
         this.router.navigate(['/restablecer-contrasena']);

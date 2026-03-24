@@ -31,6 +31,9 @@ export class RegisterComponent {
   private toastService = inject(ToastService);
 
   verificationCode = '';
+  otpFailedAttempts = 0;
+  readonly MAX_OTP_ATTEMPTS = 3;
+
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
@@ -84,8 +87,36 @@ export class RegisterComponent {
     this.authService.verifyOtp(this.email, this.verificationCode, 'register').pipe(
       catchError(err => {
         this.isVerifying = false;
+        
         if (err.status === 401 || err.status === 400 || err.status === 403) {
-          this.toastService.showToast('El código es incorrecto o ha expirado.', 'error');
+          this.otpFailedAttempts++;
+          const remaining = this.MAX_OTP_ATTEMPTS - this.otpFailedAttempts;
+
+          if (this.otpFailedAttempts >= this.MAX_OTP_ATTEMPTS) {
+            this.toastService.showToast(
+              'Has superado el límite de intentos. El código ha sido invalidado.',
+              'error',
+              'Código Agotado'
+            );
+            // Reset verification step so they have to register again or wait
+            setTimeout(() => {
+              this.isVerificationStep = false;
+              this.otpFailedAttempts = 0;
+              this.verificationCode = '';
+            }, 2000);
+          } else if (remaining === 1) {
+            this.toastService.showToast(
+              'Código incorrecto. ¡Cuidado! Te queda solo 1 intento.',
+              'warning',
+              'Aviso de Seguridad'
+            );
+          } else {
+            this.toastService.showToast(
+              err.error?.message || 'El código es incorrecto o ha expirado.',
+              'error',
+              'Código Incorrecto'
+            );
+          }
         } else if (err.status === 0) {
           this.toastService.showToast('No se pudo conectar al servidor.', 'error');
         } else {
@@ -96,6 +127,7 @@ export class RegisterComponent {
     ).subscribe(res => {
       this.isVerifying = false;
       if (res) {
+        this.otpFailedAttempts = 0;
         this.toastService.showToast('¡Cuenta verificada y activada con éxito!', 'success');
         this.router.navigate(['/dashboard']);
       }
