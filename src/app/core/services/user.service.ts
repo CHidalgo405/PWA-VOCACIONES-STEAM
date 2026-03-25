@@ -49,11 +49,11 @@ export class UserService {
     syllabus: string;
     link: string;
   }): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/users/cursed-selled`, data);
+    return this.http.post(`${environment.apiUrl}/users/saved-courses`, data);
   }
 
   getSavedCourses(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/users/cursed-selled`);
+    return this.http.get<any[]>(`${environment.apiUrl}/users/saved-courses`);
   }
 
   deleteSavedCourse(id: string | number): Observable<any> {
