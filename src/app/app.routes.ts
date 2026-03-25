@@ -13,7 +13,6 @@ import { AiLogsComponent } from './pages/admin/ai-logs/ai-logs.component';
 import { SettingsComponent } from './pages/admin/settings/settings.component';
 import { Error404Component } from './pages/error-404/error-404.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
-import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { OAuthCallbackComponent } from './pages/oauth-callback/oauth-callback.component';
 import { VocationTestComponent } from './pages/vocation-test/vocation-test.component';
 import { TestResultComponent } from './pages/test-result/test-result.component';
@@ -26,7 +25,6 @@ export const routes: Routes = [
   { path: 'welcome', component: OnboardingComponent, canActivate: [guestGuard] },
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
   { path: 'olvide-contrasena', component: ForgotPasswordComponent, canActivate: [guestGuard] },
-  { path: 'restablecer-contrasena', component: ResetPasswordComponent, canActivate: [guestGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'vocation-test', component: VocationTestComponent, canActivate: [authGuard] },
   { path: 'test-result', component: TestResultComponent, canActivate: [authGuard] },

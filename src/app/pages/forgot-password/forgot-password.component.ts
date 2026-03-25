@@ -22,8 +22,9 @@ export class ForgotPasswordComponent {
 
   emailForm: FormGroup;
   otpForm: FormGroup;
+  resetForm: FormGroup;
 
-  step: 'email' | 'otp' = 'email';
+  step: 'email' | 'otp' | 'reset' = 'email';
   isLoading = false;
   isBlocked = false;
   otpFailedAttempts = 0;
@@ -37,6 +38,22 @@ export class ForgotPasswordComponent {
     this.otpForm = this.fb.group({
       otp: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]]
     });
+
+    this.resetForm = this.fb.group({
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', [Validators.required]]
+    }, { validators: this.passwordMatchValidator });
+  }
+
+  // Validador para confirmar que las contraseñas coincidan
+  passwordMatchValidator(control: any): { [key: string]: boolean } | null {
+    const password = control.get('password')?.value;
+    const confirmPassword = control.get('confirmPassword')?.value;
+    if (password !== confirmPassword && control.get('confirmPassword')?.dirty) {
+      control.get('confirmPassword')?.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
+    }
+    return null;
   }
 
   async sendEmail() {
@@ -144,7 +161,42 @@ export class ForgotPasswordComponent {
         this.otpFailedAttempts = 0;
         this.toastService.showToast('Código validado con éxito.', 'success', '¡Verificado!');
         localStorage.setItem('recovery_otp_validated', inputOtp);
-        this.router.navigate(['/restablecer-contrasena']);
+        this.step = 'reset';
+      }
+    });
+  }
+
+  saveNewPassword() {
+    if (this.resetForm.invalid) return;
+
+    const newPassword = this.resetForm.value.password;
+    const email = localStorage.getItem('recovery_email');
+    const code = localStorage.getItem('recovery_otp_validated');
+
+    if (!email || !code) {
+      this.toastService.showToast('Sesión expirada. Intenta de nuevo.', 'error', 'Sesión Inválida');
+      this.step = 'email';
+      return;
+    }
+
+    this.isLoading = true;
+
+    this.authService.resetPassword(email, code, newPassword).pipe(
+      catchError(err => {
+        this.isLoading = false;
+        this.toastService.showToast(err.error?.message || 'Error al restablecer la contraseña.', 'error');
+        return of(null);
+      })
+    ).subscribe(res => {
+      this.isLoading = false;
+      if (res) {
+        this.toastService.showToast('¡Contraseña actualizada con éxito!', 'success', '¡Completado!');
+        localStorage.removeItem('recovery_email');
+        localStorage.removeItem('recovery_otp_validated');
+
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 1500);
       }
     });
   }
