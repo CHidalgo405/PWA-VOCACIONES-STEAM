@@ -68,7 +68,7 @@
         <div class="card-university" *ngFor="let uni of filteredUniversities">
           <div class="card-image" [style.backgroundImage]="'url(' + uni.image + ')'">
             <span class="rating-badge">⭐ {{ uni.rating }}</span>
-            <button class="favorite-btn">❤</button>
+            <button class="favorite-btn" (click)="saveUniversity(uni); $event.stopPropagation()">❤</button>
           </div>
           <div class="card-details">
             <div class="uni-header">
@@ -81,7 +81,7 @@
             <div class="tags-row">
               <span class="tag" *ngFor="let tag of uni.tags">{{ tag }}</span>
             </div>
-            <button class="btn-view">Ver Oferta Académica</button>
+            <button class="btn-view" (click)="openUniversityDetail(uni)">Ver Oferta Académica</button>
           </div>
         </div>
 
@@ -190,6 +190,63 @@
     <div class="modal-action-footer">
       <button class="btn-favorite-large">❤</button>
       <button class="btn-primary-large">Inscribirme Ahora</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL DE DETALLES DE UNIVERSIDAD -->
+<div class="course-modal-overlay" *ngIf="isUniversityModalOpen" (click)="closeUniversityModal()">
+  <div class="course-modal-content" (click)="$event.stopPropagation()" [class.slide-up]="isUniversityModalOpen">
+    
+    <div class="modal-header-image" [style.backgroundImage]="'url(' + selectedUniversity?.image + ')'">
+      <button class="btn-close-modal" (click)="closeUniversityModal()">✕</button>
+      <div class="image-gradient-overlay"></div>
+    </div>
+
+    <div class="modal-body-scroll">
+      
+      <div class="course-header-info">
+        <span class="provider-badge">{{ selectedUniversity?.logo }} {{ selectedUniversity?.name }}</span>
+        <h2>{{ selectedUniversity?.career }}</h2>
+        <div class="meta-tags">
+          <span class="tag">📍 {{ selectedUniversity?.location }}</span>
+          <span class="tag">⭐ {{ selectedUniversity?.rating }}</span>
+        </div>
+      </div>
+
+      <div class="course-section">
+        <h3>Sobre la Institución</h3>
+        <p class="description-text">
+          {{ selectedUniversity?.description }}
+        </p>
+      </div>
+
+      <div class="course-section">
+        <h3>Información Relevante</h3>
+        <div class="syllabus-list">
+          <div class="syllabus-item">
+            <div class="module-number">📅</div>
+            <div class="module-info">
+              <h4>Fechas Importantes</h4>
+              <span>{{ selectedUniversity?.keyDates }}</span>
+            </div>
+          </div>
+          <div class="syllabus-item">
+            <div class="module-number">📚</div>
+            <div class="module-info">
+              <h4>Plan de Estudios</h4>
+              <span>{{ selectedUniversity?.studyPlan }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-action-footer">
+      <button class="btn-favorite-large" (click)="saveUniversity()">❤</button>
+      <button class="btn-primary-large" (click)="closeUniversityModal()">Cerrar</button>
     </div>
 
   </div>

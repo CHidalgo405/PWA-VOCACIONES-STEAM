@@ -16,4 +16,25 @@ export class UserService {
   updateSettings(settings: any): Observable<any> {
     return this.http.put(`${environment.apiUrl}/users/settings`, settings);
   }
+
+  // --- SAVED UNIVERSITIES (FAVORITES) ---
+
+  saveUniversity(data: {
+    careerName: string;
+    universityName: string;
+    location: string;
+    relationshipExplanation: string;
+    keyDates: string;
+    studyPlan: string;
+  }): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/users/saved-universities`, data);
+  }
+
+  getSavedUniversities(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/users/saved-universities`);
+  }
+
+  deleteSavedUniversity(id: string | number): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/users/saved-universities/${id}`);
+  }
 }

@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
 import { UniversityRecommendation, TestSubmissionResponse } from '../../core/services/test.service';
+import { UserService } from '../../core/services/user.service';
+import { ToastService } from '../../core/services/toast.service';
+import { inject } from '@angular/core';
 
 @Component({
   selector: 'app-test-result',
@@ -31,6 +34,9 @@ export class TestResultComponent {
 
   // Mock Universities Data
   recommendedUniversities: UniversityRecommendation[] = [];
+
+  private userService = inject(UserService);
+  private toastService = inject(ToastService);
 
   constructor() {
     this.loadResults();
@@ -79,29 +85,33 @@ export class TestResultComponent {
   saveToFavorites() {
     if (!this.selectedUniversity) return;
     
-    const savedUniversities = JSON.parse(localStorage.getItem('favorite_universities') || '[]');
-    
-    // Verificar si ya existe
-    const isAlreadySaved = savedUniversities.some((u: any) => u.name === this.selectedUniversity?.name);
-    
-    if (!isAlreadySaved) {
-      const newFav = {
-        id: this.selectedUniversity.id || new Date().getTime(),
-        name: this.selectedUniversity.name,
-        location: this.selectedUniversity.location,
-        image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000', // Foto de stock genérica de universidad
-        logo: '🎓',
-        tags: [this.selectedUniversity.suggestedMajor, 'Selección IA'],
-        rating: 4.8
-      };
-      
-      savedUniversities.push(newFav);
-      localStorage.setItem('favorite_universities', JSON.stringify(savedUniversities));
-      
-      alert(`¡${this.selectedUniversity.name} guardada en tus favoritos!`);
-    } else {
-      alert(`¡Esta universidad ya se encuentra en tus favoritos!`);
-    }
+    const payload = {
+      careerName: this.selectedUniversity.suggestedMajor,
+      universityName: this.selectedUniversity.name,
+      location: this.selectedUniversity.location,
+      relationshipExplanation: this.selectedUniversity.matchReason,
+      keyDates: this.selectedUniversity.keyDates,
+      studyPlan: Array.isArray(this.selectedUniversity.studyPlan) 
+                 ? this.selectedUniversity.studyPlan.join(', ') 
+                 : (this.selectedUniversity.studyPlan || '')
+    };
+
+    this.userService.saveUniversity(payload).subscribe({
+      next: (res) => {
+        this.toastService.showToast(
+          `¡${this.selectedUniversity?.name} guardada en tus favoritos!`, 
+          'success', 
+          '¡Guardado!'
+        );
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          this.toastService.showToast('Esta universidad ya está en tus favoritos.', 'info');
+        } else {
+          this.toastService.showToast('No se pudo guardar la universidad. Intenta más tarde.', 'error');
+        }
+      }
+    });
   }
 
   goBackToResult() {
