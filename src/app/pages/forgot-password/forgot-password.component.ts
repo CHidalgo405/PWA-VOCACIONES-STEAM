@@ -158,6 +158,7 @@ export class ForgotPasswordComponent {
     ).subscribe(res => {
       this.isLoading = false;
       if (res) {
+        console.log('[ForgotPassword] OTP Verified Success Response:', res);
         this.otpFailedAttempts = 0;
         this.toastService.showToast('Código validado con éxito.', 'success', '¡Verificado!');
         localStorage.setItem('recovery_otp_validated', inputOtp);
@@ -172,6 +173,8 @@ export class ForgotPasswordComponent {
     const newPassword = this.resetForm.value.password;
     const email = localStorage.getItem('recovery_email');
     const code = localStorage.getItem('recovery_otp_validated');
+
+    console.log('[ForgotPassword] Saving new password for:', email, 'with code:', code);
 
     if (!email || !code) {
       this.toastService.showToast('Sesión expirada. Intenta de nuevo.', 'error', 'Sesión Inválida');

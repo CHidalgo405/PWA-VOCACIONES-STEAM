@@ -75,7 +75,9 @@ export class AuthService {
 
   // Se restablece la contraseña usando el OTP
   resetPassword(email: string, code: string, newPassword: string): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/auth/reset-password`, { email, code, newPassword });
+    const payload = { email, code, newPassword };
+    console.log('[AuthService] Reset Password Payload:', payload);
+    return this.http.post(`${environment.apiUrl}/auth/reset-password`, payload);
   }
 
   loginWithGoogle() {
