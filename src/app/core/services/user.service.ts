@@ -37,4 +37,26 @@ export class UserService {
   deleteSavedUniversity(id: string | number): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/users/saved-universities/${id}`);
   }
+
+  // --- SAVED COURSES (FAVORITES) ---
+
+  saveCourse(data: {
+    provider: string;
+    courseName: string;
+    durationHours: number;
+    isFree: boolean;
+    description: string;
+    syllabus: string;
+    link: string;
+  }): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/users/cursed-selled`, data);
+  }
+
+  getSavedCourses(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/users/cursed-selled`);
+  }
+
+  deleteSavedCourse(id: string | number): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/users/saved-courses/${id}`);
+  }
 }

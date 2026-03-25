@@ -105,20 +105,32 @@ export class ExploreComponent implements OnInit {
   // Datos Simulados: Cursos
   courses = [
     {
+      id: 101,
       title: 'Introducción a la IA',
-      provider: 'Google Activate',
+      courseName: 'Introducción a la Inteligencia Artificial',
+      provider: 'Coursera / Univ. Stanford',
       duration: '40 horas',
+      durationHours: 40,
       image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80&w=1000',
       level: 'Principiante',
-      isFree: true
+      isFree: true,
+      description: 'Aprende los fundamentos del Machine Learning y Deep Learning desde cero.',
+      syllabus: 'Módulo 1: Conceptos básicos\nMódulo 2: Redes Neuronales\nMódulo 3: Ética en IA',
+      link: 'https://coursera.org/learn/ai'
     },
     {
+      id: 102,
       title: 'Desarrollo Web Full Stack',
-      provider: 'Udemy',
+      courseName: 'Master en Desarrollo Web Moderno',
+      provider: 'Udemy Academic',
       duration: '12 horas',
+      durationHours: 12,
       image: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&q=80&w=1000',
       level: 'Intermedio',
-      isFree: false
+      isFree: false,
+      description: 'Domina el stack MERN (MongoDB, Express, React, Node) y construye aplicaciones escalables.',
+      syllabus: 'Módulo 1: Frontend avanzado\nMódulo 2: Backend con Node\nMódulo 3: Despliegue en la nube',
+      link: 'https://udemy.com/course/web-fullstack'
     }
   ];
 
@@ -212,6 +224,34 @@ export class ExploreComponent implements OnInit {
           this.toastService.showToast('Ya está en tus favoritos', 'info');
         } else {
           this.toastService.showToast('Error al guardar', 'error');
+        }
+      }
+    });
+  }
+
+  saveCourse(course?: any) {
+    const targetCourse = course || this.selectedCourse;
+    if (!targetCourse) return;
+
+    const payload = {
+      provider: targetCourse.provider,
+      courseName: targetCourse.courseName || targetCourse.title,
+      durationHours: targetCourse.durationHours || 10,
+      isFree: targetCourse.isFree,
+      description: targetCourse.description || 'Increíble curso para mejorar tus habilidades.',
+      syllabus: targetCourse.syllabus || 'Módulo 1: Intro',
+      link: targetCourse.link || 'https://google.com'
+    };
+
+    this.userService.saveCourse(payload).subscribe({
+      next: () => {
+        this.toastService.showToast(`¡${targetCourse.title} guardado!`, 'success');
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          this.toastService.showToast('Este curso ya está en tus favoritos', 'info');
+        } else {
+          this.toastService.showToast('No se pudo guardar el curso', 'error');
         }
       }
     });

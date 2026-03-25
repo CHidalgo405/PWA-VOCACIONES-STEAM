@@ -83,11 +83,23 @@ export class FavoritesComponent implements OnInit {
       }
     });
 
-    // Cursos aún en localStorage hasta que el usuario pase los endpoints
-    const savedCourses = JSON.parse(localStorage.getItem('favorite_courses') || 'null');
-    if (savedCourses) {
-      this.favoriteCourses = savedCourses;
-    }
+    // Cursos desde API
+    this.userService.getSavedCourses().subscribe({
+      next: (data) => {
+        this.favoriteCourses = data.map(item => ({
+          id: item.id,
+          title: item.courseName,
+          provider: item.provider,
+          duration: `${item.durationHours} horas`,
+          image: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&q=80&w=1000',
+          level: (item.durationHours > 20) ? 'Avanzado' : 'Intermedio',
+          isFree: item.isFree
+        }));
+      },
+      error: (err) => {
+        console.error("Error loading saved courses", err);
+      }
+    });
   }
 
   simulateFetch() {
@@ -113,8 +125,15 @@ export class FavoritesComponent implements OnInit {
         }
       });
     } else {
-      this.favoriteCourses = this.favoriteCourses.filter(c => c.id !== id);
-      localStorage.setItem('favorite_courses', JSON.stringify(this.favoriteCourses));
+      this.userService.deleteSavedCourse(id).subscribe({
+        next: () => {
+          this.favoriteCourses = this.favoriteCourses.filter(c => c.id !== id);
+          this.toastService.showToast('Curso eliminado de favoritos', 'info');
+        },
+        error: () => {
+          this.toastService.showToast('Error al eliminar el curso', 'error');
+        }
+      });
     }
   }
 }

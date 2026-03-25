@@ -116,6 +116,7 @@
           <div class="course-image-container">
             <img [src]="course.image" alt="Course">
             <span class="level-badge">{{ course.level }}</span>
+            <button class="favorite-btn-mini" (click)="saveCourse(course); $event.stopPropagation()">❤</button>
           </div>
           <div class="course-content">
             <span class="provider">{{ course.provider }}</span>
@@ -188,7 +189,7 @@
     </div>
 
     <div class="modal-action-footer">
-      <button class="btn-favorite-large">❤</button>
+      <button class="btn-favorite-large" (click)="saveCourse()">❤</button>
       <button class="btn-primary-large">Inscribirme Ahora</button>
     </div>
 
