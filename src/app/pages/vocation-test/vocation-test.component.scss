@@ -148,8 +148,14 @@ $danger: #E8372D;
 .header-area {
     position: sticky;
     top: 0;
-    padding: 20px 0;
-    background: inherit;
+    padding: 24px 24px 20px;
+    margin-top: -24px;
+    margin-left: -24px;
+    margin-right: -24px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     z-index: 10;
 }
 
