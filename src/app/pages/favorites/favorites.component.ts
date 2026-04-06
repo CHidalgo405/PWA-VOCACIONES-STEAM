@@ -6,10 +6,12 @@ import { UserService } from '../../core/services/user.service';
 import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
 
+import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, RouterModule],
+  imports: [CommonModule, NavbarComponent, RouterModule, LucideIconComponent],
   templateUrl: './favorites.component.html',
   styleUrls: ['./favorites.component.scss']
 })
@@ -29,7 +31,7 @@ export class FavoritesComponent implements OnInit {
       name: 'Universidad Tecnológica (UTCV)',
       location: 'Veracruz, 5km',
       image: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
-      logo: '🎓',
+      logo: 'graduation-cap',
       tags: ['Ingeniería', 'Mecatrónica'],
       rating: 4.8
     },
@@ -38,7 +40,7 @@ export class FavoritesComponent implements OnInit {
       name: 'Instituto Politécnico',
       location: 'Ciudad de México, 120km',
       image: 'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&q=80&w=1000',
-      logo: '🏛️',
+      logo: 'landmark',
       tags: ['Ciencias', 'Investigación'],
       rating: 4.9
     }
@@ -70,7 +72,7 @@ export class FavoritesComponent implements OnInit {
           name: item.universityName,
           location: item.location,
           image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
-          logo: '🎓',
+          logo: 'graduation-cap',
           tags: [item.careerName, 'Selección IA'],
           rating: 4.8
         }));

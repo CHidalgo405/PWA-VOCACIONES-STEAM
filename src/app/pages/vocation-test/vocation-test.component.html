@@ -1,7 +1,9 @@
 <!-- Onboarding Screen -->
 <div class="vocation-container" *ngIf="viewState === 'onboarding'">
     <div class="onboarding-card fade-in">
-        <div class="hero-icon">🚀</div>
+        <div class="hero-icon">
+            <app-lucide-icon name="rocket" [size]="80" color="var(--steam-blue)"></app-lucide-icon>
+        </div>
         <h1 class="main-title">¡Descubre tu camino STEAM!</h1>
         <p class="description">
             Te presentaremos algunas situaciones de la vida real. No hay respuestas correctas o incorrectas, solo elige
@@ -89,7 +91,9 @@
 <!-- Exit Confirmation Modal -->
 <div class="modal-overlay" *ngIf="showExitModal" (click)="cancelExit()">
     <div class="modal-card scale-in" (click)="$event.stopPropagation()">
-        <div class="modal-icon">⚠️</div>
+        <div class="modal-icon">
+            <app-lucide-icon name="alert-triangle" [size]="48" color="#e74c3c"></app-lucide-icon>
+        </div>
         <h3>¿Seguro que quieres salir?</h3>
         <p>Tu progreso no se guardará y tendrás que iniciar de nuevo.</p>
         <div class="modal-actions">

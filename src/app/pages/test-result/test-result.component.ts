@@ -8,10 +8,12 @@ import { UserService } from '../../core/services/user.service';
 import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
 
+import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+
 @Component({
   selector: 'app-test-result',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, SplashScreenComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, SplashScreenComponent, LucideIconComponent],
   templateUrl: './test-result.component.html',
   styleUrls: ['./test-result.component.scss']
 })

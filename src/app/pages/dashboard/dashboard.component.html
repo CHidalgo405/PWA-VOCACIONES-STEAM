@@ -3,7 +3,7 @@
   <header class="header-section">
     <div class="user-greeting">
       <span class="subtext">Bienvenido de nuevo,</span>
-      <h1>{{ userName }} 👋</h1>
+      <h1>{{ userName }} <app-lucide-icon name="sparkles" [size]="28" color="var(--steam-blue)"></app-lucide-icon></h1>
     </div>
     <div class="user-avatar" routerLink="/profile">
       <img [src]="avatarUrl" alt="Perfil">
@@ -20,7 +20,9 @@
           Comenzar Test
         </button>
       </div>
-      <div class="cta-image">🚀</div>
+      <div class="cta-image">
+        <app-lucide-icon name="rocket" [size]="80" color="var(--steam-blue)"></app-lucide-icon>
+      </div>
     </div>
   </section>
 
@@ -35,7 +37,9 @@
           <button class="btn-outline-small" (click)="startTest()">Reintentar Test</button>
         </div>
       </div>
-      <div class="results-image">🎯</div>
+      <div class="results-image">
+        <app-lucide-icon name="target" [size]="80" color="var(--steam-orange)"></app-lucide-icon>
+      </div>
     </div>
   </section>
 
@@ -49,8 +53,9 @@
       <div class="category-card" *ngFor="let cat of categories" [style.border-color]="cat.color"
         (click)="openAreaModal(cat)">
         <div class="card-bg-glow" [style.background-color]="cat.color"></div>
-        <span class="cat-icon" [style.background-color]="cat.color + '20'" [style.color]="cat.color">{{ cat.icon
-          }}</span>
+        <span class="cat-icon" [style.background-color]="cat.color + '20'" [style.color]="cat.color">
+          <app-lucide-icon [name]="cat.icon" [size]="24" [color]="cat.color"></app-lucide-icon>
+        </span>
         <div class="cat-info">
           <span class="cat-name">{{ cat.name }}</span>
           <span class="cat-desc">{{ cat.shortDesc }}</span>
@@ -72,8 +77,8 @@
 
     <div class="modal-header"
       [style.background]="'linear-gradient(135deg, ' + selectedArea.color + ' 0%, ' + selectedArea.color + 'dd 100%)'">
-      <div class="modal-icon-wrapper">
-        <div class="modal-icon">{{ selectedArea.icon }}</div>
+      <div class="modal-icon-wrapper" style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%;">
+        <app-lucide-icon [name]="selectedArea.icon" [size]="32" color="white"></app-lucide-icon>
       </div>
       <h2>{{ selectedArea.name }}</h2>
       <p class="modal-short-desc">{{ selectedArea.shortDesc }}</p>
@@ -100,7 +105,9 @@
         <h3>Carreras Relacionadas</h3>
         <div class="careers-grid">
           <div class="career-item" *ngFor="let career of selectedArea.careers">
-            <span class="career-icon">{{ career.icon }}</span>
+            <span class="career-icon">
+              <app-lucide-icon [name]="career.icon" [size]="20" [color]="selectedArea.color"></app-lucide-icon>
+            </span>
             <span class="career-name">{{ career.name }}</span>
           </div>
         </div>
@@ -113,15 +120,17 @@
 <div class="welcome-modal-overlay" *ngIf="showWelcomeModal">
   <div class="welcome-modal-content">
     <div class="modal-header-welcome">
-      <div class="icon-pulse">✨</div>
+      <div class="icon-pulse">
+        <app-lucide-icon name="sparkles" [size]="48" color="var(--steam-blue)"></app-lucide-icon>
+      </div>
       <h2>¡Bienvenido a Vocaciones STEAM!</h2>
     </div>
     <div class="modal-body-welcome">
       <p>Estamos emocionados de acompañarte en este viaje de descubrimiento. Aquí podrás:</p>
       <ul>
-        <li>🧬 Explorar diferentes áreas y carreras</li>
-        <li>📝 Realizar el test vocacional para conocer tu perfil</li>
-        <li>📚 Encontrar universidades y cursos sugeridos para ti</li>
+        <li><app-lucide-icon name="dna" [size]="14" color="var(--steam-blue)"></app-lucide-icon> Explorar diferentes áreas y carreras</li>
+        <li><app-lucide-icon name="flask-conical" [size]="14" color="var(--steam-blue)"></app-lucide-icon> Realizar el test vocacional para conocer tu perfil</li>
+        <li><app-lucide-icon name="calendar-days" [size]="14" color="var(--steam-blue)"></app-lucide-icon> Encontrar universidades y cursos sugeridos para ti</li>
       </ul>
       <p><strong>¿Listo para empezar?</strong> Te sugerimos hacer el test primero para recibir sugerencias personalizadas.</p>
     </div>

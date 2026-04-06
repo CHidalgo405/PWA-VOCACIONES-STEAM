@@ -3,7 +3,9 @@
 
     <ng-container *ngIf="!isVerificationStep">
       <div class="auth-header">
-        <div style="font-size: 3rem; margin-bottom: 10px;">👋</div>
+        <div style="margin-bottom: 20px; color: var(--steam-blue); display: flex; justify-content: center;">
+          <app-lucide-icon name="sparkles" [size]="48"></app-lucide-icon>
+        </div>
         <h2>¡Hola de nuevo!</h2>
         <p>Ingresa para continuar tu camino STEAM.</p>
       </div>
@@ -21,18 +23,8 @@
             placeholder="••••••••" required style="padding-right: 40px; width: 100%; box-sizing: border-box;">
           <button type="button" (click)="togglePasswordVisibility()"
             style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; display: flex;">
-            <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-            <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
-              </path>
-              <line x1="1" y1="1" x2="23" y2="23"></line>
-            </svg>
+            <app-lucide-icon *ngIf="!showPassword" name="eye" [size]="20"></app-lucide-icon>
+            <app-lucide-icon *ngIf="showPassword" name="eye-off" [size]="20"></app-lucide-icon>
           </button>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
@@ -51,7 +43,7 @@
         style="margin-top: 25px;">
         <span *ngIf="isLoading" class="btn-spinner"></span>
         <span *ngIf="!isLoading && !isBlocked">Iniciar Sesión</span>
-        <span *ngIf="isBlocked">🔒 Cuenta Bloqueada</span>
+        <span *ngIf="isBlocked"><app-lucide-icon name="lock" [size]="16"></app-lucide-icon> Cuenta Bloqueada</span>
       </button>
 
       <div style="display: flex; align-items: center; margin: 30px 0;">
@@ -82,7 +74,9 @@
 
     <ng-container *ngIf="isVerificationStep">
       <div class="auth-header" style="margin-bottom: 20px;">
-        <div style="font-size: 3.5rem; margin-bottom: 15px; animation: slideUp 0.5s ease-out;">📩</div>
+        <div style="margin-bottom: 20px; color: var(--steam-blue); display: flex; justify-content: center;">
+          <app-lucide-icon name="mail" [size]="48"></app-lucide-icon>
+        </div>
         <h2>Código de Verificación</h2>
         <p style="margin-top: 15px; font-size: 1.05rem; line-height: 1.5;">
           Hemos enviado un código de seguridad de 6 dígitos a:<br>

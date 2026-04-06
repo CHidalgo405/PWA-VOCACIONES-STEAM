@@ -7,10 +7,12 @@ import { AuthService } from '../../core/services/auth.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
+import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+
 @Component({
     selector: 'app-vocation-test',
     standalone: true,
-    imports: [CommonModule, SplashScreenComponent],
+    imports: [CommonModule, SplashScreenComponent, LucideIconComponent],
     templateUrl: './vocation-test.component.html',
     styleUrls: ['./vocation-test.component.scss']
 })

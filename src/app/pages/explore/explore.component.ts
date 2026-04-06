@@ -8,10 +8,12 @@ import { UserService } from '../../core/services/user.service';
 import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
 
+import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+
 @Component({
   selector: 'app-explore',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, FormsModule, RouterModule],
+  imports: [CommonModule, NavbarComponent, FormsModule, RouterModule, LucideIconComponent],
   templateUrl: './explore.component.html',
   styleUrls: ['./explore.component.scss']
 })
@@ -53,7 +55,7 @@ export class ExploreComponent implements OnInit {
       name: 'Universidad Tecnológica (UTCV)',
       location: 'Veracruz, 5km',
       image: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
-      logo: '🎓',
+      logo: 'graduation-cap',
       tags: ['Ingeniería', 'Mecatrónica'],
       rating: 4.8,
       career: 'Ingeniería en Mecatrónica',
@@ -66,7 +68,7 @@ export class ExploreComponent implements OnInit {
       name: 'Instituto Politécnico Nacional',
       location: 'Ciudad de México, 120km',
       image: 'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&q=80&w=1000',
-      logo: '🏛️',
+      logo: 'landmark',
       tags: ['Ciencias', 'Investigación'],
       rating: 4.9,
       career: 'Ingeniería en Sistemas Computacionales',
@@ -79,7 +81,7 @@ export class ExploreComponent implements OnInit {
       name: 'Escuela de Artes Visuales',
       location: 'Centro, 2km',
       image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000',
-      logo: '🎨',
+      logo: 'palette',
       tags: ['Artes', 'Diseño'],
       rating: 4.5,
       career: 'Licenciatura en Diseño Gráfico',
@@ -92,7 +94,7 @@ export class ExploreComponent implements OnInit {
       name: 'Tec de Monterrey (ITESM)',
       location: 'Santa Fe, 15km',
       image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
-      logo: '🎓',
+      logo: 'graduation-cap',
       tags: ['Tecnología', 'Negocios'],
       rating: 4.9,
       career: 'Ingeniería en Tecnologías Computacionales',

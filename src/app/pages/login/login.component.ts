@@ -7,9 +7,12 @@ import { ToastService } from '../../core/services/toast.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
+import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, RouterModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, RouterModule, FormsModule, LucideIconComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })

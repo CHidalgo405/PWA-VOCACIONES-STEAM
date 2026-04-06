@@ -4,7 +4,9 @@
     <div class="view-profile" *ngIf="viewState === 'result'">
 
         <div class="celebration-header">
-            <div class="confetti-icon">🎉</div>
+            <div class="confetti-icon" style="color: var(--steam-orange); margin-bottom: 10px;">
+                <app-lucide-icon name="party-popper" [size]="40"></app-lucide-icon>
+            </div>
             <h1 class="result-title">¡Descubrimos tu Vocación!</h1>
             <p class="result-subtitle">Tu perfil dominante es:</p>
             <h2 class="profile-highlight">{{ userProfile.dominantTraits }}</h2>
@@ -22,7 +24,10 @@
                 <input type="text" [(ngModel)]="locationInput" placeholder="Ej. Córdoba, Veracruz o C.P. 94500"
                     class="location-input">
                 <button class="btn-ai-search" (click)="startAISearch()" [disabled]="isSearching">
-                    Encontrar Universidades AI <span class="robot-icon">🤖</span>
+                    Encontrar Universidades AI 
+                    <span class="robot-icon" style="display: inline-flex; align-items: center; margin-left: 8px;">
+                        <app-lucide-icon name="bot" [size]="20"></app-lucide-icon>
+                    </span>
                 </button>
             </div>
         </div>
@@ -46,7 +51,9 @@
             <div class="uni-card" *ngFor="let uni of recommendedUniversities" (click)="openDetails(uni)">
                 <div class="uni-badge">{{ uni.suggestedMajor }}</div>
                 <h3 class="uni-name">{{ uni.name }}</h3>
-                <p class="uni-location">📍 {{ uni.location }}</p>
+                <p class="uni-location"><span style="display: inline-flex; align-items: center; margin-right: 4px; vertical-align: middle;">
+                        <app-lucide-icon name="map-pin" [size]="16"></app-lucide-icon>
+                    </span> {{ uni.location }}</p>
                 <p class="uni-match">{{ uni.matchReason }}</p>
                 <div class="card-footer">
                     <span class="read-more">Ver detalles »</span>
@@ -62,7 +69,9 @@
             <button class="btn-close" (click)="closeModal()">✕</button>
             <div class="panel-badge">{{ selectedUniversity.suggestedMajor }}</div>
             <h2>{{ selectedUniversity.name }}</h2>
-            <p class="panel-location">📍 {{ selectedUniversity.location }}</p>
+            <p class="panel-location"><span style="display: inline-flex; align-items: center; margin-right: 4px; vertical-align: middle;">
+                        <app-lucide-icon name="map-pin" [size]="16"></app-lucide-icon>
+                    </span> {{ selectedUniversity.location }}</p>
         </div>
 
         <div class="panel-body" *ngIf="selectedUniversity">
@@ -74,7 +83,9 @@
             <div class="detail-section">
                 <h3>Fechas Clave</h3>
                 <div class="info-box date-box">
-                    <span class="icon">📅</span> {{ selectedUniversity.keyDates }}
+                    <span class="icon" style="display: inline-flex; align-items: center; margin-right: 8px; vertical-align: middle;">
+                        <app-lucide-icon name="calendar-days" [size]="18"></app-lucide-icon>
+                    </span> {{ selectedUniversity.keyDates }}
                 </div>
             </div>
 
@@ -90,7 +101,9 @@
 
         <div class="panel-footer" *ngIf="selectedUniversity">
             <button class="btn-secondary" (click)="saveToFavorites()">
-                <span class="icon">⭐</span> Guardar en favoritos
+                <span class="icon" style="display: inline-flex; align-items: center; margin-right: 8px; vertical-align: middle;">
+                    <app-lucide-icon name="bookmark" [size]="18"></app-lucide-icon>
+                </span> Guardar en favoritos
             </button>
             <a [href]="selectedUniversity.websiteUrl" target="_blank" class="btn-primary">
                 Ver sitio web oficial

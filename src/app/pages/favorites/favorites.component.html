@@ -41,15 +41,19 @@
       <ng-container *ngIf="!isLoading">
         <div class="card-university" *ngFor="let uni of favoriteUniversities">
           <div class="card-image" [style.backgroundImage]="'url(' + uni.image + ')'">
-            <span class="rating-badge">⭐ {{ uni.rating }}</span>
-            <button class="favorite-btn active" (click)="removeFromFavorites('university', uni.id)" title="Quitar de Favoritos">❤</button>
+            <span class="rating-badge"><app-lucide-icon name="star" [size]="12" color="#FFD700"></app-lucide-icon> {{ uni.rating }}</span>
+            <button class="favorite-btn active" (click)="removeFromFavorites('university', uni.id)" title="Quitar de Favoritos">
+              <app-lucide-icon name="heart" [size]="20" color="white"></app-lucide-icon>
+            </button>
           </div>
           <div class="card-details">
             <div class="uni-header">
-              <span class="uni-logo">{{ uni.logo }}</span>
+              <span class="uni-logo" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #f0f0f0; border-radius: 8px;">
+                <app-lucide-icon [name]="uni.logo" [size]="24" color="var(--steam-blue)"></app-lucide-icon>
+              </span>
               <div class="uni-info">
                 <h3>{{ uni.name }}</h3>
-                <p class="location">📍 {{ uni.location }}</p>
+                <p class="location"><app-lucide-icon name="map-pin" [size]="12" color="var(--text-light)"></app-lucide-icon> {{ uni.location }}</p>
               </div>
             </div>
             <div class="tags-row">
@@ -59,12 +63,15 @@
           </div>
         </div>
 
-        <!-- EMPTY STATE UNIVERSIDADES -->
-        <div class="empty-state-container full-width-grid" *ngIf="favoriteUniversities.length === 0">
-          <div class="empty-icon">💔</div>
-          <h3>Aún no tienes universidades favoritas</h3>
-          <p>Explora el catálogo y marca con un corazón las que más te gusten.</p>
-          <button class="btn-primary-outline" routerLink="/explore">Ir a Explorar</button>
+        <!-- EMPTY STATE UNIVERSIDADES (REDESIGN) -->
+        <div class="empty-state-card full-width-grid" *ngIf="favoriteUniversities.length === 0">
+          <div class="illustration-container">
+            <app-lucide-icon name="compass" [size]="100" color="rgba(7, 177, 201, 0.2)" [strokeWidth]="1.5"></app-lucide-icon>
+            <div class="glow-bg"></div>
+          </div>
+          <h2>Tu colección de futuro profesional empieza aquí</h2>
+          <p>Explora nuestras recomendaciones personalizadas y guarda las instituciones educativas que mejor se adapten a tu perfil. Las verás aquí para compararlas.</p>
+          <button class="btn-primary-action" routerLink="/explore">Explorar Universidades</button>
         </div>
       </ng-container>
     </ng-container>
@@ -92,18 +99,21 @@
             <span class="provider">{{ course.provider }}</span>
             <h3>{{ course.title }}</h3>
             <div class="meta-info">
-              <span>⏱ {{ course.duration }}</span>
+              <span><app-lucide-icon name="clock" [size]="14" color="var(--text-light)"></app-lucide-icon> {{ course.duration }}</span>
               <button class="remove-btn" (click)="removeFromFavorites('course', course.id)">Eliminar</button>
             </div>
           </div>
         </div>
 
-        <!-- EMPTY STATE CURSOS -->
-        <div class="empty-state-container full-width-grid" *ngIf="favoriteCourses.length === 0">
-          <div class="empty-icon">📂</div>
-          <h3>Lista de cursos vacía</h3>
-          <p>Potencia tus habilidades guardando cursos de interés.</p>
-          <button class="btn-primary-outline" routerLink="/explore">Ir a Explorar</button>
+        <!-- EMPTY STATE CURSOS (REDESIGN) -->
+        <div class="empty-state-card full-width-grid" *ngIf="favoriteCourses.length === 0">
+          <div class="illustration-container">
+            <app-lucide-icon name="book-open" [size]="100" color="rgba(75, 176, 70, 0.2)" [strokeWidth]="1.5"></app-lucide-icon>
+            <div class="glow-bg green"></div>
+          </div>
+          <h2>Potencia tu camino académico</h2>
+          <p>Encuentra cursos diseñados para fortalecer tus habilidades STEAM. Guarda los que más te interesen para acceder a ellos rápidamente.</p>
+          <button class="btn-primary-action success" routerLink="/explore">Explorar Cursos</button>
         </div>
       </ng-container>
     </ng-container>

@@ -5,7 +5,7 @@
       <h2>Explorar</h2>
       
       <div class="search-bar">
-        <i class="search-icon">🔍</i>
+        <app-lucide-icon name="search" [size]="18" color="var(--text-light)"></app-lucide-icon>
         <input type="text" placeholder="Buscar carreras, universidades..." [(ngModel)]="searchQuery">
       </div>
 
@@ -33,7 +33,9 @@
   <div class="content-grid">
     
     <div class="recommendation-banner" *ngIf="!hasTakenTest">
-      <div class="banner-icon">💡</div>
+      <div class="banner-icon">
+        <app-lucide-icon name="sparkles" [size]="32" color="#FFD700"></app-lucide-icon>
+      </div>
       <div class="banner-text">
         <h3>¿Aún no sabes qué estudiar?</h3>
         <p>Realiza el test vocacional para obtener sugerencias personalizadas y adaptadas a tus intereses y aptitudes.</p>
@@ -67,15 +69,19 @@
       <ng-container *ngIf="!isLoading">
         <div class="card-university" *ngFor="let uni of filteredUniversities">
           <div class="card-image" [style.backgroundImage]="'url(' + uni.image + ')'">
-            <span class="rating-badge">⭐ {{ uni.rating }}</span>
-            <button class="favorite-btn" (click)="saveUniversity(uni); $event.stopPropagation()">❤</button>
+            <span class="rating-badge"><app-lucide-icon name="star" [size]="12" color="#FFD700"></app-lucide-icon> {{ uni.rating }}</span>
+            <button class="favorite-btn" (click)="saveUniversity(uni); $event.stopPropagation()">
+              <app-lucide-icon name="heart" [size]="20" color="white"></app-lucide-icon>
+            </button>
           </div>
           <div class="card-details">
             <div class="uni-header">
-              <span class="uni-logo">{{ uni.logo }}</span>
+              <span class="uni-logo" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #f0f0f0; border-radius: 8px;">
+                <app-lucide-icon [name]="uni.logo" [size]="24" color="var(--steam-blue)"></app-lucide-icon>
+              </span>
               <div class="uni-info">
                 <h3>{{ uni.name }}</h3>
-                <p class="location">📍 {{ uni.location }}</p>
+                <p class="location"><app-lucide-icon name="map-pin" [size]="12" color="var(--text-light)"></app-lucide-icon> {{ uni.location }}</p>
               </div>
             </div>
             <div class="tags-row">
@@ -132,7 +138,9 @@
 
         <!-- EMPTY STATE CURSOS -->
         <div class="empty-state-container full-width-grid" *ngIf="filteredCourses.length === 0">
-          <div class="empty-icon">🔍</div>
+          <div class="empty-icon">
+            <app-lucide-icon name="search" [size]="48" color="var(--text-light)"></app-lucide-icon>
+          </div>
           <h3>No hay cursos que coincidan</h3>
           <p>Prueba buscando otras habilidades o plataformas.</p>
         </div>
@@ -160,9 +168,9 @@
         <span class="provider-badge">{{ selectedCourse?.provider }}</span>
         <h2>{{ selectedCourse?.title }}</h2>
         <div class="meta-tags">
-          <span class="tag">⏱ {{ selectedCourse?.duration }}</span>
-          <span class="tag">📈 {{ selectedCourse?.level }}</span>
-          <span class="tag highlight" *ngIf="selectedCourse?.isFree">🎁 Gratis</span>
+          <span class="tag"><app-lucide-icon name="clock" [size]="14" color="var(--text-light)"></app-lucide-icon> {{ selectedCourse?.duration }}</span>
+          <span class="tag"><app-lucide-icon name="trending-up" [size]="14" color="var(--text-light)"></app-lucide-icon> {{ selectedCourse?.level }}</span>
+          <span class="tag highlight" *ngIf="selectedCourse?.isFree"><app-lucide-icon name="gift" [size]="14" color="var(--steam-green)"></app-lucide-icon> Gratis</span>
         </div>
       </div>
 
@@ -211,8 +219,8 @@
         <span class="provider-badge">{{ selectedUniversity?.logo }} {{ selectedUniversity?.name }}</span>
         <h2>{{ selectedUniversity?.career }}</h2>
         <div class="meta-tags">
-          <span class="tag">📍 {{ selectedUniversity?.location }}</span>
-          <span class="tag">⭐ {{ selectedUniversity?.rating }}</span>
+          <span class="tag"><app-lucide-icon name="map-pin" [size]="14" color="var(--text-light)"></app-lucide-icon> {{ selectedUniversity?.location }}</span>
+          <span class="tag"><app-lucide-icon name="star" [size]="14" color="#FFD700"></app-lucide-icon> {{ selectedUniversity?.rating }}</span>
         </div>
       </div>
 
@@ -227,14 +235,18 @@
         <h3>Información Relevante</h3>
         <div class="syllabus-list">
           <div class="syllabus-item">
-            <div class="module-number">📅</div>
+            <div class="module-number">
+              <app-lucide-icon name="calendar-days" [size]="20" color="var(--steam-blue)"></app-lucide-icon>
+            </div>
             <div class="module-info">
               <h4>Fechas Importantes</h4>
               <span>{{ selectedUniversity?.keyDates }}</span>
             </div>
           </div>
           <div class="syllabus-item">
-            <div class="module-number">📚</div>
+            <div class="module-number">
+              <app-lucide-icon name="book-open" [size]="20" color="var(--steam-blue)"></app-lucide-icon>
+            </div>
             <div class="module-info">
               <h4>Plan de Estudios</h4>
               <span>{{ selectedUniversity?.studyPlan }}</span>
