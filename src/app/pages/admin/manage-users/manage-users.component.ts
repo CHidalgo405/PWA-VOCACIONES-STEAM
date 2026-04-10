@@ -7,11 +7,12 @@ import { ToastService } from '../../../core/services/toast.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { catchError } from 'rxjs/operators';
 import { of, forkJoin } from 'rxjs';
+import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-manage-users',
   standalone: true,
-  imports: [CommonModule, AdminSidebarComponent, FormsModule],
+  imports: [CommonModule, AdminSidebarComponent, FormsModule, LucideIconComponent],
   templateUrl: './manage-users.component.html',
   styleUrls: ['./manage-users.component.scss']
 })

@@ -1,5 +1,5 @@
 <button class="mobile-toggle-btn" (click)="toggleMenu()">
-  ☰ Menú Admin
+  <app-lucide-icon name="menu" [size]="18" style="margin-right: 8px;"></app-lucide-icon> Menú Admin
 </button>
 
 <div class="sidebar-overlay" [class.active]="isMobileMenuOpen" (click)="closeMenu()"></div>
@@ -11,39 +11,39 @@
       <span style="color: #07B1C9">V</span><span style="color: #F88718">S</span>
     </div>
     <h2>Admin Panel</h2>
-    <button class="close-btn" (click)="closeMenu()">✕</button>
+    <button class="close-btn" (click)="closeMenu()"><app-lucide-icon name="x" [size]="24"></app-lucide-icon></button>
   </div>
 
   <nav class="sidebar-nav">
     <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon">📊</span>
+      <span class="icon"><app-lucide-icon name="bar-chart-3" [size]="20"></app-lucide-icon></span>
       <span class="label">Dashboard</span>
     </a>
 
     <a routerLink="/admin/users" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon">👥</span>
+      <span class="icon"><app-lucide-icon name="users" [size]="20"></app-lucide-icon></span>
       <span class="label">Usuarios</span>
     </a>
 
     <a routerLink="/admin/test" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon">📝</span>
+      <span class="icon"><app-lucide-icon name="clipboard-list" [size]="20"></app-lucide-icon></span>
       <span class="label">Test Vocacional</span>
     </a>
 
     <a routerLink="/admin/ai-logs" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon">🤖</span>
+      <span class="icon"><app-lucide-icon name="bot" [size]="20"></app-lucide-icon></span>
       <span class="label">Monitoreo IA</span>
     </a>
 
     <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon">⚙️</span>
+      <span class="icon"><app-lucide-icon name="settings" [size]="20"></app-lucide-icon></span>
       <span class="label">Configuración</span>
     </a>
   </nav>
 
   <div class="sidebar-footer">
     <a (click)="logout()" class="nav-item logout" style="cursor: pointer;">
-      <span class="icon">🚪</span>
+      <span class="icon"><app-lucide-icon name="log-out" [size]="20"></app-lucide-icon></span>
       <span class="label">Cerrar Sesión</span>
     </a>
   </div>

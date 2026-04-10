@@ -6,10 +6,11 @@ import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, LucideIconComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })

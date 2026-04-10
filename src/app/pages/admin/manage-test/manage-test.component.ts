@@ -6,11 +6,12 @@ import { AdminService, AdminTestQuestion } from '../../../core/services/admin.se
 import { ToastService } from '../../../core/services/toast.service';
 import { catchError } from 'rxjs/operators';
 import { of, forkJoin } from 'rxjs';
+import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-manage-test',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminSidebarComponent],
+  imports: [CommonModule, FormsModule, AdminSidebarComponent, LucideIconComponent],
   templateUrl: './manage-test.component.html',
   styleUrls: ['./manage-test.component.scss']
 })

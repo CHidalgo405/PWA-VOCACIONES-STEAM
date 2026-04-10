@@ -19,7 +19,7 @@
   <!-- BÚSQUEDA REDISEÑADA -->
   <div class="premium-search-container">
     <div class="search-input-wrapper">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon"><app-lucide-icon name="search" [size]="18"></app-lucide-icon></span>
       <input type="text" placeholder="Buscar por nombre o email..." [(ngModel)]="searchTerm">
     </div>
     <select [(ngModel)]="filterRole" class="search-select">
@@ -41,12 +41,12 @@
 
       <div class="action-bar-full" *ngIf="selectedUsers.length > 0">
         <button class="btn-action edit flex-1" *ngIf="selectedUsers.length === 1" (click)="openModal('edit')"
-          [disabled]="isSubmitting">✏️ Editar</button>
+          [disabled]="isSubmitting"><app-lucide-icon name="pencil" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Editar</button>
         <button class="btn-action delete flex-1" (click)="deleteSelectedUsers()" [disabled]="isSubmitting">
           <span *ngIf="isSubmitting">⏳</span>
-          <span *ngIf="!isSubmitting">🗑️</span> Eliminar
+          <span *ngIf="!isSubmitting"><app-lucide-icon name="trash-2" [size]="16" style="margin-right: 4px;"></app-lucide-icon></span> Eliminar
         </button>
-        <button class="btn-action close flex-none" (click)="clearSelection()" [disabled]="isSubmitting">✕</button>
+        <button class="btn-action close flex-none" (click)="clearSelection()" [disabled]="isSubmitting"><app-lucide-icon name="x" [size]="16"></app-lucide-icon></button>
       </div>
 
     </div>
@@ -55,7 +55,7 @@
       <table>
         <thead>
           <tr>
-            <th style="width: 40px; text-align: center;">✓</th>
+            <th style="width: 40px; text-align: center;"><app-lucide-icon name="check" [size]="16" style="display: block; margin: 0 auto;"></app-lucide-icon></th>
             <th>Nombre</th>
             <th>Email</th>
             <th>Rol</th>
@@ -105,7 +105,7 @@
       
       <!-- EMPTY STATE -->
       <div *ngIf="!isLoading && paginatedUsers.length === 0" class="empty-state-card">
-        <div class="empty-icon">🕵️‍♂️</div>
+        <div class="empty-icon"><app-lucide-icon name="user-search" [size]="48" color="#bdc3c7"></app-lucide-icon></div>
         <h3>No se encontraron usuarios</h3>
         <p>No hay estudiantes ni administradores que coincidan con tu búsqueda actual.</p>
         <button class="btn-secondary" style="margin-top: 15px;" (click)="searchTerm = ''; filterRole = ''">Limpiar Filtros</button>
@@ -144,7 +144,7 @@
 <!-- OVERLAY DE CONFIRMACIÓN PARA CAMBIOS SIN GUARDAR -->
 <div class="custom-alert-overlay" *ngIf="showUnsavedOverlay">
   <div class="alert-box">
-    <div class="alert-icon">⚠️</div>
+    <div class="alert-icon"><app-lucide-icon name="alert-triangle" [size]="24"></app-lucide-icon></div>
     <h3 style="margin: 0; color: #2C3E50;">Cambios sin guardar</h3>
     <p style="color: #7F8C8D; font-size: 0.95rem; margin-bottom: 20px;">
       Tienes datos sin guardar que se perderán si continúas. ¿Qué deseas hacer?
@@ -167,7 +167,7 @@
 
   <div class="modal-box" [class.view-mode]="modalMode === 'view' || modalMode === 'edit'">
 
-    <button class="btn-close-modal-floating" (click)="closeModal()">✕</button>
+    <button class="btn-close-modal-floating" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
 
     <!-- SIDEBAR DEL MODAL (En View y Edit Mode) -->
     <div class="modal-sidebar" *ngIf="modalMode === 'view' || modalMode === 'edit'">
@@ -181,9 +181,16 @@
       <p class="sidebar-role">{{ userForm.role === 'admin' ? 'Administrador' : 'Estudiante' }}</p>
 
       <div class="sidebar-menu">
-        <button class="menu-item active">{{ modalMode === 'edit' ? '✏️ Editando' : '👤 Detalles de Cuenta' }}</button>
-        <button class="menu-item" *ngIf="userForm.role === 'student'">📊 Progreso STEAM</button>
-        <button class="menu-item">⚙️ Preferencias</button>
+        <button class="menu-item active">
+          <app-lucide-icon [name]="modalMode === 'edit' ? 'pencil' : 'user'" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+          {{ modalMode === 'edit' ? 'Editando' : 'Detalles de Cuenta' }}
+        </button>
+        <button class="menu-item" *ngIf="userForm.role === 'student'">
+          <app-lucide-icon name="bar-chart-3" [size]="16" style="margin-right: 6px;"></app-lucide-icon> Progreso STEAM
+        </button>
+        <button class="menu-item">
+          <app-lucide-icon name="settings" [size]="16" style="margin-right: 6px;"></app-lucide-icon> Preferencias
+        </button>
       </div>
 
       <!-- Botón de volver a vista (solo en edit) -->
@@ -280,8 +287,8 @@
                   <input [type]="showPassword ? 'text' : 'password'" name="password" [(ngModel)]="userForm.password"
                     (ngModelChange)="onFormChange()" placeholder="••••••••" minlength="8" maxlength="30"
                     [required]="modalMode === 'create'">
-                  <span class="icon-eye" (click)="togglePasswordVisibility('pass')" style="cursor: pointer;">
-                    {{ showPassword ? '👁️' : '🕶️' }}
+                  <span class="icon-eye" (click)="togglePasswordVisibility('pass')" style="cursor: pointer; display: flex;">
+                    <app-lucide-icon [name]="showPassword ? 'eye' : 'eye-off'" [size]="16"></app-lucide-icon>
                   </span>
                 </div>
               </div>
@@ -292,8 +299,8 @@
                   <input [type]="showConfirmPassword ? 'text' : 'password'" name="confirmPassword"
                     [(ngModel)]="userForm.confirmPassword" (ngModelChange)="onFormChange()" placeholder="••••••••"
                     minlength="8" maxlength="30" [required]="modalMode === 'create'">
-                  <span class="icon-eye" (click)="togglePasswordVisibility('confirm')" style="cursor: pointer;">
-                    {{ showConfirmPassword ? '👁️' : '🕶️' }}
+                  <span class="icon-eye" (click)="togglePasswordVisibility('confirm')" style="cursor: pointer; display: flex;">
+                    <app-lucide-icon [name]="showConfirmPassword ? 'eye' : 'eye-off'" [size]="16"></app-lucide-icon>
                   </span>
                 </div>
               </div>
@@ -304,9 +311,9 @@
           <div class="modal-footer">
             <ng-container *ngIf="modalMode === 'view'">
               <button type="button" class="btn-action delete" (click)="deleteUserFromModal()" style="margin-right: auto;">
-                🗑️ Eliminar
+                <app-lucide-icon name="trash-2" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Eliminar
               </button>
-              <button type="button" class="btn-primary" (click)="switchToEdit()">✏️ Editar Información</button>
+              <button type="button" class="btn-primary" (click)="switchToEdit()"><app-lucide-icon name="pencil" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Editar Información</button>
             </ng-container>
 
             <ng-container *ngIf="modalMode !== 'view'">
@@ -315,7 +322,7 @@
               <button type="submit" class="btn-primary"
                 [disabled]="!userNgForm.valid || isSubmitting || (modalMode === 'create' && (!userForm.password || userForm.password !== userForm.confirmPassword))">
                 <span *ngIf="isSubmitting">⏳ Procesando...</span>
-                <span *ngIf="!isSubmitting">💾 Guardar</span>
+                <span *ngIf="!isSubmitting"><app-lucide-icon name="save" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Guardar</span>
               </button>
             </ng-container>
           </div>

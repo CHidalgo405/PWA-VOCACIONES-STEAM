@@ -5,7 +5,7 @@
   <!-- CAPA DE ALERTA PERSONALIZADA (SUPERPUESTA) PARA CAMBIOS SIN GUARDAR -->
   <div class="custom-alert-overlay" *ngIf="showUnsavedOverlay">
     <div class="alert-box">
-      <div class="alert-icon">⚠️</div>
+      <div class="alert-icon"><app-lucide-icon name="alert-triangle" [size]="24"></app-lucide-icon></div>
       <h3 style="margin: 0; color: #2C3E50;">¿Cambios sin guardar?</h3>
       <p style="color: #7F8C8D; font-size: 0.95rem; text-align: center;">
         Tienes datos sin guardar que se perderán si cambias de pregunta o cierras esta ventana. ¿Estás seguro de
@@ -39,27 +39,27 @@
     <div class="balance-grid" [class.has-active-filter]="filterTrait !== ''">
       <div class="balance-card ciencia clickable-card" [class.active-filter]="filterTrait === 'ciencia'"
         (click)="toggleCategoryFilter('ciencia')">
-        <span class="icon">⚛️</span>
+        <span class="icon"><app-lucide-icon name="atom" [size]="24" color="#07B1C9"></app-lucide-icon></span>
         <div class="info"><strong>{{ getCount('ciencia') }}</strong> Ciencia</div>
       </div>
       <div class="balance-card tecnologia clickable-card" [class.active-filter]="filterTrait === 'tecnologia'"
         (click)="toggleCategoryFilter('tecnologia')">
-        <span class="icon">💻</span>
+        <span class="icon"><app-lucide-icon name="laptop" [size]="24" color="#4DB046"></app-lucide-icon></span>
         <div class="info"><strong>{{ getCount('tecnologia') }}</strong> Tecnología</div>
       </div>
       <div class="balance-card ingenieria clickable-card" [class.active-filter]="filterTrait === 'ingenieria'"
         (click)="toggleCategoryFilter('ingenieria')">
-        <span class="icon">⚙️</span>
+        <span class="icon"><app-lucide-icon name="settings" [size]="24" color="#F88718"></app-lucide-icon></span>
         <div class="info"><strong>{{ getCount('ingenieria') }}</strong> Ingeniería</div>
       </div>
       <div class="balance-card artes clickable-card" [class.active-filter]="filterTrait === 'artes'"
         (click)="toggleCategoryFilter('artes')">
-        <span class="icon">🎨</span>
+        <span class="icon"><app-lucide-icon name="palette" [size]="24" color="#E8372D"></app-lucide-icon></span>
         <div class="info"><strong>{{ getCount('artes') }}</strong> Artes</div>
       </div>
       <div class="balance-card matematicas clickable-card" [class.active-filter]="filterTrait === 'matematicas'"
         (click)="toggleCategoryFilter('matematicas')">
-        <span class="icon">📐</span>
+        <span class="icon"><app-lucide-icon name="ruler" [size]="24" color="#9b59b6"></app-lucide-icon></span>
         <div class="info"><strong>{{ getCount('matematicas') }}</strong> Matemáticas</div>
       </div>
     </div>
@@ -68,7 +68,7 @@
   <!-- BÚSQUEDA REDISEÑADA -->
   <div class="premium-search-container">
     <div class="search-input-wrapper">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon"><app-lucide-icon name="search" [size]="18"></app-lucide-icon></span>
       <input type="text" placeholder="Buscar por palabra clave..." [(ngModel)]="searchTerm">
     </div>
     <select [(ngModel)]="filterTrait" (change)="currentPage = 1" class="search-select">
@@ -89,12 +89,12 @@
 
       <div class="action-bar-full" *ngIf="selectedQuestions.length > 0">
         <button class="btn-action edit flex-1" *ngIf="selectedQuestions.length === 1" (click)="openModal('edit')"
-          [disabled]="isSubmitting">✏️ Editar</button>
+          [disabled]="isSubmitting"><app-lucide-icon name="pencil" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Editar</button>
         <button class="btn-action delete flex-1" (click)="deleteSelected()" [disabled]="isSubmitting">
           <span *ngIf="isSubmitting">⏳</span>
-          <span *ngIf="!isSubmitting">🗑️</span> Eliminar
+          <span *ngIf="!isSubmitting"><app-lucide-icon name="trash-2" [size]="16" style="margin-right: 4px;"></app-lucide-icon></span> Eliminar
         </button>
-        <button class="btn-action close flex-none" (click)="clearSelection()" [disabled]="isSubmitting">✕</button>
+        <button class="btn-action close flex-none" (click)="clearSelection()" [disabled]="isSubmitting"><app-lucide-icon name="x" [size]="16"></app-lucide-icon></button>
       </div>
 
     </div>
@@ -103,7 +103,7 @@
       <table>
         <thead>
           <tr>
-            <th style="width: 40px; text-align: center;">✓</th>
+            <th style="width: 40px; text-align: center;"><app-lucide-icon name="check" [size]="16" style="display: block; margin: 0 auto;"></app-lucide-icon></th>
             <th style="width: 50%;">Pregunta (Orden)</th>
             <th>Aptitudes STEAM Evaluadas</th>
             <th>Estado</th>
@@ -165,7 +165,7 @@
       
       <!-- EMPTY STATE -->
       <div *ngIf="!isLoading && paginatedQuestions.length === 0" class="empty-state-card">
-        <div class="empty-icon">📝</div>
+        <div class="empty-icon"><app-lucide-icon name="clipboard-list" [size]="48" color="#bdc3c7"></app-lucide-icon></div>
         <h3>No hay preguntas en esta categoría</h3>
         <p>Intenta buscar con otras palabras base o limpia los filtros del panel de balance.</p>
         <button class="btn-secondary" style="margin-top: 15px;" (click)="searchTerm = ''; filterTrait = ''">Mostrar Todas</button>
@@ -212,7 +212,7 @@
 
   <div class="modal-box" [class.view-mode]="modalMode === 'view' || modalMode === 'edit'">
 
-    <button class="btn-close-modal-floating" (click)="closeModal()">✕</button>
+    <button class="btn-close-modal-floating" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
 
     <!-- SIDEBAR (View y Edit) -->
     <div class="modal-sidebar" *ngIf="modalMode === 'view' || modalMode === 'edit'">
@@ -240,7 +240,10 @@
       </div>
 
       <div class="sidebar-menu" style="margin-top: 20px;">
-        <button class="menu-item active">{{ modalMode === 'edit' ? '✏️ Editando' : '📋 Detalles' }}</button>
+        <button class="menu-item active">
+          <app-lucide-icon [name]="modalMode === 'edit' ? 'pencil' : 'clipboard-list'" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+          {{ modalMode === 'edit' ? 'Editando' : 'Detalles' }}
+        </button>
         <button class="menu-item">📊 Estadísticas</button>
       </div>
 
@@ -312,7 +315,7 @@
                     </div>
                     <div style="display: flex; align-items: flex-end;"
                       *ngIf="modalMode !== 'view' && questionForm.options.length > 1">
-                      <button type="button" class="btn-remove-option" (click)="removeOption(i)" title="Eliminar opción">✕</button>
+                      <button type="button" class="btn-remove-option" (click)="removeOption(i)" title="Eliminar opción"><app-lucide-icon name="x" [size]="14"></app-lucide-icon></button>
                     </div>
                   </div>
                 </div>
@@ -344,17 +347,17 @@
           <div class="modal-footer">
             <ng-container *ngIf="modalMode === 'view'">
               <button type="button" class="btn-action delete" (click)="deleteQuestionFromModal()" style="margin-right: auto;">
-                🗑️ Eliminar
+                <app-lucide-icon name="trash-2" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Eliminar
               </button>
               <button type="button" class="btn-secondary" (click)="closeModal()">Cerrar</button>
-              <button type="button" class="btn-primary" (click)="switchToEdit()">✏️ Editar</button>
+              <button type="button" class="btn-primary" (click)="switchToEdit()"><app-lucide-icon name="pencil" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Editar</button>
             </ng-container>
 
             <ng-container *ngIf="modalMode !== 'view'">
               <button type="button" class="btn-secondary" (click)="closeModal()" [disabled]="isSubmitting">Cancelar</button>
               <button type="submit" class="btn-primary" [disabled]="!testNgForm.valid || isSubmitting">
                 <span *ngIf="isSubmitting">⏳ Procesando...</span>
-                <span *ngIf="!isSubmitting">💾 Guardar Pregunta</span>
+                <span *ngIf="!isSubmitting"><app-lucide-icon name="save" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Guardar Pregunta</span>
               </button>
             </ng-container>
           </div>

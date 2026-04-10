@@ -7,13 +7,13 @@
       <h1>Resumen del Sistema</h1>
       <p>Métricas principales de STEAM Vocations.</p>
     </div>
-    <button class="btn-export">📥 Exportar PDF</button>
+    <button class="btn-export"><app-lucide-icon name="download" [size]="16" style="margin-right: 5px;"></app-lucide-icon> Exportar PDF</button>
   </header>
 
   <div class="kpi-grid">
     <div class="kpi-card" *ngFor="let kpi of kpis">
       <div class="kpi-header">
-        <span class="kpi-icon" [style.background-color]="kpi.color + '20'">{{ kpi.icon }}</span>
+        <span class="kpi-icon" [style.background-color]="kpi.color + '20'"><app-lucide-icon [name]="kpi.icon" [size]="24" [color]="kpi.color"></app-lucide-icon></span>
         <span class="kpi-trend" [style.color]="kpi.color">{{ kpi.trend }}</span>
       </div>
       <h3 class="kpi-value">{{ kpi.value }}</h3>
@@ -40,13 +40,13 @@
       <h2>Alertas del Sistema</h2>
       <ul class="alerts-list">
         <li class="alert-item warning">
-          <span class="icon">⚠️</span> Base de datos al 85% de capacidad.
+          <span class="icon"><app-lucide-icon name="alert-triangle" [size]="18" color="#f59e0b"></app-lucide-icon></span> Base de datos al 85% de capacidad.
         </li>
         <li class="alert-item success">
-          <span class="icon">✅</span> Sincronización de IA completada con éxito.
+          <span class="icon"><app-lucide-icon name="check-circle" [size]="18" color="#10b981"></app-lucide-icon></span> Sincronización de IA completada con éxito.
         </li>
         <li class="alert-item info">
-          <span class="icon">ℹ️</span> 15 nuevos usuarios requieren verificación.
+          <span class="icon"><app-lucide-icon name="circle-help" [size]="18" color="#3b82f6"></app-lucide-icon></span> 15 nuevos usuarios requieren verificación.
         </li>
       </ul>
     </div>

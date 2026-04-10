@@ -66,7 +66,7 @@
     <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()"></div>
     <div class="details-panel" [class.open]="isModalOpen">
         <div class="panel-header" *ngIf="selectedUniversity">
-            <button class="btn-close" (click)="closeModal()">✕</button>
+            <button class="btn-close" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
             <div class="panel-badge">{{ selectedUniversity.suggestedMajor }}</div>
             <h2>{{ selectedUniversity.name }}</h2>
             <p class="panel-location"><span style="display: inline-flex; align-items: center; margin-right: 4px; vertical-align: middle;">

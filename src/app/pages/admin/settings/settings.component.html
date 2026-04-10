@@ -9,7 +9,7 @@
     </div>
     <button class="btn-primary" (click)="saveSettings()" [disabled]="isSubmitting || !settingsForm.valid">
       <span *ngIf="isSubmitting">⏳ Procesando...</span>
-      <span *ngIf="!isSubmitting">💾 Guardar Cambios</span>
+      <span *ngIf="!isSubmitting"><app-lucide-icon name="save" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Guardar Cambios</span>
     </button>
   </header>
 
@@ -23,7 +23,7 @@
 
     <div class="settings-card">
       <div class="card-header">
-        <span class="icon">🏢</span>
+        <span class="icon"><app-lucide-icon name="building" [size]="20"></app-lucide-icon></span>
         <h2>General</h2>
       </div>
       <div class="card-body">
@@ -60,7 +60,7 @@
 
     <div class="settings-card">
       <div class="card-header">
-        <span class="icon">🧠</span>
+        <span class="icon"><app-lucide-icon name="brain" [size]="20"></app-lucide-icon></span>
         <h2>Motor de Inteligencia Artificial</h2>
       </div>
       <div class="card-body">
@@ -98,7 +98,7 @@
 
     <div class="settings-card full-width-card">
       <div class="card-header">
-        <span class="icon">🛡️</span>
+        <span class="icon"><app-lucide-icon name="shield" [size]="20"></app-lucide-icon></span>
         <h2>Sistema y Mantenimiento</h2>
       </div>
       <div class="card-body system-toggles">
@@ -128,7 +128,7 @@
         <div class="danger-zone">
           <h3>Zona de Peligro</h3>
           <p>Estas acciones no se pueden deshacer fácilmente.</p>
-          <button class="btn-danger-outline" (click)="clearCache()">🗑️ Limpiar Caché del Sistema</button>
+          <button class="btn-danger-outline" (click)="clearCache()"><app-lucide-icon name="trash-2" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Limpiar Caché del Sistema</button>
         </div>
 
       </div>

@@ -7,11 +7,12 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
+import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, BaseChartDirective],
+  imports: [CommonModule, FormsModule, NavbarComponent, BaseChartDirective, LucideIconComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
@@ -82,28 +83,28 @@ export class ProfileComponent implements OnInit {
 
   // --- INSIGNIAS (GAMIFICATION) ---
   badges = [
-    { icon: '🚀', name: 'Pionero', unlocked: true },
-    { icon: '🧠', name: 'Cerebrito', unlocked: true },
-    { icon: '🎨', name: 'Creativo', unlocked: false },
-    { icon: '🤝', name: 'Social', unlocked: false }
+    { icon: 'rocket', name: 'Pionero', unlocked: true },
+    { icon: 'brain', name: 'Cerebrito', unlocked: true },
+    { icon: 'palette', name: 'Creativo', unlocked: false },
+    { icon: 'users', name: 'Social', unlocked: false }
   ];
 
   // --- SECCIONES PREMIUM DE AJUSTES ---
   accountSettings = [
-    { icon: '🔒', title: 'Contraseña y Seguridad', action: 'security' },
-    { icon: '🔔', title: 'Notificaciones', action: 'notifications' },
-    { icon: '👤', title: 'Administrar Perfil', action: 'manage' }
+    { icon: 'lock', title: 'Contraseña y Seguridad', action: 'security' },
+    { icon: 'bell', title: 'Notificaciones', action: 'notifications' },
+    { icon: 'user', title: 'Administrar Perfil', action: 'manage' }
   ];
 
   preferencesSettings = [
-    { icon: '🌙', title: 'Tema (Modo Oscuro)', action: 'theme', isToggle: true, toggleState: false },
-    { icon: '🌐', title: 'Idioma', action: 'language', value: 'Español' }
+    { icon: 'moon', title: 'Tema (Modo Oscuro)', action: 'theme', isToggle: true, toggleState: false },
+    { icon: 'globe', title: 'Idioma', action: 'language', value: 'Español' }
   ];
 
   supportSettings = [
-    { icon: '❓', title: 'Centro de ayuda', action: 'help' },
-    { icon: '🎧', title: 'Contactar soporte', action: 'contact' },
-    { icon: 'ℹ️', title: 'Acerca de la app', action: 'about', value: 'v1.0.0' }
+    { icon: 'help-circle', title: 'Centro de ayuda', action: 'help' },
+    { icon: 'headphones', title: 'Contactar soporte', action: 'contact' },
+    { icon: 'info', title: 'Acerca de la app', action: 'about', value: 'v1.0.0' }
   ];
 
   // --- ESTADO Y VARIABLES DE LOS MODALES ---

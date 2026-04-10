@@ -12,15 +12,15 @@
     </div>
 
     <div class="floating-elements">
-      <span class="elem science atom">⚛️</span>
+      <span class="elem science atom"><app-lucide-icon name="atom" [size]="32" color="var(--steam-blue)"></app-lucide-icon></span>
       <span class="elem tech code">&lt;/&gt;</span>
-      <span class="elem engineering gear">⚙️</span>
-      <span class="elem arts palette">🎨</span>
+      <span class="elem engineering gear"><app-lucide-icon name="settings" [size]="32" color="var(--steam-orange)"></app-lucide-icon></span>
+      <span class="elem arts palette"><app-lucide-icon name="palette" [size]="32" color="var(--steam-red)"></app-lucide-icon></span>
       <span class="elem math integral">∫</span>
-      <span class="elem edu book">📖</span>
+      <span class="elem edu book"><app-lucide-icon name="book-open" [size]="32" color="var(--steam-green)"></app-lucide-icon></span>
     </div>
     
-    <div class="lost-astronaut">🧑‍🚀</div>
+    <div class="lost-astronaut" style="display: flex; justify-content: center;"><app-lucide-icon name="rocket" [size]="100" color="var(--primary-color)"></app-lucide-icon></div>
   </div>
 
   <div class="text-area">
@@ -31,12 +31,12 @@
     </p>
 
     <div class="action-buttons">
-      <button class="btn-primary" routerLink="/dashboard">
-        🚀 Volver al Dashboard
+      <button class="btn-primary" routerLink="/dashboard" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <app-lucide-icon name="rocket" [size]="20"></app-lucide-icon> Volver al Dashboard
       </button>
       
-      <button class="btn-outline" (click)="goBack()">
-        ⬅️ Regresar
+      <button class="btn-outline" (click)="goBack()" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <app-lucide-icon name="arrow-left" [size]="20"></app-lucide-icon> Regresar
       </button>
     </div>
   </div>

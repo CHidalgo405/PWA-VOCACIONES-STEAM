@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
+import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-ai-logs',
   standalone: true,
-  imports: [CommonModule, AdminSidebarComponent],
+  imports: [CommonModule, AdminSidebarComponent, LucideIconComponent],
   templateUrl: './ai-logs.component.html',
   styleUrls: ['./ai-logs.component.scss']
 })

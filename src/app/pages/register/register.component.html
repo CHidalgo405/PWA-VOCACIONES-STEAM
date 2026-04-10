@@ -3,7 +3,7 @@
 
     <ng-container *ngIf="!isVerificationStep">
       <div class="auth-header">
-        <div style="font-size: 3rem; margin-bottom: 10px;">🚀</div>
+        <div style="margin-bottom: 10px;"><app-lucide-icon name="rocket" [size]="48" color="var(--primary-color)"></app-lucide-icon></div>
         <h2>Crea tu cuenta</h2>
         <p>Descubre qué carrera STEAM es para ti.</p>
       </div>
@@ -50,8 +50,8 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-primary btn-register-theme btn-block" style="margin-top: 25px;">
-          Crear mi Cuenta 🚀
+        <button type="submit" class="btn-primary btn-register-theme btn-block" style="margin-top: 25px; display: flex; align-items: center; justify-content: center;">
+          <app-lucide-icon name="rocket" [size]="20" style="margin-right: 8px;"></app-lucide-icon> Crear mi Cuenta
         </button>
 
         <div style="display: flex; align-items: center; margin: 30px 0;">
@@ -78,7 +78,7 @@
 
     <ng-container *ngIf="isVerificationStep">
       <div class="auth-header" style="margin-bottom: 20px;">
-        <div style="font-size: 3.5rem; margin-bottom: 15px; animation: slideUp 0.5s ease-out;">📩</div>
+        <div style="margin-bottom: 15px; animation: slideUp 0.5s ease-out;"><app-lucide-icon name="mail" [size]="56" color="var(--primary-color)"></app-lucide-icon></div>
         <h2>Código de Verificación</h2>
         <p style="margin-top: 15px; font-size: 1.05rem; line-height: 1.5;">
           Hemos enviado un código de seguridad de 6 dígitos a:<br>

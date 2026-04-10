@@ -73,7 +73,7 @@
 <!-- Modal de Detalle de Área STEAM -->
 <div class="area-modal-overlay" *ngIf="selectedArea" (click)="closeAreaModal()">
   <div class="area-modal-content" (click)="$event.stopPropagation()">
-    <button class="btn-close" (click)="closeAreaModal()">✕</button>
+    <button class="btn-close" (click)="closeAreaModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
 
     <div class="modal-header"
       [style.background]="'linear-gradient(135deg, ' + selectedArea.color + ' 0%, ' + selectedArea.color + 'dd 100%)'">

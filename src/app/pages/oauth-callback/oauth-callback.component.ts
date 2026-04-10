@@ -2,13 +2,15 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TokenService } from '../../core/services/token.service';
 import { AuthService } from '../../core/services/auth.service';
+import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-oauth-callback',
   standalone: true,
+  imports: [LucideIconComponent],
   template: `
     <div style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; background-color: var(--bg-color);">
-      <div style="font-size: 3rem; animation: pulse 1.5s infinite;">🔄</div>
+      <div style="animation: pulse 1.5s infinite;"><app-lucide-icon name="refresh-cw" [size]="48" color="var(--primary-color)"></app-lucide-icon></div>
       <h2 style="margin-top: 20px; color: var(--text-dark);">Autenticando...</h2>
       <p style="color: var(--text-muted); text-align: center;">Por favor espera, estamos validando tu sesión con Google.</p>
     </div>

@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
+import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminSidebarComponent],
+  imports: [CommonModule, FormsModule, AdminSidebarComponent, LucideIconComponent],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })

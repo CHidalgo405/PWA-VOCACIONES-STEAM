@@ -93,7 +93,7 @@
 
         <!-- EMPTY STATE UNIVERSIDADES -->
         <div class="empty-state-container full-width-grid" *ngIf="filteredUniversities.length === 0">
-          <div class="empty-icon">📭</div>
+          <div class="empty-icon"><app-lucide-icon name="inbox" [size]="48" color="#bdc3c7"></app-lucide-icon></div>
           <h3>No encontramos universidades</h3>
           <p>Intenta con otros términos de búsqueda o filtros diferentes.</p>
         </div>
@@ -122,7 +122,7 @@
           <div class="course-image-container">
             <img [src]="course.image" alt="Course">
             <span class="level-badge">{{ course.level }}</span>
-            <button class="favorite-btn-mini" (click)="saveCourse(course); $event.stopPropagation()">❤</button>
+            <button class="favorite-btn-mini" (click)="saveCourse(course); $event.stopPropagation()"><app-lucide-icon name="heart" [size]="14" color="white"></app-lucide-icon></button>
           </div>
           <div class="course-content">
             <span class="provider">{{ course.provider }}</span>
@@ -158,7 +158,7 @@
   <div class="course-modal-content" (click)="$event.stopPropagation()" [class.slide-up]="isCourseModalOpen">
     
     <div class="modal-header-image" [style.backgroundImage]="'url(' + selectedCourse?.image + ')'">
-      <button class="btn-close-modal" (click)="closeCourseModal()">✕</button>
+      <button class="btn-close-modal" (click)="closeCourseModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
       <div class="image-gradient-overlay"></div>
     </div>
 
@@ -197,7 +197,7 @@
     </div>
 
     <div class="modal-action-footer">
-      <button class="btn-favorite-large" (click)="saveCourse()">❤</button>
+      <button class="btn-favorite-large" (click)="saveCourse()"><app-lucide-icon name="heart" [size]="24" color="white"></app-lucide-icon></button>
       <button class="btn-primary-large">Inscribirme Ahora</button>
     </div>
 
@@ -209,7 +209,7 @@
   <div class="course-modal-content" (click)="$event.stopPropagation()" [class.slide-up]="isUniversityModalOpen">
     
     <div class="modal-header-image" [style.backgroundImage]="'url(' + selectedUniversity?.image + ')'">
-      <button class="btn-close-modal" (click)="closeUniversityModal()">✕</button>
+      <button class="btn-close-modal" (click)="closeUniversityModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
       <div class="image-gradient-overlay"></div>
     </div>
 
@@ -258,7 +258,7 @@
     </div>
 
     <div class="modal-action-footer">
-      <button class="btn-favorite-large" (click)="saveUniversity()">❤</button>
+      <button class="btn-favorite-large" (click)="saveUniversity()"><app-lucide-icon name="heart" [size]="24" color="white"></app-lucide-icon></button>
       <button class="btn-primary-large" (click)="closeUniversityModal()">Cerrar</button>
     </div>
 
