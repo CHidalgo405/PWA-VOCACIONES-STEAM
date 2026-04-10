@@ -1,5 +1,6 @@
 import { Component, Input, inject, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule, DomSanitizer, SafeHtml } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-lucide-icon',
