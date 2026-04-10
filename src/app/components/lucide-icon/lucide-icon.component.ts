@@ -1,12 +1,12 @@
-import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, inject, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonModule, DomSanitizer, SafeHtml } from '@angular/common';
 
 @Component({
   selector: 'app-lucide-icon',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <span [innerHTML]="getSvg()" [style.color]="color" class="lucide-icon-wrapper" [style.width.px]="size" [style.height.px]="size"></span>
+    <span [innerHTML]="sanitizedSvg" [style.color]="color" class="lucide-icon-wrapper" [style.width.px]="size" [style.height.px]="size"></span>
   `,
   styles: [`
     .lucide-icon-wrapper {
@@ -20,13 +20,27 @@ import { CommonModule } from '@angular/common';
     }
   `]
 })
-export class LucideIconComponent {
+export class LucideIconComponent implements OnChanges {
+  private sanitizer = inject(DomSanitizer);
+
   @Input() name: string = '';
   @Input() size: number = 24;
   @Input() color: string = 'currentColor';
   @Input() strokeWidth: number = 2;
 
-  getSvg() {
+  sanitizedSvg: SafeHtml = '';
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['name'] || changes['size'] || changes['strokeWidth']) {
+      this.updateSvg();
+    }
+  }
+
+  updateSvg() {
+    this.sanitizedSvg = this.sanitizer.bypassSecurityTrustHtml(this.getSvgContent());
+  }
+
+  private getSvgContent() {
     const icons: Record<string, string> = {
       'sparkles': `<svg xmlns="http://www.w3.org/2000/svg" width="${this.size}" height="${this.size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${this.strokeWidth}" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`,
       'dna': `<svg xmlns="http://www.w3.org/2000/svg" width="${this.size}" height="${this.size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${this.strokeWidth}" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dna"><path d="m10 16 1.5 1.5"/><path d="m14 8-1.5-1.5"/><path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"/><path d="m16.5 10.5 1 1"/><path d="m17 6-2.891-2.891"/><path d="M22 16c-1.998-1.798-3.995-2.518-5.993-2.807"/><path d="m2 8c1.998 1.798 3.995 2.518 5.993 2.807"/><path d="m3 11 2.891 2.891"/><path d="m5.5 13.5 1-1"/><path d="m7 18 1.5-1.5"/><path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/><path d="m10 6 1.5-1.5"/><path d="m14 16-1.5 1.5"/><path d="m18 8 3 3"/></svg>`,
@@ -80,3 +94,4 @@ export class LucideIconComponent {
     return icons[this.name] || '';
   }
 }
+
