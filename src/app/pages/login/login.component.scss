@@ -1,77 +1,251 @@
-/* --- Estilos Globales para Autenticación (Login/Registro) --- */
+/* --- Estilos Globales para Autenticación (Rediseño Split-Screen) --- */
 
-/* Contenedor principal: En móvil ocupa todo, en PC centra el contenido */
 .auth-container {
   min-height: 100vh;
   width: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: center; /* Centrado vertical */
-  align-items: center;     /* Centrado horizontal */
+  justify-content: center;
+  align-items: center;
+  background-color: #FEFAF6; /* Fondo beige muy claro, inspirado en la imagen */
   padding: 20px;
-  box-sizing: border-box; /* Importante para que el padding no rompa el ancho */
-  background-color: var(--bg-light);
+  box-sizing: border-box;
+}
 
-  /* RESPONSIVE: En pantallas grandes (Desktop/Tablet) añade un fondo decorativo */
-  @media (min-width: 768px) {
-    background: linear-gradient(135deg, rgba(7, 177, 201, 0.1) 0%, rgba(77, 176, 70, 0.1) 100%);
+.auth-split-layout {
+  display: flex;
+  flex-direction: column-reverse; /* En móvil: Ilustración arriba, Formulario abajo */
+  width: 100%;
+  max-width: 1100px;
+  background-color: var(--white);
+  border-radius: 30px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  position: relative;
+  
+  @media (min-width: 900px) {
+    flex-direction: row; /* En desktop: Formulario izq, Ilustración der */
+    min-height: 650px;
   }
 }
 
-/* --- BOTONES PREMIUM STEAM --- */
+/* --- Lado del Formulario (Izquierda) --- */
+.auth-form-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  
+  @media (min-width: 900px) {
+    padding: 60px 40px;
+  }
+}
 
-/* 1. Botón Principal (Gradiente y Glow) */
-.btn-primary {
+.auth-form-wrapper {
+  width: 100%;
+  max-width: 380px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 35px;
+
+  h2 {
+    font-size: 2rem;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    font-weight: 800;
+  }
+  p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+}
+
+/* --- Lado Ilustrativo (Derecha) --- */
+.auth-illustration-side {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px 0 20px;
+  background-color: #FFF; /* Opcional: un tono ligerisimamente más gris o blanco */
+
+  @media (min-width: 900px) {
+    padding: 40px;
+    background-color: #FAFAFD;
+  }
+}
+
+.illustration-background-arch {
+  width: 100%;
+  max-width: 380px;
+  background-color: #F8E7D8; /* Tono durazno/beige suave como en la imagen */
+  border-radius: 50% 50% 0 0; /* Forma de arco/píldora superior */
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* La imagen se alinea al fondo del arco */
   position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5; /* Altura moderada */
+
+  @media (min-width: 900px) {
+    max-width: 420px;
+    height: 90%;
+    aspect-ratio: auto;
+  }
+}
+
+.illustration-image {
+  width: 110%;
+  max-width: 450px;
+  transform: translateY(10px); /* Para asentar al personaje */
+  z-index: 2;
+  /* Un ajuste de saturación e iluminación en caso de que la imagen lo necesite */
+  filter: drop-shadow(0 15px 20px rgba(0,0,0,0.1));
+}
+
+
+/* --- Estilos del Formulario e Inputs --- */
+.modern-input {
+  margin-bottom: 22px;
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-left: 5px;
+  }
+  
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border: 2px solid #EAEAEA;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    background-color: #FFF;
+
+    &:focus-within {
+      border-color: #F1A377; /* Un borde naranja suave */
+      box-shadow: 0 0 0 4px rgba(241, 163, 119, 0.15);
+    }
+  }
+
+  .input-icon-left {
+    position: absolute;
+    left: 16px;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  input {
+    width: 100%;
+    padding: 16px 16px 16px 48px; /* Espacio para el icono de la izq */
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    color: var(--text-dark);
+    outline: none;
+
+    &::placeholder {
+      color: #B0B0B0;
+    }
+  }
+
+  .btn-eye {
+    position: absolute;
+    right: 16px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover {
+      color: var(--text-dark);
+    }
+  }
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding: 0 5px;
+
+  .remember-label {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-weight: 500;
+    margin: 0;
+
+    input[type="checkbox"] {
+      margin-right: 8px;
+      accent-color: #F1A377; /* O primary-color */
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+  }
+
+  .forgot-btn {
+    font-size: 0.85rem;
+    color: #F1A377; /* Naranja/durazno para hacer juego */
+  }
+}
+
+/* --- Botón Principal --- */
+.btn-primary {
   width: 100%;
   padding: 16px;
+  margin-top: 15px;
   border: none;
-  border-radius: 50px; /* Píldora completa, más moderna */
+  border-radius: 50px;
   font-size: 1.1rem;
   font-weight: 700;
   color: white;
   cursor: pointer;
-  letter-spacing: 0.5px;
-  overflow: hidden;
-  transition: all 0.4s ease;
-  z-index: 1;
-  
-  /* EL TRUCO DEL GRADIENTE ANIMADO */
-  background-size: 200% auto;
-  background-image: linear-gradient(to right, #07B1C9 0%, #4DB046 51%, #07B1C9 100%);
-  
-  /* Sombra inicial suave */
-  box-shadow: 0 4px 15px rgba(7, 177, 201, 0.3);
+  background-color: #F8B38D; /* Un tono salmón o durazno suave */
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   &:hover {
-    /* Al pasar el mouse, movemos el fondo para animar el gradiente */
-    background-position: right center; 
+    background-color: #E89E73;
     transform: translateY(-2px);
-    /* Intensificamos el brillo */
-    box-shadow: 0 8px 25px rgba(7, 177, 201, 0.5);
+    box-shadow: 0 8px 15px rgba(232, 158, 115, 0.3);
   }
-
+  
   &:active {
-    transform: scale(0.98) translateY(0);
-    box-shadow: 0 4px 10px rgba(7, 177, 201, 0.3);
+    transform: scale(0.98);
   }
 
   &:disabled {
     opacity: 0.65;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
   }
 }
 
-/* Botón bloqueado (cuenta suspendida temporalmente) */
 .btn-blocked {
-  background-image: linear-gradient(to right, #9ca3af 0%, #6b7280 51%, #9ca3af 100%) !important;
-  box-shadow: none !important;
-  cursor: not-allowed !important;
-  opacity: 0.85;
+  background-color: #9CA3AF !important;
 }
 
-/* Spinner de carga dentro del botón */
 .btn-spinner {
   display: inline-block;
   width: 20px;
@@ -80,146 +254,124 @@
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
+  margin-right: 10px;
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Variante para REGISTRO (Tonos Cálidos: Naranja/Rojo) */
-.btn-register-theme {
-  background-image: linear-gradient(to right, #F88718 0%, #E8372D 51%, #F88718 100%);
-  box-shadow: 0 4px 15px rgba(248, 135, 24, 0.3);
-
-  &:hover {
-    background-position: right center;
-    box-shadow: 0 8px 25px rgba(248, 135, 24, 0.5);
+/* --- Divisor (O) --- */
+.or-divider {
+  display: flex;
+  align-items: center;
+  margin: 25px 0;
+  
+  .line {
+    flex: 1;
+    height: 1px;
+    background-color: #EAEAEA;
+  }
+  
+  span {
+    padding: 0 15px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
   }
 }
 
-/* 2. Botones Sociales (Google / Apple / GitHub) */
+/* --- Botones Sociales Circulares --- */
 .social-btn-container {
   display: flex;
-  gap: 15px;
   justify-content: center;
-  margin-top: 20px;
+  gap: 20px;
 }
 
-.btn-social {
-  flex: 1; /* Para que ocupen el mismo ancho */
+.btn-social-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid #EAEAEA;
+  background-color: #FFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 12px 20px;
-  background-color: white;
-  border: 2px solid #F0F2F5;
-  border-radius: 16px;
-  font-weight: 600;
-  color: var(--text-dark);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-  font-size: 0.95rem;
+  transition: all 0.3s ease;
 
-  /* Icono dentro del botón */
-  img.social-icon {
+  img {
     width: 24px;
     height: 24px;
   }
-
+  
   &:hover {
-    border-color: #d1d5db;
+    border-color: #D1D5DB;
+    background-color: #F9FAFB;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    background-color: #fafafa;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
   }
 
   &:active {
-    transform: scale(0.97);
+    transform: scale(0.95);
   }
 }
 
-/* La tarjeta del formulario */
-.auth-card {
-  width: 100%;
-  max-width: 400px; /* RESPONSIVE: Límite de ancho para que no se vea gigante en PC */
-  background-color: var(--white);
-  padding: 30px;
-  border-radius: 24px;
-  
-  /* Sombra suave para dar profundidad */
-  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
-
-  /* Animación de entrada */
-  animation: slideUp 0.5s ease-out;
-
-  .auth-header {
-    text-align: center;
-    margin-bottom: 30px;
-
-    h2 {
-      font-size: 1.8rem;
-      color: var(--text-dark);
-      margin-bottom: 10px;
-      font-weight: 800;
-    }
-    p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-    }
-  }
-}
-
-/* Estilos de los Inputs (Campos de texto) */
-.form-group {
-  margin-bottom: 20px;
-  position: relative;
-
-  label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-dark);
-  }
-
-  input {
-    width: 100%;
-    padding: 14px 16px;
-    border: 2px solid #E0E0E0;
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    box-sizing: border-box; /* Clave para responsividad */
-
-    &:focus {
-      outline: none;
-      border-color: var(--steam-blue); /* Color Ciencia al enfocar */
-      box-shadow: 0 0 0 4px rgba(7, 177, 201, 0.1);
-    }
-  }
-}
-
-/* Botón de acción principal */
-.btn-block {
-  width: 100%;
-  display: block;
+/* --- Footer Area --- */
+.auth-footer {
   text-align: center;
+  margin-top: 30px;
+
+  p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+
+  .signup-link {
+    color: #E89E73;
+    font-weight: 700;
+    margin-left: 5px;
+  }
 }
 
-/* Enlaces de texto (ej. "¿Olvidaste contraseña?") */
+/* Enlaces generales */
 .text-link {
-  color: var(--steam-blue);
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.9rem;
+  transition: opacity 0.2s;
   
   &:hover {
-    text-decoration: underline;
+    opacity: 0.8;
   }
 }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+/* --- OTP Vista --- */
+.otp-header {
+  .icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: rgba(7, 177, 201, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+  }
+}
+
+.otp-input {
+  width: 100%;
+  max-width: 250px;
+  padding: 15px;
+  font-size: 1.8rem !important;
+  letter-spacing: 5px;
+  border: 2px solid #EAEAEA;
+  border-radius: 16px;
+  text-align: center;
+  transition: all 0.3s;
+  
+  &:focus {
+    border-color: #F1A377;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(241, 163, 119, 0.15);
+  }
 }
