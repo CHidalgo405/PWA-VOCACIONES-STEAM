@@ -1,107 +1,116 @@
 <div class="auth-container">
-  <div class="auth-card">
+  
+  <div class="auth-split-layout">
+    
+    <!-- Left Side: Form -->
+    <div class="auth-form-side">
+      <div class="auth-form-wrapper">
+        
+        <ng-container *ngIf="!isVerificationStep">
+          <div class="auth-header">
+            <h2>¡Hola de nuevo!</h2>
+            <p>Ingresa para continuar tu camino STEAM.</p>
+          </div>
 
-    <ng-container *ngIf="!isVerificationStep">
-      <div class="auth-header">
-        <div style="margin-bottom: 20px; color: var(--steam-blue); display: flex; justify-content: center;">
-          <app-lucide-icon name="sparkles" [size]="48"></app-lucide-icon>
-        </div>
-        <h2>¡Hola de nuevo!</h2>
-        <p>Ingresa para continuar tu camino STEAM.</p>
-      </div>
+          <form>
+            <div class="form-group modern-input">
+              <label for="email">Correo Electrónico</label>
+              <div class="input-wrapper">
+                <app-lucide-icon name="mail" [size]="20" color="var(--text-muted)" class="input-icon-left"></app-lucide-icon>
+                <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="ejemplo@estudiante.com" required>
+              </div>
+            </div>
 
-    <form>
-      <div class="form-group">
-        <label for="email">Correo Electrónico</label>
-        <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="ejemplo@estudiante.com" required>
-      </div>
+            <div class="form-group modern-input">
+              <label for="password">Contraseña</label>
+              <div class="input-wrapper">
+                <app-lucide-icon name="lock" [size]="20" color="var(--text-muted)" class="input-icon-left"></app-lucide-icon>
+                <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password" placeholder="••••••••" required>
+                <button type="button" (click)="togglePasswordVisibility()" class="btn-eye" tabindex="-1">
+                  <app-lucide-icon *ngIf="!showPassword" name="eye" [size]="20"></app-lucide-icon>
+                  <app-lucide-icon *ngIf="showPassword" name="eye-off" [size]="20"></app-lucide-icon>
+                </button>
+              </div>
+              <div class="form-options">
+                 <label class="remember-label">
+                  <input type="checkbox" name="rememberMe" [(ngModel)]="rememberMe"> Recordarme
+                </label>
+                <a routerLink="/olvide-contrasena" class="text-link forgot-btn">¿Olvidaste tu contraseña?</a>
+              </div>
+            </div>
 
-      <div class="form-group">
-        <label for="password">Contraseña</label>
-        <div style="position: relative;">
-          <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password"
-            placeholder="••••••••" required style="padding-right: 40px; width: 100%; box-sizing: border-box;">
-          <button type="button" (click)="togglePasswordVisibility()"
-            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; display: flex;">
-            <app-lucide-icon *ngIf="!showPassword" name="eye" [size]="20"></app-lucide-icon>
-            <app-lucide-icon *ngIf="showPassword" name="eye-off" [size]="20"></app-lucide-icon>
+            <button (click)="login()" class="btn-primary" [disabled]="isLoading || isBlocked" [class.btn-blocked]="isBlocked">
+              <span *ngIf="isLoading" class="btn-spinner"></span>
+              <span *ngIf="!isLoading && !isBlocked">Iniciar Sesión</span>
+              <span *ngIf="isBlocked"><app-lucide-icon name="lock" [size]="16" style="margin-right: 5px;"></app-lucide-icon> Cuenta Bloqueada</span>
+            </button>
+
+            <div class="or-divider">
+              <div class="line"></div>
+              <span>- o -</span>
+              <div class="line"></div>
+            </div>
+
+            <div class="social-btn-container">
+              <button type="button" class="btn-social-circle" (click)="simularLoginGoogle($event)" title="Google">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G">
+              </button>
+              <button type="button" class="btn-social-circle" (click)="toastService.showToast('Integración con Facebook próximamente', 'info')" title="Facebook">
+                <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="F" style="width: 28px; height: 28px;">
+              </button>
+              <button type="button" class="btn-social-circle" (click)="toastService.showToast('Integración con Apple próximamente', 'info')" title="Apple">
+                <app-lucide-icon name="apple" [size]="24" color="#000"></app-lucide-icon>
+              </button>
+            </div>
+          </form>
+
+          <div class="auth-footer">
+            <p>
+              ¿No tienes cuenta?
+              <a routerLink="/register" class="text-link signup-link">Regístrate</a>
+            </p>
+          </div>
+        </ng-container>
+
+        <!-- OTP Verification Step -->
+        <ng-container *ngIf="isVerificationStep">
+          <div class="auth-header otp-header">
+            <div class="icon-circle">
+              <app-lucide-icon name="mail" [size]="48" color="var(--steam-blue)"></app-lucide-icon>
+            </div>
+            <h2>Código de Verificación</h2>
+            <p>
+              Hemos enviado un código a:<br>
+              <strong>{{ email }}</strong>
+            </p>
+          </div>
+
+          <div class="form-group text-center">
+            <input type="text" [(ngModel)]="verificationCode" maxlength="6" class="otp-input form-control text-center text-uppercase fs-4 tracking-widest p-3" placeholder="000000" />
+          </div>
+
+          <button (click)="onVerifyOTP()" class="btn-primary" [disabled]="isVerifying">
+            <span *ngIf="isVerifying" class="btn-spinner"></span>
+            <span *ngIf="!isVerifying">Verificar Código</span>
           </button>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-          <label
-            style="display: flex; align-items: center; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; font-weight: 500;">
-            <input type="checkbox" name="rememberMe" [(ngModel)]="rememberMe"
-              style="margin-right: 8px; width: auto; accent-color: var(--primary-color);"> Recordarme
-          </label>
-          <a routerLink="/olvide-contrasena" class="text-link" style="font-size: 0.8rem;">¿Olvidaste tu contraseña?</a>
-        </div>
+
+          <div class="auth-footer">
+            <p>
+              ¿No recibiste el correo?
+              <a href="javascript:void(0)" (click)="isVerificationStep = false; verificationCode = ''" class="text-link">volver atrás</a>.
+            </p>
+          </div>
+        </ng-container>
+        
       </div>
+    </div>
 
-      <button (click)="login()" class="btn-primary btn-block"
-        [disabled]="isLoading || isBlocked"
-        [class.btn-blocked]="isBlocked"
-        style="margin-top: 25px;">
-        <span *ngIf="isLoading" class="btn-spinner"></span>
-        <span *ngIf="!isLoading && !isBlocked">Iniciar Sesión</span>
-        <span *ngIf="isBlocked"><app-lucide-icon name="lock" [size]="16"></app-lucide-icon> Cuenta Bloqueada</span>
-      </button>
-
-      <div style="display: flex; align-items: center; margin: 30px 0;">
-        <div style="flex: 1; height: 1px; background: #E0E0E0;"></div>
-        <span style="padding: 0 15px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">O continúa
-          con</span>
-        <div style="flex: 1; height: 1px; background: #E0E0E0;"></div>
+    <!-- Right Side: Illustration -->
+    <div class="auth-illustration-side">
+      <div class="illustration-background-arch">
+        <img src="assets/images/3d_student_laptop.png" alt="Estudiante en laptop" class="illustration-image">
       </div>
-
-      <div class="social-btn-container">
-
-        <a href="javascript:void(0)" class="btn-social" (click)="simularLoginGoogle($event)" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center;">
-          <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="social-icon" alt="G">
-          Continuar con Google
-        </a>
-
-      </div>
-
-    </form>
-
-      <div style="text-align: center; margin-top: 30px;">
-        <p style="font-size: 0.9rem; color: var(--text-muted);">
-          ¿No tienes cuenta?
-          <a routerLink="/register" class="text-link">Regístrate</a>
-        </p>
-      </div>
-    </ng-container>
-
-    <ng-container *ngIf="isVerificationStep">
-      <div class="auth-header" style="margin-bottom: 20px;">
-        <div style="margin-bottom: 20px; color: var(--steam-blue); display: flex; justify-content: center;">
-          <app-lucide-icon name="mail" [size]="48"></app-lucide-icon>
-        </div>
-        <h2>Código de Verificación</h2>
-        <p style="margin-top: 15px; font-size: 1.05rem; line-height: 1.5;">
-          Hemos enviado un código de seguridad de 6 dígitos a:<br>
-          <strong style="color: var(--steam-blue); font-size: 1.1rem;">{{ email }}</strong>
-        </p>
-      </div>
-
-      <div class="form-group" style="text-align: center; margin-bottom: 30px;">
-        <input type="text" [(ngModel)]="verificationCode" maxlength="6" class="otp-input" placeholder="000000" style="text-transform: uppercase;" />
-      </div>
-
-      <button (click)="onVerifyOTP()" class="btn-primary"
-        [disabled]="isVerifying"
-        style="margin-top: 5px; background-image: linear-gradient(to right, #07B1C9 0%, #4DB046 100%);">
-        <span *ngIf="isVerifying" class="btn-spinner"></span>
-        <span *ngIf="!isVerifying">Verificar Código</span>
-      </button>
-
-      <div style="text-align: center; margin-top: 25px;">
-        <p style="font-size: 0.85rem; color: var(--text-muted);">
-          ¿No recibiste el correo? Revisa tu carpeta de Spam o
-          <a href="javascript:void(0)" (click)="isVerificationStep = false; verificationCode = ''" class="text-link">volver al inicio de sesión</a>.
-        </p>
-      </div>
-    </ng-container>
+    </div>
 
   </div>
 </div>

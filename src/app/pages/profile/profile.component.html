@@ -8,7 +8,7 @@
         <div class="avatar-wrapper">
           <img [src]="user.avatar" alt="Avatar" style="object-fit: cover; border-radius: 50%;">
           <button class="avatar-edit-btn" (click)="fileInputHero.click()" title="Cambiar foto de perfil">
-            <span class="edit-icon"><app-lucide-icon name="pencil" [size]="16" color="white"></app-lucide-icon></span>
+            <span class="edit-icon"><app-lucide-icon name="pencil" [size]="16" color="black"></app-lucide-icon></span>
           </button>
           <input type="file" #fileInputHero (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
         </div>
