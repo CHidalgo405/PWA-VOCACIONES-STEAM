@@ -37,7 +37,7 @@ export class LoginComponent {
   MAX_ATTEMPTS = 5;
   BLOCK_TIME_MINUTES = 5;
 
-  constructor(private router: Router, private authService: AuthService, public toastService: ToastService) { }
+  constructor(private router: Router, private authService: AuthService, private toastService: ToastService) { }
 
   login() {
     if (!this.email || !this.password) {
