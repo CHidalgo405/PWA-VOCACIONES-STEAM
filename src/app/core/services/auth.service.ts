@@ -81,7 +81,7 @@ export class AuthService {
   }
 
   loginWithGoogle() {
-    window.location.href = 'https://vocacionessteam-api-production.up.railway.app/api/auth/google';
+    window.location.href = 'https://vocacionessteam-api-production.up.railway.app/api/v1/auth/google';
   }
 
   // Handle Google Callback Token Backup
