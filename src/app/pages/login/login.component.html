@@ -5,8 +5,8 @@
     <!-- Imagen / Ilustración -->
     <div class="login-image-side">
       <div class="arch-shape"></div>
-      <img src="assets/images/login-illustration.png" alt="Login 3D Avatar" class="avatar-img">
-      <h2 class="mobile-title">Welcome Back!!</h2>
+      <img src="assets/login-illustration.png" alt="Login 3D Avatar" class="avatar-img">
+      <h2 class="mobile-title">Bienvenido de nuevo!</h2>
     </div>
 
     <!-- Formulario -->
@@ -14,12 +14,12 @@
       <ng-container *ngIf="!isVerificationStep">
         
         <div class="form-header desktop-title">
-          <h2>Welcome Back!!</h2>
+          <h2>Bienvenido de nuevo!</h2>
         </div>
 
         <form>
           <div class="input-group">
-            <label for="email">Email</label>
+            <label for="email">Correo Electrónico</label>
             <div class="input-wrapper">
               <app-lucide-icon name="mail" [size]="20" class="input-icon"></app-lucide-icon>
               <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="email@gmail.com" required>
@@ -27,11 +27,11 @@
           </div>
 
           <div class="input-group">
-            <label for="password">Password</label>
+            <label for="password">Contraseña</label>
             <div class="input-wrapper">
               <app-lucide-icon name="lock" [size]="20" class="input-icon"></app-lucide-icon>
               <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password"
-                placeholder="Enter your password" required>
+                placeholder="Ingresa tu contraseña" required>
               <button type="button" class="btn-toggle-password" (click)="togglePasswordVisibility()">
                 <app-lucide-icon *ngIf="!showPassword" name="eye-off" [size]="20" class="eye-icon"></app-lucide-icon>
                 <app-lucide-icon *ngIf="showPassword" name="eye" [size]="20" class="eye-icon"></app-lucide-icon>
@@ -42,32 +42,35 @@
           <div class="options-row">
             <label class="remember-label">
               <input type="checkbox" name="rememberMe" [(ngModel)]="rememberMe"> Recordarme
-            </label>
-            <a routerLink="/olvide-contrasena" class="forgot-link">Forgot Password?</a>
+            </label> 
+          </div>
+          <div class="options-row-2">
+            <a routerLink="/olvide-contrasena" class="forgot-link">¿Has olvidado tu contraseña?</a>
           </div>
 
           <button (click)="login()" class="btn-main"
             [disabled]="isLoading || isBlocked"
             [class.btn-blocked]="isBlocked">
             <span *ngIf="isLoading" class="btn-spinner"></span>
-            <span *ngIf="!isLoading && !isBlocked">Login</span>
+            <span *ngIf="!isLoading && !isBlocked">Iniciar Sesión</span>
             <span *ngIf="isBlocked"><app-lucide-icon name="lock" [size]="16"></app-lucide-icon> Cuenta Bloqueada</span>
           </button>
 
           <div class="divider">
-            <span>- or -</span>
+            <span>- o -</span>
           </div>
 
           <div class="social-container">
             <button type="button" class="btn-google" (click)="simularLoginGoogle($event)">
               <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+              <span>Iniciar Sesión con Google</span>
             </button>
           </div>
 
         </form>
 
         <div class="signup-row">
-          <p>Don't have an account? <a routerLink="/register" class="signup-link">Sign up</a></p>
+          <p>¿No tienes una cuenta? <a routerLink="/register" class="signup-link">Regístrate</a></p>
         </div>
       </ng-container>
 
