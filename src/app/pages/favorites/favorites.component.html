@@ -1,126 +1,150 @@
 <div class="favorites-container">
   
-  <header class="sticky-header">
+  <header class="premium-header">
     <div class="header-content">
-      <h2>Guardados</h2>
-      <p class="subtitle">Tus universidades y cursos favoritos.</p>
-
-      <div class="tabs-container">
-        <button class="tab-btn" [class.active]="activeTab === 'universities'" (click)="switchTab('universities')">
-          Universidades
-        </button>
-        <button class="tab-btn" [class.active]="activeTab === 'courses'" (click)="switchTab('courses')">
-          Cursos Online
-        </button>
-        <div class="tab-indicator" [class.right]="activeTab === 'courses'"></div>
+      <div class="header-top">
+        <h2>Guardados</h2>
+        <div class="header-actions">
+           <!-- Actions if needed -->
+        </div>
       </div>
+      <p class="subtitle-premium">Tus universidades y cursos seleccionados para tu futuro.</p>
+
+      <nav class="navigation-tabs">
+        <div class="tabs-pill">
+          <button class="tab-item" [class.active]="activeTab === 'universities'" (click)="switchTab('universities')">
+            Universidades
+          </button>
+          <button class="tab-item" [class.active]="activeTab === 'courses'" (click)="switchTab('courses')">
+            Cursos Online
+          </button>
+          <div class="pill-slider" [class.to-right]="activeTab === 'courses'"></div>
+        </div>
+      </nav>
     </div>
   </header>
 
-  <div class="content-grid">
+  <main class="favorites-content">
     
     <ng-container *ngIf="activeTab === 'universities'">
-      <!-- SKELETONS UNIVERSIDADES -->
-      <ng-container *ngIf="isLoading">
-        <div class="card-university skeleton-card" *ngFor="let i of skeletonArray">
-          <div class="card-image shimmer"></div>
-          <div class="card-details">
-            <div class="uni-header">
-              <div class="uni-logo shimmer" style="width: 40px; height: 40px; border-radius: 8px;"></div>
-              <div class="uni-info" style="width: 70%;">
-                <div class="shimmer" style="height: 16px; width: 100%; border-radius: 4px; margin-bottom: 8px;"></div>
-                <div class="shimmer" style="height: 12px; width: 60%; border-radius: 4px;"></div>
-              </div>
-            </div>
-            <div class="shimmer" style="width: 100%; height: 36px; border-radius: 10px; margin-top: 10px;"></div>
+      <!-- SKELETONS -->
+      <div class="grid-layout" *ngIf="isLoading">
+        <div class="uni-card-skeleton" *ngFor="let i of skeletonArray">
+          <div class="skele-img shimmer"></div>
+          <div class="skele-body">
+            <div class="shimmer skele-title"></div>
+            <div class="shimmer skele-text"></div>
           </div>
         </div>
-      </ng-container>
+      </div>
 
       <!-- RESULTADOS REALES -->
-      <ng-container *ngIf="!isLoading">
-        <div class="card-university" *ngFor="let uni of favoriteUniversities">
-          <div class="card-image" [style.backgroundImage]="'url(' + uni.image + ')'">
-            <span class="rating-badge"><app-lucide-icon name="star" [size]="12" color="#FFD700"></app-lucide-icon> {{ uni.rating }}</span>
-            <button class="favorite-btn active" (click)="removeFromFavorites('university', uni.id)" title="Quitar de Favoritos">
-              <app-lucide-icon name="heart" [size]="20" color="white"></app-lucide-icon>
-            </button>
-          </div>
-          <div class="card-details">
-            <div class="uni-header">
-              <span class="uni-logo" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #f0f0f0; border-radius: 8px;">
-                <app-lucide-icon [name]="uni.logo" [size]="24" color="var(--steam-blue)"></app-lucide-icon>
+      <div class="grid-layout" *ngIf="!isLoading">
+        <div class="university-premium-card" *ngFor="let uni of favoriteUniversities">
+          <div class="card-media">
+            <div class="image-overlay" [style.backgroundImage]="'url(' + uni.image + ')'"></div>
+            <div class="card-badges">
+              <span class="badge-rating">
+                <app-lucide-icon name="star" [size]="12"></app-lucide-icon>
+                {{ uni.rating }}
               </span>
-              <div class="uni-info">
-                <h3>{{ uni.name }}</h3>
-                <p class="location"><app-lucide-icon name="map-pin" [size]="12" color="var(--text-light)"></app-lucide-icon> {{ uni.location }}</p>
-              </div>
             </div>
-            <div class="tags-row">
-              <span class="tag" *ngFor="let tag of uni.tags">{{ tag }}</span>
+            <button class="btn-fav-float active" (click)="removeFromFavorites('university', uni.id)" title="Quitar de Favoritos">
+              <app-lucide-icon name="heart" [size]="20"></app-lucide-icon>
+            </button>
+            <div class="logo-overlap">
+              <app-lucide-icon [name]="uni.logo" [size]="24"></app-lucide-icon>
             </div>
-            <button class="btn-view">Ver Oferta Académica</button>
+          </div>
+          
+          <div class="card-info">
+            <div class="info-header">
+              <h3>{{ uni.name }}</h3>
+              <p class="location-text">
+                <app-lucide-icon name="map-pin" [size]="14"></app-lucide-icon>
+                {{ uni.location }}
+              </p>
+            </div>
+            
+            <div class="tags-cloud">
+              <span class="mini-tag" *ngFor="let tag of uni.tags">{{ tag }}</span>
+            </div>
+
+            <div class="card-footer">
+               <button class="btn-view-premium">Ver Oferta Académica</button>
+            </div>
           </div>
         </div>
 
-        <!-- EMPTY STATE UNIVERSIDADES (REDESIGN) -->
-        <div class="empty-state-card full-width-grid" *ngIf="favoriteUniversities.length === 0">
-          <div class="illustration-container">
-            <app-lucide-icon name="compass" [size]="100" color="rgba(7, 177, 201, 0.2)" [strokeWidth]="1.5"></app-lucide-icon>
-            <div class="glow-bg"></div>
+        <!-- EMPTY STATE UNIVERSIDADES -->
+        <div class="premium-empty-state" *ngIf="favoriteUniversities.length === 0">
+          <div class="empty-visual">
+            <app-lucide-icon name="compass" [size]="80" class="floating-icon"></app-lucide-icon>
           </div>
-          <h2>Tu colección de futuro profesional empieza aquí</h2>
-          <p>Explora nuestras recomendaciones personalizadas y guarda las instituciones educativas que mejor se adapten a tu perfil. Las verás aquí para compararlas.</p>
-          <button class="btn-primary-action" routerLink="/explore">Explorar Universidades</button>
+          <h3>Tu colección empieza aquí</h3>
+          <p>Explora universidades y guarda las que te interesen para verlas en este apartado.</p>
+          <button class="btn-action-primary" routerLink="/explore">Ir a Explorar</button>
         </div>
-      </ng-container>
+      </div>
     </ng-container>
 
     <ng-container *ngIf="activeTab === 'courses'">
-      <!-- SKELETONS CURSOS -->
-      <ng-container *ngIf="isLoading">
-        <div class="card-course skeleton-card" *ngFor="let i of skeletonArray">
-          <div class="course-image-container shimmer" style="width: 80px; height: 80px; border-radius: 12px;"></div>
-          <div class="course-content" style="width: 100%;">
-            <div class="shimmer" style="height: 12px; width: 40%; border-radius: 4px; margin-bottom: 8px;"></div>
-            <div class="shimmer" style="height: 16px; width: 80%; border-radius: 4px; margin-bottom: 12px;"></div>
+      <!-- SKELETONS -->
+      <div class="grid-layout compact" *ngIf="isLoading">
+        <div class="course-card-skeleton" *ngFor="let i of skeletonArray">
+          <div class="shimmer skele-thumb"></div>
+          <div class="skele-content">
+            <div class="shimmer skele-title"></div>
+            <div class="shimmer skele-meta"></div>
           </div>
         </div>
-      </ng-container>
+      </div>
 
       <!-- RESULTADOS REALES -->
-      <ng-container *ngIf="!isLoading">
-        <div class="card-course" *ngFor="let course of favoriteCourses">
-          <div class="course-image-container">
-            <img [src]="course.image" alt="Course">
-            <span class="level-badge">{{ course.level }}</span>
+      <div class="grid-layout compact" *ngIf="!isLoading">
+        <div class="course-premium-card" *ngFor="let course of favoriteCourses">
+          <div class="course-thumb">
+            <img [src]="course.image" [alt]="course.title">
+            <div class="level-overlay">
+              <span>{{ course.level }}</span>
+            </div>
+            <button class="btn-fav-mini active" (click)="removeFromFavorites('course', course.id)">
+              <app-lucide-icon name="heart" [size]="14"></app-lucide-icon>
+            </button>
           </div>
-          <div class="course-content">
-            <span class="provider">{{ course.provider }}</span>
-            <h3>{{ course.title }}</h3>
-            <div class="meta-info">
-              <span><app-lucide-icon name="clock" [size]="14" color="var(--text-light)"></app-lucide-icon> {{ course.duration }}</span>
-              <button class="remove-btn" (click)="removeFromFavorites('course', course.id)">Eliminar</button>
+          
+          <div class="course-details">
+            <div class="details-top">
+              <span class="course-provider">{{ course.provider }}</span>
+              <h3>{{ course.title }}</h3>
+            </div>
+            
+            <div class="details-bottom">
+              <div class="course-meta">
+                <span class="meta-item">
+                  <app-lucide-icon name="clock" [size]="12"></app-lucide-icon>
+                  {{ course.duration }}
+                </span>
+              </div>
+              <button class="btn-remove-simple" (click)="removeFromFavorites('course', course.id)">Eliminar</button>
             </div>
           </div>
         </div>
 
-        <!-- EMPTY STATE CURSOS (REDESIGN) -->
-        <div class="empty-state-card full-width-grid" *ngIf="favoriteCourses.length === 0">
-          <div class="illustration-container">
-            <app-lucide-icon name="book-open" [size]="100" color="rgba(75, 176, 70, 0.2)" [strokeWidth]="1.5"></app-lucide-icon>
-            <div class="glow-bg green"></div>
+        <!-- EMPTY STATE CURSOS -->
+        <div class="premium-empty-state" *ngIf="favoriteCourses.length === 0">
+          <div class="empty-visual">
+            <app-lucide-icon name="book-open" [size]="80" class="floating-icon"></app-lucide-icon>
           </div>
-          <h2>Potencia tu camino académico</h2>
-          <p>Encuentra cursos diseñados para fortalecer tus habilidades STEAM. Guarda los que más te interesen para acceder a ellos rápidamente.</p>
-          <button class="btn-primary-action success" routerLink="/explore">Explorar Cursos</button>
+          <h3>Aprende algo nuevo</h3>
+          <p>Encuentra cursos diseñados para potenciar tus habilidades STEAM y guárdalos aquí.</p>
+          <button class="btn-action-primary" routerLink="/explore">Ver Cursos</button>
         </div>
-      </ng-container>
+      </div>
     </ng-container>
 
-  </div>
+  </main>
 
-  <!-- Navbar en la parte inferior (corrige el error de importación sin uso en el TS) -->
   <app-navbar></app-navbar>
 
 </div>
