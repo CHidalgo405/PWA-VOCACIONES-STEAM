@@ -609,3 +609,200 @@
     transform: translateY(0) scale(1);
   }
 }
+/* =========================================
+   MODO OSCURO (PREMIUM DARK THEME OVERRIDES)
+   ========================================= */
+:host-context(body.dark-theme) .profile-container,
+body.dark-theme .profile-container {
+  background-color: #0F172A;
+  transition: background-color 0.3s ease;
+
+  .identity-card, .chart-card, .badges-card, .settings-card {
+    background: #1E293B;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+    
+    h2, h3, .group-title {
+      color: #F8FAFC;
+    }
+  }
+
+  /* Identity card override */
+  .identity-card {
+    &::before {
+      background: linear-gradient(135deg, rgba(7, 177, 201, 0.25) 0%, rgba(77, 176, 70, 0.25) 100%);
+    }
+    
+    .avatar-wrapper img {
+      border-color: #1E293B;
+    }
+    
+    .avatar-wrapper .avatar-edit-btn {
+      background: #334155;
+      border-color: #1E293B;
+      
+      .edit-icon { filter: brightness(0) invert(1); }
+      &:hover {
+        background: #07B1C9;
+      }
+    }
+
+    .btn-edit {
+      background: #334155;
+      color: #F8FAFC;
+      &:hover {
+        background: #07B1C9;
+      }
+    }
+
+    .badges-mini-list {
+      border-top-color: #334155;
+      .badge-item {
+        background: #0F172A;
+      }
+    }
+  }
+
+  .chart-card h3 {
+    color: #F8FAFC;
+  }
+
+  .settings-group {
+    .settings-card {
+      background: #1E293B;
+    }
+  }
+
+  .setting-item {
+    border-bottom-color: #334155;
+    
+    .setting-left {
+      .setting-icon {
+        background: #334155;
+      }
+      .setting-title {
+        color: #F8FAFC;
+      }
+    }
+    
+    .setting-right {
+      .setting-value {
+        color: #94A3B8;
+      }
+    }
+    
+    .setting-arrow {
+      color: #475569;
+    }
+    
+    &:hover .setting-title {
+      color: #07B1C9;
+    }
+  }
+
+  .btn-logout-premium {
+    background: rgba(225, 29, 72, 0.1);
+    border-color: rgba(225, 29, 72, 0.2);
+    color: #ef4444; /* red-500 */
+    &:hover {
+      background: rgba(225, 29, 72, 0.2);
+    }
+    .icon {
+      filter: brightness(0) saturate(100%) invert(43%) sepia(85%) saturate(3015%) hue-rotate(337deg) brightness(97%) contrast(98%);
+    }
+  }
+
+  .switch .slider {
+    background-color: #475569;
+  }
+
+  /* Modificar dinámicamente íconos de color negro (text-dark) a blanco */
+  .lucide {
+    // Si tenían un color negro explicito via color="black" o "var(--text-dark)", lo forzamos a muy clarito
+    &[stroke="black"], &[stroke="var(--text-dark)"] {
+      stroke: #F8FAFC;
+    }
+  }
+
+  /* Modales en Dark Mode */
+  .modal-box {
+    background: #1E293B;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    
+    .modal-header {
+      background: #1E293B;
+      border-bottom-color: #334155;
+      h2 { color: #F8FAFC; }
+      .btn-close-modal { color: #94A3B8; &:hover { color: #F8FAFC; } }
+    }
+
+    .modal-body {
+      background: #1E293B;
+      p { color: #CBD5E1; }
+    }
+
+    .modal-footer {
+      background: #0F172A;
+      border-top-color: #334155;
+    }
+
+    .input-group {
+      label { color: #94A3B8; }
+      input { 
+        background: #0F172A; 
+        border-color: #334155; 
+        color: #F8FAFC; 
+        &:focus {
+           border-color: #07B1C9;
+           box-shadow: 0 0 0 4px rgba(7, 177, 201, 0.2);
+        }
+      }
+    }
+
+    .btn-secondary {
+      background: #334155;
+      border-color: #475569;
+      color: #F8FAFC;
+      &:hover:not(:disabled) {
+        background: #475569;
+        border-color: #64748B;
+        color: white;
+      }
+    }
+
+    /* Detalles en modales */
+    .settings-card { 
+      border-color: #334155 !important; 
+      background: #0F172A;
+    }
+
+    /* Caja de contacto en Ayuda */
+    div[style*="background: #F8FAFC"] {
+      background: #0F172A !important;
+      border-color: #334155 !important;
+      h3 { color: #F8FAFC !important; }
+      p { color: #CBD5E1 !important; }
+    }
+
+    /* Badge details en Dark Mode */
+    .badge-icon-giant {
+      background: #0F172A !important;
+    }
+    
+    .status-locked {
+      background: #334155 !important;
+      color: #94A3B8 !important;
+    }
+    .status-unlocked {
+      background: rgba(22, 101, 52, 0.3) !important;
+      color: #4ade80 !important;
+    }
+  }
+
+  .custom-alert-overlay {
+    .alert-box {
+      background: #1E293B;
+      h3 { color: #F8FAFC !important; }
+      p { color: #94A3B8 !important; }
+    }
+  }
+}

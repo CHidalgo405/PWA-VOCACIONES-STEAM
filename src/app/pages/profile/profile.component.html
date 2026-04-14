@@ -12,7 +12,7 @@
           </button>
           <input type="file" #fileInputHero (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
         </div>
-        <h2>{{ user.name }}</h2>
+        <h2>{{ user.name }}</h2><br>
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -5px; margin-bottom: 5px;">{{ user.email }}</p>
         <p class="user-title">{{ user.title }}</p>
         <button class="btn-edit">Editar Perfil</button>
@@ -94,7 +94,7 @@
 
       <button class="btn-logout-premium" (click)="logout()">
         <app-lucide-icon name="log-out" [size]="20" style="margin-right: 8px; margin-bottom: -4px;"></app-lucide-icon> Cerrar Sesión
-      </button> <br><br>
+      </button> <br>
 
     </div>
 

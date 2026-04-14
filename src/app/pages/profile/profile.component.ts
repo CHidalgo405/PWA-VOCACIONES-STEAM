@@ -7,6 +7,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
 @Component({
@@ -18,7 +19,12 @@ import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.co
 })
 export class ProfileComponent implements OnInit {
 
-  constructor(private router: Router, private authService: AuthService, private userService: UserService) { }
+  constructor(
+    private router: Router, 
+    private authService: AuthService, 
+    private userService: UserService,
+    private themeService: ThemeService
+  ) { }
 
   user = {
     name: 'Cargando...',
@@ -44,6 +50,35 @@ export class ProfileComponent implements OnInit {
         this.user.avatar = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&size=128`;
       }
     });
+
+    const themeSetting = this.preferencesSettings.find(s => s.action === 'theme');
+    if (themeSetting) {
+      themeSetting.toggleState = this.themeService.isDark();
+    }
+    this.updateChartTheme();
+  }
+
+  private updateChartTheme() {
+    const isDark = this.themeService.isDark();
+    const textColor = isDark ? '#E2E8F0' : '#2C3E50';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+    const angleLinesColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)';
+
+    this.radarChartOptions = {
+      ...this.radarChartOptions,
+      scales: {
+        r: {
+          angleLines: { color: angleLinesColor },
+          grid: { color: gridColor },
+          pointLabels: {
+            font: { size: 12, family: 'Poppins' },
+            color: textColor
+          },
+          suggestedMin: 0,
+          suggestedMax: 100
+        }
+      }
+    };
   }
 
   // --- CONFIGURACIÓN DEL GRÁFICO DE RADAR ---
@@ -144,8 +179,15 @@ export class ProfileComponent implements OnInit {
   }
 
   togglePreference(setting: any) {
-    setting.toggleState = !setting.toggleState;
-    this.showSuccessToast(`Ajuste guardado: ${setting.title}`);
+    if (setting.action === 'theme') {
+      this.themeService.toggleTheme();
+      setting.toggleState = this.themeService.isDark();
+      this.updateChartTheme();
+      this.showSuccessToast(`Modo ${setting.toggleState ? 'Oscuro' : 'Claro'} activado`);
+    } else {
+      setting.toggleState = !setting.toggleState;
+      this.showSuccessToast(`Ajuste guardado: ${setting.title}`);
+    }
   }
 
   logout() {

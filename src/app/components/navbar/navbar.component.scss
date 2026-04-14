@@ -105,3 +105,30 @@
     }
   }
 }
+
+/* =========================================
+   DARK THEME OVERRIDES PARA NAVBAR
+   ========================================= */
+:host-context(body.dark-theme) {
+  .nav-dock {
+    background: rgba(30, 41, 59, 0.85); /* Slate 800 con transparencia */
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .nav-item {
+    color: #64748B; /* Slate 500 */
+    
+    &:hover {
+      background-color: rgba(7, 177, 201, 0.1);
+    }
+
+    &.active {
+      color: #07B1C9;
+      .icon-box {
+        background-color: rgba(7, 177, 201, 0.2);
+        box-shadow: 0 4px 10px rgba(7, 177, 201, 0.3);
+      }
+    }
+  }
+}
