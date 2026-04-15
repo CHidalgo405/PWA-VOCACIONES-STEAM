@@ -1,9 +1,10 @@
 /* --- PREMIUM PROFILE STYLES --- */
 .profile-container {
   min-height: 100vh;
-  background-color: #F8FAFC;
+  background-color: var(--bg-canvas);
   padding: 20px 20px 100px 20px;
   font-family: 'Poppins', sans-serif;
+  transition: background-color 0.35s ease;
 }
 
 /* --- GRID LAYOUT RESPONSIVE --- */
@@ -49,11 +50,11 @@
 .chart-card,
 .badges-card,
 .settings-card {
-  background: #ffffff;
+  background: var(--bg-surface);
   border-radius: 28px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-md);
   padding: 30px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.35s ease;
 }
 
 /* 1. Identidad Hero */
@@ -91,17 +92,18 @@
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      border: 5px solid white;
+      border: 5px solid var(--bg-surface);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
       object-fit: cover;
+      transition: border-color 0.35s ease;
     }
 
     .avatar-edit-btn {
       position: absolute;
       bottom: 5px;
       right: 5px;
-      background: white;
-      border: 3px solid #F8FAFC;
+      background: var(--bg-surface);
+      border: 3px solid var(--bg-canvas);
       border-radius: 50%;
       width: 40px;
       height: 40px;
@@ -132,23 +134,24 @@
   h2 {
     margin: 5px 0 2px 0;
     font-size: 1.6rem;
-    color: #1E293B;
+    color: var(--text-primary);
     font-weight: 800;
+    transition: color 0.35s ease;
   }
 
   .user-title {
-    color: #07B1C9;
+    color: var(--accent-primary);
     font-weight: 600;
     margin: 0 0 24px 0;
     font-size: 0.95rem;
   }
 
   .btn-edit {
-    background: #F1F5F9;
+    background: var(--bg-elevated);
     border: none;
     padding: 10px 24px;
     border-radius: 20px;
-    color: #475569;
+    color: var(--text-secondary);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
@@ -168,12 +171,12 @@
     gap: 12px;
     margin-top: 30px;
     padding-top: 25px;
-    border-top: 1px solid #F1F5F9;
+    border-top: 1px solid var(--border-light);
     width: 100%;
     justify-content: center;
 
     .badge-item {
-      background: #F8FAFC;
+      background: var(--bg-canvas);
       width: 44px;
       height: 44px;
       border-radius: 50%;
@@ -182,6 +185,7 @@
       justify-content: center;
       font-size: 1.4rem;
       box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+      transition: background-color 0.35s ease;
 
       &.locked {
         opacity: 0.4;
@@ -200,10 +204,11 @@
 
   h3 {
     margin-top: 0;
-    color: #1E293B;
+    color: var(--text-primary);
     font-weight: 700;
     font-size: 1.2rem;
     margin-bottom: 20px;
+    transition: color 0.35s ease;
   }
 
   .chart-wrapper {
@@ -221,18 +226,20 @@
 .settings-group {
   .group-title {
     font-size: 1.1rem;
-    color: #64748B;
+    color: var(--text-secondary);
     margin: 0 0 12px 18px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    transition: color 0.35s ease;
   }
 
   .settings-card {
     padding: 10px 20px;
-    background: #ffffff;
+    background: var(--bg-surface);
     border-radius: 28px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.35s ease, box-shadow 0.35s ease;
   }
 }
 
@@ -242,9 +249,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 18px 5px;
-  border-bottom: 1px solid #F1F5F9;
+  border-bottom: 1px solid var(--border-light);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, border-color 0.35s ease;
 
   &:last-child {
     border-bottom: none;
@@ -267,20 +274,20 @@
 
     .setting-icon {
       font-size: 1.3rem;
-      background: #F8FAFC;
+      background: var(--bg-canvas);
       width: 40px;
       height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 12px;
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.35s ease;
     }
 
     .setting-title {
       font-size: 1.05rem;
       font-weight: 500;
-      color: #1E293B;
+      color: var(--text-primary);
       transition: color 0.2s;
     }
   }
@@ -291,14 +298,14 @@
     gap: 12px;
 
     .setting-value {
-      color: #94A3B8;
+      color: var(--text-muted);
       font-size: 0.95rem;
       font-weight: 500;
     }
   }
 
   .setting-arrow {
-    color: #CBD5E1;
+    color: var(--text-muted);
     font-size: 1.8rem;
     line-height: 1;
     font-weight: 300;
@@ -408,7 +415,7 @@
 }
 
 .modal-box {
-  background: #ffffff;
+  background: var(--bg-surface);
   width: 90%;
   max-width: 500px;
   border-radius: 24px;
@@ -417,20 +424,22 @@
   flex-direction: column;
   overflow: hidden;
   animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.35s ease;
 }
 
 .modal-header {
   padding: 24px 30px;
-  border-bottom: 1px solid #F1F5F9;
+  border-bottom: 1px solid var(--border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #ffffff;
+  background: var(--bg-surface);
+  transition: background-color 0.35s ease, border-color 0.35s ease;
 
   h2 {
     margin: 0;
     font-size: 1.4rem;
-    color: #1E293B;
+    color: var(--text-primary);
     font-weight: 700;
   }
 
@@ -438,33 +447,39 @@
     background: transparent;
     border: none;
     font-size: 1.5rem;
-    color: #94A3B8;
+    color: var(--text-muted);
     cursor: pointer;
     transition: color 0.2s;
     padding: 0;
     line-height: 1;
 
     &:hover {
-      color: #0F172A;
+      color: var(--text-primary);
     }
   }
 }
 
 .modal-body {
   padding: 24px 30px;
-  background: #ffffff;
+  background: var(--bg-surface);
   flex: 1;
   overflow-y: auto;
   max-height: 70vh;
+  transition: background-color 0.35s ease;
+
+  p {
+    color: var(--text-secondary);
+  }
 }
 
 .modal-footer {
   padding: 20px 30px;
-  background: #F8FAFC;
-  border-top: 1px solid #F1F5F9;
+  background: var(--bg-canvas);
+  border-top: 1px solid var(--border-light);
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  transition: background-color 0.35s ease, border-color 0.35s ease;
 }
 
 /* Formularios dentro de los Modales */
@@ -488,7 +503,7 @@
 
   label {
     font-size: 0.85rem;
-    color: #475569;
+    color: var(--text-secondary);
     margin-bottom: 8px;
     font-weight: 600;
   }
@@ -496,18 +511,18 @@
   input {
     width: 100%;
     padding: 12px 16px;
-    border: 1px solid #CBD5E1;
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     font-size: 1rem;
-    color: #1E293B;
-    background: #ffffff;
+    color: var(--text-primary);
+    background: var(--bg-surface);
     transition: all 0.3s ease;
     box-sizing: border-box;
     font-family: inherit;
 
     &:focus {
       border-color: #07B1C9;
-      box-shadow: 0 0 0 4px rgba(7, 177, 201, 0.1);
+      box-shadow: 0 0 0 4px rgba(7, 177, 201, 0.15);
       outline: none;
     }
   }
@@ -538,9 +553,9 @@
 }
 
 .btn-secondary {
-  background: #ffffff;
-  color: #475569;
-  border: 1px solid #CBD5E1;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
   padding: 12px 24px;
   border-radius: 12px;
   font-weight: 600;
@@ -549,9 +564,9 @@
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: #F8FAFC;
-    color: #1E293B;
-    border-color: #94A3B8;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border-color: var(--text-muted);
   }
 }
 
@@ -571,7 +586,7 @@
   animation: fadeIn 0.2s ease-out;
 
   .alert-box {
-    background: white;
+    background: var(--bg-surface);
     width: 90%;
     max-width: 400px;
     border-radius: 20px;
@@ -584,6 +599,15 @@
     flex-direction: column;
     align-items: center;
     gap: 12px;
+    transition: background-color 0.35s ease;
+
+    h3 {
+      color: var(--text-primary);
+    }
+
+    p {
+      color: var(--text-secondary);
+    }
 
     .alert-icon {
       font-size: 3rem;
@@ -609,105 +633,25 @@
     transform: translateY(0) scale(1);
   }
 }
+
 /* =========================================
-   MODO OSCURO (PREMIUM DARK THEME OVERRIDES)
+   MODO OSCURO (DARK THEME OVERRIDES)
    ========================================= */
 :host-context(body.dark-theme) .profile-container,
 body.dark-theme .profile-container {
-  background-color: #0F172A;
-  transition: background-color 0.3s ease;
 
-  .identity-card, .chart-card, .badges-card, .settings-card {
-    background: #1E293B;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
-    
-    h2, h3, .group-title {
-      color: #F8FAFC;
-    }
-  }
-
-  /* Identity card override */
   .identity-card {
     &::before {
       background: linear-gradient(135deg, rgba(7, 177, 201, 0.25) 0%, rgba(77, 176, 70, 0.25) 100%);
-    }
-    
-    .avatar-wrapper img {
-      border-color: #1E293B;
-    }
-    
-    .avatar-wrapper .avatar-edit-btn {
-      background: #334155;
-      border-color: #1E293B;
-      
-      .edit-icon { filter: brightness(0) invert(1); }
-      &:hover {
-        background: #07B1C9;
-      }
-    }
-
-    .btn-edit {
-      background: #334155;
-      color: #F8FAFC;
-      &:hover {
-        background: #07B1C9;
-      }
-    }
-
-    .badges-mini-list {
-      border-top-color: #334155;
-      .badge-item {
-        background: #0F172A;
-      }
-    }
-  }
-
-  .chart-card h3 {
-    color: #F8FAFC;
-  }
-
-  .settings-group {
-    .settings-card {
-      background: #1E293B;
-    }
-  }
-
-  .setting-item {
-    border-bottom-color: #334155;
-    
-    .setting-left {
-      .setting-icon {
-        background: #334155;
-      }
-      .setting-title {
-        color: #F8FAFC;
-      }
-    }
-    
-    .setting-right {
-      .setting-value {
-        color: #94A3B8;
-      }
-    }
-    
-    .setting-arrow {
-      color: #475569;
-    }
-    
-    &:hover .setting-title {
-      color: #07B1C9;
     }
   }
 
   .btn-logout-premium {
     background: rgba(225, 29, 72, 0.1);
     border-color: rgba(225, 29, 72, 0.2);
-    color: #ef4444; /* red-500 */
+    color: #ef4444;
     &:hover {
       background: rgba(225, 29, 72, 0.2);
-    }
-    .icon {
-      filter: brightness(0) saturate(100%) invert(43%) sepia(85%) saturate(3015%) hue-rotate(337deg) brightness(97%) contrast(98%);
     }
   }
 
@@ -715,94 +659,37 @@ body.dark-theme .profile-container {
     background-color: #475569;
   }
 
-  /* Modificar dinámicamente íconos de color negro (text-dark) a blanco */
-  .lucide {
-    // Si tenían un color negro explicito via color="black" o "var(--text-dark)", lo forzamos a muy clarito
-    &[stroke="black"], &[stroke="var(--text-dark)"] {
-      stroke: #F8FAFC;
-    }
-  }
-
-  /* Modales en Dark Mode */
+  /* Modales — ayuda box dark override */
   .modal-box {
-    background: #1E293B;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    
-    .modal-header {
-      background: #1E293B;
-      border-bottom-color: #334155;
-      h2 { color: #F8FAFC; }
-      .btn-close-modal { color: #94A3B8; &:hover { color: #F8FAFC; } }
+    .input-group input {
+      background: var(--bg-canvas);
     }
 
-    .modal-body {
-      background: #1E293B;
-      p { color: #CBD5E1; }
-    }
-
-    .modal-footer {
-      background: #0F172A;
-      border-top-color: #334155;
-    }
-
-    .input-group {
-      label { color: #94A3B8; }
-      input { 
-        background: #0F172A; 
-        border-color: #334155; 
-        color: #F8FAFC; 
-        &:focus {
-           border-color: #07B1C9;
-           box-shadow: 0 0 0 4px rgba(7, 177, 201, 0.2);
-        }
-      }
-    }
-
-    .btn-secondary {
-      background: #334155;
-      border-color: #475569;
-      color: #F8FAFC;
-      &:hover:not(:disabled) {
-        background: #475569;
-        border-color: #64748B;
-        color: white;
-      }
-    }
-
-    /* Detalles en modales */
     .settings-card { 
-      border-color: #334155 !important; 
-      background: #0F172A;
+      border-color: var(--border-color) !important; 
+      background: var(--bg-canvas);
     }
 
     /* Caja de contacto en Ayuda */
     div[style*="background: #F8FAFC"] {
-      background: #0F172A !important;
-      border-color: #334155 !important;
-      h3 { color: #F8FAFC !important; }
-      p { color: #CBD5E1 !important; }
+      background: var(--bg-canvas) !important;
+      border-color: var(--border-color) !important;
+      h3 { color: var(--text-primary) !important; }
+      p { color: var(--text-secondary) !important; }
     }
 
     /* Badge details en Dark Mode */
     .badge-icon-giant {
-      background: #0F172A !important;
+      background: var(--bg-canvas) !important;
     }
     
     .status-locked {
-      background: #334155 !important;
-      color: #94A3B8 !important;
+      background: var(--bg-elevated) !important;
+      color: var(--text-muted) !important;
     }
     .status-unlocked {
       background: rgba(22, 101, 52, 0.3) !important;
       color: #4ade80 !important;
-    }
-  }
-
-  .custom-alert-overlay {
-    .alert-box {
-      background: #1E293B;
-      h3 { color: #F8FAFC !important; }
-      p { color: #94A3B8 !important; }
     }
   }
 }

@@ -19,10 +19,11 @@
 /* El cuerpo del menú (La barra blanca) */
 .nav-dock {
   pointer-events: auto; /* Reactivamos los clicks dentro del menú */
-  background: rgba(255, 255, 255, 0.85); /* Semitransparente */
+  background: var(--bg-glass, rgba(255, 255, 255, 0.85)); /* Semitransparente */
   backdrop-filter: blur(15px); /* Efecto cristal (Glassmorphism) */
   box-shadow: 0 -5px 20px rgba(0,0,0,0.05), 0 5px 15px rgba(0,0,0,0.05); /* Sombra suave arriba y abajo */
-  border-top: 1px solid rgba(255,255,255,0.5);
+  border-top: 1px solid var(--border-light, rgba(255,255,255,0.5));
+  transition: background-color 0.35s ease, border-color 0.35s ease;
   
   /* DISEÑO MÓVIL (Por defecto) */
   width: 100%;
@@ -40,7 +41,7 @@
     border-radius: 40px; /* Cápsula completa */
     padding: 0 20px;
     gap: 40px; /* Más espacio entre iconos */
-    border: 1px solid rgba(255,255,255,0.4);
+    border: 1px solid var(--border-light, rgba(255,255,255,0.4));
     box-shadow: 0 10px 40px rgba(0,0,0,0.1); /* Sombra más fuerte para que flote */
   }
 }
@@ -107,28 +108,16 @@
 }
 
 /* =========================================
-   DARK THEME OVERRIDES PARA NAVBAR
+   DARK MODE — NAVBAR
    ========================================= */
 :host-context(body.dark-theme) {
   .nav-dock {
-    background: rgba(30, 41, 59, 0.85); /* Slate 800 con transparencia */
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  }
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.2), 0 5px 15px rgba(0,0,0,0.15);
+    border-top-color: rgba(55, 65, 81, 0.5);
 
-  .nav-item {
-    color: #64748B; /* Slate 500 */
-    
-    &:hover {
-      background-color: rgba(7, 177, 201, 0.1);
-    }
-
-    &.active {
-      color: #07B1C9;
-      .icon-box {
-        background-color: rgba(7, 177, 201, 0.2);
-        box-shadow: 0 4px 10px rgba(7, 177, 201, 0.3);
-      }
+    @media (min-width: 1024px) {
+      border-color: rgba(55, 65, 81, 0.5);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
   }
 }

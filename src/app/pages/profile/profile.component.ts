@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -17,11 +18,13 @@ import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.co
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
+
+  private themeSub!: Subscription;
 
   constructor(
-    private router: Router, 
-    private authService: AuthService, 
+    private router: Router,
+    private authService: AuthService,
     private userService: UserService,
     private themeService: ThemeService
   ) { }
@@ -36,6 +39,20 @@ export class ProfileComponent implements OnInit {
   };
 
   ngOnInit() {
+    // Sync theme toggle state from ThemeService
+    const themeSetting = this.preferencesSettings.find(s => s.action === 'theme');
+    if (themeSetting) {
+      themeSetting.toggleState = this.themeService.isDark;
+    }
+
+    // Subscribe to theme changes and update radar chart dynamically
+    this.themeSub = this.themeService.isDarkMode$.subscribe(isDark => {
+      this.updateRadarForTheme(isDark);
+      // Keep toggle in sync if changed externally
+      const ts = this.preferencesSettings.find(s => s.action === 'theme');
+      if (ts) ts.toggleState = isDark;
+    });
+
     this.authService.obtenerPerfil().subscribe(usuario => {
       this.user.name = usuario.nombre;
       this.user.email = usuario.email;
@@ -50,29 +67,29 @@ export class ProfileComponent implements OnInit {
         this.user.avatar = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&size=128`;
       }
     });
-
-    const themeSetting = this.preferencesSettings.find(s => s.action === 'theme');
-    if (themeSetting) {
-      themeSetting.toggleState = this.themeService.isDark();
-    }
-    this.updateChartTheme();
   }
 
-  private updateChartTheme() {
-    const isDark = this.themeService.isDark();
-    const textColor = isDark ? '#E2E8F0' : '#2C3E50';
-    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
-    const angleLinesColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)';
+  ngOnDestroy() {
+    if (this.themeSub) {
+      this.themeSub.unsubscribe();
+    }
+  }
 
+  /** Update radar chart colors based on the active theme */
+  private updateRadarForTheme(isDark: boolean): void {
     this.radarChartOptions = {
       ...this.radarChartOptions,
       scales: {
         r: {
-          angleLines: { color: angleLinesColor },
-          grid: { color: gridColor },
+          angleLines: { color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+          grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
           pointLabels: {
             font: { size: 12, family: 'Poppins' },
-            color: textColor
+            color: isDark ? '#F9FAFB' : '#2C3E50'
+          },
+          ticks: {
+            backdropColor: isDark ? '#1F2937' : '#FFFFFF',
+            color: isDark ? '#9CA3AF' : '#64748B'
           },
           suggestedMin: 0,
           suggestedMax: 100
@@ -181,9 +198,8 @@ export class ProfileComponent implements OnInit {
   togglePreference(setting: any) {
     if (setting.action === 'theme') {
       this.themeService.toggleTheme();
-      setting.toggleState = this.themeService.isDark();
-      this.updateChartTheme();
-      this.showSuccessToast(`Modo ${setting.toggleState ? 'Oscuro' : 'Claro'} activado`);
+      setting.toggleState = this.themeService.isDark;
+      this.showSuccessToast(this.themeService.isDark ? 'Modo oscuro activado' : 'Modo claro activado');
     } else {
       setting.toggleState = !setting.toggleState;
       this.showSuccessToast(`Ajuste guardado: ${setting.title}`);

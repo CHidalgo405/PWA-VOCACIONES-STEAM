@@ -1,30 +1,93 @@
 /* src/styles.scss */
+
+/* =========================================
+   DESIGN TOKENS — LIGHT MODE (Default)
+   ========================================= */
 :root {
+  /* Brand colors (immutable) */
   --steam-blue: #07B1C9;
   --steam-orange: #F88718;
   --steam-green: #4DB046;
   --steam-red: #E8372D;
-  
-  --dark-btn: #1a1a1a; /* Negro suave como la referencia */
+
+  /* Semantic palette — Light */
+  --bg-canvas: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F1F5F9;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+
+  --text-primary: #1E293B;
+  --text-secondary: #64748B;
+  --text-muted: #9CA3AF;
+
+  --border-color: #E2E8F0;
+  --border-light: #F1F5F9;
+  --divider: #E2E8F0;
+
+  --accent-primary: #07B1C9;
+  --accent-secondary: #07B1C9;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 40px -10px rgba(7, 177, 201, 0.1);
+
+  /* Legacy aliases (kept for backward compat) */
+  --dark-btn: #1a1a1a;
   --text-main: #222222;
   --text-light: #888888;
   --white: #ffffff;
   --bg-app: #fdfdfd;
+  --text-dark: #1E293B;
+  --bg-light: #F4F6F8;
+  --primary-color: #07B1C9;
+  --card-bg: #FFFFFF;
 }
 
+/* =========================================
+   DESIGN TOKENS — DARK MODE
+   ========================================= */
+body.dark-theme {
+  --bg-canvas: #111827;
+  --bg-surface: #1F2937;
+  --bg-elevated: #374151;
+  --bg-glass: rgba(31, 41, 55, 0.85);
+
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+
+  --border-color: #374151;
+  --border-light: #374151;
+  --divider: #374151;
+
+  --accent-primary: #07B1C9;
+  --accent-secondary: #3BC9DF;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 20px 40px -10px rgba(0, 0, 0, 0.4);
+
+  /* Legacy alias overrides */
+  --dark-btn: #F9FAFB;
+  --text-main: #F9FAFB;
+  --text-light: #9CA3AF;
+  --white: #1F2937;
+  --bg-app: #111827;
+  --text-dark: #F9FAFB;
+  --bg-light: #1F2937;
+  --primary-color: #07B1C9;
+  --card-bg: #1F2937;
+}
+
+/* =========================================
+   GLOBAL BASE STYLES
+   ========================================= */
 body {
   margin: 0;
-  font-family: 'Poppins', 'Segoe UI', sans-serif; /* Recomiendo importar Poppins de Google Fonts si puedes */
-  background-color: var(--bg-app);
-  color: var(--text-main);
-  transition: background-color 0.4s ease, color 0.4s ease;
-}
-
-body.dark-theme {
-  --bg-app: #0F172A; /* Fondo Dark Global */
-  --text-main: #F8FAFC;
-  --text-light: #94A3B8;
-  --bg-light: #1E293B;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 /* Animación de flotar para las imágenes */

@@ -185,3 +185,32 @@ $white: #FFFFFF;
   }
 }
 
+/* =========================================
+   DARK MODE — TOAST
+   ========================================= */
+body.dark-theme {
+  .toast-card {
+    background: #1F2937;
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.4),
+      0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .toast-title {
+    color: #F9FAFB;
+  }
+
+  .toast-message {
+    color: #9CA3AF;
+  }
+
+  .toast-icon-circle {
+    border-color: #1F2937;
+  }
+
+  .toast-close-btn {
+    color: #6B7280;
+    &:hover { color: #F9FAFB; }
+  }
+}

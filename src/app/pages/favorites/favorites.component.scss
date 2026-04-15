@@ -1,16 +1,16 @@
 :host {
-  --primary: #07B1C9;
+  --primary: var(--accent-primary, #07B1C9);
   --primary-soft: rgba(7, 177, 201, 0.1);
-  --bg-app: #F8FAFC;
-  --card-bg: #FFFFFF;
-  --text-main: #0F172A;
-  --text-secondary: #64748B;
-  --text-muted: #94A3B8;
-  --border-light: #F1F5F9;
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 20px 40px -10px rgba(7, 177, 201, 0.1);
+  --bg-app: var(--bg-canvas, #F8FAFC);
+  --card-bg: var(--bg-surface, #FFFFFF);
+  --text-main: var(--text-primary, #0F172A);
+  --text-secondary: var(--text-secondary, #64748B);
+  --text-muted: var(--text-muted, #94A3B8);
+  --border-light: var(--border-light, #F1F5F9);
+  --glass-bg: var(--bg-glass, rgba(255, 255, 255, 0.85));
+  --shadow-sm: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04));
+  --shadow-md: var(--shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05));
+  --shadow-lg: var(--shadow-lg, 0 20px 40px -10px rgba(7, 177, 201, 0.1));
 }
 
 .favorites-container {
@@ -539,4 +539,71 @@
         .skele-title { height: 1.25rem; width: 90%; border-radius: 4px; margin-bottom: 0.5rem; }
         .skele-meta { height: 0.75rem; width: 40%; border-radius: 4px; }
     }
+}
+
+/* =========================================
+   DARK MODE — FAVORITES
+   ========================================= */
+:host-context(body.dark-theme) {
+  /* --- Header & Navigation --- */
+  .premium-header {
+    .navigation-tabs .tabs-pill {
+      background: var(--bg-elevated, #374151);
+      .pill-slider {
+        background: var(--bg-surface);
+      }
+    }
+  }
+
+  /* --- University Cards --- */
+  .university-premium-card {
+    background: var(--card-bg);
+    border-color: rgba(255, 255, 255, 0.03);
+
+    .card-media {
+      .card-badges .badge-rating {
+        background: rgba(31, 41, 55, 0.9);
+        color: var(--text-main);
+      }
+      .btn-fav-float.active {
+        background: var(--bg-surface);
+      }
+      .logo-overlap {
+        background: var(--bg-surface);
+        border-color: var(--bg-surface);
+      }
+    }
+
+    .card-info {
+      .tags-cloud .mini-tag {
+        background: var(--bg-elevated, #374151);
+        border-color: var(--border-light);
+        color: var(--text-secondary);
+      }
+      .card-footer {
+        border-top-color: var(--border-light);
+      }
+    }
+  }
+
+  /* --- Course Cards --- */
+  .course-premium-card {
+    background: var(--card-bg);
+    border-color: rgba(255, 255, 255, 0.03);
+
+    .course-thumb .btn-fav-mini {
+      background: var(--bg-elevated, #374151);
+      color: var(--text-muted);
+    }
+  }
+
+  /* --- Skeletons --- */
+  .shimmer {
+    background: var(--bg-elevated, #374151);
+    background-image: linear-gradient(90deg, #374151 0%, #4B5563 50%, #374151 100%);
+  }
+  .uni-card-skeleton,
+  .course-card-skeleton {
+    background: var(--card-bg);
+  }
 }

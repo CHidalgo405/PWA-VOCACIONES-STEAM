@@ -1,18 +1,19 @@
 :host {
-  --primary: #07B1C9;
+  --primary: var(--accent-primary, #07B1C9);
   --primary-soft: rgba(7, 177, 201, 0.1);
   --primary-glow: rgba(7, 177, 201, 0.3);
-  --bg-app: #F8FAFC;
-  --card-bg: #FFFFFF;
-  --text-main: #0F172A;
-  --text-secondary: #64748B;
-  --text-muted: #94A3B8;
-  --border-light: #F1F5F9;
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 20px 40px -10px rgba(7, 177, 201, 0.1);
+  --bg-app: var(--bg-canvas, #F8FAFC);
+  --card-bg: var(--bg-surface, #FFFFFF);
+  --text-main: var(--text-primary, #0F172A);
+  --text-secondary: var(--text-secondary, #64748B);
+  --text-muted: var(--text-muted, #94A3B8);
+  --border-light: var(--border-light, #F1F5F9);
+  --glass-bg: var(--bg-glass, rgba(255, 255, 255, 0.85));
+  --shadow-sm: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04));
+  --shadow-md: var(--shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05));
+  --shadow-lg: var(--shadow-lg, 0 20px 40px -10px rgba(7, 177, 201, 0.1));
 }
+
 
 .explore-container {
   min-height: 100vh;
@@ -928,4 +929,155 @@
             &:active { transform: scale(0.98); }
         }
     }
+}
+
+/* =========================================
+   DARK MODE — EXPLORE
+   ========================================= */
+:host-context(body.dark-theme) {
+  /* --- Header & Navigation --- */
+  .premium-header {
+    .search-section .search-bar-premium {
+      input {
+        background: var(--bg-surface);
+        color: var(--text-main);
+        &:focus {
+          background: var(--bg-surface);
+        }
+      }
+      .filter-trigger {
+        background: var(--bg-elevated, #374151);
+        color: var(--text-muted);
+      }
+    }
+
+    .navigation-tabs .tabs-pill {
+      background: var(--bg-elevated, #374151);
+      .pill-slider {
+        background: var(--bg-surface);
+      }
+    }
+
+    .quick-filters .filters-track .filter-chip-premium {
+      border-color: var(--border-light);
+      color: var(--text-secondary);
+      &:hover {
+        background: var(--bg-surface);
+      }
+    }
+  }
+
+  /* --- University Cards --- */
+  .university-premium-card {
+    background: var(--card-bg);
+    border-color: rgba(255, 255, 255, 0.03);
+
+    .card-media {
+      .card-badges .badge-rating {
+        background: rgba(31, 41, 55, 0.9);
+        color: var(--text-main);
+      }
+      .logo-overlap {
+        background: var(--bg-surface);
+        border-color: var(--bg-surface);
+      }
+    }
+
+    .card-info {
+      .tags-cloud .mini-tag {
+        background: var(--bg-elevated, #374151);
+        border-color: var(--border-light);
+        color: var(--text-secondary);
+      }
+      .card-footer {
+        border-top-color: var(--border-light);
+      }
+    }
+  }
+
+  /* --- Course Cards --- */
+  .course-premium-card {
+    background: var(--card-bg);
+    border-color: rgba(255, 255, 255, 0.03);
+
+    .course-thumb .btn-fav-mini {
+      background: var(--bg-elevated, #374151);
+      color: var(--text-muted);
+    }
+
+    .course-details .details-bottom .price-chip {
+      background: var(--bg-elevated, #374151);
+      color: var(--text-secondary);
+      &.is-free {
+        background: rgba(5, 150, 105, 0.15);
+        color: #34D399;
+      }
+    }
+  }
+
+  /* --- Skeletons --- */
+  .shimmer {
+    background: var(--bg-elevated, #374151);
+    background-image: linear-gradient(90deg, #374151 0%, #4B5563 50%, #374151 100%);
+  }
+  .uni-card-skeleton,
+  .course-card-skeleton {
+    background: var(--card-bg);
+  }
+
+  /* --- Modal --- */
+  .premium-modal-card {
+    background: var(--bg-surface);
+
+    .modal-banner .banner-mask {
+      background: linear-gradient(to top, var(--bg-surface) 0%, transparent 100%);
+    }
+
+    .modal-content-scroll {
+      .modal-main-info {
+        .info-chips-row .info-chip {
+          background: var(--bg-elevated, #374151);
+          color: var(--text-secondary);
+          &.highlight {
+            background: rgba(5, 150, 105, 0.15);
+            color: #34D399;
+          }
+        }
+        .uni-brand .uni-avatar {
+          background: var(--bg-elevated, #374151);
+        }
+      }
+      .modal-details-grid .detail-tile {
+        background: var(--bg-canvas);
+        .tile-icon {
+          background: var(--bg-surface);
+        }
+      }
+      .curriculum-track .curriculum-lesson {
+        background: var(--bg-canvas);
+        .lesson-num {
+          background: var(--bg-surface);
+        }
+      }
+    }
+
+    .modal-footer-sticky {
+      background: var(--bg-surface);
+      border-top-color: var(--border-light);
+      .btn-fav-large {
+        border-color: var(--border-light);
+        color: var(--text-muted);
+      }
+    }
+  }
+
+  /* --- Empty State --- */
+  .premium-empty-state .btn-reset {
+    border-color: var(--primary);
+    color: var(--primary);
+    &:hover {
+      background: var(--primary);
+      color: white;
+    }
+  }
 }
