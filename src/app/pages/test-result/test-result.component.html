@@ -1,44 +1,429 @@
 <div class="result-container">
 
-    <!-- VIEW 1: Profile Result & AI Search -->
+    <!-- ============================================================
+         VIEW 1: PROFILE RESULT & AI SEARCH
+         ============================================================ -->
     <div class="view-profile" *ngIf="viewState === 'result'">
 
-        <div class="celebration-header">
-            <div class="confetti-icon" style="color: var(--steam-orange); margin-bottom: 10px;">
-                <app-lucide-icon name="party-popper" [size]="40"></app-lucide-icon>
+        <!-- ══════════════════════════════════════════════
+             HERO SECTION — GREETING + RING CHART
+             ══════════════════════════════════════════════ -->
+        <section class="hero-section fade-in-up">
+
+            <!-- Decorative background orbs -->
+            <div class="hero-orb orb-tl"></div>
+            <div class="hero-orb orb-br"></div>
+
+            <!-- ── Greeting & Verdict ── -->
+            <div class="hero-header">
+                <div class="greeting-chip">
+                    <app-lucide-icon name="sparkles" [size]="14" color="#07B1C9"
+                        style="margin-right:5px;margin-bottom:-2px;">
+                    </app-lucide-icon>
+                    {{ userProfile.greeting }}
+                </div>
+                <h1 class="hero-verdict">
+                    ¡Perfil
+                    <span class="verdict-gradient">
+                        {{ userProfile.dominantTraits || 'STEAM' }}
+                    </span>!
+                </h1>
+                <p class="hero-subtitle">
+                    Descubrimos las áreas donde tu potencial brilla más.
+                </p>
             </div>
-            <h1 class="result-title">¡Descubrimos tu Vocación!</h1>
-            <p class="result-subtitle">Tu perfil dominante es:</p>
-            <h2 class="profile-highlight">{{ userProfile.dominantTraits }}</h2>
-        </div>
 
-        <div class="glass-card profile-desc-card">
-            <p>{{ userProfile.description }}</p>
-        </div>
+            <!-- ── Glassmorphism Chart Card ── -->
+            <div class="chart-glass-card">
 
+                <!-- SVG Ring chart -->
+                <div class="rings-wrapper">
+                    <svg class="rings-svg"
+                         viewBox="0 0 180 180"
+                         width="200" height="200"
+                         xmlns="http://www.w3.org/2000/svg"
+                         overflow="visible">
+
+                        <!-- Gradient definitions -->
+                        <defs>
+                            <!-- Ring 0 — dominant -->
+                            <linearGradient id="grad0" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%"   [attr.stop-color]="areaGradientStart(0)" />
+                                <stop offset="100%" [attr.stop-color]="areaGradientEnd(0)" />
+                            </linearGradient>
+                            <!-- Ring 1 — secondary -->
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%"   [attr.stop-color]="areaGradientStart(1)" />
+                                <stop offset="100%" [attr.stop-color]="areaGradientEnd(1)" />
+                            </linearGradient>
+                            <!-- Ring 2 — tertiary -->
+                            <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%"   [attr.stop-color]="areaGradientStart(2)" />
+                                <stop offset="100%" [attr.stop-color]="areaGradientEnd(2)" />
+                            </linearGradient>
+
+                            <!-- Glow filter -->
+                            <filter id="ringGlow" x="-30%" y="-30%" width="160%" height="160%">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+
+                        <!-- Track rings (background grey) -->
+                        <circle cx="90" cy="90" r="72" fill="none"
+                                class="ring-track" stroke-width="14"/>
+                        <circle cx="90" cy="90" r="52" fill="none"
+                                class="ring-track" stroke-width="12"/>
+                        <circle cx="90" cy="90" r="34" fill="none"
+                                class="ring-track" stroke-width="10"/>
+
+                        <!-- ── RING 0: Dominant ── -->
+                        <circle cx="90" cy="90" r="72"
+                                fill="none"
+                                stroke="url(#grad0)"
+                                stroke-width="14"
+                                stroke-linecap="round"
+                                [attr.stroke-dasharray]="dashArray(0)"
+                                [attr.stroke-dashoffset]="dashOffset(0)"
+                                class="ring-arc ring-0"
+                                filter="url(#ringGlow)"
+                                transform="rotate(-90 90 90)"/>
+
+                        <!-- ── RING 1: Secondary ── -->
+                        <circle cx="90" cy="90" r="52"
+                                fill="none"
+                                stroke="url(#grad1)"
+                                stroke-width="12"
+                                stroke-linecap="round"
+                                [attr.stroke-dasharray]="dashArray(1)"
+                                [attr.stroke-dashoffset]="dashOffset(1)"
+                                class="ring-arc ring-1"
+                                transform="rotate(-90 90 90)"/>
+
+                        <!-- ── RING 2: Tertiary ── -->
+                        <circle cx="90" cy="90" r="34"
+                                fill="none"
+                                stroke="url(#grad2)"
+                                stroke-width="10"
+                                stroke-linecap="round"
+                                [attr.stroke-dasharray]="dashArray(2)"
+                                [attr.stroke-dashoffset]="dashOffset(2)"
+                                class="ring-arc ring-2"
+                                transform="rotate(-90 90 90)"/>
+
+                    </svg>
+
+                    <!-- Centre overlay: Global Affinity % -->
+                    <div class="rings-centre">
+                        <span class="affinity-pct">{{ globalAffinityPct }}<span class="pct-symbol">%</span></span>
+                        <span class="affinity-label">Afinidad<br>Global STEAM</span>
+                    </div>
+                </div>
+
+                <!-- ── Top-3 area legends ── -->
+                <div class="area-legends">
+                    <div class="legend-item"
+                         *ngFor="let area of topThree; let i = index"
+                         [class.legend-dominant]="i === 0">
+                        <div class="legend-icon-wrap"
+                             [style.background]="'linear-gradient(135deg,' + area.gradientStart + ',' + area.gradientEnd + ')'">
+                            <app-lucide-icon [name]="area.icon" [size]="16" color="white"></app-lucide-icon>
+                        </div>
+                        <div class="legend-info">
+                            <span class="legend-rank">{{ i === 0 ? 'Dominante' : (i === 1 ? 'Secundaria' : 'Terciaria') }}</span>
+                            <span class="legend-name">{{ area.label }}</span>
+                        </div>
+                        <div class="legend-pct" [style.color]="area.gradientStart">
+                            {{ area.percentage }}%
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /chart-glass-card -->
+
+        </section>
+        <!-- /hero section -->
+
+
+        <!-- ══════════════════════════════════════════════
+             BODY BLOCK 1 — STEAM AREA METRICS
+             ══════════════════════════════════════════════ -->
+        <section class="steam-metrics-section">
+            <div class="section-label">
+                <app-lucide-icon name="bar-chart-2" [size]="16" color="#07B1C9"
+                    style="margin-right:6px;margin-bottom:-2px;">
+                </app-lucide-icon>
+                Desglose de tu perfil STEAM
+            </div>
+
+            <div class="metrics-list">
+                <div class="metric-row" *ngFor="let area of steamAreas">
+
+                    <!-- Icon badge -->
+                    <div class="metric-icon-badge"
+                         [style.background]="'linear-gradient(135deg,' + area.gradientStart + ' 0%,' + area.gradientEnd + ' 100%)'">
+                        <app-lucide-icon [name]="area.icon" [size]="18" color="white"></app-lucide-icon>
+                    </div>
+
+                    <!-- Label + bar -->
+                    <div class="metric-track-wrap">
+                        <div class="metric-header-row">
+                            <span class="metric-label">{{ area.label }}</span>
+                            <span class="metric-pct" [style.color]="area.gradientStart">{{ area.percentage }}%</span>
+                        </div>
+                        <div class="metric-bar-bg">
+                            <div class="metric-bar-fill"
+                                 [style.width]="area.percentage + '%'"
+                                 [style.background]="'linear-gradient(90deg,' + area.gradientStart + ',' + area.gradientEnd + ')'"
+                                 [class.is-dominant]="steamAreas[0] === area">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        <!-- /steam-metrics-section -->
+
+
+        <!-- ══════════════════════════════════════════════
+             BODY BLOCK 2 — ADN STEAM INSIGHTS CARD
+             ══════════════════════════════════════════════ -->
+        <div class="dna-insights-card">
+            <!-- Corner glows -->
+            <div class="dna-orb dna-orb-tl"></div>
+            <div class="dna-orb dna-orb-br"></div>
+
+            <div class="dna-card-header">
+                <div class="dna-icon-ring">
+                    <app-lucide-icon name="dna" [size]="22" color="#07B1C9"></app-lucide-icon>
+                </div>
+                <div class="dna-title-block">
+                    <span class="dna-eyebrow">Generado por IA</span>
+                    <h2 class="dna-title">Análisis de tu ADN STEAM</h2>
+                </div>
+            </div>
+
+            <div class="dna-divider"></div>
+
+            <p class="dna-body-text">{{ userProfile.description }}</p>
+
+            <div class="dna-traits-row">
+                <div class="dna-trait-chip"
+                     *ngFor="let area of topThree"
+                     [style.border-color]="area.gradientStart + '55'"
+                     [style.color]="area.gradientStart">
+                    <app-lucide-icon [name]="area.icon" [size]="13"
+                        [color]="area.gradientStart"
+                        style="margin-right:4px;margin-bottom:-1px;">
+                    </app-lucide-icon>
+                    {{ area.label }}
+                </div>
+            </div>
+        </div>
+        <!-- /dna-insights-card -->
+
+        <!-- ══════════════════════════════════════════════
+             BODY BLOCK 3 — APTITUDE THERMOMETER
+             ══════════════════════════════════════════════ -->
+        <section class="aptitude-section">
+            <div class="section-label">
+                <app-lucide-icon name="gauge" [size]="16" color="#07B1C9"
+                    style="margin-right:6px;margin-bottom:-2px;">
+                </app-lucide-icon>
+                Tu nivel de preparación
+            </div>
+
+            <div class="thermo-card">
+                <!-- Labels row -->
+                <div class="thermo-labels">
+                    <div class="thermo-label"
+                         *ngFor="let lv of aptitudeLevels"
+                         [class.is-active]="aptitudeLevel === lv.key">
+                        <app-lucide-icon [name]="lv.icon" [size]="15"
+                            [color]="aptitudeLevel === lv.key ? '#07B1C9' : '#9CA3AF'">
+                        </app-lucide-icon>
+                        <span>{{ lv.label }}</span>
+                    </div>
+                </div>
+
+                <!-- Track -->
+                <div class="thermo-track-wrap">
+                    <div class="thermo-track">
+                        <div class="thermo-seg seg-1"
+                             [class.seg-active]="aptitudeLevel === 'explorador' || aptitudeLevel === 'intermedio' || aptitudeLevel === 'preparado'">
+                        </div>
+                        <div class="thermo-seg seg-2"
+                             [class.seg-active]="aptitudeLevel === 'intermedio' || aptitudeLevel === 'preparado'">
+                        </div>
+                        <div class="thermo-seg seg-3"
+                             [class.seg-active]="aptitudeLevel === 'preparado'">
+                        </div>
+
+                        <!-- Pointer bubble -->
+                        <div class="thermo-pointer"
+                             [style.left]="aptitudePct + '%'">
+                            <div class="pointer-bubble">{{ globalAffinityPct }}%</div>
+                            <div class="pointer-stem"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active level description -->
+                <p class="thermo-desc">
+                    <ng-container [ngSwitch]="aptitudeLevel">
+                        <span *ngSwitchCase="'explorador'">
+                            Estás comenzando a descubrir tu vocación STEAM. ¡El camino empieza aquí!
+                        </span>
+                        <span *ngSwitchCase="'intermedio'">
+                            Tienes una dirección clara. Profundizar en las áreas clave acelerará tu desarrollo.
+                        </span>
+                        <span *ngSwitchCase="'preparado'">
+                            ¡Tienes un perfil sólido! Estás listo para elegir una carrera con confianza.
+                        </span>
+                    </ng-container>
+                </p>
+            </div>
+        </section>
+        <!-- /aptitude-section -->
+
+
+        <!-- ══════════════════════════════════════════════
+             BODY BLOCK 4 — CAREER CAROUSEL
+             ══════════════════════════════════════════════ -->
+        <section class="career-carousel-section" *ngIf="careerCards.length > 0">
+            <div class="section-label">
+                <app-lucide-icon name="library" [size]="16" color="#07B1C9"
+                    style="margin-right:6px;margin-bottom:-2px;">
+                </app-lucide-icon>
+                Carreras recomendadas para ti
+            </div>
+
+            <div class="carousel-viewport">
+                <!-- Prev arrow -->
+                <button class="carousel-arrow carousel-arrow-prev"
+                        (click)="carouselPrev()"
+                        aria-label="Anterior carrera">
+                    <app-lucide-icon name="chevron-left" [size]="20"></app-lucide-icon>
+                </button>
+
+                <!-- Cards track -->
+                <div class="carousel-track">
+                    <div class="career-card"
+                         *ngFor="let card of careerCards; let i = index"
+                         [class.card-active]="isActiveCard(i)"
+                         [class.card-adjacent]="isAdjacentCard(i)"
+                         [class.card-hidden]="!isActiveCard(i) && !isAdjacentCard(i)">
+
+                        <!-- Icon -->
+                        <div class="cc-icon-wrap" [style.background]="card.color + '18'">
+                            <app-lucide-icon [name]="card.icon" [size]="26" [color]="card.color">
+                            </app-lucide-icon>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="cc-info">
+                            <span class="cc-major">{{ card.major }}</span>
+                            <span class="cc-uni">
+                                <app-lucide-icon name="map-pin" [size]="12"
+                                    color="#9CA3AF" style="margin-right:3px;margin-bottom:-1px;">
+                                </app-lucide-icon>
+                                {{ card.uniName }}
+                            </span>
+                        </div>
+
+                        <!-- Detail button -->
+                        <button class="cc-detail-btn"
+                                [style.color]="card.color"
+                                [style.border-color]="card.color + '44'"
+                                (click)="openCardDetail(i)">
+                            Ver detalles
+                            <app-lucide-icon name="arrow-right" [size]="13"
+                                [color]="card.color" style="margin-left:4px;margin-bottom:-1px;">
+                            </app-lucide-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Next arrow -->
+                <button class="carousel-arrow carousel-arrow-next"
+                        (click)="carouselNext()"
+                        aria-label="Siguiente carrera">
+                    <app-lucide-icon name="chevron-right" [size]="20"></app-lucide-icon>
+                </button>
+            </div>
+
+            <!-- Dot indicators -->
+            <div class="carousel-dots">
+                <span class="dot"
+                      *ngFor="let card of careerCards; let i = index"
+                      [class.dot-active]="isActiveCard(i)"
+                      [style.background]="isActiveCard(i) ? careerCards[i].color : ''"
+                      (click)="activeCareerIndex = i">
+                </span>
+            </div>
+        </section>
+        <!-- /career-carousel-section -->
+
+
+        <!-- ══════════════════════════════════════════════
+             BODY BLOCK 5 — CTA BUTTONS
+             ══════════════════════════════════════════════ -->
+        <div class="cta-buttons-block">
+            <!-- PDF outline button -->
+            <button class="btn-pdf" (click)="downloadPDF()">
+                <app-lucide-icon name="file-down" [size]="18" color="#07B1C9"
+                    style="margin-right:8px;margin-bottom:-2px;">
+                </app-lucide-icon>
+                Descargar Reporte Completo (PDF)
+            </button>
+
+            <!-- Primary solid button -->
+            <button class="btn-explore-uni" (click)="navigateToUniversities()">
+                <app-lucide-icon name="search" [size]="18" color="white"
+                    style="margin-right:8px;margin-bottom:-2px;">
+                </app-lucide-icon>
+                Explorar Universidades
+            </button>
+        </div>
+        <!-- /cta-buttons-block -->
+
+
+        <!-- ── AI SEARCH BANNER ── -->
         <div class="ai-search-banner">
             <h3>Encuentra la universidad ideal</h3>
             <p>Nuestra Inteligencia Artificial buscará los mejores programas para tu perfil cerca de ti.</p>
-
             <div class="search-form">
-                <input type="text" [(ngModel)]="locationInput" placeholder="Ej. Córdoba, Veracruz o C.P. 94500"
+                <input type="text" [(ngModel)]="locationInput"
+                    placeholder="Ej. Córdoba, Veracruz o C.P. 94500"
                     class="location-input">
                 <button class="btn-ai-search" (click)="startAISearch()" [disabled]="isSearching">
-                    Encontrar Universidades AI 
-                    <span class="robot-icon" style="display: inline-flex; align-items: center; margin-left: 8px;">
+                    Encontrar Universidades AI
+                    <span style="display:inline-flex;align-items:center;margin-left:8px;">
                         <app-lucide-icon name="bot" [size]="20"></app-lucide-icon>
                     </span>
                 </button>
             </div>
         </div>
     </div>
+    <!-- /view-profile -->
 
-    <!-- OVERLAY / FULL SCREEN SPLASH (for Simulation) -->
-    <app-splash-screen *ngIf="isSearching" [loadingText]="splashText" [controlExternally]="true"
+
+    <!-- OVERLAY / FULL SCREEN SPLASH -->
+    <app-splash-screen *ngIf="isSearching"
+        [loadingText]="splashText"
+        [controlExternally]="true"
         [isVisible]="isSearching">
     </app-splash-screen>
 
-    <!-- VIEW 2: Universities Grid -->
+
+    <!-- ============================================================
+         VIEW 2: UNIVERSITIES GRID (unchanged)
+         ============================================================ -->
     <div class="view-universities" *ngIf="viewState === 'universities' && !isSearching">
 
         <div class="universities-header">
@@ -51,9 +436,12 @@
             <div class="uni-card" *ngFor="let uni of recommendedUniversities" (click)="openDetails(uni)">
                 <div class="uni-badge">{{ uni.suggestedMajor }}</div>
                 <h3 class="uni-name">{{ uni.name }}</h3>
-                <p class="uni-location"><span style="display: inline-flex; align-items: center; margin-right: 4px; vertical-align: middle;">
+                <p class="uni-location">
+                    <span style="display:inline-flex;align-items:center;margin-right:4px;vertical-align:middle;">
                         <app-lucide-icon name="map-pin" [size]="16"></app-lucide-icon>
-                    </span> {{ uni.location }}</p>
+                    </span>
+                    {{ uni.location }}
+                </p>
                 <p class="uni-match">{{ uni.matchReason }}</p>
                 <div class="card-footer">
                     <span class="read-more">Ver detalles »</span>
@@ -62,16 +450,24 @@
         </div>
     </div>
 
-    <!-- OFF-CANVAS / MODAL DETALLES -->
+
+    <!-- ============================================================
+         OFF-CANVAS DETAILS PANEL (unchanged)
+         ============================================================ -->
     <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()"></div>
     <div class="details-panel" [class.open]="isModalOpen">
         <div class="panel-header" *ngIf="selectedUniversity">
-            <button class="btn-close" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
+            <button class="btn-close" (click)="closeModal()">
+                <app-lucide-icon name="x" [size]="20"></app-lucide-icon>
+            </button>
             <div class="panel-badge">{{ selectedUniversity.suggestedMajor }}</div>
             <h2>{{ selectedUniversity.name }}</h2>
-            <p class="panel-location"><span style="display: inline-flex; align-items: center; margin-right: 4px; vertical-align: middle;">
-                        <app-lucide-icon name="map-pin" [size]="16"></app-lucide-icon>
-                    </span> {{ selectedUniversity.location }}</p>
+            <p class="panel-location">
+                <span style="display:inline-flex;align-items:center;margin-right:4px;vertical-align:middle;">
+                    <app-lucide-icon name="map-pin" [size]="16"></app-lucide-icon>
+                </span>
+                {{ selectedUniversity.location }}
+            </p>
         </div>
 
         <div class="panel-body" *ngIf="selectedUniversity">
@@ -79,16 +475,15 @@
                 <h3>¿Por qué hace match contigo?</h3>
                 <p>{{ selectedUniversity.matchReason }}</p>
             </div>
-
             <div class="detail-section">
                 <h3>Fechas Clave</h3>
                 <div class="info-box date-box">
-                    <span class="icon" style="display: inline-flex; align-items: center; margin-right: 8px; vertical-align: middle;">
+                    <span style="display:inline-flex;align-items:center;margin-right:8px;vertical-align:middle;">
                         <app-lucide-icon name="calendar-days" [size]="18"></app-lucide-icon>
-                    </span> {{ selectedUniversity.keyDates }}
+                    </span>
+                    {{ selectedUniversity.keyDates }}
                 </div>
             </div>
-
             <div class="detail-section">
                 <h3>Plan de Estudios Sugerido</h3>
                 <ul class="study-plan-list">
@@ -101,9 +496,10 @@
 
         <div class="panel-footer" *ngIf="selectedUniversity">
             <button class="btn-secondary" (click)="saveToFavorites()">
-                <span class="icon" style="display: inline-flex; align-items: center; margin-right: 8px; vertical-align: middle;">
+                <span style="display:inline-flex;align-items:center;margin-right:8px;vertical-align:middle;">
                     <app-lucide-icon name="bookmark" [size]="18"></app-lucide-icon>
-                </span> Guardar en favoritos
+                </span>
+                Guardar en favoritos
             </button>
             <a [href]="selectedUniversity.websiteUrl" target="_blank" class="btn-primary">
                 Ver sitio web oficial
