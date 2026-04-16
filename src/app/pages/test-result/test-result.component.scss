@@ -494,35 +494,6 @@
     transition: background 0.35s ease, border-color 0.35s ease;
 }
 
-/* Ambient corner glows */
-.dna-orb {
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-    filter: blur(55px);
-    z-index: 0;
-}
-.dna-orb-tl {
-    width: 180px;
-    height: 180px;
-    background: rgba(7, 177, 201, 0.12);
-    top: -50px;
-    left: -50px;
-}
-.dna-orb-br {
-    width: 140px;
-    height: 140px;
-    background: rgba(77, 176, 70, 0.09);
-    bottom: -40px;
-    right: -40px;
-}
-
-/* All content above the orbs */
-.dna-card-header,
-.dna-divider,
-.dna-body-text,
-.dna-traits-row { position: relative; z-index: 1; }
-
 /* Header row */
 .dna-card-header {
     display: flex;
