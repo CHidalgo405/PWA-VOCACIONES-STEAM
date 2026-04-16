@@ -229,7 +229,7 @@
 
         <!-- ══════════════════════════════════════════════
              BODY BLOCK 3 — APTITUDE THERMOMETER
-             ══════════════════════════════════════════════ -->
+             ══════════════════════════════════════════════ 
         <section class="aptitude-section">
             <div class="section-label">
                 <app-lucide-icon name="gauge" [size]="16" color="#07B1C9"
@@ -239,7 +239,7 @@
             </div>
 
             <div class="thermo-card">
-                <!-- Labels row -->
+                
                 <div class="thermo-labels">
                     <div class="thermo-label"
                          *ngFor="let lv of aptitudeLevels"
@@ -251,7 +251,7 @@
                     </div>
                 </div>
 
-                <!-- Track -->
+                
                 <div class="thermo-track-wrap">
                     <div class="thermo-track">
                         <div class="thermo-seg seg-1"
@@ -264,7 +264,7 @@
                              [class.seg-active]="aptitudeLevel === 'preparado'">
                         </div>
 
-                        <!-- Pointer bubble -->
+                        
                         <div class="thermo-pointer"
                              [style.left]="aptitudePct + '%'">
                             <div class="pointer-bubble">{{ globalAffinityPct }}%</div>
@@ -273,7 +273,7 @@
                     </div>
                 </div>
 
-                <!-- Active level description -->
+               
                 <p class="thermo-desc">
                     <ng-container [ngSwitch]="aptitudeLevel">
                         <span *ngSwitchCase="'explorador'">
@@ -289,7 +289,7 @@
                 </p>
             </div>
         </section>
-        <!-- /aptitude-section -->
+       -->
 
 
         <!-- ══════════════════════════════════════════════
