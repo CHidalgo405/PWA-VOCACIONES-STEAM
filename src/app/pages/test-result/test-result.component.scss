@@ -42,31 +42,6 @@
     overflow: hidden;
 }
 
-/* Decorative orbs */
-.hero-orb {
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-    filter: blur(70px);
-    z-index: 0;
-}
-.orb-tl {
-    width: 260px;
-    height: 260px;
-    background: rgba(7, 177, 201, 0.12);
-    top: -60px;
-    left: -80px;
-    animation: orbFloat 8s ease-in-out infinite;
-}
-.orb-br {
-    width: 200px;
-    height: 200px;
-    background: rgba(99, 102, 241, 0.08);
-    bottom: 20px;
-    right: -60px;
-    animation: orbFloat 10s ease-in-out infinite reverse;
-}
-
 /* ── Greeting & Verdict ── */
 .hero-header {
     position: relative;
