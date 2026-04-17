@@ -10,6 +10,7 @@ import { UserService } from '../../core/services/user.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { Subscription } from 'rxjs';
+import { TestSubmissionResponse } from '../../core/services/test.service';
 
 @Component({
   selector: 'app-profile',
@@ -36,6 +37,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
     title: 'Explorador STEAM',
     level: 5,
     avatar: 'https://ui-avatars.com/api/?name=C&background=07B1C9&color=fff&size=128'
+  };
+
+  /** STEAM Profile State */
+  hasTestResults = false;
+  steamAreas: any[] = [];
+
+  // STEAM area metadata palette (consistent with TestResultComponent)
+  private readonly STEAM_META: Record<string, { label: string; gradientStart: string; gradientEnd: string; icon: string }> = {
+    ciencia:      { label: 'Ciencia',      gradientStart: '#07B1C9', gradientEnd: '#0E9AA7', icon: 'flask-conical' },
+    tecnologia:   { label: 'Tecnología',   gradientStart: '#6366F1', gradientEnd: '#07B1C9', icon: 'cpu'           },
+    ingenieria:   { label: 'Ingeniería',   gradientStart: '#F88718', gradientEnd: '#FBBF24', icon: 'wrench'        },
+    artes:        { label: 'Artes',        gradientStart: '#EC4899', gradientEnd: '#A855F7', icon: 'palette'       },
+    matematicas:  { label: 'Matemáticas',  gradientStart: '#4DB046', gradientEnd: '#22D3EE', icon: 'sigma'         },
   };
 
   ngOnInit() {
@@ -67,6 +81,61 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.user.avatar = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&size=128`;
       }
     });
+
+    this.loadTestResults();
+  }
+
+  loadTestResults() {
+    const rawResult = localStorage.getItem('latest_test_result');
+    if (rawResult) {
+      try {
+        const result: TestSubmissionResponse = JSON.parse(rawResult);
+        const scores = result.scores;
+        const total = Object.values(scores).reduce((a, b) => a + b, 0) || 1;
+
+        // Map results to the steamAreas structure
+        this.steamAreas = Object.entries(scores).map(([key, rawScore]) => {
+          const meta = this.STEAM_META[key] ?? {
+            label: key,
+            gradientStart: '#07B1C9',
+            gradientEnd: '#0698AC',
+            icon: 'star',
+          };
+          return {
+            key,
+            label: meta.label,
+            gradientStart: meta.gradientStart,
+            gradientEnd: meta.gradientEnd,
+            icon: meta.icon,
+            rawScore,
+            percentage: Math.round((rawScore / total) * 100),
+          };
+        }).sort((a, b) => b.rawScore - a.rawScore);
+
+        this.hasTestResults = this.steamAreas.length > 0;
+
+        // If we have results, sync radar dataset as backup
+        if (this.hasTestResults) {
+          const radarData = [
+            scores['ciencia'] || 0,
+            scores['tecnologia'] || 0,
+            scores['ingenieria'] || 0,
+            scores['artes'] || 0,
+            scores['matematicas'] || 0
+          ];
+          this.radarChartDatasets[0].data = radarData;
+        }
+      } catch (e) {
+        console.error('Error parsing test results', e);
+        this.hasTestResults = false;
+      }
+    } else {
+      this.hasTestResults = false;
+    }
+  }
+
+  goToTest() {
+    this.router.navigate(['/vocation-test']);
   }
 
   ngOnDestroy() {

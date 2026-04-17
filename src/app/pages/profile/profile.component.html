@@ -25,11 +25,43 @@
       </div>
 
       <div class="chart-card">
-        <h3>Tu ADN STEAM</h3>
-        <div class="chart-wrapper">
-          <canvas baseChart [datasets]="radarChartDatasets" [options]="radarChartOptions" [labels]="radarChartLabels"
-            type="radar">
-          </canvas>
+        <h3>Desglose de tu Perfil STEAM</h3>
+        
+        <!-- SUCCESS STATE: Horizontal Progress Bars -->
+        <div class="metrics-list" *ngIf="hasTestResults">
+          <div class="metric-row" *ngFor="let area of steamAreas">
+            <!-- Icon badge -->
+            <div class="metric-icon-badge" 
+                 [style.background]="'linear-gradient(135deg,' + area.gradientStart + ' 0%,' + area.gradientEnd + ' 100%)'">
+              <app-lucide-icon [name]="area.icon" [size]="18" color="white"></app-lucide-icon>
+            </div>
+
+            <!-- Label + bar -->
+            <div class="metric-track-wrap">
+              <div class="metric-header-row">
+                <span class="metric-label">{{ area.label }}</span>
+                <span class="metric-pct" [style.color]="area.gradientStart">{{ area.percentage }}%</span>
+              </div>
+              <div class="metric-bar-bg">
+                <div class="metric-bar-fill"
+                     [style.width]="area.percentage + '%'"
+                     [style.background]="'linear-gradient(90deg,' + area.gradientStart + ',' + area.gradientEnd + ')'">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EMPTY STATE: CTA to take the test -->
+        <div class="empty-stats-card" *ngIf="!hasTestResults">
+          <div class="empty-icon-wrap">
+            <app-lucide-icon name="clipboard-check" [size]="40" color="#94A3B8"></app-lucide-icon>
+          </div>
+          <h4>¿Cuál es tu ADN STEAM?</h4>
+          <p>Aún no has realizado el test vocacional. Descubre tus talentos para ver tus estadísticas aquí.</p>
+          <button class="btn-start-test" (click)="goToTest()">
+            Realizar Test ahora
+          </button>
         </div>
       </div>
     </div>
