@@ -258,6 +258,7 @@ export class TestResultComponent implements OnInit {
     setTimeout(() => {
       this.isSearching = false;
       this.viewState = 'universities';
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }, 3000);
   }
 
@@ -308,5 +309,6 @@ export class TestResultComponent implements OnInit {
 
   goBackToResult() {
     this.viewState = 'result';
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }
 }
