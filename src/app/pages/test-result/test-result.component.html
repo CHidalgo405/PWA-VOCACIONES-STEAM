@@ -551,110 +551,117 @@
 
 
     <!-- ============================================================
-         OFF-CANVAS DETAILS PANEL — REDESIGNED
+         MOBILE BOTTOM-SHEET / DESKTOP OFF-CANVAS DETAILS PANEL
          ============================================================ -->
     <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()"></div>
     <div class="details-panel" [class.open]="isModalOpen">
 
-        <!-- Drag handle (mobile bottom-sheet) -->
-        <div class="panel-drag-handle">
-            <span class="drag-bar"></span>
-        </div>
+        <ng-container *ngIf="selectedUniversity">
 
-        <!-- Hero header with gradient background -->
-        <div class="panel-hero" *ngIf="selectedUniversity">
-            <!-- Close button -->
-            <button class="btn-panel-close" (click)="closeModal()">
-                <app-lucide-icon name="x" [size]="18"></app-lucide-icon>
-            </button>
+            <!-- ── Drag handle (mobile bottom-sheet indicator) ── -->
+            <div class="panel-drag-handle">
+                <div class="drag-pill"></div>
+            </div>
 
-            <!-- Hero content overlay -->
-            <div class="panel-hero-content">
-                <div class="panel-hero-badge">
-                    <app-lucide-icon name="graduation-cap" [size]="13" color="white"
-                        style="margin-right:5px;margin-bottom:-1px;">
-                    </app-lucide-icon>
-                    {{ selectedUniversity.suggestedMajor }}
-                </div>
-                <h2 class="panel-hero-title">{{ selectedUniversity.name }}</h2>
-                <div class="panel-hero-meta">
-                    <span class="panel-meta-tag">
-                        <app-lucide-icon name="map-pin" [size]="13" color="rgba(255,255,255,0.85)"
-                            style="margin-right:4px;margin-bottom:-2px;">
+            <!-- ── COVER HEADER (image fallback → gradient) ── -->
+            <div class="panel-cover">
+                <!-- Close button -->
+                <button class="btn-close" (click)="closeModal()" aria-label="Cerrar">
+                    <app-lucide-icon name="x" [size]="18"></app-lucide-icon>
+                </button>
+
+                <!-- Cover gradient overlay always present -->
+                <div class="panel-cover-gradient"></div>
+
+                <!-- Text on top of cover -->
+                <div class="panel-cover-content">
+                    <span class="panel-major-chip">
+                        <app-lucide-icon name="graduation-cap" [size]="13" color="white"
+                            style="margin-right:5px;margin-bottom:-2px;">
+                        </app-lucide-icon>
+                        {{ selectedUniversity.suggestedMajor }}
+                    </span>
+                    <h2 class="panel-uni-name">{{ selectedUniversity.name }}</h2>
+                    <p class="panel-location">
+                        <app-lucide-icon name="map-pin" [size]="14" color="rgba(255,255,255,0.85)"
+                            style="margin-right:5px;margin-bottom:-2px;">
                         </app-lucide-icon>
                         {{ selectedUniversity.location }}
-                    </span>
+                    </p>
                 </div>
             </div>
-        </div>
 
-        <!-- Body sections with Lucide icons -->
-        <div class="panel-body" *ngIf="selectedUniversity">
+            <!-- ── BODY: sections ── -->
+            <div class="panel-body">
 
-            <!-- Match reason -->
-            <div class="panel-section">
-                <div class="panel-section-header">
-                    <div class="panel-section-icon">
-                        <app-lucide-icon name="target" [size]="16" color="#07B1C9"></app-lucide-icon>
-                    </div>
-                    <h3>¿Por qué hace match contigo?</h3>
+                <!-- Match reason -->
+                <div class="detail-section">
+                    <h3 class="section-heading">
+                        <span class="section-icon-wrap">
+                            <app-lucide-icon name="target" [size]="15" color="#07B1C9"></app-lucide-icon>
+                        </span>
+                        ¿Por qué hace match contigo?
+                    </h3>
+                    <p>{{ selectedUniversity.matchReason }}</p>
                 </div>
-                <p class="panel-section-text">{{ selectedUniversity.matchReason }}</p>
+
+                <!-- Key dates -->
+                <div class="detail-section">
+                    <h3 class="section-heading">
+                        <span class="section-icon-wrap">
+                            <app-lucide-icon name="calendar-check" [size]="15" color="#07B1C9"></app-lucide-icon>
+                        </span>
+                        Fechas Clave
+                    </h3>
+                    <div class="info-box date-box">
+                        <app-lucide-icon name="clock" [size]="16" color="#07B1C9"
+                            style="flex-shrink:0;margin-bottom:-2px;">
+                        </app-lucide-icon>
+                        {{ selectedUniversity.keyDates }}
+                    </div>
+                </div>
+
+                <!-- Study plan -->
+                <div class="detail-section">
+                    <h3 class="section-heading">
+                        <span class="section-icon-wrap">
+                            <app-lucide-icon name="book-open" [size]="15" color="#07B1C9"></app-lucide-icon>
+                        </span>
+                        Plan de Estudios Sugerido
+                    </h3>
+                    <ul class="study-plan-list">
+                        <li *ngFor="let subject of selectedUniversity.studyPlan">
+                            <span class="subject-icon">
+                                <app-lucide-icon name="check-circle" [size]="15" color="#07B1C9"></app-lucide-icon>
+                            </span>
+                            {{ subject }}
+                        </li>
+                    </ul>
+                </div>
+
             </div>
 
-            <!-- Key dates -->
-            <div class="panel-section">
-                <div class="panel-section-header">
-                    <div class="panel-section-icon">
-                        <app-lucide-icon name="calendar-days" [size]="16" color="#07B1C9"></app-lucide-icon>
-                    </div>
-                    <h3>Fechas Clave</h3>
-                </div>
-                <div class="panel-info-card">
-                    <app-lucide-icon name="clock" [size]="16" color="#6366F1"
-                        style="margin-right:8px;flex-shrink:0;">
+            <!-- ── FOOTER: unified CTA buttons ── -->
+            <div class="panel-footer">
+                <!-- Secondary: outline bookmark -->
+                <button class="panel-btn-secondary" (click)="saveToFavorites()">
+                    <app-lucide-icon name="bookmark" [size]="16"
+                        style="margin-right:7px;margin-bottom:-2px;">
                     </app-lucide-icon>
-                    {{ selectedUniversity.keyDates }}
-                </div>
+                    Guardar en favoritos
+                </button>
+                <!-- Primary: solid #07B1C9 -->
+                <a [href]="selectedUniversity.websiteUrl" target="_blank" class="panel-btn-primary">
+                    <app-lucide-icon name="globe" [size]="16" color="white"
+                        style="margin-right:7px;margin-bottom:-2px;">
+                    </app-lucide-icon>
+                    Ver sitio web oficial
+                </a>
             </div>
 
-            <!-- Study plan -->
-            <div class="panel-section">
-                <div class="panel-section-header">
-                    <div class="panel-section-icon">
-                        <app-lucide-icon name="book-open" [size]="16" color="#07B1C9"></app-lucide-icon>
-                    </div>
-                    <h3>Plan de Estudios Sugerido</h3>
-                </div>
-                <ul class="panel-study-list">
-                    <li *ngFor="let subject of selectedUniversity.studyPlan">
-                        <div class="study-item-icon">
-                            <app-lucide-icon name="check" [size]="13" color="#07B1C9"></app-lucide-icon>
-                        </div>
-                        <span>{{ subject }}</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Unified CTA footer -->
-        <div class="panel-cta" *ngIf="selectedUniversity">
-            <!-- Secondary: outline bookmark -->
-            <button class="panel-btn-outline" (click)="saveToFavorites()">
-                <app-lucide-icon name="bookmark" [size]="16"
-                    style="margin-right:6px;margin-bottom:-1px;">
-                </app-lucide-icon>
-                Guardar en favoritos
-            </button>
-            <!-- Primary: solid #07B1C9 -->
-            <a [href]="selectedUniversity.websiteUrl" target="_blank" class="panel-btn-solid">
-                <app-lucide-icon name="globe" [size]="16" color="white"
-                    style="margin-right:6px;margin-bottom:-1px;">
-                </app-lucide-icon>
-                Ver sitio web oficial
-            </a>
-        </div>
+        </ng-container>
     </div>
+
 
     <app-navbar></app-navbar>
 </div>

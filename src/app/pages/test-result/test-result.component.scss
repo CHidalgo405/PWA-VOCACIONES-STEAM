@@ -1358,7 +1358,7 @@
 }
 
 /* =============================================
-   OFF-CANVAS DETAILS PANEL — REDESIGNED
+   OFF-CANVAS + MOBILE BOTTOM-SHEET DETAILS PANEL
    ============================================= */
 .modal-overlay {
     position: fixed;
@@ -1367,285 +1367,270 @@
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     z-index: 1000;
-    animation: fadeIn 0.25s ease;
+    animation: fadeIn 0.3s ease;
 }
 
+/* ── Mobile: bottom-sheet ── */
 .details-panel {
     position: fixed;
+    bottom: -100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 90vh;
+    background: var(--bg-surface, #FFFFFF);
     z-index: 1001;
-    background: #FFFFFF;
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
+    transition: bottom 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), background-color 0.35s ease;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s ease;
 
-    /* ── MOBILE: bottom-sheet ── */
-    bottom: 0;
-    left: 0;
-    right: 0;
-    max-height: 92vh;
-    border-radius: 24px 24px 0 0;
-    transform: translateY(100%);
-    box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
+    &.open { bottom: 0; }
 
-    &.open { transform: translateY(0); }
-
-    /* ── DESKTOP: right slide-over ── */
-    @media (min-width: 768px) {
+    /* ── Desktop: right side-panel over the split view ── */
+    @media (min-width: 1024px) {
         top: 0;
-        bottom: 0;
-        left: auto;
+        bottom: auto;
         right: -100%;
-        max-height: 100vh;
-        width: 100%;
-        max-width: 480px;
+        left: auto;
+        width: 440px;
+        max-height: none;
+        height: 100vh;
         border-radius: 0;
-        transform: none;
-        box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+        box-shadow: -12px 0 50px rgba(0, 0, 0, 0.14);
+        transition:
+            right 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+            background-color 0.35s ease;
 
-        &.open { right: 0; }
+        &.open {
+            right: 0;
+            bottom: auto;
+        }
     }
 }
 
-/* ── Drag handle (mobile only) ── */
+/* Drag handle (mobile only) */
 .panel-drag-handle {
     display: flex;
     justify-content: center;
-    padding: 10px 0 4px;
+    padding: 12px 0 4px;
+    flex-shrink: 0;
 
-    @media (min-width: 768px) { display: none; }
-
-    .drag-bar {
-        width: 36px;
-        height: 4px;
-        background: #D1D5DB;
-        border-radius: 4px;
-    }
+    @media (min-width: 1024px) { display: none; }
 }
 
-/* ── Hero Header ── */
-.panel-hero {
+.drag-pill {
+    width: 40px;
+    height: 4px;
+    background: var(--border-color, #D1D5DB);
+    border-radius: 10px;
+}
+
+/* ── Cover header: gradient fallback, image-ready ── */
+.panel-cover {
     position: relative;
-    /* Gradient fallback — can be replaced with a real campus image */
-    background:
-        linear-gradient(135deg, rgba(7,177,201,0.92), rgba(6,152,172,0.95)),
-        url('/assets/campus-placeholder.webp') center/cover no-repeat;
-    padding: 48px 24px 24px;
-    color: white;
-    min-height: 160px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
+    height: 180px;
+    flex-shrink: 0;
+    overflow: hidden;
+    /* Image-ready: if a real URL is set via [style.background-image], it will show */
+    background-color: #0F172A;
+    background-size: cover;
+    background-position: center;
+
+    @media (min-width: 1024px) { height: 200px; }
 }
 
-.btn-panel-close {
+/* Gradient overlay: covers both the fallback color and any image */
+.panel-cover-gradient {
     position: absolute;
-    top: 14px;
-    right: 14px;
+    inset: 0;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(7, 177, 201, 0.85) 0%,
+            rgba(3, 105, 161, 0.95) 100%
+        );
+    /* When an image is present this creates a tinted scrim */
+}
+
+/* Close button */
+.btn-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: white;
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.18);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: white;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
     backdrop-filter: blur(4px);
+    transition: background 0.2s;
 
-    &:hover { background: rgba(255,255,255,0.35); }
+    &:hover { background: rgba(255, 255, 255, 0.32); }
 }
 
-.panel-hero-content {
-    position: relative;
-    z-index: 1;
+/* Text overlay on cover */
+.panel-cover-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 24px;
+    z-index: 2;
 }
 
-.panel-hero-badge {
+.panel-major-chip {
     display: inline-flex;
     align-items: center;
-    background: rgba(255,255,255,0.18);
-    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    color: white;
+    font-size: 11.5px;
+    font-weight: 700;
     padding: 4px 12px;
     border-radius: 50px;
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     backdrop-filter: blur(4px);
+    letter-spacing: 0.3px;
 }
 
-.panel-hero-title {
+.panel-uni-name {
+    color: white;
     font-size: 1.4rem;
     font-weight: 800;
-    margin: 0 0 10px;
+    margin: 0 0 6px;
     line-height: 1.25;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
-.panel-meta-tag {
-    display: inline-flex;
+.panel-location {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.85rem;
+    margin: 0;
+    display: flex;
     align-items: center;
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.2);
-    padding: 3px 10px;
-    border-radius: 50px;
-    font-size: 12px;
-    font-weight: 500;
 }
 
-/* ── Panel Body ── */
-.details-panel .panel-body {
-    padding: 20px 24px;
+/* ── Body ── */
+.panel-body {
+    padding: 24px;
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
+    overflow-y: auto;
+
+    .detail-section { display: flex; flex-direction: column; gap: 10px; }
 }
 
-.panel-section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.panel-section-header {
+/* Section headings with icon */
+.section-heading {
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--text-muted, #94A3B8);
+    margin: 0;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 7px;
+    transition: color 0.35s ease;
 }
 
-.panel-section-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    background: rgba(7,177,201,0.08);
+.section-icon-wrap {
+    width: 26px;
+    height: 26px;
+    background: rgba(7, 177, 201, 0.1);
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 
-.panel-section-header h3 {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-primary, #1E293B);
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    transition: color 0.35s ease;
-}
-
-.panel-section-text {
+.panel-body .detail-section p {
     font-size: 13.5px;
-    color: var(--text-secondary, #64748B);
+    color: var(--text-secondary, #475569);
     line-height: 1.65;
     margin: 0;
-    padding-left: 42px; /* align with title */
 }
 
-/* Info card (dates) */
-.panel-info-card {
+.panel-body .info-box {
+    background: var(--bg-canvas, #F8FAFC);
+    border: 1px solid var(--border-color, #E2E8F0);
+    padding: 12px 16px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
-    background: #F8FAFC;
-    border: 1px solid #E5E7EB;
-    border-radius: 12px;
-    padding: 12px 14px;
+    gap: 10px;
     font-size: 13px;
-    font-weight: 500;
     color: var(--text-primary, #1E293B);
-    margin-left: 42px;
+    font-weight: 500;
     transition: background-color 0.35s ease, border-color 0.35s ease;
 }
 
-/* Study plan list */
-.panel-study-list {
+.study-plan-list {
     list-style: none;
     padding: 0;
     margin: 0;
-    margin-left: 42px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 0;
 
     li {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        background: #F8FAFC;
-        border-radius: 10px;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-light, #F1F5F9);
         font-size: 13px;
         color: var(--text-secondary, #475569);
-        transition: background-color 0.3s ease;
+        line-height: 1.4;
+        transition: border-color 0.35s ease;
 
-        &:hover { background: #F1F5F9; }
+        &:last-child { border-bottom: none; }
+    }
+
+    .subject-icon {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
     }
 }
 
-.study-item-icon {
-    width: 22px;
-    height: 22px;
-    border-radius: 6px;
-    background: rgba(7,177,201,0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-/* ── CTA Footer ── */
-.panel-cta {
-    padding: 16px 24px 24px;
-    border-top: 1px solid #F1F5F9;
+/* ── Footer: unified CTA buttons ── */
+.panel-footer {
+    padding: 16px 24px 100px; /* 100px bottom clears the navbar */
+    border-top: 1px solid var(--border-color, #E2E8F0);
     display: flex;
     flex-direction: column;
     gap: 10px;
-    background: #FFFFFF;
-    /* Extra padding for mobile nav bar */
-    padding-bottom: 40px;
+    flex-shrink: 0;
+    background: var(--bg-surface, #FFFFFF);
     transition: background-color 0.35s ease, border-color 0.35s ease;
 
-    @media (min-width: 768px) {
+    @media (min-width: 1024px) {
         padding-bottom: 24px;
     }
 }
 
-/* Outline secondary button */
-.panel-btn-outline {
+/* Primary: solid #07B1C9 */
+.panel-btn-primary {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 14px;
-    background: transparent;
-    color: var(--text-primary, #1E293B);
-    border: 1.5px solid #E5E7EB;
-    border-radius: 14px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover {
-        border-color: #07B1C9;
-        color: #07B1C9;
-        background: rgba(7,177,201,0.04);
-    }
-}
-
-/* Solid primary button */
-.panel-btn-solid {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 14px;
+    padding: 14px 20px;
     background: #07B1C9;
-    color: white;
+    color: #F9FAFB;
     border: none;
     border-radius: 14px;
     font-family: 'Poppins', sans-serif;
@@ -1654,14 +1639,39 @@
     text-decoration: none;
     cursor: pointer;
     transition: all 0.25s ease;
-    box-shadow: 0 4px 14px rgba(7,177,201,0.35);
+    box-shadow: 0 4px 14px rgba(7, 177, 201, 0.35);
 
     &:hover {
-        background: #0698AC;
+        background: #0698ac;
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(7,177,201,0.4);
+        box-shadow: 0 8px 22px rgba(7, 177, 201, 0.45);
     }
 }
+
+/* Secondary: outline with theme-aware border and text */
+.panel-btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 13px 20px;
+    background: transparent;
+    color: var(--text-primary, #1E293B);
+    border: 1.5px solid #374151;
+    border-radius: 14px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:hover {
+        background: var(--bg-canvas, #F8FAFC);
+        border-color: #07B1C9;
+        color: #07B1C9;
+    }
+}
+
 
 /* =============================================
    ANIMATIONS
@@ -1735,48 +1745,46 @@
         }
     }
 
-    /* ── Details Panel — dark mode ── */
+    /* ── Details Panel + Bottom Sheet ── */
     .details-panel {
         background: #111827;
-        box-shadow: 0 -8px 40px rgba(0,0,0,0.4);
+        box-shadow: 0 -12px 50px rgba(0, 0, 0, 0.5);
 
-        @media (min-width: 768px) {
-            box-shadow: -8px 0 40px rgba(0,0,0,0.5);
+        @media (min-width: 1024px) {
+            box-shadow: -12px 0 50px rgba(0, 0, 0, 0.45);
         }
     }
 
-    .panel-drag-handle .drag-bar {
+    .drag-pill {
         background: #4B5563;
     }
 
-    .panel-section-icon {
-        background: rgba(7,177,201,0.12);
+    .section-icon-wrap {
+        background: rgba(7, 177, 201, 0.14);
     }
 
-    .panel-info-card {
+    .panel-body .info-box {
         background: #1F2937;
         border-color: #374151;
+        color: #F9FAFB;
     }
 
-    .panel-study-list li {
-        background: #1F2937;
-        &:hover { background: #374151; }
+    .study-plan-list li {
+        border-bottom-color: #374151;
+        color: #9CA3AF;
     }
 
-    .study-item-icon {
-        background: rgba(7,177,201,0.15);
-    }
-
-    .panel-cta {
+    .panel-footer {
         background: #111827;
         border-top-color: #374151;
     }
 
-    .panel-btn-outline {
-        border-color: #374151;
+    .panel-btn-secondary {
         color: #F9FAFB;
+        border-color: #4B5563;
 
         &:hover {
+            background: rgba(7,177,201,0.08);
             border-color: #07B1C9;
             color: #07B1C9;
         }
