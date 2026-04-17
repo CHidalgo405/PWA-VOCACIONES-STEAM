@@ -75,10 +75,6 @@
                         <!-- Track rings (background grey) -->
                         <circle cx="90" cy="90" r="72" fill="none"
                                 class="ring-track" stroke-width="14"/>
-                        <circle cx="90" cy="90" r="52" fill="none"
-                                class="ring-track" stroke-width="12"/>
-                        <circle cx="90" cy="90" r="34" fill="none"
-                                class="ring-track" stroke-width="10"/>
 
                         <!-- ── RING 0: Dominant ── -->
                         <circle cx="90" cy="90" r="72"
@@ -90,28 +86,6 @@
                                 [attr.stroke-dashoffset]="dashOffset(0)"
                                 class="ring-arc ring-0"
                                 filter="url(#ringGlow)"
-                                transform="rotate(-90 90 90)"/>
-
-                        <!-- ── RING 1: Secondary ── -->
-                        <circle cx="90" cy="90" r="52"
-                                fill="none"
-                                stroke="url(#grad1)"
-                                stroke-width="12"
-                                stroke-linecap="round"
-                                [attr.stroke-dasharray]="dashArray(1)"
-                                [attr.stroke-dashoffset]="dashOffset(1)"
-                                class="ring-arc ring-1"
-                                transform="rotate(-90 90 90)"/>
-
-                        <!-- ── RING 2: Tertiary ── -->
-                        <circle cx="90" cy="90" r="34"
-                                fill="none"
-                                stroke="url(#grad2)"
-                                stroke-width="10"
-                                stroke-linecap="round"
-                                [attr.stroke-dasharray]="dashArray(2)"
-                                [attr.stroke-dashoffset]="dashOffset(2)"
-                                class="ring-arc ring-2"
                                 transform="rotate(-90 90 90)"/>
 
                     </svg>
@@ -422,86 +396,261 @@
 
 
     <!-- ============================================================
-         VIEW 2: UNIVERSITIES GRID (unchanged)
+         VIEW 2: UNIVERSITIES — REDESIGNED SPLIT-VIEW
          ============================================================ -->
     <div class="view-universities" *ngIf="viewState === 'universities' && !isSearching">
 
+        <!-- Header -->
         <div class="universities-header">
-            <button class="btn-back" (click)="goBackToResult()">← Volver al Perfil</button>
+            <button class="btn-back" (click)="goBackToResult()">
+                <app-lucide-icon name="chevron-left" [size]="18" color="#07B1C9"
+                    style="margin-right:4px;margin-bottom:-3px;">
+                </app-lucide-icon>
+                Volver al Perfil
+            </button>
             <h2>Top Recomendaciones para ti</h2>
             <p>Basado en tu perfil de {{ userProfile.dominantTraits }} en {{ locationInput }}</p>
         </div>
 
-        <div class="universities-grid">
-            <div class="uni-card" *ngFor="let uni of recommendedUniversities" (click)="openDetails(uni)">
-                <div class="uni-badge">{{ uni.suggestedMajor }}</div>
-                <h3 class="uni-name">{{ uni.name }}</h3>
-                <p class="uni-location">
-                    <span style="display:inline-flex;align-items:center;margin-right:4px;vertical-align:middle;">
-                        <app-lucide-icon name="map-pin" [size]="16"></app-lucide-icon>
-                    </span>
-                    {{ uni.location }}
-                </p>
-                <p class="uni-match">{{ uni.matchReason }}</p>
-                <div class="card-footer">
-                    <span class="read-more">Ver detalles »</span>
+        <!-- Split-View container -->
+        <div class="uni-split-view">
+
+            <!-- LEFT COLUMN: Card list (scrollable) -->
+            <div class="uni-card-list">
+                <div class="uni-card"
+                     *ngFor="let uni of recommendedUniversities; let i = index"
+                     [class.uni-card--selected]="selectedUniversity === uni"
+                     (click)="openDetails(uni)">
+
+                    <!-- AI Match badge -->
+                    <div class="uni-match-badge">
+                        <app-lucide-icon name="sparkles" [size]="12" color="white"
+                            style="margin-right:3px;margin-bottom:-1px;">
+                        </app-lucide-icon>
+                        {{ getMatchScore(i) }}% Match
+                    </div>
+
+                    <!-- Major badge -->
+                    <div class="uni-major-tag">
+                        <app-lucide-icon name="graduation-cap" [size]="14" color="#07B1C9"
+                            style="margin-right:5px;margin-bottom:-2px;">
+                        </app-lucide-icon>
+                        {{ uni.suggestedMajor }}
+                    </div>
+
+                    <!-- University name -->
+                    <h3 class="uni-name">{{ uni.name }}</h3>
+
+                    <!-- Tag row: location + modality -->
+                    <div class="uni-tags-row">
+                        <span class="uni-tag">
+                            <app-lucide-icon name="map-pin" [size]="13" color="#07B1C9"
+                                style="margin-right:4px;margin-bottom:-2px;">
+                            </app-lucide-icon>
+                            {{ uni.location }}
+                        </span>
+                        <span class="uni-tag">
+                            <app-lucide-icon name="laptop" [size]="13" color="#6366F1"
+                                style="margin-right:4px;margin-bottom:-2px;">
+                            </app-lucide-icon>
+                            Presencial
+                        </span>
+                    </div>
+
+                    <!-- Match reason preview (truncated) -->
+                    <p class="uni-match-reason">{{ uni.matchReason }}</p>
+
+                    <!-- Card footer -->
+                    <div class="uni-card-footer">
+                        <span class="uni-detail-link">
+                            Ver detalles
+                            <app-lucide-icon name="arrow-right" [size]="14"
+                                style="margin-left:4px;margin-bottom:-2px;">
+                            </app-lucide-icon>
+                        </span>
+                    </div>
                 </div>
             </div>
+
+            <!-- RIGHT COLUMN: Inline detail (desktop) -->
+            <div class="uni-detail-inline" *ngIf="selectedUniversity">
+                <div class="detail-inline-header">
+                    <div class="detail-inline-badge">{{ selectedUniversity.suggestedMajor }}</div>
+                    <h2>{{ selectedUniversity.name }}</h2>
+                    <div class="detail-inline-meta">
+                        <span class="uni-tag">
+                            <app-lucide-icon name="map-pin" [size]="13" color="#07B1C9"
+                                style="margin-right:4px;margin-bottom:-2px;">
+                            </app-lucide-icon>
+                            {{ selectedUniversity.location }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detail-inline-body">
+                    <div class="detail-section">
+                        <h3>
+                            <app-lucide-icon name="target" [size]="16" color="#07B1C9"
+                                style="margin-right:6px;margin-bottom:-2px;">
+                            </app-lucide-icon>
+                            ¿Por qué hace match contigo?
+                        </h3>
+                        <p>{{ selectedUniversity.matchReason }}</p>
+                    </div>
+                    <div class="detail-section">
+                        <h3>
+                            <app-lucide-icon name="calendar-days" [size]="16" color="#07B1C9"
+                                style="margin-right:6px;margin-bottom:-2px;">
+                            </app-lucide-icon>
+                            Fechas Clave
+                        </h3>
+                        <div class="info-box date-box">{{ selectedUniversity.keyDates }}</div>
+                    </div>
+                    <div class="detail-section">
+                        <h3>
+                            <app-lucide-icon name="book-open" [size]="16" color="#07B1C9"
+                                style="margin-right:6px;margin-bottom:-2px;">
+                            </app-lucide-icon>
+                            Plan de Estudios Sugerido
+                        </h3>
+                        <ul class="study-plan-list">
+                            <li *ngFor="let subject of selectedUniversity.studyPlan">
+                                <span class="bullet">•</span> {{ subject }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="detail-inline-actions">
+                    <button class="btn-save-fav" (click)="saveToFavorites()">
+                        <app-lucide-icon name="bookmark" [size]="16" color="#07B1C9"
+                            style="margin-right:6px;margin-bottom:-2px;">
+                        </app-lucide-icon>
+                        Guardar en favoritos
+                    </button>
+                    <a [href]="selectedUniversity.websiteUrl" target="_blank" class="btn-visit-site">
+                        <app-lucide-icon name="globe" [size]="16" color="white"
+                            style="margin-right:6px;margin-bottom:-2px;">
+                        </app-lucide-icon>
+                        Ver sitio web oficial
+                    </a>
+                </div>
+            </div>
+
+            <!-- Placeholder when no uni is selected on desktop -->
+            <div class="uni-detail-placeholder" *ngIf="!selectedUniversity">
+                <app-lucide-icon name="search" [size]="48" color="#D1D5DB"></app-lucide-icon>
+                <p>Selecciona una universidad para ver sus detalles</p>
+            </div>
+
         </div>
+        <!-- /uni-split-view -->
+
     </div>
 
 
+
     <!-- ============================================================
-         OFF-CANVAS DETAILS PANEL (unchanged)
+         OFF-CANVAS DETAILS PANEL — REDESIGNED
          ============================================================ -->
     <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()"></div>
     <div class="details-panel" [class.open]="isModalOpen">
-        <div class="panel-header" *ngIf="selectedUniversity">
-            <button class="btn-close" (click)="closeModal()">
-                <app-lucide-icon name="x" [size]="20"></app-lucide-icon>
-            </button>
-            <div class="panel-badge">{{ selectedUniversity.suggestedMajor }}</div>
-            <h2>{{ selectedUniversity.name }}</h2>
-            <p class="panel-location">
-                <span style="display:inline-flex;align-items:center;margin-right:4px;vertical-align:middle;">
-                    <app-lucide-icon name="map-pin" [size]="16"></app-lucide-icon>
-                </span>
-                {{ selectedUniversity.location }}
-            </p>
+
+        <!-- Drag handle (mobile bottom-sheet) -->
+        <div class="panel-drag-handle">
+            <span class="drag-bar"></span>
         </div>
 
-        <div class="panel-body" *ngIf="selectedUniversity">
-            <div class="detail-section">
-                <h3>¿Por qué hace match contigo?</h3>
-                <p>{{ selectedUniversity.matchReason }}</p>
-            </div>
-            <div class="detail-section">
-                <h3>Fechas Clave</h3>
-                <div class="info-box date-box">
-                    <span style="display:inline-flex;align-items:center;margin-right:8px;vertical-align:middle;">
-                        <app-lucide-icon name="calendar-days" [size]="18"></app-lucide-icon>
+        <!-- Hero header with gradient background -->
+        <div class="panel-hero" *ngIf="selectedUniversity">
+            <!-- Close button -->
+            <button class="btn-panel-close" (click)="closeModal()">
+                <app-lucide-icon name="x" [size]="18"></app-lucide-icon>
+            </button>
+
+            <!-- Hero content overlay -->
+            <div class="panel-hero-content">
+                <div class="panel-hero-badge">
+                    <app-lucide-icon name="graduation-cap" [size]="13" color="white"
+                        style="margin-right:5px;margin-bottom:-1px;">
+                    </app-lucide-icon>
+                    {{ selectedUniversity.suggestedMajor }}
+                </div>
+                <h2 class="panel-hero-title">{{ selectedUniversity.name }}</h2>
+                <div class="panel-hero-meta">
+                    <span class="panel-meta-tag">
+                        <app-lucide-icon name="map-pin" [size]="13" color="rgba(255,255,255,0.85)"
+                            style="margin-right:4px;margin-bottom:-2px;">
+                        </app-lucide-icon>
+                        {{ selectedUniversity.location }}
                     </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body sections with Lucide icons -->
+        <div class="panel-body" *ngIf="selectedUniversity">
+
+            <!-- Match reason -->
+            <div class="panel-section">
+                <div class="panel-section-header">
+                    <div class="panel-section-icon">
+                        <app-lucide-icon name="target" [size]="16" color="#07B1C9"></app-lucide-icon>
+                    </div>
+                    <h3>¿Por qué hace match contigo?</h3>
+                </div>
+                <p class="panel-section-text">{{ selectedUniversity.matchReason }}</p>
+            </div>
+
+            <!-- Key dates -->
+            <div class="panel-section">
+                <div class="panel-section-header">
+                    <div class="panel-section-icon">
+                        <app-lucide-icon name="calendar-days" [size]="16" color="#07B1C9"></app-lucide-icon>
+                    </div>
+                    <h3>Fechas Clave</h3>
+                </div>
+                <div class="panel-info-card">
+                    <app-lucide-icon name="clock" [size]="16" color="#6366F1"
+                        style="margin-right:8px;flex-shrink:0;">
+                    </app-lucide-icon>
                     {{ selectedUniversity.keyDates }}
                 </div>
             </div>
-            <div class="detail-section">
-                <h3>Plan de Estudios Sugerido</h3>
-                <ul class="study-plan-list">
+
+            <!-- Study plan -->
+            <div class="panel-section">
+                <div class="panel-section-header">
+                    <div class="panel-section-icon">
+                        <app-lucide-icon name="book-open" [size]="16" color="#07B1C9"></app-lucide-icon>
+                    </div>
+                    <h3>Plan de Estudios Sugerido</h3>
+                </div>
+                <ul class="panel-study-list">
                     <li *ngFor="let subject of selectedUniversity.studyPlan">
-                        <span class="bullet">•</span> {{ subject }}
+                        <div class="study-item-icon">
+                            <app-lucide-icon name="check" [size]="13" color="#07B1C9"></app-lucide-icon>
+                        </div>
+                        <span>{{ subject }}</span>
                     </li>
                 </ul>
             </div>
         </div>
 
-        <div class="panel-footer" *ngIf="selectedUniversity">
-            <button class="btn-secondary" (click)="saveToFavorites()">
-                <span style="display:inline-flex;align-items:center;margin-right:8px;vertical-align:middle;">
-                    <app-lucide-icon name="bookmark" [size]="18"></app-lucide-icon>
-                </span>
+        <!-- Unified CTA footer -->
+        <div class="panel-cta" *ngIf="selectedUniversity">
+            <!-- Secondary: outline bookmark -->
+            <button class="panel-btn-outline" (click)="saveToFavorites()">
+                <app-lucide-icon name="bookmark" [size]="16"
+                    style="margin-right:6px;margin-bottom:-1px;">
+                </app-lucide-icon>
                 Guardar en favoritos
             </button>
-            <a [href]="selectedUniversity.websiteUrl" target="_blank" class="btn-primary">
+            <!-- Primary: solid #07B1C9 -->
+            <a [href]="selectedUniversity.websiteUrl" target="_blank" class="panel-btn-solid">
+                <app-lucide-icon name="globe" [size]="16" color="white"
+                    style="margin-right:6px;margin-bottom:-1px;">
+                </app-lucide-icon>
                 Ver sitio web oficial
             </a>
         </div>
