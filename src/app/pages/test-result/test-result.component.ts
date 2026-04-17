@@ -263,7 +263,10 @@ export class TestResultComponent implements OnInit {
 
   openDetails(university: UniversityRecommendation) {
     this.selectedUniversity = university;
-    this.isModalOpen = true;
+    // Only open the off-canvas/bottom-sheet modal on mobile devices
+    if (window.innerWidth < 1024) {
+      this.isModalOpen = true;
+    }
   }
 
   closeModal() {

@@ -3,7 +3,7 @@
    ============================================= */
 .result-container {
     min-height: 100vh;
-    background: #F8FAFC;
+    background: var(--bg-canvas, #F8FAFC);
     padding: 0 0 100px;
     font-family: 'Poppins', sans-serif;
     color: var(--text-primary, #334155);
@@ -1695,6 +1695,9 @@
    DARK MODE OVERRIDES
    ============================================= */
 :host-context(body.dark-theme) {
+    .result-container {
+        background: #111827;
+    }
 
     /* FASE 1: solid dark chart card */
     .chart-glass-card {
