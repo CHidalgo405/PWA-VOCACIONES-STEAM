@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
-import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { ThemeService } from '../../core/services/theme.service';
@@ -15,7 +13,7 @@ import { TestSubmissionResponse } from '../../core/services/test.service';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, BaseChartDirective, LucideIconComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, LucideIconComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
@@ -59,9 +57,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       themeSetting.toggleState = this.themeService.isDark;
     }
 
-    // Subscribe to theme changes and update radar chart dynamically
+    // Subscribe to theme changes
     this.themeSub = this.themeService.isDarkMode$.subscribe(isDark => {
-      this.updateRadarForTheme(isDark);
       // Keep toggle in sync if changed externally
       const ts = this.preferencesSettings.find(s => s.action === 'theme');
       if (ts) ts.toggleState = isDark;
@@ -123,17 +120,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
         this.hasTestResults = this.steamAreas.length > 0;
 
-        // If we have results, sync radar dataset as backup
-        if (this.hasTestResults) {
-          const radarData = [
-            scores['ciencia'] || 0,
-            scores['tecnologia'] || 0,
-            scores['ingenieria'] || 0,
-            scores['artes'] || 0,
-            scores['matematicas'] || 0
-          ];
-          this.radarChartDatasets[0].data = radarData;
-        }
+        this.hasTestResults = this.steamAreas.length > 0;
       } catch (e) {
         console.error('Error parsing test results', e);
         this.hasTestResults = false;
@@ -153,63 +140,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Update radar chart colors based on the active theme */
-  private updateRadarForTheme(isDark: boolean): void {
-    this.radarChartOptions = {
-      ...this.radarChartOptions,
-      scales: {
-        r: {
-          angleLines: { color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
-          grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
-          pointLabels: {
-            font: { size: 12, family: 'Poppins' },
-            color: isDark ? '#F9FAFB' : '#2C3E50'
-          },
-          ticks: {
-            backdropColor: isDark ? '#1F2937' : '#FFFFFF',
-            color: isDark ? '#9CA3AF' : '#64748B'
-          },
-          suggestedMin: 0,
-          suggestedMax: 100
-        }
-      }
-    };
-  }
 
-  // --- CONFIGURACIÓN DEL GRÁFICO DE RADAR ---
-  public radarChartOptions: ChartOptions<'radar'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      r: {
-        angleLines: { color: 'rgba(0,0,0,0.1)' },
-        grid: { color: 'rgba(0,0,0,0.05)' },
-        pointLabels: {
-          font: { size: 12, family: 'Poppins' },
-          color: '#2C3E50' // Color del texto (S, T, E, A, M)
-        },
-        suggestedMin: 0,
-        suggestedMax: 100
-      }
-    },
-    plugins: { legend: { display: false } } // Ocultamos la leyenda para que se vea limpio
-  };
-
-  public radarChartLabels: string[] = ['Ciencia', 'Tecnología', 'Ingeniería', 'Artes', 'Matemáticas'];
-
-  public radarChartDatasets: ChartConfiguration<'radar'>['data']['datasets'] = [
-    {
-      data: [85, 90, 70, 60, 80],
-      label: 'Aptitudes',
-      fill: true,
-      backgroundColor: 'rgba(7, 177, 201, 0.2)',
-      borderColor: '#07B1C9',
-      pointBackgroundColor: '#07B1C9',
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: '#07B1C9'
-    }
-  ];
 
   // --- INSIGNIAS (GAMIFICATION) ---
   badges = [
