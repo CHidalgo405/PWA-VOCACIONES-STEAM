@@ -12,6 +12,7 @@ export interface Usuario {
   fotoUrl?: string;
   title?: string;
   level?: number;
+  darkMode?: boolean;
 }
 
 @Injectable({
@@ -23,12 +24,19 @@ export class AuthService {
 
   private http = inject(HttpClient);
   private router = inject(Router);
+  private themeService = inject(ThemeService);
 
   // currentUser subject to react to user changes
   private currentUserSubject = new BehaviorSubject<Usuario | null>(this.getCurrentUser());
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor() { }
+  constructor() { 
+    // Apply theme from cached user if exists
+    const cachedUser = this.getCurrentUser();
+    if (cachedUser && cachedUser.darkMode !== undefined) {
+      this.themeService.setTheme(cachedUser.darkMode);
+    }
+  }
 
   // ---------------------------------------------------------
   // REST API ENDPOINTS
@@ -116,7 +124,8 @@ export class AuthService {
            role: res.role,
            fotoUrl: res.avatarUrl || res.fotoUrl,
            title: res.title,
-           level: res.level
+           level: res.level,
+           darkMode: res.darkMode
         };
         this.setCurrentUser(user);
         return user;
@@ -137,18 +146,25 @@ export class AuthService {
       role: user.role,
       fotoUrl: user.avatarUrl,
       title: user.title,
-      level: user.level
+      level: user.level,
+      darkMode: user.darkMode
     };
 
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
     
     this.currentUserSubject.next(usuario);
+    if (usuario.darkMode !== undefined) {
+      this.themeService.setTheme(usuario.darkMode);
+    }
   }
 
   private setCurrentUser(usuario: Usuario) {
     localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
     this.currentUserSubject.next(usuario);
+    if (usuario.darkMode !== undefined) {
+      this.themeService.setTheme(usuario.darkMode);
+    }
   }
 
   logout() {

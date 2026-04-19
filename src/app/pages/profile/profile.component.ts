@@ -80,6 +80,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
         const initials = usuario.nombre.split(' ').map(n => n[0]).join('').substring(0, 2);
         this.user.avatar = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&size=128`;
       }
+
+      // Sync theme toggle with user preference from API
+      if (usuario.darkMode !== undefined) {
+        const themeSetting = this.preferencesSettings.find(s => s.action === 'theme');
+        if (themeSetting) {
+          themeSetting.toggleState = usuario.darkMode;
+        }
+        this.themeService.setTheme(usuario.darkMode);
+      }
     });
 
     this.loadTestResults();
@@ -266,9 +275,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   togglePreference(setting: any) {
     if (setting.action === 'theme') {
-      this.themeService.toggleTheme();
-      setting.toggleState = this.themeService.isDark;
-      this.showSuccessToast(this.themeService.isDark ? 'Modo oscuro activado' : 'Modo claro activado');
+      const isDark = !this.themeService.isDark;
+      this.themeService.setTheme(isDark);
+      setting.toggleState = isDark;
+      
+      this.userService.updateSettings({ darkMode: isDark }).subscribe({
+        next: () => {
+          this.showSuccessToast(isDark ? 'Modo oscuro activado' : 'Modo claro activado');
+        },
+        error: () => {
+          this.showSuccessToast('Error al guardar preferencia de tema');
+        }
+      });
     } else {
       setting.toggleState = !setting.toggleState;
       this.showSuccessToast(`Ajuste guardado: ${setting.title}`);

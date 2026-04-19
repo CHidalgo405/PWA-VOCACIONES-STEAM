@@ -6,28 +6,31 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class ThemeService {
 
-  private readonly STORAGE_KEY = 'theme-preference';
   private readonly DARK_CLASS = 'dark-theme';
 
   /** Observable that emits true when dark mode is active */
   isDarkMode$ = new BehaviorSubject<boolean>(false);
 
   /**
-   * Reads the stored preference from localStorage and applies the theme.
-   * Defaults to Light Mode if no preference is found.
-   * Should be called once from AppComponent.ngOnInit().
+   * Initializes the theme. 
+   * Default is Light Mode.
    */
   initializeTheme(): void {
-    const stored = localStorage.getItem(this.STORAGE_KEY);
-    const isDark = stored === 'dark';
+    // We follow "Modo Claro" as default if no external signal is provided
+    this.applyTheme(false);
+  }
+
+  /**
+   * Directly sets and applies the theme without local persistence.
+   */
+  setTheme(isDark: boolean): void {
     this.applyTheme(isDark);
   }
 
-  /** Toggles between light and dark mode, persisting the choice. */
+  /** Toggles between light and dark mode. */
   toggleTheme(): void {
     const newValue = !this.isDarkMode$.value;
     this.applyTheme(newValue);
-    localStorage.setItem(this.STORAGE_KEY, newValue ? 'dark' : 'light');
   }
 
   /** Returns the current dark-mode state synchronously. */
