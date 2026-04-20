@@ -1,14 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-onboarding',
   standalone: true,
-  imports: [CommonModule, RouterModule], // Solo necesitamos RouterModule para la navegación
+  imports: [CommonModule, RouterModule],
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.scss']
 })
-export class OnboardingComponent {
-  // Ya no necesitamos variables para slides ni índices.
+export class OnboardingComponent implements OnInit {
+  private themeService = inject(ThemeService);
+
+  ngOnInit(): void {
+    // La página de bienvenida siempre debe estar en modo claro por diseño
+    this.themeService.setTheme(false);
+  }
 }

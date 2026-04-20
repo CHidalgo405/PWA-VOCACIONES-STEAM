@@ -173,6 +173,7 @@ export class AuthService {
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
     this.currentUserSubject.next(null);
+    this.themeService.setTheme(false); // Force light mode on logout
     this.router.navigate(['/welcome']);
   }
 
