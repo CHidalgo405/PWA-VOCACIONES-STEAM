@@ -1,34 +1,31 @@
-<div class="welcome-container">
-
-  <div class="image-section" style="background-image: url('/assets/steam-welcome-bg.jpeg');">
-    <div class="brand-overlay">
-      <div class="logo-placeholder">
-        <span>
-          <img width="80" height="80" src="assets/logo-steam.png" alt="Logo">
-        </span>
-      </div>
-
-      <h1>VOCACIONES STEAM</h1>
-      <p class="tagline">Descubre tu camino</p>
-    </div>
+<div class="onboarding-container">
+  
+  <div class="visual-section">
+    <div class="bg-shape"></div>
+    <!-- Using the generic login-illustration as placeholder for the character since there isn't a new 3D graphic provided -> user said "the only thing that is going to be changed is the blue", implying reusing existing or we just use login-illustration.png which is already an avatar. -->
+    <!-- Let's use login-illustration.png from public/assets -->
+    <img src="assets/login-illustration-0.png" alt="Onboarding Illustration" class="illustration">
   </div>
 
   <div class="content-section">
     <div class="content-wrapper">
-      <h2>¡Bienvenido!</h2>
-      <p class="description">
-        Explora un universo de carreras, universidades y cursos diseñados para tu perfil. Donde la ciencia y el arte se
-        encuentran.
-      </p>
+      <h1 class="title">Empieza tu futuro <br class="desktop-hidden"><span class="desktop-only">con vocaciones </span>STEAM</h1>
+      <p class="subtitle">Encuentra tu vocación en ciencia, tecnología y más</p>
+      
+      <!-- Mobile Next Button -->
+      <div class="mobile-actions">
+        <div class="progress-ring-container" routerLink="/login">
+          <div class="progress-ring"></div>
+          <button class="btn-icon">
+            <app-lucide-icon name="arrow-right" [size]="24" color="white"></app-lucide-icon>
+          </button>
+        </div>
+      </div>
 
-      <div class="actions-group">
-        <button class="btn-welcome-login" routerLink="/login">
-          Iniciar Sesión
-        </button>
-
-        <button class="btn-welcome-signup" routerLink="/register">
-          Crear Cuenta
-        </button>
+      <!-- Desktop Buttons -->
+      <div class="desktop-actions">
+        <button class="btn-primary" routerLink="/register">Registrarse</button>
+        <button class="btn-outline" routerLink="/login">Iniciar Sesión</button>
       </div>
     </div>
   </div>

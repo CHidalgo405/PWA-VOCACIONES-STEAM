@@ -1,173 +1,231 @@
-/* Contenedor Principal */
-.welcome-container {
-  height: 100vh;
+:host {
+  display: block;
+}
+
+.onboarding-container {
+  min-height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-app); /* Usamos el fondo claro de la app */
+  background-color: #ffffff;
+  overflow: hidden;
+  position: relative;
+  font-family: 'Inter', sans-serif;
 
-  /* --- VERSIÓN ESCRITORIO (PC) --- */
-  /* En PC cambiamos a pantalla dividida (Split Screen) */
   @media (min-width: 1024px) {
     flex-direction: row;
   }
 }
 
-/* --- 1. SECCIÓN DE IMAGEN (Arriba en móvil, Izquierda en PC) --- */
-.image-section {
-  height: 65%; /* En móvil ocupa el 65% de la altura */
-  background-size: cover;
-  background-position: center;
+.visual-section {
   position: relative;
+  height: 55vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+
+  @media (min-width: 1024px) {
+    height: 100vh;
+    flex: 1.2;
+  }
+
+  .bg-shape {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #07B1C9;
+    z-index: -1;
+    clip-path: polygon(0 0, 100% 0, 0 80%);
+    
+    @media (min-width: 1024px) {
+      clip-path: polygon(0 0, 70% 0, 40% 100%, 0% 100%);
+    }
+  }
+
+  .illustration {
+    max-width: 80%;
+    max-height: 90%;
+    object-fit: contain;
+    z-index: 2;
+    transform: translateY(20px);
+    
+    @media (min-width: 1024px) {
+      max-width: 75%;
+      transform: translateY(0);
+    }
+  }
+}
+
+.content-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  background-color: #ffffff;
+  z-index: 2;
+
+  @media (min-width: 1024px) {
+    flex: 1;
+    padding: 0 80px;
+    justify-content: flex-start;
+  }
+}
+
+.content-wrapper {
+  max-width: 450px;
+  text-align: center;
+  width: 100%;
+
+  @media (min-width: 1024px) {
+    text-align: left;
+    max-width: 500px;
+  }
+}
+
+.title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1.2;
+  margin-bottom: 15px;
+
+  @media (min-width: 1024px) {
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+}
+
+.desktop-hidden {
+  display: block;
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+.desktop-only {
+  display: none;
+  @media (min-width: 1024px) {
+    display: inline;
+  }
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #666666;
+  line-height: 1.5;
+  margin-bottom: 40px;
+  font-weight: 500;
+
+  @media (min-width: 1024px) {
+    font-size: 1.2rem;
+    margin-bottom: 50px;
+  }
+}
+
+/* Mobile Actions */
+.mobile-actions {
   display: flex;
   justify-content: center;
   align-items: center;
 
-  /* Overlay oscuro suave para que el texto blanco se lea bien sobre la imagen */
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.419), rgba(0, 0, 0, 0.38));
-  }
-
-  /* En PC ocupa el 50% del ancho y 100% de alto */
   @media (min-width: 1024px) {
-    height: 100%;
-    width: 50%;
-    order: 1; /* Va a la izquierda */
+    display: none;
   }
 
-  .brand-overlay {
-    position: relative; /* Para estar sobre el overlay oscuro */
-    text-align: center;
-    color: white;
-    z-index: 2;
-    margin-bottom: 60px; /* Subirlo un poco para que no choque con la curva */
-
-    /* Placeholder del Logo (Círculo blanco) */
-    .logo-placeholder {
-        width: 130px; height: 130px;
-        background: rgba(255, 255, 255, 0.849);
-        border-radius: 50%;
-        display: flex;
-        align-items: center; justify-content: center;
-        margin: 0 auto 20px;
-        font-size: 2rem; font-weight: 800;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    }
-
-    h1 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      margin: 0 0 10px 0;
-      letter-spacing: 1px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    }
-    .tagline {
-        font-size: 1.1rem;
-        font-weight: 500;
-        opacity: 0.9;
-        margin: 0;
-    }
-  }
-}
-
-/* --- 2. SECCIÓN DE CONTENIDO (Abajo en móvil, Derecha en PC) --- */
-.content-section {
-  flex: 1; /* Ocupa el espacio restante */
-  background-color: var(--white); /* Fondo blanco */
-  position: relative;
-  /* EL TRUCO DE LA CURVA: Bordes redondeados arriba y margen negativo */
-  border-radius: 30px 30px 0 0;
-  margin-top: -40px; /* Sube sobre la imagen */
-  z-index: 10; /* Asegura que esté encima de la imagen */
-  padding: 40px 30px;
-  
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* Centra el contenido verticalmente */
-  align-items: center;
-  text-align: center;
-  box-shadow: 0 -10px 30px rgba(0,0,0,0.05); /* Sombra suave hacia arriba */
-
-  /* En PC quitamos la curva y centramos */
-  @media (min-width: 1024px) {
-    width: 50%;
-    height: 100%;
-    order: 2; /* Va a la derecha */
-    margin-top: 0;
-    border-radius: 0; /* Sin curvas en PC */
-    padding: 0 80px; /* Más espacio lateral */
-    align-items: flex-start; /* Alineado a la izquierda en PC */
-    text-align: left;
-    box-shadow: none;
-  }
-
-  .content-wrapper {
-    width: 100%;
-    max-width: 400px; /* Que no se ensanche demasiado en tablets */
-  }
-
-  h2 {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 15px;
-  }
-
-  .description {
-      color: var(--text-light);
-      font-size: 1rem;
-      line-height: 1.6;
-      margin-bottom: 40px;
-  }
-}
-
-/* --- BOTONES ESPECÍFICOS DE BIENVENIDA --- */
-.actions-group {
+  .progress-ring-container {
+    position: relative;
+    width: 70px;
+    height: 70px;
     display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 100%;
-
-    button {
-        width: 100%;
-        padding: 18px;
-        border-radius: 50px; /* Píldora */
-        font-size: 1.1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-
-        &:active { transform: scale(0.98); }
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 50%;
+    background: conic-gradient(#07B1C9 0% 30%, #e0e0e0 30% 100%);
+    
+    &::before {
+      content: "";
+      position: absolute;
+      width: 62px;
+      height: 62px;
+      background-color: #ffffff;
+      border-radius: 50%;
     }
+
+    .btn-icon {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      background-color: #07B1C9; 
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      box-shadow: 0 4px 10px rgba(7, 177, 201, 0.4);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+      
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+  }
 }
 
-/* Estilo del botón Login (Oscuro como la referencia) */
-.btn-welcome-login {
-    background-color: #07B1C9; 
+/* Desktop Actions */
+.desktop-actions {
+  display: none;
+  gap: 20px;
+
+  @media (min-width: 1024px) {
+    display: flex;
+  }
+
+  button {
+    padding: 15px 30px;
+    border-radius: 8px; /* Rounded corners like in mockup */
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  .btn-primary {
+    background-color: #07B1C9;
     color: white;
-    border: 2px solid #07B1C9;
-    /* Opcional: Un glow sutil con el color principal */
-    box-shadow: 0 10px 25px -5px rgba(7, 177, 201, 0.25);
+    min-width: 150px;
+    box-shadow: 0 8px 20px -5px rgba(7, 177, 201, 0.4);
 
     &:hover {
-        background-color: #ffffff;
-        color: #07B1C9;
-        transform: translateY(-3px);
+      background-color: #069cba;
+      transform: translateY(-2px);
     }
-}
+  }
 
-/* Estilo del botón Sign Up (Borde) */
-.btn-welcome-signup {
+  .btn-outline {
     background-color: transparent;
-    color: #1a1a1a;
-    border: 2px solid #d1d1d1;
+    color: #4a4a4a;
+    border: 2px solid #a3a3a3;
+    min-width: 150px;
+
+    /* In mockup the login button has blue border and text: */
+    /* Wait, checking mockup for Iniciar Sesion button -> it seems to have blue text & blue border */
+    border-color: #07B1C9;
+    color: #07B1C9;
 
     &:hover {
-        border-color: #07B1C9;
-        background-color: #fafafa;
-        color: #07B1C9;
+      background-color: rgba(7, 177, 201, 0.05);
     }
+  }
 }
