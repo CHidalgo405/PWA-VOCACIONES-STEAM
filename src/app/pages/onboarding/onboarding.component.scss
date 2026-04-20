@@ -38,12 +38,20 @@
     height: 100%;
     background-color: #07B1C9;
     z-index: -1;
-    /* Diagonal band from top-left to bottom-right */
-    clip-path: polygon(0 0, 60% 0, 100% 100%, 40% 100%);
-    
+    /* 
+     * Mobile: Diagonal parallelogram stripe centered behind the character.
+     * White is visible on top-left corner and bottom-right corner.
+     * The band goes from (~15%, 0%) → (~85%, 0%) slanted down to (~65%, 100%) → (~-5%, 100%)
+     */
+    clip-path: polygon(15% 0%, 85% 0%, 65% 100%, -5% 100%);
+
     @media (min-width: 1024px) {
-      /* On desktop, the band is narrower and on the left side */
-      clip-path: polygon(0 0, 40% 0, 60% 100%, 0% 100%);
+      /*
+       * Desktop: Same diagonal band but it now fills more of the left panel.
+       * Top-left corner is clipped → band starts from left edge near top,
+       * exits on the right side with a slant, leaving white in top-right & bottom-left corners.
+       */
+      clip-path: polygon(0% 10%, 75% 0%, 55% 100%, -20% 90%);
     }
   }
 
