@@ -4,13 +4,14 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, LucideIconComponent],
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.scss']
 })
@@ -29,6 +30,10 @@ export class ForgotPasswordComponent {
   isBlocked = false;
   otpFailedAttempts = 0;
   readonly MAX_OTP_ATTEMPTS = 3;
+
+  // UI state for password visibility
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor() {
     this.emailForm = this.fb.group({
@@ -202,5 +207,11 @@ export class ForgotPasswordComponent {
         }, 1500);
       }
     });
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 }
