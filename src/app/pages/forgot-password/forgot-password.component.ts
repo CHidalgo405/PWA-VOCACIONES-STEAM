@@ -207,6 +207,8 @@ export class ForgotPasswordComponent {
         }, 1500);
       }
     });
+  }
+
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
