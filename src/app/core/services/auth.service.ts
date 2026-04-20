@@ -126,7 +126,7 @@ export class AuthService {
            fotoUrl: res.avatarUrl || res.fotoUrl,
            title: res.title,
            level: res.level,
-           darkMode: res.darkMode
+           darkMode: res.settings?.darkMode
         };
         this.setCurrentUser(user);
         return user;
@@ -148,7 +148,7 @@ export class AuthService {
       fotoUrl: user.avatarUrl,
       title: user.title,
       level: user.level,
-      darkMode: user.darkMode
+      darkMode: user.settings?.darkMode
     };
 
     localStorage.setItem(this.TOKEN_KEY, token);
