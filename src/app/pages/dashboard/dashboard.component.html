@@ -1,119 +1,297 @@
-<div class="dashboard-container">
-
+<div class="dashboard-wrap" [class.test-taken]="hasTakenTest">
+  
   <header class="header-section">
     <div class="user-greeting">
-      <span class="subtext">Bienvenido de nuevo,</span>
-      <h1>{{ userName }} <app-lucide-icon name="sparkles" [size]="28" color="var(--steam-blue)"></app-lucide-icon></h1>
+      <span class="subtext">Bienvenido{{ hasTakenTest ? ' de nuevo' : '' }},</span>
+      <h1 (click)="toggleMockState()">{{ userName }} <app-lucide-icon name="sparkles" [size]="20" color="var(--text-primary)"></app-lucide-icon></h1>
     </div>
-    <div class="user-avatar" routerLink="/profile">
-      <img [src]="avatarUrl" alt="Perfil">
+    <div class="header-actions">
+      <div class="notification-bell">
+        <app-lucide-icon name="bell" [size]="24" color="var(--steam-orange)"></app-lucide-icon>
+        <div class="notification-dot"></div>
+      </div>
+      <div class="user-avatar" routerLink="/profile">
+        <img [src]="avatarUrl" alt="Perfil">
+      </div>
     </div>
   </header>
 
-  <section class="hero-section" *ngIf="!hasTakenTest">
-    <div class="cta-card">
-      <div class="cta-content">
-        <span class="badge">Recomendado</span>
-        <h2>Descubre tu Vocación</h2>
-        <p>Responde el test de aptitudes y encuentra tu carrera ideal.</p>
-        <button class="btn-cta" (click)="startTest()">
-          Comenzar Test
-        </button>
-      </div>
-      <div class="cta-image">
-        <app-lucide-icon name="rocket" [size]="80" color="var(--steam-blue)"></app-lucide-icon>
-      </div>
-    </div>
-  </section>
-
-  <section class="results-hero-section" *ngIf="hasTakenTest">
-    <div class="results-card">
-      <div class="results-content">
-        <span class="badge badge-success">¡Test Completado!</span>
-        <h2>Tu perfil STEAM</h2>
-        <p>Hemos analizado tus respuestas y tienes opciones afines a tus intereses. Explora tus recomendaciones y análisis.</p>
-        <div class="actions-row">
-          <button class="btn-primary" routerLink="/test-result">Ver Análisis</button>
-          <button class="btn-outline-small" (click)="startTest()">Reintentar Test</button>
+  <!-- =============================== -->
+  <!-- ESTADO 1: PRE-TEST (Pendiente)  -->
+  <!-- =============================== -->
+  <ng-container *ngIf="!hasTakenTest">
+    
+    <!-- Top Locked Banner -->
+    <div class="steam-banner locked">
+      <div class="banner-content">
+        <span class="banner-label">Tu perfil STEAM</span>
+        <div class="banner-title-row">
+          <app-lucide-icon name="lock" [size]="18" color="rgba(255,255,255,0.6)"></app-lucide-icon>
+          <h3>Completa el test para desbloquear tu perfil</h3>
         </div>
       </div>
-      <div class="results-image">
-        <app-lucide-icon name="target" [size]="80" color="var(--steam-orange)"></app-lucide-icon>
+      <div class="banner-score">
+        <span class="score-value">--</span>
+        <span class="score-label">pts STEAM</span>
       </div>
     </div>
-  </section>
 
-  <section class="scroll-section">
-    <div class="section-header">
-      <h3>Áreas STEAM</h3>
-      <p class="section-subtitle">Explora los diferentes campos del futuro</p>
-    </div>
-
-    <div class="horizontal-scroll">
-      <div class="category-card" *ngFor="let cat of categories" [style.border-color]="cat.color"
-        (click)="openAreaModal(cat)">
-        <div class="card-bg-glow" [style.background-color]="cat.color"></div>
-        <span class="cat-icon" [style.background-color]="cat.color + '20'" [style.color]="cat.color">
-          <app-lucide-icon [name]="cat.icon" [size]="24" [color]="cat.color"></app-lucide-icon>
-        </span>
-        <div class="cat-info">
-          <span class="cat-name">{{ cat.name }}</span>
-          <span class="cat-desc">{{ cat.shortDesc }}</span>
+    <div class="desktop-grid pre-test-grid">
+      <!-- MAIN COLUMN -->
+      <div class="main-column">
+        <!-- Stepper -->
+        <div class="stepper-container">
+          <div class="step completed">
+            <div class="step-icon">
+              <app-lucide-icon name="check" [size]="14"></app-lucide-icon>
+            </div>
+            <span class="step-label">Registro</span>
+          </div>
+          <div class="step active">
+            <div class="step-icon">2</div>
+            <span class="step-label">Test</span>
+          </div>
+          <div class="step pending">
+            <div class="step-icon">3</div>
+            <span class="step-label">Resultados</span>
+          </div>
+          <div class="step pending">
+            <div class="step-icon">4</div>
+            <span class="step-label">Carreras</span>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <div class="spacer-bottom"></div>
+        <!-- CTA Card -->
+        <div class="cta-card">
+          <div class="cta-bg-shapes"></div>
+          <span class="step-badge">PASO 2 • PENDIENTE</span>
+          <h2>Descubre tu vocación STEAM ahora</h2>
+          <p>Responde 20 preguntas y nuestra IA analizará tu perfil para recomendarte las mejores carreras.</p>
+          
+          <ul class="cta-features">
+            <li><span class="dot"></span> 10 min aprox.</li>
+            <li><span class="dot"></span> 20 preguntas</li>
+            <li><span class="dot"></span> Resultado al instante</li>
+          </ul>
 
-  <app-navbar></app-navbar>
-
-</div>
-
-<!-- Modal de Detalle de Área STEAM -->
-<div class="area-modal-overlay" *ngIf="selectedArea" (click)="closeAreaModal()">
-  <div class="area-modal-content" (click)="$event.stopPropagation()">
-    <button class="btn-close" (click)="closeAreaModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
-
-    <div class="modal-header"
-      [style.background]="'linear-gradient(135deg, ' + selectedArea.color + ' 0%, ' + selectedArea.color + 'dd 100%)'">
-      <div class="modal-icon-wrapper" style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%;">
-        <app-lucide-icon [name]="selectedArea.icon" [size]="32" color="white"></app-lucide-icon>
-      </div>
-      <h2>{{ selectedArea.name }}</h2>
-      <p class="modal-short-desc">{{ selectedArea.shortDesc }}</p>
-    </div>
-
-    <div class="modal-body">
-      <div class="modal-section">
-        <h3>¿Qué es?</h3>
-        <p>{{ selectedArea.description }}</p>
-      </div>
-
-      <div class="modal-section subjects-section">
-        <h3>Materias Predominantes</h3>
-        <div class="subjects-tags">
-          <span class="subject-tag" *ngFor="let subject of selectedArea.subjects" [style.color]="selectedArea.color"
-            [style.background-color]="selectedArea.color + '15'"
-            [style.border]="'1px solid ' + selectedArea.color + '40'">
-            {{ subject }}
-          </span>
+          <button class="btn-start-test" (click)="startTest()">
+            Iniciar test <app-lucide-icon name="arrow-right" [size]="18"></app-lucide-icon>
+          </button>
         </div>
-      </div>
 
-      <div class="modal-section">
-        <h3>Carreras Relacionadas</h3>
-        <div class="careers-grid">
-          <div class="career-item" *ngFor="let career of selectedArea.careers">
-            <span class="career-icon">
-              <app-lucide-icon [name]="career.icon" [size]="20" [color]="selectedArea.color"></app-lucide-icon>
-            </span>
-            <span class="career-name">{{ career.name }}</span>
+        <!-- Por qué hacerlo -->
+        <div class="why-section">
+          <h3>¿Por qué hacerlo?</h3>
+          <div class="why-grid">
+            <div class="why-card">
+              <div class="icon-box red-light">
+                <app-lucide-icon name="target" [size]="24" color="#F44336"></app-lucide-icon>
+              </div>
+              <span>Carreras alineadas a ti</span>
+            </div>
+            <div class="why-card">
+              <div class="icon-box green-light">
+                <app-lucide-icon name="landmark" [size]="24" color="#8B7355"></app-lucide-icon>
+              </div>
+              <span>Top universidades para tu perfil</span>
+            </div>
+            <div class="why-card">
+              <div class="icon-box dark-light">
+                <app-lucide-icon name="sparkles" [size]="24" color="#1A1A1A"></app-lucide-icon>
+              </div>
+              <span>IA personalizada para ti</span>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- SIDEBAR COLUMN -->
+      <div class="sidebar-column">
+        
+        <!-- Tu Perfil Por Area (Bloqueado) -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <h3>Tu perfil por área</h3>
+            <span class="widget-action-text disabled">Disponible tras el test</span>
+          </div>
+          <div class="locked-bars-list">
+            <div class="locked-bar-item" *ngFor="let area of profileAreas">
+              <div class="area-name-col">
+                <span class="color-dot" [style.background-color]="area.color"></span>
+                <span class="area-name">{{ area.name }}</span>
+              </div>
+              <div class="bar-col">
+                <div class="empty-bar"></div>
+              </div>
+              <div class="icon-col">
+                <app-lucide-icon name="lock" [size]="16" color="#CCCCCC"></app-lucide-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carreras Recomendadas (Bloqueado) -->
+        <div class="widget-card">
+          <h3 class="margin-bottom-sm">Carreras recomendadas</h3>
+          <p class="subtitle-text">Completa el test para desbloquear tus carreras ideales</p>
+          <div class="tags-container locked">
+            <div class="pill-tag ghost" *ngFor="let career of recommendedCareers">
+              {{ career.title }}
+            </div>
+            <div class="pill-tag ghost">IA</div>
+          </div>
+        </div>
+
+      </div>
     </div>
-  </div>
+  </ng-container>
+
+  <!-- =============================== -->
+  <!-- ESTADO 2: POST-TEST (Realizado) -->
+  <!-- =============================== -->
+  <ng-container *ngIf="hasTakenTest">
+    
+    <!-- Top Active Banner -->
+    <div class="steam-banner active">
+      <div class="banner-content">
+        <span class="banner-label">Tu perfil dominante</span>
+        <h3>Tecnología · Ingeniería</h3>
+      </div>
+      <div class="banner-score">
+        <span class="score-value">{{ steamScore }}</span>
+        <span class="score-label">pts STEAM</span>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="quick-stats-row">
+      <div class="stat-item">
+        <span class="stat-number color-blue">{{ streakDays }}</span>
+        <span class="stat-label">Racha de días</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number">{{ testsTaken }}</span>
+        <span class="stat-label">Tests realizados</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number color-green">{{ compatibility }}%</span>
+        <span class="stat-label">Compatibilidad</span>
+      </div>
+    </div>
+
+    <div class="desktop-grid post-test-grid">
+      <!-- MAIN COLUMN -->
+      <div class="main-column">
+        
+        <!-- Tu Perfil Por Area -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <h3>Tu perfil por área</h3>
+            <a class="widget-action-link" routerLink="/test-result">Ver análisis</a>
+          </div>
+          <div class="progress-bars-list">
+            <div class="progress-bar-item" *ngFor="let area of profileAreas">
+              <div class="area-name-col">
+                <span class="color-dot" [style.background-color]="area.color"></span>
+                <span class="area-name">{{ area.name }}</span>
+              </div>
+              <div class="bar-col">
+                <div class="track">
+                  <div class="fill" [style.width]="area.percentage + '%'" [style.background-color]="area.color"></div>
+                </div>
+              </div>
+              <div class="percent-col">
+                <span class="percentage" *ngIf="area.percentage > 0">{{ area.percentage }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carreras Para Ti -->
+        <div class="widget-card mobile-margin-bottom">
+          <div class="widget-header">
+            <h3>Carreras para ti</h3>
+            <a class="widget-action-link">Ver todas</a>
+          </div>
+          <div class="tags-container mb-3">
+            <div class="pill-tag filled" *ngFor="let career of recommendedCareers" [class.dark]="career.category === 'engineering'">
+              {{ career.title }}
+            </div>
+          </div>
+
+          <!-- Retry test banner (mobile places it here, desktop can place it in sidebar) -->
+          <div class="retry-banner mobile-only">
+            <div class="retry-content">
+              <h4>¿Quieres más precisión?</h4>
+              <p>Reintentar el test avanzado</p>
+            </div>
+            <button class="btn-retry" (click)="startTest()">Reintentar</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SIDEBAR COLUMN -->
+      <div class="sidebar-column">
+        
+        <!-- Resumen de tu perfil -->
+        <div class="widget-card">
+          <h3 class="margin-bottom-md">Resumen de tu perfil</h3>
+          
+          <div class="summary-item">
+            <span class="summary-label">Disciplina principal</span>
+            <span class="summary-value">Tecnología (92%)</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Área secundaria</span>
+            <span class="summary-value">Ingeniería (78%)</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Carreras compatibles</span>
+            <span class="summary-value">47 de 500+</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Universidades recomendadas</span>
+            <span class="summary-value">12 instituciones</span>
+          </div>
+        </div>
+
+        <!-- Progreso en la plataforma -->
+        <div class="widget-card platform-progress-card">
+          <h3 class="margin-bottom-md">Progreso en la plataforma</h3>
+          <div class="platform-stats-grid">
+            <div class="plat-stat">
+              <span class="plat-val">3</span>
+              <span class="plat-lbl">Tests</span>
+            </div>
+            <div class="plat-stat">
+              <span class="plat-val">12</span>
+              <span class="plat-lbl">Días racha</span>
+            </div>
+            <div class="plat-stat highlight">
+              <span class="plat-val">94%</span>
+              <span class="plat-lbl">Match</span>
+            </div>
+          </div>
+
+          <div class="retry-banner desktop-only" style="margin-top: 20px;">
+            <div class="retry-content">
+              <h4>¿Quieres más precisión?</h4>
+              <p>Reintentar el test avanzado</p>
+            </div>
+            <button class="btn-retry" (click)="startTest()">Reintentar</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+
+  <div class="spacer-bottom"></div>
+  <app-navbar></app-navbar>
+
 </div>
 
 <!-- Modal de Bienvenida -->
