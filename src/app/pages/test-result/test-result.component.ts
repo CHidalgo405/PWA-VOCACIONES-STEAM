@@ -99,14 +99,15 @@ export class TestResultComponent implements OnInit {
     const user = this.authService.getCurrentUser();
     const userId = user?.id || 'guest';
 
-    const answersStr = localStorage.getItem(`test_answers_${userId}`);
+    const answersStr = localStorage.getItem(`test_answers_${userId}`) || localStorage.getItem('latest_test_answers');
     if (!answersStr) {
       console.warn('No test answers found.');
+      this.toastService.showToast('No se encontraron las respuestas del test.', 'error');
       return;
     }
     const answers = JSON.parse(answersStr);
 
-    const savedLocation = localStorage.getItem(`test_location_${userId}`) || '';
+    const savedLocation = localStorage.getItem(`test_location_${userId}`) || localStorage.getItem('latest_test_location') || '';
     if (savedLocation) {
       this.locationInput = savedLocation;
     }
@@ -123,6 +124,7 @@ export class TestResultComponent implements OnInit {
       error: (err) => {
         console.error('Failed to load results:', err);
         this.isLoading = false;
+        this.toastService.showToast('Error al procesar el test con la IA. Por favor intenta de nuevo.', 'error', 'Error del Servidor');
       }
     });
   }
