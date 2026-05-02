@@ -375,7 +375,7 @@
                 <input type="text" [(ngModel)]="locationInput"
                     placeholder="Ej. Córdoba, Veracruz o C.P. 94500"
                     class="location-input">
-                <button class="btn-ai-search" (click)="startAISearch()" [disabled]="isSearching">
+                <button class="btn-ai-search" (click)="startAISearch()" [disabled]="isLoading">
                     Encontrar Universidades AI
                     <span style="display:inline-flex;align-items:center;margin-left:8px;">
                         <app-lucide-icon name="bot" [size]="20"></app-lucide-icon>
@@ -388,17 +388,17 @@
 
 
     <!-- OVERLAY / FULL SCREEN SPLASH -->
-    <app-splash-screen *ngIf="isSearching"
+    <app-splash-screen *ngIf="isLoading"
         [loadingText]="splashText"
         [controlExternally]="true"
-        [isVisible]="isSearching">
+        [isVisible]="isLoading">
     </app-splash-screen>
 
 
     <!-- ============================================================
          VIEW 2: UNIVERSITIES — REDESIGNED SPLIT-VIEW
          ============================================================ -->
-    <div class="view-universities" *ngIf="viewState === 'universities' && !isSearching">
+    <div class="view-universities" *ngIf="viewState === 'universities' && !isLoading">
 
         <!-- Header -->
         <div class="universities-header">

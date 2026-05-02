@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
-import { UniversityRecommendation, TestSubmissionResponse } from '../../core/services/test.service';
+import { UniversityRecommendation, TestSubmissionResponse, VocationTestService } from '../../core/services/test.service';
 import { UserService } from '../../core/services/user.service';
 import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
@@ -31,7 +31,7 @@ export interface SteamArea {
 export class TestResultComponent implements OnInit {
   // UI States
   viewState: 'result' | 'universities' = 'result';
-  isSearching: boolean = false;
+  isLoading: boolean = false;
   splashText: string = '';
   locationInput: string = '';
 
@@ -78,6 +78,7 @@ export class TestResultComponent implements OnInit {
 
   private userService = inject(UserService);
   private toastService = inject(ToastService);
+  private testService = inject(VocationTestService);
 
   // STEAM area metadata palette
   private readonly STEAM_META: Record<string, { label: string; gradientStart: string; gradientEnd: string; icon: string }> = {
@@ -93,21 +94,40 @@ export class TestResultComponent implements OnInit {
   }
 
   loadResults() {
-    const rawResult = localStorage.getItem('latest_test_result');
-    if (rawResult) {
-      const result: TestSubmissionResponse = JSON.parse(rawResult);
-      this.userProfile.dominantTraits = result.dominantTraits;
-      this.userProfile.description = result.aiProfileDescription;
-      this.recommendedUniversities = result.recommendations;
-
-      this.buildSteamChart(result.scores);
-      this.buildGreeting();
-      this.buildCareerCards(result.recommendations);
+    const answersStr = localStorage.getItem('latest_test_answers');
+    if (!answersStr) {
+      console.warn('No test answers found.');
+      return;
     }
+    const answers = JSON.parse(answersStr);
+
+    this.isLoading = true;
+    this.splashText = 'Analizando tu perfil STEAM...';
+
+    this.testService.submitTest(answers, '').subscribe({
+      next: (result) => {
+        this.processResult(result);
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load results:', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private processResult(result: TestSubmissionResponse) {
+    this.userProfile.dominantTraits = result.dominantTraits;
+    this.userProfile.description = result.aiProfileDescription;
+    this.recommendedUniversities = result.recommendations;
+
+    this.buildSteamChart(result.scores);
+    this.buildGreeting();
+    this.buildCareerCards(result.recommendations);
   }
 
   private buildSteamChart(scores: Record<string, number>) {
-    const total = Object.values(scores).reduce((a, b) => a + b, 0) || 1;
+    const MAX_SCORE = 20;
 
     this.steamAreas = Object.entries(scores).map(([key, rawScore]) => {
       const meta = this.STEAM_META[key] ?? {
@@ -116,6 +136,9 @@ export class TestResultComponent implements OnInit {
         gradientEnd: '#0698AC',
         icon: 'star',
       };
+      
+      const percentage = Math.min(Math.round((rawScore / MAX_SCORE) * 100), 100);
+      
       return {
         key,
         label: meta.label,
@@ -124,7 +147,7 @@ export class TestResultComponent implements OnInit {
         gradientEnd: meta.gradientEnd,
         icon: meta.icon,
         rawScore,
-        percentage: Math.round((rawScore / total) * 100),
+        percentage,
       };
     }).sort((a, b) => b.rawScore - a.rawScore);
 
@@ -254,12 +277,23 @@ export class TestResultComponent implements OnInit {
       this.locationInput = 'tu zona';
     }
     this.splashText = `Analizando opciones en ${this.locationInput}...`;
-    this.isSearching = true;
-    setTimeout(() => {
-      this.isSearching = false;
-      this.viewState = 'universities';
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    }, 3000);
+    this.isLoading = true;
+
+    const answersStr = localStorage.getItem('latest_test_answers');
+    const answers = answersStr ? JSON.parse(answersStr) : {};
+
+    this.testService.submitTest(answers, this.locationInput).subscribe({
+      next: (result) => {
+        this.processResult(result);
+        this.isLoading = false;
+        this.viewState = 'universities';
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      },
+      error: (err) => {
+        console.error('Error during AI Search:', err);
+        this.isLoading = false;
+      }
+    });
   }
 
   openDetails(university: UniversityRecommendation) {

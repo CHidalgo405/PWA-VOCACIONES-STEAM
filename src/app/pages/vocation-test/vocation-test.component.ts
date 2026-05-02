@@ -144,53 +144,18 @@ export class VocationTestComponent implements OnInit {
     finishTest() {
         this.viewState = 'analyzing';
 
-        const mockResult: TestSubmissionResponse = {
-            testId: 'mock-' + new Date().getTime(),
-            scores: this.profileScores,
-            dominantTraits: 'Tecnología + Ciencia (Simulado)',
-            aiProfileDescription: 'Eres una persona curiosa con una gran afinidad por la tecnología y la innovación. Tienes perfil analítico, ideal para ingeniería o ciencias de la computación.',
-            recommendations: [
-                {
-                    id: 1,
-                    name: 'Universidad Tecnológica (UTCV)',
-                    location: 'Veracruz, 5km',
-                    suggestedMajor: 'Ingeniería de Software',
-                    matchReason: 'Combina perfectamente con tu perfil tecnológico y analítico.',
-                    keyDates: 'Examen de Admisión: Junio 2026',
-                    studyPlan: ['Programación Avanzada', 'Redes', 'Bases de Datos'],
-                    websiteUrl: 'https://www.utcv.edu.mx'
-                },
-                {
-                    id: 2,
-                    name: 'Instituto Politécnico Nacional (IPN)',
-                    location: 'Ciudad de México',
-                    suggestedMajor: 'Ing. Mecatrónica',
-                    matchReason: 'Ideal para tus habilidades lógicas y tu interés en proyectos físicos.',
-                    keyDates: 'Convocatoria: Febrero 2026',
-                    studyPlan: ['Robótica', 'Sistemas Digitales', 'Física'],
-                    websiteUrl: 'https://www.ipn.mx'
-                }
-            ]
-        };
+        const user = this.authService.getCurrentUser();
+        if (user?.id) {
+            localStorage.setItem(`hasTakenTest_${user.id}`, 'true');
+        }
+        
+        // Save answers so the results page can call the API
+        localStorage.setItem('latest_test_answers', JSON.stringify(this.userAnswers));
 
-        this.testService.submitTest(this.userAnswers).pipe(
-            catchError(err => {
-                console.warn('API falló o no disponible, usando resultado simulado...', err);
-                return of(mockResult);
-            })
-        ).subscribe(res => {
-            if (res) {
-                const user = this.authService.getCurrentUser();
-                if (user?.id) {
-                    localStorage.setItem(`hasTakenTest_${user.id}`, 'true');
-                }
-                localStorage.setItem('latest_test_result', JSON.stringify(res));
-
-                setTimeout(() => {
-                    this.router.navigate(['/test-result']);
-                }, 3000);
-            }
-        });
+        // Simulate a brief delay before navigating
+        setTimeout(() => {
+            this.router.navigate(['/test-result']);
+        }, 1500);
     }
 
     promptExit() {
