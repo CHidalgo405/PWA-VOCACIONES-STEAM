@@ -101,10 +101,15 @@ export class TestResultComponent implements OnInit {
     }
     const answers = JSON.parse(answersStr);
 
+    const savedLocation = localStorage.getItem('latest_test_location') || '';
+    if (savedLocation) {
+      this.locationInput = savedLocation;
+    }
+
     this.isLoading = true;
     this.splashText = 'Analizando tu perfil STEAM...';
 
-    this.testService.submitTest(answers, '').subscribe({
+    this.testService.submitTest(answers, savedLocation).subscribe({
       next: (result) => {
         this.processResult(result);
         this.isLoading = false;

@@ -175,7 +175,53 @@
 
 
 <!-- =============================================
-     VIEW 3: ANALYZING (AI splash)
+     VIEW 3: LOCATION PROMPT
+     ============================================= -->
+<div class="vt-wrapper" *ngIf="viewState === 'location-prompt'">
+  <div class="vt-onboarding fade-in">
+    <!-- Reusing onboarding styling -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <div class="onboarding-card">
+      <div class="onboarding-icon">
+        <div class="icon-ring">
+          <app-lucide-icon name="map-pin" [size]="48" color="#07B1C9"></app-lucide-icon>
+        </div>
+      </div>
+
+      <h1 class="onboarding-title" style="margin-top: 15px;">¡Test Completado!</h1>
+      <p class="onboarding-desc">
+        ¿Te gustaría que nuestra IA incluya opciones de universidades <strong>cerca de ti</strong> en tus resultados?
+      </p>
+
+      <div class="location-toggle-group">
+        <button class="toggle-btn" [class.active]="wantsLocalUniversities === true" (click)="wantsLocalUniversities = true">
+          Sí, buscar cerca
+        </button>
+        <button class="toggle-btn" [class.active]="wantsLocalUniversities === false" (click)="wantsLocalUniversities = false; userLocation = ''">
+          No, gracias
+        </button>
+      </div>
+
+      <div class="location-input-wrap fade-in-up" *ngIf="wantsLocalUniversities">
+        <input type="text" [(ngModel)]="userLocation" placeholder="Ej. Córdoba, Veracruz o C.P. 94500" class="vt-location-input">
+      </div>
+
+      <button class="btn-start pulse-anim" (click)="finishTest()" style="margin-top: 25px;"
+              [disabled]="wantsLocalUniversities && !userLocation.trim()">
+        <span>
+          <app-lucide-icon name="check-circle" [size]="18" color="white" style="margin-right:8px;margin-bottom:-3px;"></app-lucide-icon>
+          Generar Resultados
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- =============================================
+     VIEW 4: ANALYZING (AI splash)
      ============================================= -->
 <app-splash-screen
   *ngIf="viewState === 'analyzing'"

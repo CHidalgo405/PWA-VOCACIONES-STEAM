@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
 import { VocationTestService, Question, Option, TestSubmissionResponse } from '../../core/services/test.service';
@@ -11,14 +12,18 @@ import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.co
 @Component({
     selector: 'app-vocation-test',
     standalone: true,
-    imports: [CommonModule, DecimalPipe, SplashScreenComponent, LucideIconComponent],
+    imports: [CommonModule, FormsModule, DecimalPipe, SplashScreenComponent, LucideIconComponent],
     templateUrl: './vocation-test.component.html',
     styleUrls: ['./vocation-test.component.scss']
 })
 export class VocationTestComponent implements OnInit {
 
-    // Test states: 'onboarding' | 'questionnaire' | 'analyzing'
-    viewState: 'onboarding' | 'questionnaire' | 'analyzing' = 'onboarding';
+    // Test states: 'onboarding' | 'questionnaire' | 'location-prompt' | 'analyzing'
+    viewState: 'onboarding' | 'questionnaire' | 'location-prompt' | 'analyzing' = 'onboarding';
+
+    // Location prompt variables
+    wantsLocalUniversities: boolean | null = null;
+    userLocation: string = '';
 
     // Questions Data
     questions: Question[] = [];
@@ -103,10 +108,15 @@ export class VocationTestComponent implements OnInit {
         // Accumulate score and store answer
         const currentQ = this.currentQuestion;
         if (!currentQ) return;
-        this.userAnswers[currentQ.id.toString()] = this.selectedOptionId;
 
         const selectedOption = currentQ.options.find(o => o.id === this.selectedOptionId);
         if (selectedOption) {
+            // The backend expects the letter (e.g., "A", "B", "C") instead of the internal ID
+            const optionIndex = currentQ.options.indexOf(selectedOption);
+            const optionLetter = selectedOption.letter || ['A', 'B', 'C', 'D', 'E'][optionIndex];
+            
+            this.userAnswers[currentQ.id.toString()] = optionLetter;
+
             const tagKey = selectedOption.steamTrait
                 .toLowerCase()
                 .normalize('NFD')
@@ -123,7 +133,7 @@ export class VocationTestComponent implements OnInit {
                 this.selectedOptionId = null;
             });
         } else {
-            this.finishTest();
+            this.viewState = 'location-prompt';
         }
     }
 
@@ -151,6 +161,13 @@ export class VocationTestComponent implements OnInit {
         
         // Save answers so the results page can call the API
         localStorage.setItem('latest_test_answers', JSON.stringify(this.userAnswers));
+
+        // Save location if user wants local universities
+        if (this.wantsLocalUniversities && this.userLocation.trim()) {
+            localStorage.setItem('latest_test_location', this.userLocation.trim());
+        } else {
+            localStorage.removeItem('latest_test_location');
+        }
 
         // Simulate a brief delay before navigating
         setTimeout(() => {
