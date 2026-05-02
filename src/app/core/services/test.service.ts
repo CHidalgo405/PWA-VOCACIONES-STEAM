@@ -47,10 +47,10 @@ export class VocationTestService {
   }
 
   submitTest(answers: Record<string, string>, locationInput: string = ''): Observable<TestSubmissionResponse> {
-    const payload = {
-      answers,
-      locationInput
-    };
+    const payload: any = { answers };
+    if (locationInput && locationInput.trim() !== '') {
+      payload.locationInput = locationInput.trim();
+    }
     return this.http.post<TestSubmissionResponse>(`${environment.apiUrl}/tests/submit`, payload);
   }
 }
