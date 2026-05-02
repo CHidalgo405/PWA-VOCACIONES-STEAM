@@ -5,6 +5,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
 import { UniversityRecommendation, TestSubmissionResponse, VocationTestService } from '../../core/services/test.service';
 import { UserService } from '../../core/services/user.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
@@ -77,6 +78,7 @@ export class TestResultComponent implements OnInit {
   recommendedUniversities: UniversityRecommendation[] = [];
 
   private userService = inject(UserService);
+  private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private testService = inject(VocationTestService);
 
@@ -94,14 +96,17 @@ export class TestResultComponent implements OnInit {
   }
 
   loadResults() {
-    const answersStr = localStorage.getItem('latest_test_answers');
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id || 'guest';
+
+    const answersStr = localStorage.getItem(`test_answers_${userId}`);
     if (!answersStr) {
       console.warn('No test answers found.');
       return;
     }
     const answers = JSON.parse(answersStr);
 
-    const savedLocation = localStorage.getItem('latest_test_location') || '';
+    const savedLocation = localStorage.getItem(`test_location_${userId}`) || '';
     if (savedLocation) {
       this.locationInput = savedLocation;
     }
@@ -111,7 +116,7 @@ export class TestResultComponent implements OnInit {
 
     this.testService.submitTest(answers, savedLocation).subscribe({
       next: (result) => {
-        localStorage.setItem('latest_test_result', JSON.stringify(result));
+        localStorage.setItem(`test_result_${userId}`, JSON.stringify(result));
         this.processResult(result);
         this.isLoading = false;
       },
@@ -285,7 +290,10 @@ export class TestResultComponent implements OnInit {
     this.splashText = `Analizando opciones en ${this.locationInput}...`;
     this.isLoading = true;
 
-    const answersStr = localStorage.getItem('latest_test_answers');
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id || 'guest';
+
+    const answersStr = localStorage.getItem(`test_answers_${userId}`);
     const answers = answersStr ? JSON.parse(answersStr) : {};
 
     this.testService.submitTest(answers, this.locationInput).subscribe({

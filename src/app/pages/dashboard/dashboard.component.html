@@ -242,11 +242,11 @@
           
           <div class="summary-item">
             <span class="summary-label">Disciplina principal</span>
-            <span class="summary-value">Tecnología (92%)</span>
+            <span class="summary-value">{{ dominantArea ? dominantArea.name + ' (' + dominantArea.percentage + '%)' : '--' }}</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Área secundaria</span>
-            <span class="summary-value">Ingeniería (78%)</span>
+            <span class="summary-value">{{ secondaryArea ? secondaryArea.name + ' (' + secondaryArea.percentage + '%)' : '--' }}</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Carreras compatibles</span>

@@ -86,13 +86,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
         this.themeService.setTheme(usuario.darkMode);
       }
-    });
 
-    this.loadTestResults();
+      if (usuario.id) {
+        this.loadTestResults(usuario.id);
+      }
+    });
   }
 
-  loadTestResults() {
-    const rawResult = localStorage.getItem('latest_test_result');
+  loadTestResults(userId: string) {
+    const rawResult = localStorage.getItem(`test_result_${userId}`);
     if (rawResult) {
       try {
         const result: TestSubmissionResponse = JSON.parse(rawResult);

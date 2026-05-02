@@ -36,6 +36,8 @@ export class DashboardComponent implements OnInit {
   profileAreas: { name: string; percentage: number; color: string }[] = [];
 
   recommendedCareers: { title: string; category: string }[] = [];
+  dominantArea: any = null;
+  secondaryArea: any = null;
 
   constructor(private router: Router, private authService: AuthService) { }
 
@@ -58,13 +60,13 @@ export class DashboardComponent implements OnInit {
         }
 
         // Load test completion state
-        this.loadTestResult();
+        this.loadTestResult(usuario.id);
       }
     });
   }
 
-  loadTestResult() {
-    const rawResult = localStorage.getItem('latest_test_result');
+  loadTestResult(userId: string) {
+    const rawResult = localStorage.getItem(`test_result_${userId}`);
     if (rawResult) {
       try {
         const result: TestSubmissionResponse = JSON.parse(rawResult);
@@ -109,6 +111,12 @@ export class DashboardComponent implements OnInit {
           }));
         } else {
           this.recommendedCareers = [];
+        }
+
+        // Set dominant/secondary areas for the summary widget
+        if (this.profileAreas.length > 0) {
+            this.dominantArea = this.profileAreas[0];
+            this.secondaryArea = this.profileAreas[1] || null;
         }
       } catch (e) {
         console.error('Failed to parse test result', e);

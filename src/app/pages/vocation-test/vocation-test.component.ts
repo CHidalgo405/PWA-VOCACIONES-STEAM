@@ -160,13 +160,14 @@ export class VocationTestComponent implements OnInit {
         }
         
         // Save answers so the results page can call the API
-        localStorage.setItem('latest_test_answers', JSON.stringify(this.userAnswers));
+        const userId = user?.id || 'guest';
+        localStorage.setItem(`test_answers_${userId}`, JSON.stringify(this.userAnswers));
 
         // Save location if user wants local universities
         if (this.wantsLocalUniversities && this.userLocation.trim()) {
-            localStorage.setItem('latest_test_location', this.userLocation.trim());
+            localStorage.setItem(`test_location_${userId}`, this.userLocation.trim());
         } else {
-            localStorage.removeItem('latest_test_location');
+            localStorage.removeItem(`test_location_${userId}`);
         }
 
         // Simulate a brief delay before navigating
