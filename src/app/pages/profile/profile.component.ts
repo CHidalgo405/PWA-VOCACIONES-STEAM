@@ -97,7 +97,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       try {
         const result: TestSubmissionResponse = JSON.parse(rawResult);
         const scores = result.scores;
-        const total = Object.values(scores).reduce((a, b) => a + b, 0) || 1;
+        const MAX_SCORE = 20;
 
         // Map results to the steamAreas structure
         this.steamAreas = Object.entries(scores).map(([key, rawScore]) => {
@@ -114,7 +114,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
             gradientEnd: meta.gradientEnd,
             icon: meta.icon,
             rawScore,
-            percentage: Math.round((rawScore / total) * 100),
+            percentage: Math.min(Math.round((rawScore / MAX_SCORE) * 100), 100),
           };
         }).sort((a, b) => b.rawScore - a.rawScore);
 

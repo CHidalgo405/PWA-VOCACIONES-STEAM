@@ -111,6 +111,7 @@ export class TestResultComponent implements OnInit {
 
     this.testService.submitTest(answers, savedLocation).subscribe({
       next: (result) => {
+        localStorage.setItem('latest_test_result', JSON.stringify(result));
         this.processResult(result);
         this.isLoading = false;
       },

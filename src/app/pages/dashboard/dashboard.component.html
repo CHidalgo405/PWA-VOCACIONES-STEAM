@@ -3,7 +3,7 @@
   <header class="header-section">
     <div class="user-greeting">
       <span class="subtext">Bienvenido{{ hasTakenTest ? ' de nuevo' : '' }},</span>
-      <h1 (click)="toggleMockState()">{{ userName }} <app-lucide-icon name="sparkles" [size]="20" color="var(--text-primary)"></app-lucide-icon></h1>
+      <h1>{{ userName }} <app-lucide-icon name="sparkles" [size]="20" color="var(--text-primary)"></app-lucide-icon></h1>
     </div>
     <div class="header-actions">
       <div class="notification-bell">
@@ -155,7 +155,7 @@
     <div class="steam-banner active">
       <div class="banner-content">
         <span class="banner-label">Tu perfil dominante</span>
-        <h3>Tecnología · Ingeniería</h3>
+        <h3>{{ dominantTraitsStr }}</h3>
       </div>
       <div class="banner-score">
         <span class="score-value">{{ steamScore }}</span>

@@ -367,22 +367,7 @@
         <!-- /cta-buttons-block -->
 
 
-        <!-- ── AI SEARCH BANNER ── -->
-        <div class="ai-search-banner">
-            <h3>Encuentra la universidad ideal</h3>
-            <p>Nuestra Inteligencia Artificial buscará los mejores programas para tu perfil cerca de ti.</p>
-            <div class="search-form">
-                <input type="text" [(ngModel)]="locationInput"
-                    placeholder="Ej. Córdoba, Veracruz o C.P. 94500"
-                    class="location-input">
-                <button class="btn-ai-search" (click)="startAISearch()" [disabled]="isLoading">
-                    Encontrar Universidades AI
-                    <span style="display:inline-flex;align-items:center;margin-left:8px;">
-                        <app-lucide-icon name="bot" [size]="20"></app-lucide-icon>
-                    </span>
-                </button>
-            </div>
-        </div>
+
     </div> <br>
     <!-- /view-profile -->
 

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService, Usuario } from '../../core/services/auth.service';
+import { TestSubmissionResponse } from '../../core/services/test.service';
 
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
@@ -20,32 +21,21 @@ export class DashboardComponent implements OnInit {
 
   // User state
   hasTakenTest = false;
+  dominantTraitsStr = 'Pendiente';
 
   // Mocked stats
-  steamScore = 87;
+  steamScore = 0;
   streakDays = 12;
-  testsTaken = 3;
+  testsTaken = 1;
   compatibility = 94;
 
   // Modal State
   showWelcomeModal = false;
 
   // Profile Areas
-  profileAreas = [
-    { name: 'Tecnología', percentage: 92, color: '#F27405' },
-    { name: 'Ingeniería', percentage: 78, color: '#4CAF50' },
-    { name: 'Ciencia', percentage: 61, color: '#00BCD4' },
-    { name: 'Artes', percentage: 45, color: '#F44336' },
-    { name: 'Matemáticas', percentage: 38, color: '#424242' } // Use grey/black for math to match mockup
-  ];
+  profileAreas: { name: string; percentage: number; color: string }[] = [];
 
-  recommendedCareers = [
-    { title: 'Ing. en Software', category: 'technology' },
-    { title: 'Ciencia de Datos', category: 'technology' },
-    { title: 'Ciberseguridad', category: 'technology' },
-    { title: 'Mecatrónica', category: 'engineering' },
-    { title: 'IA', category: 'technology' }
-  ];
+  recommendedCareers: { title: string; category: string }[] = [];
 
   constructor(private router: Router, private authService: AuthService) { }
 
@@ -67,22 +57,75 @@ export class DashboardComponent implements OnInit {
           document.body.style.overflow = 'hidden';
         }
 
-        // Mock test completion state for now
-        const hasTakenTest = localStorage.getItem(`hasTakenTest_${usuario.id}`);
-        this.hasTakenTest = this.hasTakenTestMock; // Let's use a local toggle for easy testing
+        // Load test completion state
+        this.loadTestResult();
       }
     });
   }
 
-  // Helper toggle for the mockups (so user can switch easily in UI for demo purposes)
-  public get hasTakenTestMock(): boolean {
-    return localStorage.getItem('mockHasTakenTest') === 'true';
-  }
+  loadTestResult() {
+    const rawResult = localStorage.getItem('latest_test_result');
+    if (rawResult) {
+      try {
+        const result: TestSubmissionResponse = JSON.parse(rawResult);
+        this.hasTakenTest = true;
+        
+        const scores = result.scores;
+        const MAX_SCORE = 20;
+        
+        const topScore = Math.max(...Object.values(scores));
+        this.steamScore = Math.min(Math.round((topScore / MAX_SCORE) * 100), 100);
 
-  public toggleMockState() {
-    const isTaken = this.hasTakenTestMock;
-    localStorage.setItem('mockHasTakenTest', (!isTaken).toString());
-    this.hasTakenTest = !isTaken;
+        const areaColorMap: Record<string, string> = {
+          tecnologia: '#F27405',
+          ingenieria: '#4CAF50',
+          ciencia: '#00BCD4',
+          artes: '#F44336',
+          matematicas: '#424242'
+        };
+
+        const areaNameMap: Record<string, string> = {
+          tecnologia: 'Tecnología',
+          ingenieria: 'Ingeniería',
+          ciencia: 'Ciencia',
+          artes: 'Artes',
+          matematicas: 'Matemáticas'
+        };
+
+        this.profileAreas = Object.entries(scores).map(([key, rawScore]) => {
+          return {
+            name: areaNameMap[key] || key,
+            percentage: Math.min(Math.round((rawScore / MAX_SCORE) * 100), 100),
+            color: areaColorMap[key] || '#999999'
+          };
+        }).sort((a, b) => b.percentage - a.percentage);
+
+        this.dominantTraitsStr = result.dominantTraits || 'Perfil Mixto';
+
+        if (result.recommendations && result.recommendations.length > 0) {
+          this.recommendedCareers = result.recommendations.slice(0, 5).map(r => ({
+            title: r.suggestedMajor,
+            category: 'general'
+          }));
+        } else {
+          this.recommendedCareers = [];
+        }
+      } catch (e) {
+        console.error('Failed to parse test result', e);
+        this.hasTakenTest = false;
+      }
+    } else {
+      this.hasTakenTest = false;
+      
+      // Default empty state values
+      this.profileAreas = [
+        { name: 'Tecnología', percentage: 0, color: '#F27405' },
+        { name: 'Ingeniería', percentage: 0, color: '#4CAF50' },
+        { name: 'Ciencia', percentage: 0, color: '#00BCD4' },
+        { name: 'Artes', percentage: 0, color: '#F44336' },
+        { name: 'Matemáticas', percentage: 0, color: '#424242' }
+      ];
+    }
   }
 
   startTest() {
