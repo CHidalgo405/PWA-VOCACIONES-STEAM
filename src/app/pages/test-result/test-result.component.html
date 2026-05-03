@@ -201,7 +201,12 @@
         </div>
         <!-- /dna-insights-card -->
 
-        <!-- ══════════════════════════════════════════════
+        <div style="margin: 20px 0; text-align: center;">
+            <button class="panel-btn-secondary" style="width: 100%; justify-content: center; padding: 12px; background: white; border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 12px; font-weight: 500;" (click)="openAnswersModal()">
+                <app-lucide-icon name="list-checks" [size]="18" color="var(--primary-color)" style="margin-right: 8px;"></app-lucide-icon>
+                Ver Respuestas del Test
+            </button>
+        </div>
              BODY BLOCK 3 — APTITUDE THERMOMETER
              ══════════════════════════════════════════════ 
         <section class="aptitude-section">
@@ -647,6 +652,39 @@
         </ng-container>
     </div>
 
-
     <app-navbar></app-navbar>
+
+    <!-- ── MODAL: RESPUESTAS DEL TEST ── -->
+    <div class="side-panel-overlay" *ngIf="showAnswersModal" (click)="closeAnswersModal()">
+        <div class="side-panel-content" (click)="$event.stopPropagation()">
+            <div class="panel-cover" style="padding-bottom: 20px;">
+                <button class="btn-close" (click)="closeAnswersModal()" aria-label="Cerrar">
+                    <app-lucide-icon name="x" [size]="18"></app-lucide-icon>
+                </button>
+                <div class="panel-cover-content" style="padding-top: 40px;">
+                    <h2 class="panel-uni-name">Tus Respuestas</h2>
+                    <p class="panel-location" style="margin-top: 5px;">Revisa lo que contestaste en este test.</p>
+                </div>
+            </div>
+            <div class="panel-body" style="padding: 20px;">
+                <div *ngIf="allQuestions.length === 0" style="text-align: center; padding: 20px;">
+                    <app-lucide-icon name="loader" [size]="30" color="var(--primary-color)" class="spin"></app-lucide-icon>
+                    <p style="color: var(--text-muted); margin-top: 10px;">Cargando preguntas...</p>
+                </div>
+                
+                <div *ngIf="allQuestions.length > 0">
+                    <div class="detail-section" *ngFor="let q of allQuestions; let i = index" style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+                        <h3 class="section-heading" style="margin-bottom: 8px; font-size: 1rem; color: var(--text-dark);">
+                            {{ i + 1 }}. {{ q.text }}
+                        </h3>
+                        <div class="info-box" style="background: rgba(7, 177, 201, 0.05); border: 1px solid rgba(7, 177, 201, 0.2); color: var(--text-dark); padding: 10px 15px; border-radius: 8px; display: flex; align-items: flex-start;">
+                            <span style="font-weight: bold; margin-right: 10px; color: var(--primary-color);">{{ testAnswers[q.id.toString()] || '?' }})</span>
+                            <span>{{ getAnswerText(q.id.toString(), testAnswers[q.id.toString()]) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>

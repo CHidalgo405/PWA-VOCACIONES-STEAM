@@ -16,6 +16,7 @@ import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password
 import { OAuthCallbackComponent } from './pages/oauth-callback/oauth-callback.component';
 import { VocationTestComponent } from './pages/vocation-test/vocation-test.component';
 import { TestResultComponent } from './pages/test-result/test-result.component';
+import { HistoryComponent } from './pages/history/history.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { guestGuard } from './core/guards/guest.guard';
@@ -28,6 +29,8 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'vocation-test', component: VocationTestComponent, canActivate: [authGuard] },
   { path: 'test-result', component: TestResultComponent, canActivate: [authGuard] },
+  { path: 'test-result/:id', component: TestResultComponent, canActivate: [authGuard] },
+  { path: 'history', component: HistoryComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'explore', component: ExploreComponent, canActivate: [authGuard] },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },

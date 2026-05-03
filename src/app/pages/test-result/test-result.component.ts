@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
-import { UniversityRecommendation, TestSubmissionResponse, VocationTestService } from '../../core/services/test.service';
+import { UniversityRecommendation, TestSubmissionResponse, VocationTestService, Question } from '../../core/services/test.service';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -81,6 +82,7 @@ export class TestResultComponent implements OnInit {
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private testService = inject(VocationTestService);
+  private route = inject(ActivatedRoute);
 
   // STEAM area metadata palette
   private readonly STEAM_META: Record<string, { label: string; gradientStart: string; gradientEnd: string; icon: string }> = {
@@ -91,8 +93,36 @@ export class TestResultComponent implements OnInit {
     matematicas:  { label: 'Matemáticas',  gradientStart: '#4DB046', gradientEnd: '#22D3EE', icon: 'sigma'         },
   };
 
+  // Properties for Answers Modal
+  showAnswersModal: boolean = false;
+  testAnswers: Record<string, string> = {};
+  allQuestions: Question[] = [];
+
   ngOnInit(): void {
-    this.loadResults();
+    const testId = this.route.snapshot.paramMap.get('id');
+    if (testId) {
+      this.loadHistoricalResult(testId);
+    } else {
+      this.loadResults();
+    }
+  }
+
+  loadHistoricalResult(testId: string) {
+    this.isLoading = true;
+    this.splashText = 'Cargando análisis histórico...';
+    
+    this.testService.getTestDetails(testId).subscribe({
+      next: (result) => {
+        this.processResult(result);
+        this.testAnswers = result.answers || {};
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load historical result:', err);
+        this.isLoading = false;
+        this.toastService.showToast('No se pudo cargar este test.', 'error');
+      }
+    });
   }
 
   loadResults() {
@@ -119,6 +149,7 @@ export class TestResultComponent implements OnInit {
       next: (result) => {
         localStorage.setItem(`test_result_${userId}`, JSON.stringify(result));
         this.processResult(result);
+        this.testAnswers = answers; // Guardamos las respuestas actuales
         this.isLoading = false;
       },
       error: (err) => {
@@ -360,5 +391,26 @@ export class TestResultComponent implements OnInit {
   goBackToResult() {
     this.viewState = 'result';
     window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  // --- MODAL DE RESPUESTAS ---
+  openAnswersModal() {
+    this.showAnswersModal = true;
+    if (this.allQuestions.length === 0) {
+      this.testService.getQuestions().subscribe(q => {
+        if (q && q.length > 0) this.allQuestions = q;
+      });
+    }
+  }
+
+  closeAnswersModal() {
+    this.showAnswersModal = false;
+  }
+
+  getAnswerText(questionId: string, letter: string): string {
+    const q = this.allQuestions.find(x => x.id === questionId);
+    if (!q) return letter;
+    const opt = q.options.find(o => o.letter === letter);
+    return opt ? opt.text : letter;
   }
 }

@@ -1,0 +1,72 @@
+<div class="history-container">
+  <div class="page-header">
+    <div class="header-left">
+      <button class="btn-back" routerLink="/profile">
+        <app-lucide-icon name="arrow-left" [size]="24" color="var(--text-dark)"></app-lucide-icon>
+      </button>
+      <h1>Historial de Tests</h1>
+    </div>
+  </div>
+
+  <div class="content-body">
+    <div *ngIf="isLoading" class="loading-state">
+      <app-lucide-icon name="loader" [size]="40" color="var(--primary-color)" class="spin"></app-lucide-icon>
+      <p>Cargando tu historial...</p>
+    </div>
+
+    <div *ngIf="!isLoading && testHistory.length === 0" class="empty-state">
+      <div class="empty-icon-wrap">
+        <app-lucide-icon name="folder-open" [size]="48" color="#94A3B8"></app-lucide-icon>
+      </div>
+      <h3>Aún no hay tests guardados</h3>
+      <p>Realiza tu primer test vocacional para descubrir tu perfil STEAM.</p>
+      <button class="btn-primary" routerLink="/vocation-test">Hacer Test Ahora</button>
+    </div>
+
+    <div *ngIf="!isLoading && testHistory.length > 0" class="history-grid">
+      <div class="history-card" *ngFor="let test of testHistory" [routerLink]="['/test-result', test.id]">
+        
+        <div class="card-header">
+          <div class="trait-badge" [style.background-color]="getSteamColor(test.dominantTraits) + '20'" [style.color]="getSteamColor(test.dominantTraits)">
+            <app-lucide-icon [name]="getSteamIcon(test.dominantTraits)" [size]="16" [color]="getSteamColor(test.dominantTraits)"></app-lucide-icon>
+            {{ test.dominantTraits }}
+          </div>
+          <span class="test-date">{{ test.completedAt | date:'d MMM yyyy' }}</span>
+        </div>
+
+        <div class="card-body">
+          <div class="test-name-wrap" *ngIf="isRenaming !== test.id" (click)="startRename(test, $event)">
+            <h3>{{ test.testName }}</h3>
+            <button class="btn-icon" title="Renombrar">
+              <app-lucide-icon name="pencil" [size]="16" color="var(--text-muted)"></app-lucide-icon>
+            </button>
+          </div>
+          
+          <div class="rename-input-wrap" *ngIf="isRenaming === test.id" (click)="$event.stopPropagation()">
+            <input type="text" [(ngModel)]="newTestName" (keyup.enter)="saveRename(test, $event)" autofocus>
+            <div class="rename-actions">
+              <button class="btn-icon save" (click)="saveRename(test, $event)">
+                <app-lucide-icon name="check" [size]="18" color="var(--steam-green)"></app-lucide-icon>
+              </button>
+              <button class="btn-icon cancel" (click)="cancelRename($event)">
+                <app-lucide-icon name="x" [size]="18" color="var(--steam-red)"></app-lucide-icon>
+              </button>
+            </div>
+          </div>
+
+          <p class="summary-text">Ver análisis completo de perfil STEAM y universidades recomendadas.</p>
+        </div>
+
+        <div class="card-footer">
+          <span class="view-details">Ver detalles <app-lucide-icon name="chevron-right" [size]="16"></app-lucide-icon></span>
+          <button class="btn-icon delete" title="Eliminar Test" (click)="deleteTest(test.id, $event)">
+            <app-lucide-icon name="trash-2" [size]="18" color="var(--steam-red)"></app-lucide-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="spacer-bottom"></div>
+  <app-navbar></app-navbar>
+</div>

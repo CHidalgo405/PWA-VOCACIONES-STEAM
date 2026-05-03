@@ -154,6 +154,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   // --- SECCIONES PREMIUM DE AJUSTES ---
   accountSettings = [
+    { icon: 'history', title: 'Historial de Tests', action: 'viewHistory' },
     { icon: 'lock', title: 'Contraseña y Seguridad', action: 'security' },
     { icon: 'bell', title: 'Notificaciones', action: 'notifications' },
     { icon: 'user', title: 'Administrar Perfil', action: 'manage' }
@@ -199,6 +200,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
   };
 
   handleAction(action: string) {
+    if (action === 'viewHistory') {
+      this.router.navigate(['/history']);
+      return;
+    }
     if (action === 'manage') this.openModal('editProfile');
     else if (action === 'security') this.openModal('security');
     else if (action === 'notifications') this.openModal('notifications');

@@ -36,6 +36,20 @@ export interface TestSubmissionResponse {
   recommendations: UniversityRecommendation[];
 }
 
+export interface TestHistorySummary {
+  id: string;
+  testName: string;
+  completedAt: string;
+  dominantTraits: string;
+  profileScores: Record<string, number>;
+}
+
+export interface TestDetail extends TestSubmissionResponse {
+  testName: string;
+  completedAt: string;
+  answers: Record<string, string>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -52,5 +66,21 @@ export class VocationTestService {
       payload.locationInput = locationInput.trim();
     }
     return this.http.post<TestSubmissionResponse>(`${environment.apiUrl}/tests/submit`, payload);
+  }
+
+  getTestHistory(): Observable<TestHistorySummary[]> {
+    return this.http.get<TestHistorySummary[]>(`${environment.apiUrl}/tests/history`);
+  }
+
+  getTestDetails(id: string): Observable<TestDetail> {
+    return this.http.get<TestDetail>(`${environment.apiUrl}/tests/history/${id}`);
+  }
+
+  updateTestName(id: string, testName: string): Observable<any> {
+    return this.http.patch(`${environment.apiUrl}/tests/history/${id}`, { testName });
+  }
+
+  deleteTest(id: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/tests/history/${id}`);
   }
 }
