@@ -154,7 +154,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   // --- SECCIONES PREMIUM DE AJUSTES ---
   accountSettings = [
-    { icon: 'history', title: 'Historial de Tests', action: 'viewHistory' },
+    { icon: 'clock', title: 'Historial de Tests', action: 'viewHistory' },
     { icon: 'lock', title: 'Contraseña y Seguridad', action: 'security' },
     { icon: 'bell', title: 'Notificaciones', action: 'notifications' },
     { icon: 'user', title: 'Administrar Perfil', action: 'manage' }

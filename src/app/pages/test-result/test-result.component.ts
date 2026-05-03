@@ -160,18 +160,28 @@ export class TestResultComponent implements OnInit {
     });
   }
 
-  private processResult(result: TestSubmissionResponse) {
-    this.userProfile.dominantTraits = result.dominantTraits;
-    this.userProfile.description = result.aiProfileDescription;
-    this.recommendedUniversities = result.recommendations;
+  private processResult(result: TestSubmissionResponse | any) {
+    this.userProfile.dominantTraits = result.dominantTraits || '';
+    this.userProfile.description = result.aiProfileDescription || '';
+    this.recommendedUniversities = result.recommendations || [];
 
-    this.buildSteamChart(result.scores);
+    const scores = result.scores || result.profileScores || {};
+    this.buildSteamChart(scores);
     this.buildGreeting();
-    this.buildCareerCards(result.recommendations);
+    this.buildCareerCards(this.recommendedUniversities);
   }
 
   private buildSteamChart(scores: Record<string, number>) {
     const MAX_SCORE = 20;
+    
+    // Ensure scores object exists
+    if (!scores || Object.keys(scores).length === 0) {
+      console.warn('No scores provided to buildSteamChart');
+      this.steamAreas = [];
+      this.globalAffinityPct = 0;
+      this.topThree = [];
+      return;
+    }
 
     this.steamAreas = Object.entries(scores).map(([key, rawScore]) => {
       const meta = this.STEAM_META[key] ?? {
