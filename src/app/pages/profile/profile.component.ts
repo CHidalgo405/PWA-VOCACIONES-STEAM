@@ -7,8 +7,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
-import { Subscription } from 'rxjs';
-import { TestSubmissionResponse } from '../../core/services/test.service';
+import { TestSubmissionResponse, VocationTestService, TestDetail } from '../../core/services/test.service';
 
 @Component({
   selector: 'app-profile',
@@ -25,7 +24,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private userService: UserService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private testService: VocationTestService
   ) { }
 
   user = {
@@ -94,42 +94,64 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   loadTestResults(userId: string) {
+    // 1. Lectura rápida del caché
+    this.readFromCache(userId);
+
+    // 2. Fetch desde la API
+    this.testService.getLatestTest().subscribe({
+      next: (latestTest: TestDetail | null) => {
+        if (latestTest) {
+          localStorage.setItem(`test_result_${userId}`, JSON.stringify(latestTest));
+          this.processScores(latestTest.scores || (latestTest as any).profileScores || {});
+        } else {
+          this.hasTestResults = false;
+          localStorage.removeItem(`test_result_${userId}`);
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching latest test in Profile', err);
+      }
+    });
+  }
+
+  private readFromCache(userId: string) {
     const rawResult = localStorage.getItem(`test_result_${userId}`);
     if (rawResult) {
       try {
-        const result: TestSubmissionResponse = JSON.parse(rawResult);
-        const scores = result.scores;
-        const MAX_SCORE = 20;
-
-        // Map results to the steamAreas structure
-        this.steamAreas = Object.entries(scores).map(([key, rawScore]) => {
-          const meta = this.STEAM_META[key] ?? {
-            label: key,
-            gradientStart: '#07B1C9',
-            gradientEnd: '#0698AC',
-            icon: 'star',
-          };
-          return {
-            key,
-            label: meta.label,
-            gradientStart: meta.gradientStart,
-            gradientEnd: meta.gradientEnd,
-            icon: meta.icon,
-            rawScore,
-            percentage: Math.min(Math.round((rawScore / MAX_SCORE) * 100), 100),
-          };
-        }).sort((a, b) => b.rawScore - a.rawScore);
-
-        this.hasTestResults = this.steamAreas.length > 0;
-
-        this.hasTestResults = this.steamAreas.length > 0;
+        const result = JSON.parse(rawResult);
+        const scores = result.scores || result.profileScores || {};
+        this.processScores(scores);
       } catch (e) {
-        console.error('Error parsing test results', e);
+        console.error('Error parsing test results cache', e);
         this.hasTestResults = false;
       }
     } else {
       this.hasTestResults = false;
     }
+  }
+
+  private processScores(scores: Record<string, number>) {
+    const MAX_SCORE = 20;
+
+    this.steamAreas = Object.entries(scores).map(([key, rawScore]) => {
+      const meta = this.STEAM_META[key] ?? {
+        label: key,
+        gradientStart: '#07B1C9',
+        gradientEnd: '#0698AC',
+        icon: 'star',
+      };
+      return {
+        key,
+        label: meta.label,
+        gradientStart: meta.gradientStart,
+        gradientEnd: meta.gradientEnd,
+        icon: meta.icon,
+        rawScore,
+        percentage: Math.min(Math.round(((rawScore as number) / MAX_SCORE) * 100), 100),
+      };
+    }).sort((a, b) => b.rawScore - a.rawScore);
+
+    this.hasTestResults = this.steamAreas.length > 0;
   }
 
   goToTest() {

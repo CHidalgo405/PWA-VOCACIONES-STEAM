@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms'; // Para el buscador
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
+import { VocationTestService, TestDetail } from '../../core/services/test.service';
 import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
 
@@ -22,6 +23,7 @@ export class ExploreComponent implements OnInit {
   hasTakenTest = false;
   private userService = inject(UserService);
   private toastService = inject(ToastService);
+  private testService = inject(VocationTestService);
 
   constructor(private authService: AuthService) {}
 
@@ -140,15 +142,52 @@ export class ExploreComponent implements OnInit {
     this.simulateFetch();
     this.authService.currentUser$.subscribe(user => {
       if (user?.id) {
-        this.hasTakenTest = localStorage.getItem(`hasTakenTest_${user.id}`) === 'true';
+        this.loadRecommendations();
+      }
+    });
+  }
+
+  loadRecommendations() {
+    this.isLoading = true;
+    this.testService.getLatestTest().subscribe({
+      next: (latestTest: TestDetail | null) => {
+        if (latestTest && latestTest.recommendations && latestTest.recommendations.length > 0) {
+          this.hasTakenTest = true;
+          // Mapear recomendaciones de IA al formato de UI
+          const defaultImages = [
+            'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
+            'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&q=80&w=1000',
+            'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
+            'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000'
+          ];
+          
+          this.universities = latestTest.recommendations.map((rec: any, index: number) => ({
+            id: index + 1,
+            name: rec.name,
+            location: rec.location,
+            image: defaultImages[index % defaultImages.length],
+            logo: 'graduation-cap', // Por defecto
+            tags: [latestTest.dominantTraits || 'Recomendado', 'Universidad'],
+            rating: 4.8 + (index % 3) * 0.1, // Rating simulado
+            career: rec.suggestedMajor,
+            description: rec.matchReason,
+            keyDates: rec.keyDates,
+            studyPlan: Array.isArray(rec.studyPlan) ? rec.studyPlan.join(', ') : 'Plan de estudios multidisciplinario.'
+          }));
+        }
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching recommendations from latest test', err);
+        this.isLoading = false;
       }
     });
   }
 
   simulateFetch() {
-    this.isLoading = true;
+    // Retenido solo como fallback inicial
     setTimeout(() => {
-      this.isLoading = false;
+      if (this.isLoading) this.isLoading = false;
     }, 1500);
   }
 

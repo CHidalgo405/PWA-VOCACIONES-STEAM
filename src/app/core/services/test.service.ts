@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface Option {
@@ -74,6 +74,18 @@ export class VocationTestService {
 
   getTestDetails(id: string): Observable<TestDetail> {
     return this.http.get<TestDetail>(`${environment.apiUrl}/tests/history/${id}`);
+  }
+
+  getLatestTest(): Observable<TestDetail | null> {
+    return this.http.get<TestDetail>(`${environment.apiUrl}/tests/latest`).pipe(
+      catchError((error) => {
+        // If 404, it means no tests exist for this user, return null silently
+        if (error.status === 404) {
+          return of(null);
+        }
+        throw error;
+      })
+    );
   }
 
   updateTestName(id: string, testName: string): Observable<any> {
