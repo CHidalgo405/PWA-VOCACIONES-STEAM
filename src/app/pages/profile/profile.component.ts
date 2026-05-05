@@ -7,6 +7,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+import { Subscription } from 'rxjs';
 import { TestSubmissionResponse, VocationTestService, TestDetail } from '../../core/services/test.service';
 
 @Component({
