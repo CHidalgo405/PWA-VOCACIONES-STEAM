@@ -4,7 +4,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ExploreComponent } from './pages/explore/explore.component';
-import { FavoritesComponent } from './pages/favorites/favorites.component';
+
 import { ProfileComponent } from './pages/profile/profile.component';
 import { AdminDashboardComponent } from './pages/admin/admin-dashboard/admin-dashboard.component';
 import { ManageUsersComponent } from './pages/admin/manage-users/manage-users.component';
@@ -33,7 +33,7 @@ export const routes: Routes = [
   { path: 'history', component: HistoryComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'explore', component: ExploreComponent, canActivate: [authGuard] },
-  { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
+
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'oauth-callback', component: OAuthCallbackComponent },
   { path: 'admin', redirectTo: '/admin/dashboard', pathMatch: 'full' },

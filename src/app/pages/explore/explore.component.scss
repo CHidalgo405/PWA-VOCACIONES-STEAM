@@ -79,21 +79,26 @@
 
       input {
         width: 100%;
-        padding: 0.875rem 1rem 0.875rem 3rem;
-        border: 1px solid var(--border-light);
-        border-radius: 0.75rem;
-        background: transparent;
-        font-size: 0.95rem;
+        padding: 1rem 1rem 1rem 3.5rem;
+        border: 1.5px solid var(--border-light);
+        border-radius: 1.25rem;
+        background: var(--card-bg);
+        font-size: 1rem;
         color: var(--text-main);
         outline: none;
-        transition: border-color 0.2s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 
         &::placeholder {
           color: var(--text-muted);
+          font-weight: 400;
         }
 
         &:focus {
           border-color: var(--primary);
+          background: white;
+          box-shadow: 0 10px 15px -3px rgba(7, 177, 201, 0.1), 0 4px 6px -2px rgba(7, 177, 201, 0.05);
+          transform: translateY(-1px);
         }
       }
 
@@ -107,6 +112,55 @@
         padding: 4px;
         &:hover {
           color: var(--text-main);
+        }
+      }
+    }
+  }
+
+  /* PILL STYLE NAVIGATION */
+  .navigation-tabs {
+    margin-top: 1.5rem;
+
+    .tabs-pill {
+      position: relative;
+      display: flex;
+      background: var(--border-light);
+      padding: 4px;
+      border-radius: 1rem;
+      overflow: hidden;
+
+      .tab-item {
+        position: relative;
+        flex: 1;
+        padding: 0.625rem 0;
+        border: none;
+        background: transparent;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        z-index: 2;
+        cursor: pointer;
+        transition: color 0.3s;
+
+        &.active {
+          color: var(--primary);
+        }
+      }
+
+      .pill-slider {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: calc(50% - 4px);
+        height: calc(100% - 8px);
+        background: var(--card-bg);
+        border-radius: 0.85rem;
+        box-shadow: var(--shadow-sm);
+        z-index: 1;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &.to-right {
+          transform: translateX(100%);
         }
       }
     }

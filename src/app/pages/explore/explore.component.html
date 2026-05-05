@@ -21,13 +21,25 @@
           </button>
         </div>
       </div>
+
+      <nav class="navigation-tabs">
+        <div class="tabs-pill">
+          <button class="tab-item" [class.active]="viewMode === 'explore'" (click)="switchViewMode('explore')">
+            Recomendadas
+          </button>
+          <button class="tab-item" [class.active]="viewMode === 'saved'" (click)="switchViewMode('saved')">
+            Guardadas
+          </button>
+          <div class="pill-slider" [class.to-right]="viewMode === 'saved'"></div>
+        </div>
+      </nav>
     </div>
   </header>
 
   <main class="explore-content">
     
     <!-- BANNER VERDE -->
-    <section class="banner-section">
+    <section class="banner-section" *ngIf="viewMode === 'explore'">
       <div class="green-banner">
         <div class="banner-text">
           <span class="badge-text">Basado en tu perfil STEAM</span>
@@ -102,11 +114,11 @@
         </div>
       </section>
 
-      <!-- TODAS LAS RECOMENDADAS (LIGHT CARDS) -->
+      <!-- TODAS LAS RECOMENDADAS / GUARDADAS (LIGHT CARDS) -->
       <section class="all-recommendations-section" *ngIf="filteredOtherUniversities.length > 0">
         <div class="section-header space-between">
-          <h3>Todas las recomendadas</h3>
-          <a href="#" class="link-cyan">Ver mapa &rarr;</a>
+          <h3>{{ viewMode === 'explore' ? 'Todas las recomendadas' : 'Universidades guardadas' }}</h3>
+          <a href="#" class="link-cyan" *ngIf="viewMode === 'explore'">Ver mapa &rarr;</a>
         </div>
 
         <div class="recommendations-list">
@@ -121,8 +133,8 @@
             <div class="list-card-content">
               <div class="list-top-row">
                 <h4 class="list-uni-name">{{ uni.name }}</h4>
-                <button class="btn-fav-invisible" (click)="saveUniversity(uni); $event.stopPropagation()">
-                  <app-lucide-icon name="heart" [size]="18" color="#94A3B8"></app-lucide-icon>
+                <button class="btn-fav-invisible" (click)="toggleFavoriteStatus(uni, $event)">
+                  <app-lucide-icon [name]="viewMode === 'saved' ? 'x' : 'heart'" [size]="18" [color]="viewMode === 'saved' ? '#EF4444' : '#94A3B8'"></app-lucide-icon>
                 </button>
               </div>
               
@@ -148,14 +160,19 @@
         </div>
       </section>
 
-      <!-- EMPTY STATE BÚSQUEDA -->
-      <div class="premium-empty-state" *ngIf="filteredOtherUniversities.length === 0 && !showBestMatch && searchQuery">
+      <!-- EMPTY STATE BÚSQUEDA / GUARDADAS -->
+      <div class="premium-empty-state" *ngIf="filteredOtherUniversities.length === 0 && !showBestMatch">
         <div class="empty-visual">
-          <app-lucide-icon name="search" [size]="64"></app-lucide-icon>
+          <app-lucide-icon [name]="viewMode === 'saved' ? 'heart-off' : 'search'" [size]="64"></app-lucide-icon>
         </div>
-        <h3>Sin resultados</h3>
-        <p>No encontramos universidades que coincidan con "{{ searchQuery }}".</p>
-        <button class="btn-reset" (click)="searchQuery = ''">Limpiar búsqueda</button>
+        <h3 *ngIf="viewMode === 'explore'">Sin resultados</h3>
+        <p *ngIf="viewMode === 'explore'">No encontramos universidades que coincidan con "{{ searchQuery }}".</p>
+        
+        <h3 *ngIf="viewMode === 'saved'">No hay guardadas</h3>
+        <p *ngIf="viewMode === 'saved'">Aún no has guardado ninguna universidad. Explora recomendaciones y añádelas a tus favoritos.</p>
+
+        <button class="btn-reset" *ngIf="viewMode === 'explore' && searchQuery" (click)="searchQuery = ''">Limpiar búsqueda</button>
+        <button class="btn-reset" *ngIf="viewMode === 'saved'" (click)="switchViewMode('explore')">Volver a explorar</button>
       </div>
 
     </ng-container>

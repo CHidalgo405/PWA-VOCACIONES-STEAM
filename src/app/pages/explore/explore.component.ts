@@ -35,6 +35,10 @@ export class ExploreComponent implements OnInit {
   isUniversityModalOpen: boolean = false;
   selectedUniversity: any = null;
   
+  // Estado de vista
+  viewMode: 'explore' | 'saved' = 'explore';
+  savedUniversities: any[] = [];
+  
   // Datos
   bestMatchUniversity: any = null;
   otherUniversities: any[] = [];
@@ -108,6 +112,31 @@ export class ExploreComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       if (user?.id) {
         this.loadRecommendations();
+        this.loadSavedUniversities();
+      }
+    });
+  }
+
+  loadSavedUniversities() {
+    this.userService.getSavedUniversities().subscribe({
+      next: (data) => {
+        this.savedUniversities = data.map(item => ({
+          id: item.id,
+          name: item.universityName,
+          location: item.location,
+          image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
+          logo: 'graduation-cap',
+          tags: [item.careerName, 'Selección IA'],
+          rating: 4.8,
+          matchPercentage: 90, // Un número alto simulado para las guardadas
+          career: item.careerName,
+          description: item.relationshipExplanation || 'Universidad guardada.',
+          keyDates: item.keyDates || 'Consultar sitio web',
+          studyPlan: item.studyPlan || 'Varios módulos'
+        }));
+      },
+      error: (err) => {
+        console.error("Error loading saved universities", err);
       }
     });
   }
@@ -161,30 +190,38 @@ export class ExploreComponent implements OnInit {
   }
 
   processData() {
-    this.totalCoincidencias = this.universities.length * 10 + 7; // Fake number like 47
+    this.totalCoincidencias = this.universities.length;
     
     if (this.universities.length > 0) {
       this.bestMatchUniversity = this.universities[0];
-      this.maxMatchPercentage = this.bestMatchUniversity.matchPercentage;
+      // Encontrar el match máximo real del array
+      this.maxMatchPercentage = Math.max(...this.universities.map(u => u.matchPercentage));
       this.otherUniversities = this.universities.slice(1);
     } else {
       this.bestMatchUniversity = null;
+      this.maxMatchPercentage = 0;
       this.otherUniversities = [];
     }
   }
 
   // Getters computados para el filtrado en tiempo real
   get filteredOtherUniversities() {
-    if (!this.searchQuery) return this.otherUniversities;
+    // Si estamos en modo 'saved', filtramos sobre las guardadas
+    const sourceArray = this.viewMode === 'saved' ? this.savedUniversities : this.otherUniversities;
+
+    if (!this.searchQuery) return sourceArray;
     const query = this.searchQuery.toLowerCase();
-    return this.otherUniversities.filter(uni => 
+    return sourceArray.filter(uni => 
       uni.name.toLowerCase().includes(query) || 
       uni.location.toLowerCase().includes(query) ||
-      uni.career.toLowerCase().includes(query)
+      (uni.career && uni.career.toLowerCase().includes(query))
     );
   }
 
   get showBestMatch() {
+    // No mostrar mejor coincidencia en modo 'saved'
+    if (this.viewMode === 'saved') return false;
+
     // Solo mostrar el mejor match si no hay búsqueda activa o si la búsqueda coincide con el mejor match
     if (!this.searchQuery) return true;
     if (!this.bestMatchUniversity) return false;
@@ -192,7 +229,31 @@ export class ExploreComponent implements OnInit {
     const query = this.searchQuery.toLowerCase();
     return this.bestMatchUniversity.name.toLowerCase().includes(query) || 
            this.bestMatchUniversity.location.toLowerCase().includes(query) ||
-           this.bestMatchUniversity.career.toLowerCase().includes(query);
+           (this.bestMatchUniversity.career && this.bestMatchUniversity.career.toLowerCase().includes(query));
+  }
+
+  switchViewMode(mode: 'explore' | 'saved') {
+    this.viewMode = mode;
+  }
+
+  toggleFavoriteStatus(uni: any, event: Event) {
+    event.stopPropagation(); // Evitar que se abra el modal
+
+    if (this.viewMode === 'saved') {
+      // Estamos en la vista de guardados, la acción es eliminar
+      this.userService.deleteSavedUniversity(uni.id).subscribe({
+        next: () => {
+          this.savedUniversities = this.savedUniversities.filter(u => u.id !== uni.id);
+          this.toastService.showToast('Universidad eliminada de favoritos', 'info');
+        },
+        error: () => {
+          this.toastService.showToast('No se pudo eliminar la universidad', 'error');
+        }
+      });
+    } else {
+      // Estamos en la vista de explorar, la acción es guardar
+      this.saveUniversity(uni);
+    }
   }
 
   // Métodos para el Modal de Universidad
