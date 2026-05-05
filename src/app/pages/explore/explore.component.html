@@ -3,9 +3,12 @@
   <header class="premium-header">
     <div class="header-content">
       <div class="header-top">
-        <h2>Explorar</h2>
+        <div class="header-titles">
+          <h2>Explorar universidades</h2>
+          <p class="subtitle" *ngIf="hasTakenTest">Recomendadas según tu perfil STEAM · Tecnología · Ingeniería</p>
+        </div>
         <div class="header-actions">
-          <!-- Optional actions like notification or user profile could go here -->
+          <div class="user-avatar-placeholder">C</div>
         </div>
       </div>
       
@@ -63,6 +66,27 @@
       </div>
     </section>
 
+    <!-- Banner Verde Recomendaciones (Cuando hay test) -->
+    <section class="banner-section" *ngIf="hasTakenTest && activeTab === 'universities'">
+      <div class="recommendation-banner">
+        <div class="banner-left">
+          <span class="banner-tag">Basado en tu perfil STEAM</span>
+          <h2>Universidades recomendadas para ti</h2>
+          <p>Ordenadas por compatibilidad con tu perfil dominante</p>
+        </div>
+        <div class="banner-right">
+          <div class="stat-badge">
+            <span class="stat-num">{{ filteredUniversities.length }}</span>
+            <span class="stat-label">coincidencias</span>
+          </div>
+          <div class="stat-badge highlight">
+            <span class="stat-num">95%</span>
+            <span class="stat-label">match máximo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Sección de Universidades -->
     <section class="results-section" *ngIf="activeTab === 'universities'">
       <div class="grid-layout">
@@ -79,41 +103,71 @@
           </div>
         </ng-container>
 
-        <!-- RESULTADOS REALES -->
+        <!-- RESULTADOS REALES REDISEÑADOS -->
         <ng-container *ngIf="!isLoading">
-          <div class="university-premium-card" *ngFor="let uni of filteredUniversities" (click)="openUniversityDetail(uni)">
-            <div class="card-media">
-              <div class="image-overlay" [style.backgroundImage]="'url(' + uni.image + ')'"></div>
-              <div class="card-badges">
-                <span class="badge-rating">
-                  <app-lucide-icon name="star" [size]="12"></app-lucide-icon>
-                  {{ uni.rating }}
-                </span>
+          
+          <!-- Mejor coincidencia -->
+          <div *ngIf="filteredUniversities.length > 0">
+            <h3 class="section-title"><app-lucide-icon name="star" [size]="18" color="#FFD700" style="margin-right: 8px;"></app-lucide-icon> Mejor coincidencia</h3>
+            
+            <div class="best-match-card" (click)="openUniversityDetail(filteredUniversities[0])">
+              <div class="card-icon-wrapper">
+                <app-lucide-icon name="building" [size]="32"></app-lucide-icon>
               </div>
-              <button class="btn-fav-float" (click)="saveUniversity(uni); $event.stopPropagation()">
-                <app-lucide-icon name="heart" [size]="20"></app-lucide-icon>
-              </button>
-              <div class="logo-overlap">
-                <app-lucide-icon [name]="uni.logo" [size]="24"></app-lucide-icon>
+              <div class="card-content">
+                <div class="card-top-row">
+                  <span class="match-rank">#1 · TU MEJOR MATCH</span>
+                  <button class="btn-fav-icon" (click)="saveUniversity(filteredUniversities[0]); $event.stopPropagation()">
+                    <app-lucide-icon name="heart" [size]="18"></app-lucide-icon>
+                  </button>
+                </div>
+                <h4 class="uni-name">{{ filteredUniversities[0].name }}</h4>
+                <p class="uni-location">
+                  <app-lucide-icon name="map-pin" [size]="14"></app-lucide-icon>
+                  {{ filteredUniversities[0].location }}
+                </p>
+                <div class="card-bottom-row">
+                  <span class="match-score highlight">Match 95% <app-lucide-icon name="sparkles" [size]="12"></app-lucide-icon></span>
+                  <span class="view-offer">Ver oferta educativa &rarr;</span>
+                </div>
               </div>
             </div>
-            
-            <div class="card-info">
-              <div class="info-header">
-                <h3>{{ uni.name }}</h3>
-                <p class="location-text">
-                  <app-lucide-icon name="map-pin" [size]="14"></app-lucide-icon>
-                  {{ uni.location }}
-                </p>
-              </div>
-              
-              <div class="tags-cloud">
-                <span class="mini-tag" *ngFor="let tag of uni.tags">{{ tag }}</span>
-              </div>
+          </div>
 
-              <div class="card-footer">
-                <span class="vocation-match" *ngIf="hasTakenTest">Match: 95%</span>
-                <span class="explore-link">Explorar Oferta <app-lucide-icon name="chevron-right" [size]="16"></app-lucide-icon></span>
+          <!-- Todas las recomendadas -->
+          <div *ngIf="filteredUniversities.length > 1" style="margin-top: 2rem;">
+            <div class="section-header-flex">
+              <h3 class="section-title">Todas las recomendadas</h3>
+              <a href="#" class="view-map-link">Ver mapa &rarr;</a>
+            </div>
+
+            <div class="uni-list-container">
+              <div class="uni-list-card" *ngFor="let uni of filteredUniversities | slice:1" (click)="openUniversityDetail(uni)">
+                <div class="card-icon-wrapper light">
+                  <app-lucide-icon name="graduation-cap" [size]="28"></app-lucide-icon>
+                </div>
+                <div class="card-content">
+                  <div class="card-top-row">
+                    <h4 class="uni-name">{{ uni.name }}</h4>
+                    <button class="btn-fav-icon" (click)="saveUniversity(uni); $event.stopPropagation()">
+                      <app-lucide-icon name="heart" [size]="18"></app-lucide-icon>
+                    </button>
+                  </div>
+                  <p class="uni-location">
+                    <app-lucide-icon name="map-pin" [size]="14"></app-lucide-icon>
+                    {{ uni.location }}
+                  </p>
+                  <div class="tags-row">
+                    <span class="tag-chip" *ngFor="let tag of uni.tags">{{ tag }}</span>
+                  </div>
+                  <div class="card-bottom-row">
+                    <div class="stats-group">
+                      <span class="rating"><app-lucide-icon name="star" [size]="14" color="#F59E0B"></app-lucide-icon> {{ uni.rating }}</span>
+                      <span class="match-score-light">Match: 92%</span>
+                    </div>
+                    <span class="view-offer">Explorar oferta &rarr;</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
