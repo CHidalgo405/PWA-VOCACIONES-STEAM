@@ -27,52 +27,47 @@ export class ExploreComponent implements OnInit {
 
   constructor(private authService: AuthService) {}
 
-  activeTab: 'universities' | 'courses' = 'universities';
   searchQuery: string = '';
-  selectedFilter: string = 'Todas';
   isLoading: boolean = true;
   skeletonArray = Array(4).fill(0); // Array ficticio para renderizar 4 skeletons
 
   // Variables para Modales
-  isCourseModalOpen: boolean = false;
-  selectedCourse: any = null;
-
   isUniversityModalOpen: boolean = false;
   selectedUniversity: any = null;
   
-  // Datos simulados para el temario del curso (Syllabus)
-  courseSyllabus = [
-    { module: 1, title: 'Introducción y Conceptos Básicos', duration: '2h 15m' },
-    { module: 2, title: 'Herramientas y Entorno de Trabajo', duration: '3h 40m' },
-    { module: 3, title: 'Proyecto Práctico Final', duration: '5h 00m' }
-  ];
+  // Datos
+  bestMatchUniversity: any = null;
+  otherUniversities: any[] = [];
+  
+  dominantTraitsStr: string = 'STEAM';
+  totalCoincidencias: number = 0;
+  maxMatchPercentage: number = 0;
 
-  // Filtros rápidos (Chips)
-  filters = ['Todas', 'Ingeniería', 'Salud', 'Artes', 'Tecnología'];
-
-  // Datos Simulados: Universidades
+  // Datos Simulados Hardcodeados por si no hay test
   universities = [
     {
       id: 1,
-      name: 'Universidad Tecnológica (UTCV)',
-      location: 'Veracruz, 5km',
+      name: 'Universidad Nacional Autónoma de México',
+      location: 'Ciudad de México, Ciudad de México',
       image: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
-      logo: 'graduation-cap',
-      tags: ['Ingeniería', 'Mecatrónica'],
+      logo: 'building',
+      tags: ['Universidad pública', 'Matemáticas + Ciencia'],
       rating: 4.8,
-      career: 'Ingeniería en Mecatrónica',
-      description: 'Líder en formación tecnológica en la región de las altas montañas.',
+      matchPercentage: 95,
+      career: 'Ingeniería en Computación',
+      description: 'Líder en formación tecnológica y científica en el país.',
       keyDates: 'Examen: 15 de Julio',
-      studyPlan: 'Matemáticas, Electrónica, Robótica, Control.'
+      studyPlan: 'Matemáticas, Electrónica, Computación.'
     },
     {
       id: 2,
       name: 'Instituto Politécnico Nacional',
-      location: 'Ciudad de México, 120km',
+      location: 'Ciudad de México, Ciudad de México',
       image: 'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&q=80&w=1000',
-      logo: 'landmark',
-      tags: ['Ciencias', 'Investigación'],
-      rating: 4.9,
+      logo: 'graduation-cap',
+      tags: ['Matemáticas + Ciencia', 'Universidad pública'],
+      rating: 4.8,
+      matchPercentage: 92,
       career: 'Ingeniería en Sistemas Computacionales',
       description: 'Excelencia académica en el área de ingeniería y ciencias físico-matemáticas.',
       keyDates: 'Convocatoria: Febrero - Marzo',
@@ -80,25 +75,27 @@ export class ExploreComponent implements OnInit {
     },
     {
       id: 3,
-      name: 'Escuela de Artes Visuales',
-      location: 'Centro, 2km',
+      name: 'Universidad Autónoma Metropolitana',
+      location: 'Ciudad de México, Ciudad de México',
       image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000',
-      logo: 'palette',
-      tags: ['Artes', 'Diseño'],
-      rating: 4.5,
-      career: 'Licenciatura en Diseño Gráfico',
-      description: 'Espacio creativo para el desarrollo de talentos artísticos y visuales.',
+      logo: 'graduation-cap',
+      tags: ['Ciencias Básicas', 'Universidad pública'],
+      rating: 4.7,
+      matchPercentage: 89,
+      career: 'Licenciatura en Computación',
+      description: 'Espacio dedicado a la investigación y desarrollo.',
       keyDates: 'Inscripciones: Todo el año',
-      studyPlan: 'Dibujo, Teoría del Color, Diseño Digital.'
+      studyPlan: 'Lógica, Programación, Arquitectura de Computadoras.'
     },
     {
       id: 4,
       name: 'Tec de Monterrey (ITESM)',
-      location: 'Santa Fe, 15km',
+      location: 'Santa Fe, Ciudad de México',
       image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
       logo: 'graduation-cap',
-      tags: ['Tecnología', 'Negocios'],
+      tags: ['Tecnología', 'Universidad privada'],
       rating: 4.9,
+      matchPercentage: 85,
       career: 'Ingeniería en Tecnologías Computacionales',
       description: 'Prestigio internacional con enfoque en emprendimiento e innovación.',
       keyDates: 'Admisiones: Agosto y Enero',
@@ -106,40 +103,8 @@ export class ExploreComponent implements OnInit {
     }
   ];
 
-  // Datos Simulados: Cursos
-  courses = [
-    {
-      id: 101,
-      title: 'Introducción a la IA',
-      courseName: 'Introducción a la Inteligencia Artificial',
-      provider: 'Coursera / Univ. Stanford',
-      duration: '40 horas',
-      durationHours: 40,
-      image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80&w=1000',
-      level: 'Principiante',
-      isFree: true,
-      description: 'Aprende los fundamentos del Machine Learning y Deep Learning desde cero.',
-      syllabus: 'Módulo 1: Conceptos básicos\nMódulo 2: Redes Neuronales\nMódulo 3: Ética en IA',
-      link: 'https://coursera.org/learn/ai'
-    },
-    {
-      id: 102,
-      title: 'Desarrollo Web Full Stack',
-      courseName: 'Master en Desarrollo Web Moderno',
-      provider: 'Udemy Academic',
-      duration: '12 horas',
-      durationHours: 12,
-      image: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&q=80&w=1000',
-      level: 'Intermedio',
-      isFree: false,
-      description: 'Domina el stack MERN (MongoDB, Express, React, Node) y construye aplicaciones escalables.',
-      syllabus: 'Módulo 1: Frontend avanzado\nMódulo 2: Backend con Node\nMódulo 3: Despliegue en la nube',
-      link: 'https://udemy.com/course/web-fullstack'
-    }
-  ];
-
   ngOnInit() {
-    this.simulateFetch();
+    this.processData(); // Procesar hardcoded data initially
     this.authService.currentUser$.subscribe(user => {
       if (user?.id) {
         this.loadRecommendations();
@@ -153,6 +118,8 @@ export class ExploreComponent implements OnInit {
       next: (latestTest: TestDetail | null) => {
         if (latestTest && latestTest.recommendations && latestTest.recommendations.length > 0) {
           this.hasTakenTest = true;
+          this.dominantTraitsStr = latestTest.dominantTraits || 'STEAM';
+          
           // Mapear recomendaciones de IA al formato de UI
           const defaultImages = [
             'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
@@ -161,73 +128,71 @@ export class ExploreComponent implements OnInit {
             'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000'
           ];
           
-          this.universities = latestTest.recommendations.map((rec: any, index: number) => ({
-            id: index + 1,
-            name: rec.name,
-            location: rec.location,
-            image: defaultImages[index % defaultImages.length],
-            logo: 'graduation-cap', // Por defecto
-            tags: [latestTest.dominantTraits || 'Recomendado', 'Universidad'],
-            rating: 4.8 + (index % 3) * 0.1, // Rating simulado
-            career: rec.suggestedMajor,
-            description: rec.matchReason,
-            keyDates: rec.keyDates,
-            studyPlan: Array.isArray(rec.studyPlan) ? rec.studyPlan.join(', ') : 'Plan de estudios multidisciplinario.'
-          }));
+          this.universities = latestTest.recommendations.map((rec: any, index: number) => {
+            // Simulamos un Match descendente a partir del 95%
+            const matchPct = Math.max(70, 95 - (index * 3));
+            
+            return {
+              id: index + 1,
+              name: rec.name,
+              location: rec.location || 'Ubicación no especificada',
+              image: defaultImages[index % defaultImages.length],
+              logo: index === 0 ? 'building' : 'graduation-cap', 
+              tags: [latestTest.dominantTraits || 'Ciencia', 'Universidad recomendada'],
+              rating: parseFloat((4.9 - (index * 0.1)).toFixed(1)), // Rating simulado descendentemente
+              matchPercentage: matchPct,
+              career: rec.suggestedMajor,
+              description: rec.matchReason,
+              keyDates: rec.keyDates || 'Consultar sitio web oficial',
+              studyPlan: Array.isArray(rec.studyPlan) ? rec.studyPlan.join(', ') : (rec.studyPlan || 'Plan multidisciplinario.')
+            };
+          });
         }
+        
+        this.processData();
         this.isLoading = false;
       },
       error: (err) => {
         console.error('Error fetching recommendations from latest test', err);
+        this.processData(); // Fallback to hardcoded
         this.isLoading = false;
       }
     });
   }
 
-  simulateFetch() {
-    // Retenido solo como fallback inicial
-    setTimeout(() => {
-      if (this.isLoading) this.isLoading = false;
-    }, 1500);
+  processData() {
+    this.totalCoincidencias = this.universities.length * 10 + 7; // Fake number like 47
+    
+    if (this.universities.length > 0) {
+      this.bestMatchUniversity = this.universities[0];
+      this.maxMatchPercentage = this.bestMatchUniversity.matchPercentage;
+      this.otherUniversities = this.universities.slice(1);
+    } else {
+      this.bestMatchUniversity = null;
+      this.otherUniversities = [];
+    }
   }
 
   // Getters computados para el filtrado en tiempo real
-  get filteredUniversities() {
-    return this.universities.filter(uni => {
-      const matchesSearch = uni.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
-                            uni.location.toLowerCase().includes(this.searchQuery.toLowerCase());
-      const matchesFilter = this.selectedFilter === 'Todas' || uni.tags.includes(this.selectedFilter);
-      return matchesSearch && matchesFilter;
-    });
+  get filteredOtherUniversities() {
+    if (!this.searchQuery) return this.otherUniversities;
+    const query = this.searchQuery.toLowerCase();
+    return this.otherUniversities.filter(uni => 
+      uni.name.toLowerCase().includes(query) || 
+      uni.location.toLowerCase().includes(query) ||
+      uni.career.toLowerCase().includes(query)
+    );
   }
 
-  get filteredCourses() {
-    return this.courses.filter(course => {
-      const matchesSearch = course.title.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
-                            course.provider.toLowerCase().includes(this.searchQuery.toLowerCase());
-      // Nota: Asumiendo que cursos podrían no tener arr de tags, filtramos solo por Todas por ahora, o podrías agregar lógica extra.
-      const matchesFilter = this.selectedFilter === 'Todas'; 
-      return matchesSearch && matchesFilter;
-    });
-  }
-
-  switchTab(tab: 'universities' | 'courses') {
-    this.activeTab = tab;
-    // Opcional: Volver a simular carga al cambiar de pestaña
-    // this.simulateFetch();
-  }
-
-  // Métodos para el Modal
-  openCourseDetail(course: any) {
-    this.selectedCourse = course;
-    this.isCourseModalOpen = true;
-  }
-
-  closeCourseModal() {
-    this.isCourseModalOpen = false;
-    setTimeout(() => {
-      this.selectedCourse = null; // Limpiar después de la animación
-    }, 300);
+  get showBestMatch() {
+    // Solo mostrar el mejor match si no hay búsqueda activa o si la búsqueda coincide con el mejor match
+    if (!this.searchQuery) return true;
+    if (!this.bestMatchUniversity) return false;
+    
+    const query = this.searchQuery.toLowerCase();
+    return this.bestMatchUniversity.name.toLowerCase().includes(query) || 
+           this.bestMatchUniversity.location.toLowerCase().includes(query) ||
+           this.bestMatchUniversity.career.toLowerCase().includes(query);
   }
 
   // Métodos para el Modal de Universidad
@@ -265,34 +230,6 @@ export class ExploreComponent implements OnInit {
           this.toastService.showToast('Ya está en tus favoritos', 'info');
         } else {
           this.toastService.showToast('Error al guardar', 'error');
-        }
-      }
-    });
-  }
-
-  saveCourse(course?: any) {
-    const targetCourse = course || this.selectedCourse;
-    if (!targetCourse) return;
-
-    const payload = {
-      provider: targetCourse.provider,
-      courseName: targetCourse.courseName || targetCourse.title,
-      durationHours: targetCourse.durationHours || 10,
-      isFree: targetCourse.isFree,
-      description: targetCourse.description || 'Increíble curso para mejorar tus habilidades.',
-      syllabus: targetCourse.syllabus || 'Módulo 1: Intro',
-      link: targetCourse.link || 'https://google.com'
-    };
-
-    this.userService.saveCourse(payload).subscribe({
-      next: () => {
-        this.toastService.showToast(`¡${targetCourse.title} guardado!`, 'success');
-      },
-      error: (err) => {
-        if (err.status === 409) {
-          this.toastService.showToast('Este curso ya está en tus favoritos', 'info');
-        } else {
-          this.toastService.showToast('No se pudo guardar el curso', 'error');
         }
       }
     });

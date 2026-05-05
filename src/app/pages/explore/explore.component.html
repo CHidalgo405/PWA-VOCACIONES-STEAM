@@ -3,44 +3,21 @@
   <header class="premium-header">
     <div class="header-content">
       <div class="header-top">
-        <div class="header-titles">
+        <div class="title-group">
           <h2>Explorar universidades</h2>
-          <p class="subtitle" *ngIf="hasTakenTest">Recomendadas según tu perfil STEAM · Tecnología · Ingeniería</p>
+          <p class="subtitle">Recomendadas según tu perfil STEAM · {{ dominantTraitsStr }}</p>
         </div>
         <div class="header-actions">
-          <div class="user-avatar-placeholder">C</div>
+          <!-- Opcional, botón de perfil o logo -->
         </div>
       </div>
       
       <div class="search-section">
         <div class="search-bar-premium">
           <app-lucide-icon name="search" [size]="20" class="search-icon"></app-lucide-icon>
-          <input type="text" placeholder="Carreras, universidades o cursos..." [(ngModel)]="searchQuery">
-          <button class="filter-trigger" *ngIf="searchQuery">
-            <app-lucide-icon name="x" [size]="16" (click)="searchQuery = ''"></app-lucide-icon>
-          </button>
-        </div>
-      </div>
-
-      <nav class="navigation-tabs">
-        <div class="tabs-pill">
-          <button class="tab-item" [class.active]="activeTab === 'universities'" (click)="switchTab('universities')">
-            Universidades
-          </button>
-          <button class="tab-item" [class.active]="activeTab === 'courses'" (click)="switchTab('courses')">
-            Cursos Online
-          </button>
-          <div class="pill-slider" [class.to-right]="activeTab === 'courses'"></div>
-        </div>
-      </nav>
-
-      <div class="quick-filters" *ngIf="filters.length > 0">
-        <div class="filters-track">
-          <button *ngFor="let filter of filters" 
-                  class="filter-chip-premium" 
-                  [class.is-active]="selectedFilter === filter"
-                  (click)="selectedFilter = filter">
-            {{ filter }}
+          <input type="text" placeholder="Buscar universidades o programas..." [(ngModel)]="searchQuery">
+          <button class="filter-trigger" *ngIf="searchQuery" (click)="searchQuery = ''">
+            <app-lucide-icon name="x" [size]="16"></app-lucide-icon>
           </button>
         </div>
       </div>
@@ -49,201 +26,139 @@
 
   <main class="explore-content">
     
-    <!-- Banner de Recomendación (Estilo Moderno) -->
-    <section class="banner-section" *ngIf="!hasTakenTest">
-      <div class="premium-banner">
-        <div class="banner-glow"></div>
-        <div class="banner-info">
-          <div class="icon-box">
-            <app-lucide-icon name="sparkles" [size]="28"></app-lucide-icon>
-          </div>
-          <div class="text-group">
-            <h3>Tu futuro te espera</h3>
-            <p>Descubre tu vocación ideal con nuestro test inteligente.</p>
-          </div>
-        </div>
-        <button class="btn-banner-action" routerLink="/vocation-test">Comenzar Test</button>
-      </div>
-    </section>
-
-    <!-- Banner Verde Recomendaciones (Cuando hay test) -->
-    <section class="banner-section" *ngIf="hasTakenTest && activeTab === 'universities'">
-      <div class="recommendation-banner">
-        <div class="banner-left">
-          <span class="banner-tag">Basado en tu perfil STEAM</span>
-          <h2>Universidades recomendadas para ti</h2>
+    <!-- BANNER VERDE -->
+    <section class="banner-section">
+      <div class="green-banner">
+        <div class="banner-text">
+          <span class="badge-text">Basado en tu perfil STEAM</span>
+          <h3>Universidades recomendadas para ti</h3>
           <p>Ordenadas por compatibilidad con tu perfil dominante</p>
         </div>
-        <div class="banner-right">
-          <div class="stat-badge">
-            <span class="stat-num">{{ filteredUniversities.length }}</span>
+        <div class="banner-stats">
+          <div class="stat-box">
+            <span class="stat-value">{{ totalCoincidencias }}</span>
             <span class="stat-label">coincidencias</span>
           </div>
-          <div class="stat-badge highlight">
-            <span class="stat-num">95%</span>
+          <div class="stat-box">
+            <span class="stat-value">{{ maxMatchPercentage }}%</span>
             <span class="stat-label">match máximo</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Sección de Universidades -->
-    <section class="results-section" *ngIf="activeTab === 'universities'">
-      <div class="grid-layout">
-        
-        <!-- SKELETONS -->
-        <ng-container *ngIf="isLoading">
-          <div class="uni-card-skeleton" *ngFor="let i of skeletonArray">
-            <div class="skele-img shimmer"></div>
-            <div class="skele-body">
-              <div class="shimmer skele-title"></div>
-              <div class="shimmer skele-text"></div>
-              <div class="shimmer skele-btn"></div>
-            </div>
+    <!-- SKELETONS (LOADING) -->
+    <ng-container *ngIf="isLoading">
+      <div class="grid-layout compact" style="margin-top: 2rem;">
+        <div class="uni-card-skeleton" *ngFor="let i of skeletonArray">
+          <div class="skele-img shimmer"></div>
+          <div class="skele-body">
+            <div class="shimmer skele-title"></div>
+            <div class="shimmer skele-text"></div>
+            <div class="shimmer skele-btn"></div>
           </div>
-        </ng-container>
-
-        <!-- RESULTADOS REALES REDISEÑADOS -->
-        <ng-container *ngIf="!isLoading">
-          
-          <!-- Mejor coincidencia -->
-          <div *ngIf="filteredUniversities.length > 0">
-            <h3 class="section-title"><app-lucide-icon name="star" [size]="18" color="#FFD700" style="margin-right: 8px;"></app-lucide-icon> Mejor coincidencia</h3>
-            
-            <div class="best-match-card" (click)="openUniversityDetail(filteredUniversities[0])">
-              <div class="card-icon-wrapper">
-                <app-lucide-icon name="building" [size]="32"></app-lucide-icon>
-              </div>
-              <div class="card-content">
-                <div class="card-top-row">
-                  <span class="match-rank">#1 · TU MEJOR MATCH</span>
-                  <button class="btn-fav-icon" (click)="saveUniversity(filteredUniversities[0]); $event.stopPropagation()">
-                    <app-lucide-icon name="heart" [size]="18"></app-lucide-icon>
-                  </button>
-                </div>
-                <h4 class="uni-name">{{ filteredUniversities[0].name }}</h4>
-                <p class="uni-location">
-                  <app-lucide-icon name="map-pin" [size]="14"></app-lucide-icon>
-                  {{ filteredUniversities[0].location }}
-                </p>
-                <div class="card-bottom-row">
-                  <span class="match-score highlight">Match 95% <app-lucide-icon name="sparkles" [size]="12"></app-lucide-icon></span>
-                  <span class="view-offer">Ver oferta educativa &rarr;</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Todas las recomendadas -->
-          <div *ngIf="filteredUniversities.length > 1" style="margin-top: 2rem;">
-            <div class="section-header-flex">
-              <h3 class="section-title">Todas las recomendadas</h3>
-              <a href="#" class="view-map-link">Ver mapa &rarr;</a>
-            </div>
-
-            <div class="uni-list-container">
-              <div class="uni-list-card" *ngFor="let uni of filteredUniversities | slice:1" (click)="openUniversityDetail(uni)">
-                <div class="card-icon-wrapper light">
-                  <app-lucide-icon name="graduation-cap" [size]="28"></app-lucide-icon>
-                </div>
-                <div class="card-content">
-                  <div class="card-top-row">
-                    <h4 class="uni-name">{{ uni.name }}</h4>
-                    <button class="btn-fav-icon" (click)="saveUniversity(uni); $event.stopPropagation()">
-                      <app-lucide-icon name="heart" [size]="18"></app-lucide-icon>
-                    </button>
-                  </div>
-                  <p class="uni-location">
-                    <app-lucide-icon name="map-pin" [size]="14"></app-lucide-icon>
-                    {{ uni.location }}
-                  </p>
-                  <div class="tags-row">
-                    <span class="tag-chip" *ngFor="let tag of uni.tags">{{ tag }}</span>
-                  </div>
-                  <div class="card-bottom-row">
-                    <div class="stats-group">
-                      <span class="rating"><app-lucide-icon name="star" [size]="14" color="#F59E0B"></app-lucide-icon> {{ uni.rating }}</span>
-                      <span class="match-score-light">Match: 92%</span>
-                    </div>
-                    <span class="view-offer">Explorar oferta &rarr;</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty State -->
-          <div class="premium-empty-state" *ngIf="filteredUniversities.length === 0">
-            <div class="empty-visual">
-              <app-lucide-icon name="inbox" [size]="64"></app-lucide-icon>
-            </div>
-            <h3>Sin resultados</h3>
-            <p>No encontramos universidades que coincidan con tu búsqueda.</p>
-            <button class="btn-reset" (click)="searchQuery = ''; selectedFilter = 'Todos'">Limpiar búsqueda</button>
-          </div>
-        </ng-container>
+        </div>
       </div>
-    </section>
+    </ng-container>
 
-    <!-- Sección de Cursos -->
-    <section class="results-section" *ngIf="activeTab === 'courses'">
-      <div class="grid-layout compact">
-        
-        <!-- SKELETONS -->
-        <ng-container *ngIf="isLoading">
-          <div class="course-card-skeleton" *ngFor="let i of skeletonArray">
-            <div class="shimmer skele-thumb"></div>
-            <div class="skele-content">
-              <div class="shimmer skele-title"></div>
-              <div class="shimmer skele-meta"></div>
+    <ng-container *ngIf="!isLoading">
+      
+      <!-- MEJOR COINCIDENCIA (DARK CARD) -->
+      <section class="best-match-section" *ngIf="showBestMatch && bestMatchUniversity">
+        <div class="section-header">
+          <h3>
+            <app-lucide-icon name="star" [size]="20" color="#FBBF24" fill="#FBBF24" style="margin-right: 6px; margin-bottom: -4px;"></app-lucide-icon>
+            Mejor coincidencia
+          </h3>
+        </div>
+
+        <div class="best-match-card" (click)="openUniversityDetail(bestMatchUniversity)">
+          <div class="card-icon-area">
+            <div class="icon-circle">
+              <app-lucide-icon [name]="bestMatchUniversity.logo || 'building'" [size]="32" color="#D4D4D8"></app-lucide-icon>
             </div>
           </div>
-        </ng-container>
-
-        <!-- RESULTADOS REALES -->
-        <ng-container *ngIf="!isLoading">
-          <div class="course-premium-card" *ngFor="let course of filteredCourses" (click)="openCourseDetail(course)">
-            <div class="course-thumb">
-              <img [src]="course.image" [alt]="course.title">
-              <div class="level-overlay">
-                <span>{{ course.level }}</span>
-              </div>
-              <button class="btn-fav-mini" (click)="saveCourse(course); $event.stopPropagation()">
-                <app-lucide-icon name="heart" [size]="14"></app-lucide-icon>
+          
+          <div class="card-content-area">
+            <div class="card-top-row">
+              <span class="rank-badge">#1 · TU MEJOR MATCH</span>
+              <button class="btn-fav-invisible" (click)="saveUniversity(bestMatchUniversity); $event.stopPropagation()">
+                <app-lucide-icon name="heart" [size]="18" color="#64748B"></app-lucide-icon>
               </button>
             </div>
             
-            <div class="course-details">
-              <div class="details-top">
-                <span class="course-provider">{{ course.provider }}</span>
-                <h3>{{ course.title }}</h3>
+            <h4 class="uni-name">{{ bestMatchUniversity.name }}</h4>
+            
+            <p class="location-text">
+              <app-lucide-icon name="map-pin" [size]="14" color="#94A3B8"></app-lucide-icon>
+              {{ bestMatchUniversity.location }}
+            </p>
+            
+            <div class="card-bottom-row">
+              <span class="match-text">Match {{ bestMatchUniversity.matchPercentage }}% <app-lucide-icon name="sparkles" [size]="12" fill="currentColor"></app-lucide-icon></span>
+              <span class="link-text">Ver oferta educativa &rarr;</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TODAS LAS RECOMENDADAS (LIGHT CARDS) -->
+      <section class="all-recommendations-section" *ngIf="filteredOtherUniversities.length > 0">
+        <div class="section-header space-between">
+          <h3>Todas las recomendadas</h3>
+          <a href="#" class="link-cyan">Ver mapa &rarr;</a>
+        </div>
+
+        <div class="recommendations-list">
+          <div class="recommended-list-card" *ngFor="let uni of filteredOtherUniversities" (click)="openUniversityDetail(uni)">
+            
+            <div class="list-card-icon">
+              <div class="square-icon-bg">
+                <app-lucide-icon [name]="uni.logo || 'graduation-cap'" [size]="30" color="#334155"></app-lucide-icon>
+              </div>
+            </div>
+            
+            <div class="list-card-content">
+              <div class="list-top-row">
+                <h4 class="list-uni-name">{{ uni.name }}</h4>
+                <button class="btn-fav-invisible" (click)="saveUniversity(uni); $event.stopPropagation()">
+                  <app-lucide-icon name="heart" [size]="18" color="#94A3B8"></app-lucide-icon>
+                </button>
               </div>
               
-              <div class="details-bottom">
-                <div class="course-meta">
-                  <span class="meta-item">
-                    <app-lucide-icon name="clock" [size]="12"></app-lucide-icon>
-                    {{ course.duration }}
-                  </span>
+              <p class="location-text">
+                <app-lucide-icon name="map-pin" [size]="14" color="#ef4444"></app-lucide-icon>
+                {{ uni.location }}
+              </p>
+              
+              <div class="chips-row">
+                <span class="mini-chip" *ngFor="let tag of uni.tags">{{ tag }}</span>
+              </div>
+              
+              <div class="list-bottom-row">
+                <div class="left-stats">
+                  <span class="rating-text"><app-lucide-icon name="star" [size]="14" color="#F97316" fill="#F97316" style="margin-bottom: -2px; margin-right: 2px;"></app-lucide-icon> {{ uni.rating }}</span>
+                  <span class="match-badge">Match: {{ uni.matchPercentage }}%</span>
                 </div>
-                <div class="price-chip" [class.is-free]="course.isFree">
-                  {{ course.isFree ? 'Gratis' : 'Premium' }}
-                </div>
+                <span class="link-text">Explorar oferta &rarr;</span>
               </div>
             </div>
-          </div>
 
-          <!-- Empty State -->
-          <div class="premium-empty-state" *ngIf="filteredCourses.length === 0">
-            <div class="empty-visual">
-              <app-lucide-icon name="search" [size]="64"></app-lucide-icon>
-            </div>
-            <h3>¿Qué quieres aprender?</h3>
-            <p>No encontramos cursos con esos criterios. Prueba con otros términos.</p>
           </div>
-        </ng-container>
+        </div>
+      </section>
+
+      <!-- EMPTY STATE BÚSQUEDA -->
+      <div class="premium-empty-state" *ngIf="filteredOtherUniversities.length === 0 && !showBestMatch && searchQuery">
+        <div class="empty-visual">
+          <app-lucide-icon name="search" [size]="64"></app-lucide-icon>
+        </div>
+        <h3>Sin resultados</h3>
+        <p>No encontramos universidades que coincidan con "{{ searchQuery }}".</p>
+        <button class="btn-reset" (click)="searchQuery = ''">Limpiar búsqueda</button>
       </div>
-    </section>
+
+    </ng-container>
 
   </main>
 
@@ -251,68 +166,6 @@
 
 </div>
 
-<!-- DETALLES DEL CURSO MODAL -->
-<div class="premium-modal-overlay" *ngIf="isCourseModalOpen" (click)="closeCourseModal()">
-  <div class="premium-modal-card" (click)="$event.stopPropagation()" [class.is-active]="isCourseModalOpen">
-    
-    <header class="modal-banner" [style.backgroundImage]="'url(' + selectedCourse?.image + ')'">
-      <div class="modal-close-wrapper">
-        <button class="btn-modal-close" (click)="closeCourseModal()">
-          <app-lucide-icon name="x" [size]="20"></app-lucide-icon>
-        </button>
-      </div>
-      <div class="banner-mask"></div>
-    </header>
-
-    <div class="modal-content-scroll">
-      <div class="modal-main-info">
-        <span class="info-label">{{ selectedCourse?.provider }}</span>
-        <h2>{{ selectedCourse?.title }}</h2>
-        
-        <div class="info-chips-row">
-          <div class="info-chip">
-            <app-lucide-icon name="clock" [size]="16"></app-lucide-icon>
-            {{ selectedCourse?.duration }}
-          </div>
-          <div class="info-chip">
-            <app-lucide-icon name="trending-up" [size]="16"></app-lucide-icon>
-            {{ selectedCourse?.level }}
-          </div>
-          <div class="info-chip highlight" *ngIf="selectedCourse?.isFree">
-            <app-lucide-icon name="gift" [size]="16"></app-lucide-icon>
-            Acceso Gratuito
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-description">
-        <h4>Sobre el programa</h4>
-        <p>Domina las habilidades más demandadas en el sector STEAM. Este curso combina teoría rigurosa con práctica intensiva para asegurar tu aprendizaje progresivo.</p>
-      </div>
-
-      <div class="modal-curriculum">
-        <h4>Contenido del curso</h4>
-        <div class="curriculum-track">
-          <div class="curriculum-lesson" *ngFor="let item of courseSyllabus">
-            <div class="lesson-num">{{ item.module }}</div>
-            <div class="lesson-data">
-              <h5>{{ item.title }}</h5>
-              <span>{{ item.duration }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <footer class="modal-footer-sticky">
-      <button class="btn-fav-large" (click)="saveCourse()">
-        <app-lucide-icon name="heart" [size]="24"></app-lucide-icon>
-      </button>
-      <button class="btn-action-primary">Comenzar ahora</button>
-    </footer>
-
-  </div>
-</div>
 
 <!-- DETALLES DE UNIVERSIDAD MODAL -->
 <div class="premium-modal-overlay" *ngIf="isUniversityModalOpen" (click)="closeUniversityModal()">
@@ -343,8 +196,8 @@
             {{ selectedUniversity?.location }}
           </div>
           <div class="info-chip">
-            <app-lucide-icon name="star" [size]="16" color="#FFD700"></app-lucide-icon>
-            {{ selectedUniversity?.rating }} (Puntuación)
+            <app-lucide-icon name="star" [size]="16" color="#FFD700" fill="#FFD700"></app-lucide-icon>
+            {{ selectedUniversity?.rating }}
           </div>
         </div>
       </div>
