@@ -19,6 +19,11 @@ export class HistoryComponent implements OnInit {
   private toastService = inject(ToastService);
 
   testHistory: TestHistorySummary[] = [];
+  latestTest: TestHistorySummary | null = null;
+  previousTests: TestHistorySummary[] = [];
+  maxMatchGlobal: number = 0;
+  currentProfile: string = '';
+  
   isLoading: boolean = true;
   isRenaming: string | null = null;
   newTestName: string = '';
@@ -32,6 +37,17 @@ export class HistoryComponent implements OnInit {
     this.testService.getTestHistory().subscribe({
       next: (history) => {
         this.testHistory = history;
+        if (history.length > 0) {
+          this.latestTest = history[0];
+          this.previousTests = history.slice(1);
+          this.currentProfile = this.latestTest.dominantTraits || 'Desconocido';
+          this.calculateGlobalStats();
+        } else {
+          this.latestTest = null;
+          this.previousTests = [];
+          this.currentProfile = '-';
+          this.maxMatchGlobal = 0;
+        }
         this.isLoading = false;
       },
       error: (err) => {
@@ -40,6 +56,22 @@ export class HistoryComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  calculateGlobalStats() {
+    let maxScore = 0;
+    this.testHistory.forEach(test => {
+      if (test.profileScores) {
+        const scores = Object.values(test.profileScores);
+        const testMax = Math.max(...scores, 0);
+        if (testMax > maxScore) {
+          maxScore = testMax;
+        }
+      }
+    });
+    // Asumiendo un puntaje máximo de 20 por área
+    this.maxMatchGlobal = Math.round((maxScore / 20) * 100);
+    if (this.maxMatchGlobal > 100) this.maxMatchGlobal = 100;
   }
 
   startRename(test: TestHistorySummary, event: Event) {
@@ -83,6 +115,20 @@ export class HistoryComponent implements OnInit {
     this.testService.deleteTest(testId).subscribe({
       next: () => {
         this.testHistory = this.testHistory.filter(t => t.id !== testId);
+        
+        // Re-calculate derived arrays and stats
+        if (this.testHistory.length > 0) {
+          this.latestTest = this.testHistory[0];
+          this.previousTests = this.testHistory.slice(1);
+          this.currentProfile = this.latestTest.dominantTraits || 'Desconocido';
+          this.calculateGlobalStats();
+        } else {
+          this.latestTest = null;
+          this.previousTests = [];
+          this.currentProfile = '-';
+          this.maxMatchGlobal = 0;
+        }
+
         this.toastService.showToast('Test eliminado', 'success');
       },
       error: (err) => {
@@ -110,5 +156,40 @@ export class HistoryComponent implements OnInit {
     if (trait.includes('arte')) return '#EC4899';
     if (trait.includes('matem')) return '#4DB046';
     return '#94A3B8';
+  }
+
+  getTopAreas(scores: Record<string, number>): { name: string, percentage: number, color: string }[] {
+    if (!scores) return [];
+    
+    // Sort scores descending
+    const sorted = Object.entries(scores)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3); // Take top 3
+
+    return sorted.map(([name, score]) => {
+      let percentage = Math.round((score / 20) * 100);
+      if (percentage > 100) percentage = 100;
+      return {
+        name,
+        percentage,
+        color: this.getSteamColor(name)
+      };
+    });
+  }
+
+  getMiniChartBars(scores: Record<string, number>): { height: number, color: string }[] {
+    if (!scores) return [];
+    
+    // We can just take the first 5 or all of them, order doesn't strictly matter but maybe sorted by name or just use as is.
+    const entries = Object.entries(scores).slice(0, 5);
+    return entries.map(([name, score]) => {
+      let percentage = Math.round((score / 20) * 100);
+      if (percentage > 100) percentage = 100;
+      // We scale height for the mini chart (e.g. max height 30px)
+      return {
+        height: Math.max(10, (percentage / 100) * 30), // Min 10px height
+        color: this.getSteamColor(name)
+      };
+    });
   }
 }

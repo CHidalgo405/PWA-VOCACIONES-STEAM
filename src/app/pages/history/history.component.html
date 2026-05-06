@@ -1,12 +1,14 @@
 <div class="history-container">
+  
   <div class="page-header">
     <div class="header-left">
-
       <h1>Historial de Tests</h1>
+      <p class="subtitle">Tu evolución vocacional a lo largo del tiempo</p>
     </div>
   </div>
 
   <div class="content-body">
+    
     <div *ngIf="isLoading" class="loading-state">
       <app-lucide-icon name="loader" [size]="40" color="var(--primary-color)" class="spin"></app-lucide-icon>
       <p>Cargando tu historial...</p>
@@ -21,48 +23,139 @@
       <button class="btn-primary" routerLink="/vocation-test">Hacer Test Ahora</button>
     </div>
 
-    <div *ngIf="!isLoading && testHistory.length > 0" class="history-grid">
-      <div class="history-card" *ngFor="let test of testHistory" [routerLink]="['/test-result', test.id]">
-        
-        <div class="card-header">
-          <div class="trait-badge" [style.background-color]="getSteamColor(test.dominantTraits) + '20'" [style.color]="getSteamColor(test.dominantTraits)">
-            <app-lucide-icon [name]="getSteamIcon(test.dominantTraits)" [size]="16" [color]="getSteamColor(test.dominantTraits)"></app-lucide-icon>
-            {{ test.dominantTraits }}
-          </div>
-          <span class="test-date">{{ test.completedAt | date:'d MMM yyyy' }}</span>
+    <ng-container *ngIf="!isLoading && testHistory.length > 0">
+      
+      <!-- STATS GRID -->
+      <div class="stats-grid">
+        <div class="stat-card cyan-bg">
+          <span class="stat-value">{{ testHistory.length }}</span>
+          <span class="stat-label">Tests realizados</span>
         </div>
+        <div class="stat-card light-bg">
+          <span class="stat-value dark-text">{{ maxMatchGlobal }}%</span>
+          <span class="stat-label">Mejor match</span>
+        </div>
+        <div class="stat-card light-bg">
+          <span class="stat-value green-text">&uarr;12%</span>
+          <span class="stat-label">Evolución perfil</span>
+        </div>
+        <div class="stat-card dark-bg">
+          <span class="stat-value white-text">{{ currentProfile | slice:0:15 }}{{ currentProfile.length > 15 ? '...' : '' }}</span>
+          <span class="stat-label">Perfil actual</span>
+        </div>
+      </div>
 
-        <div class="card-body">
-          <div class="test-name-wrap" *ngIf="isRenaming !== test.id" (click)="startRename(test, $event)">
-            <h3>{{ test.testName }}</h3>
+      <!-- ÚLTIMO TEST (Dark Card) -->
+      <div class="section-title" *ngIf="latestTest">
+        <h3><app-lucide-icon name="sparkles" [size]="18" fill="currentColor"></app-lucide-icon> Último test</h3>
+      </div>
+      
+      <div class="premium-dark-card" *ngIf="latestTest">
+        <div class="card-top-row">
+          <span class="badge-accent">TEST #{{ testHistory.length }} &middot; MÁS RECIENTE</span>
+          <span class="date-text">{{ latestTest.completedAt | date:'d MMM yyyy' }}</span>
+        </div>
+        
+        <div class="card-title-row">
+          <div class="title-wrap" *ngIf="isRenaming !== latestTest.id" (click)="startRename(latestTest, $event)">
+            <h2>{{ latestTest.testName }}</h2>
             <button class="btn-icon" title="Renombrar">
-              <app-lucide-icon name="pencil" [size]="16" color="var(--text-muted)"></app-lucide-icon>
+              <app-lucide-icon name="pencil" [size]="16" color="#94A3B8"></app-lucide-icon>
             </button>
           </div>
           
-          <div class="rename-input-wrap" *ngIf="isRenaming === test.id" (click)="$event.stopPropagation()">
-            <input type="text" [(ngModel)]="newTestName" (keyup.enter)="saveRename(test, $event)" autofocus>
-            <div class="rename-actions">
-              <button class="btn-icon save" (click)="saveRename(test, $event)">
-                <app-lucide-icon name="check" [size]="18" color="var(--steam-green)"></app-lucide-icon>
-              </button>
-              <button class="btn-icon cancel" (click)="cancelRename($event)">
-                <app-lucide-icon name="x" [size]="18" color="var(--steam-red)"></app-lucide-icon>
-              </button>
-            </div>
+          <div class="rename-input-wrap dark-mode" *ngIf="isRenaming === latestTest.id" (click)="$event.stopPropagation()">
+            <input type="text" [(ngModel)]="newTestName" (keyup.enter)="saveRename(latestTest, $event)" autofocus>
+            <button class="btn-icon save" (click)="saveRename(latestTest, $event)">
+              <app-lucide-icon name="check" [size]="18" color="#4ADE80"></app-lucide-icon>
+            </button>
+            <button class="btn-icon cancel" (click)="cancelRename($event)">
+              <app-lucide-icon name="x" [size]="18" color="#EF4444"></app-lucide-icon>
+            </button>
           </div>
-
-          <p class="summary-text">Ver análisis completo de perfil STEAM y universidades recomendadas.</p>
+          
+          <div class="chips-row">
+            <span class="chip-outline" *ngFor="let area of getTopAreas(latestTest.profileScores)" [style.color]="area.color" [style.borderColor]="area.color + '40'">
+              {{ area.name | uppercase }}
+            </span>
+          </div>
         </div>
-
+        
+        <div class="progress-section">
+          <div class="progress-item" *ngFor="let area of getTopAreas(latestTest.profileScores)">
+            <span class="area-name">{{ area.name }}</span>
+            <div class="progress-bar-bg">
+              <div class="progress-fill" [style.width]="area.percentage + '%'" [style.backgroundColor]="area.color"></div>
+            </div>
+            <span class="area-percent">{{ area.percentage }}%</span>
+          </div>
+        </div>
+        
         <div class="card-footer">
-          <span class="view-details">Ver detalles <app-lucide-icon name="chevron-right" [size]="16"></app-lucide-icon></span>
-          <button class="btn-icon delete" title="Eliminar Test" (click)="deleteTest(test.id, $event)">
-            <app-lucide-icon name="trash-2" [size]="18" color="var(--steam-red)"></app-lucide-icon>
+          <a [routerLink]="['/test-result', latestTest.id]" class="link-cyan">Ver análisis completo &rarr;</a>
+          <button class="btn-delete" (click)="deleteTest(latestTest.id, $event)">
+            <app-lucide-icon name="trash-2" [size]="16"></app-lucide-icon> Eliminar
           </button>
         </div>
       </div>
-    </div>
+
+      <!-- TESTS ANTERIORES -->
+      <div class="section-title space-between" *ngIf="previousTests.length > 0">
+        <h3>Tests anteriores</h3>
+        <a href="#" class="link-cyan">Comparar todos</a>
+      </div>
+
+      <div class="previous-tests-list" *ngIf="previousTests.length > 0">
+        <div class="history-list-card" *ngFor="let test of previousTests; let i = index">
+          
+          <div class="card-left">
+            <div class="number-badge">#{{ testHistory.length - 1 - i }}</div>
+          </div>
+          
+          <div class="card-content">
+            <div class="card-top-row">
+              <div class="title-wrap" *ngIf="isRenaming !== test.id" (click)="startRename(test, $event)">
+                <h4>{{ test.testName }}</h4>
+                <button class="btn-icon" title="Renombrar">
+                  <app-lucide-icon name="pencil" [size]="14" color="#94A3B8"></app-lucide-icon>
+                </button>
+              </div>
+              
+              <div class="rename-input-wrap" *ngIf="isRenaming === test.id" (click)="$event.stopPropagation()">
+                <input type="text" [(ngModel)]="newTestName" (keyup.enter)="saveRename(test, $event)" autofocus>
+                <button class="btn-icon save" (click)="saveRename(test, $event)">
+                  <app-lucide-icon name="check" [size]="16" color="#16A34A"></app-lucide-icon>
+                </button>
+                <button class="btn-icon cancel" (click)="cancelRename($event)">
+                  <app-lucide-icon name="x" [size]="16" color="#DC2626"></app-lucide-icon>
+                </button>
+              </div>
+              
+              <span class="date-text">{{ test.completedAt | date:'d MMM yyyy' }}</span>
+            </div>
+            
+            <div class="chips-row">
+               <span class="chip-light" [style.color]="getSteamColor(test.dominantTraits)" [style.backgroundColor]="getSteamColor(test.dominantTraits) + '20'">
+                {{ test.dominantTraits | uppercase }}
+               </span>
+            </div>
+            
+            <div class="mini-chart">
+              <div class="bar" *ngFor="let bar of getMiniChartBars(test.profileScores)" [style.height.px]="bar.height" [style.backgroundColor]="bar.color"></div>
+            </div>
+            
+            <div class="card-footer">
+              <a [routerLink]="['/test-result', test.id]" class="link-cyan">Ver detalles &rarr;</a>
+              <button class="btn-delete" (click)="deleteTest(test.id, $event)">
+                <app-lucide-icon name="trash-2" [size]="16"></app-lucide-icon>
+              </button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+    </ng-container>
   </div>
   
   <div class="spacer-bottom"></div>
