@@ -209,7 +209,7 @@
       </div>
 
       <button class="btn-start pulse-anim" (click)="finishTest()" style="margin-top: 25px;"
-              [disabled]="wantsLocalUniversities === null || (wantsLocalUniversities === true && !userLocation.trim())">
+              [disabled]="wantsLocalUniversities === null || (wantsLocalUniversities === true && !userLocation.trim()) || isFinishing">
         <span>
           <app-lucide-icon name="check-circle" [size]="18" color="white" style="margin-right:8px;margin-bottom:-3px;"></app-lucide-icon>
           Generar Resultados

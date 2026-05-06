@@ -126,6 +126,8 @@ export class TestResultComponent implements OnInit {
   }
 
   loadResults() {
+    if (this.isLoading) return;
+
     const user = this.authService.getCurrentUser();
     const userId = user?.id || 'guest';
 
@@ -299,7 +301,12 @@ export class TestResultComponent implements OnInit {
   }
 
   navigateToUniversities() {
-    this.startAISearch();
+    if (this.recommendedUniversities && this.recommendedUniversities.length > 0) {
+      this.viewState = 'universities';
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    } else {
+      this.startAISearch();
+    }
   }
 
   /** Safe area accessors — eliminates optional chaining in templates */

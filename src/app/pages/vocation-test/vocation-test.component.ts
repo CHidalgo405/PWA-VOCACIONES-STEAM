@@ -47,6 +47,7 @@ export class VocationTestComponent implements OnInit {
     isAnimating: boolean = false;
 
     userAnswers: Record<string, string> = {};
+    isFinishing: boolean = false;
 
     constructor(
         private router: Router,
@@ -152,6 +153,9 @@ export class VocationTestComponent implements OnInit {
     }
 
     finishTest() {
+        if (this.isFinishing) return;
+        this.isFinishing = true;
+
         this.viewState = 'analyzing';
 
         const user = this.authService.getCurrentUser();
