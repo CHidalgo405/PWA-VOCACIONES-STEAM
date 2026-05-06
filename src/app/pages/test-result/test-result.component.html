@@ -201,80 +201,14 @@
         </div>
         <!-- /dna-insights-card -->
 
-        <div style="margin: 20px 0; text-align: center;">
-            <button class="panel-btn-secondary" style="width: 100%; justify-content: center; padding: 12px; background: white; border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 12px; font-weight: 500;" (click)="openAnswersModal()">
-                <app-lucide-icon name="list-checks" [size]="18" color="var(--primary-color)" style="margin-right: 8px;"></app-lucide-icon>
-                Ver Respuestas del Test
-            </button>
-        </div>
-             BODY BLOCK 3 — APTITUDE THERMOMETER
-             ══════════════════════════════════════════════ 
-        <section class="aptitude-section">
-            <div class="section-label">
-                <app-lucide-icon name="gauge" [size]="16" color="#07B1C9"
-                    style="margin-right:6px;margin-bottom:-2px;">
-                </app-lucide-icon>
-                Tu nivel de preparación
-            </div>
 
-            <div class="thermo-card">
-                
-                <div class="thermo-labels">
-                    <div class="thermo-label"
-                         *ngFor="let lv of aptitudeLevels"
-                         [class.is-active]="aptitudeLevel === lv.key">
-                        <app-lucide-icon [name]="lv.icon" [size]="15"
-                            [color]="aptitudeLevel === lv.key ? '#07B1C9' : '#9CA3AF'">
-                        </app-lucide-icon>
-                        <span>{{ lv.label }}</span>
-                    </div>
-                </div>
 
-                
-                <div class="thermo-track-wrap">
-                    <div class="thermo-track">
-                        <div class="thermo-seg seg-1"
-                             [class.seg-active]="aptitudeLevel === 'explorador' || aptitudeLevel === 'intermedio' || aptitudeLevel === 'preparado'">
-                        </div>
-                        <div class="thermo-seg seg-2"
-                             [class.seg-active]="aptitudeLevel === 'intermedio' || aptitudeLevel === 'preparado'">
-                        </div>
-                        <div class="thermo-seg seg-3"
-                             [class.seg-active]="aptitudeLevel === 'preparado'">
-                        </div>
-
-                        
-                        <div class="thermo-pointer"
-                             [style.left]="aptitudePct + '%'">
-                            <div class="pointer-bubble">{{ globalAffinityPct }}%</div>
-                            <div class="pointer-stem"></div>
-                        </div>
-                    </div>
-                </div>
-
-               
-                <p class="thermo-desc">
-                    <ng-container [ngSwitch]="aptitudeLevel">
-                        <span *ngSwitchCase="'explorador'">
-                            Estás comenzando a descubrir tu vocación STEAM. ¡El camino empieza aquí!
-                        </span>
-                        <span *ngSwitchCase="'intermedio'">
-                            Tienes una dirección clara. Profundizar en las áreas clave acelerará tu desarrollo.
-                        </span>
-                        <span *ngSwitchCase="'preparado'">
-                            ¡Tienes un perfil sólido! Estás listo para elegir una carrera con confianza.
-                        </span>
-                    </ng-container>
-                </p>
-            </div>
-        </section>
-       -->
 
 
         <!-- ══════════════════════════════════════════════
              BODY BLOCK 4 — CAREER CAROUSEL
              ══════════════════════════════════════════════ -->
-        <section class="career-carousel-section" *ngIf="careerCards.length > 0">
+        <section class="career-list-section" *ngIf="careerCards.length > 0">
             <div class="section-label">
                 <app-lucide-icon name="library" [size]="16" color="#07B1C9"
                     style="margin-right:6px;margin-bottom:-2px;">
@@ -282,68 +216,22 @@
                 Carreras recomendadas para ti
             </div>
 
-            <div class="carousel-viewport">
-                <!-- Prev arrow -->
-                <button class="carousel-arrow carousel-arrow-prev"
-                        (click)="carouselPrev()"
-                        aria-label="Anterior carrera">
-                    <app-lucide-icon name="chevron-left" [size]="20"></app-lucide-icon>
-                </button>
-
-                <!-- Cards track -->
-                <div class="carousel-track">
-                    <div class="career-card"
-                         *ngFor="let card of careerCards; let i = index"
-                         [class.card-active]="isActiveCard(i)"
-                         [class.card-adjacent]="isAdjacentCard(i)"
-                         [class.card-hidden]="!isActiveCard(i) && !isAdjacentCard(i)">
-
-                        <!-- Icon -->
-                        <div class="cc-icon-wrap" [style.background]="card.color + '18'">
-                            <app-lucide-icon [name]="card.icon" [size]="26" [color]="card.color">
-                            </app-lucide-icon>
-                        </div>
-
-                        <!-- Info -->
-                        <div class="cc-info">
-                            <span class="cc-major">{{ card.major }}</span>
-                            <span class="cc-uni">
-                                <app-lucide-icon name="map-pin" [size]="12"
-                                    color="#9CA3AF" style="margin-right:3px;margin-bottom:-1px;">
-                                </app-lucide-icon>
-                                {{ card.uniName }}
-                            </span>
-                        </div>
-
-                        <!-- Detail button -->
-                        <button class="cc-detail-btn"
-                                [style.color]="card.color"
-                                [style.border-color]="card.color + '44'"
-                                (click)="openCardDetail(i)">
-                            Ver detalles
-                            <app-lucide-icon name="arrow-right" [size]="13"
-                                [color]="card.color" style="margin-left:4px;margin-bottom:-1px;">
-                            </app-lucide-icon>
-                        </button>
+            <div class="career-vertical-list">
+                <div class="career-item-card" *ngFor="let card of careerCards; let i = index">
+                    <div class="career-item-icon" [style.background]="card.color + '18'">
+                        <app-lucide-icon [name]="card.icon" [size]="22" [color]="card.color"></app-lucide-icon>
                     </div>
+                    <div class="career-item-info">
+                        <span class="career-item-major">{{ card.major }}</span>
+                        <span class="career-item-uni">
+                            <app-lucide-icon name="building-2" [size]="12" color="#94A3B8" style="margin-right:4px;"></app-lucide-icon>
+                            {{ card.uniName }}
+                        </span>
+                    </div>
+                    <button class="career-item-btn" [style.color]="card.color" (click)="openCardDetail(i)">
+                        <app-lucide-icon name="chevron-right" [size]="20"></app-lucide-icon>
+                    </button>
                 </div>
-
-                <!-- Next arrow -->
-                <button class="carousel-arrow carousel-arrow-next"
-                        (click)="carouselNext()"
-                        aria-label="Siguiente carrera">
-                    <app-lucide-icon name="chevron-right" [size]="20"></app-lucide-icon>
-                </button>
-            </div>
-
-            <!-- Dot indicators -->
-            <div class="carousel-dots">
-                <span class="dot"
-                      *ngFor="let card of careerCards; let i = index"
-                      [class.dot-active]="isActiveCard(i)"
-                      [style.background]="isActiveCard(i) ? careerCards[i].color : ''"
-                      (click)="activeCareerIndex = i">
-                </span>
             </div>
         </section>
         <!-- /career-carousel-section -->
@@ -367,6 +255,12 @@
                     style="margin-right:8px;margin-bottom:-2px;">
                 </app-lucide-icon>
                 Explorar Universidades
+            </button>
+
+            <!-- Test Answers Button -->
+            <button class="btn-answers" (click)="openAnswersModal()">
+                <app-lucide-icon name="list-checks" [size]="18" color="var(--primary-color)" style="margin-right:8px;"></app-lucide-icon>
+                Ver Respuestas del Test
             </button>
         </div>
         <!-- /cta-buttons-block -->

@@ -31,14 +31,6 @@
           <span class="stat-value">{{ testHistory.length }}</span>
           <span class="stat-label">Tests realizados</span>
         </div>
-        <div class="stat-card light-bg">
-          <span class="stat-value dark-text">{{ maxMatchGlobal }}%</span>
-          <span class="stat-label">Mejor match</span>
-        </div>
-        <div class="stat-card light-bg">
-          <span class="stat-value green-text">&uarr;12%</span>
-          <span class="stat-label">Evolución perfil</span>
-        </div>
         <div class="stat-card dark-bg">
           <span class="stat-value white-text">{{ currentProfile | slice:0:15 }}{{ currentProfile.length > 15 ? '...' : '' }}</span>
           <span class="stat-label">Perfil actual</span>

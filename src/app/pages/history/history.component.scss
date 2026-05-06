@@ -64,7 +64,8 @@
   margin-bottom: 2rem;
 
   @media (min-width: 768px) {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 600px; // Centrar un poco en desktop
   }
 
   .stat-card {
