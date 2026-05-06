@@ -16,15 +16,18 @@
   <div class="health-grid">
     <div class="health-card">
       <span class="label">Tasa de Éxito</span>
-      <span class="value success">{{ apiHealth.successRate }}</span>
+      <ng-container *ngIf="isLoading"><div class="skeleton skeleton-text" style="width: 80px; height: 32px; margin-top: 5px;"></div></ng-container>
+      <span class="value success" *ngIf="!isLoading">{{ apiHealth.successRate }}</span>
     </div>
     <div class="health-card">
       <span class="label">Latencia Promedio</span>
-      <span class="value">{{ apiHealth.latency }}</span>
+      <ng-container *ngIf="isLoading"><div class="skeleton skeleton-text" style="width: 80px; height: 32px; margin-top: 5px;"></div></ng-container>
+      <span class="value" *ngIf="!isLoading">{{ apiHealth.latency }}</span>
     </div>
     <div class="health-card">
       <span class="label">Tokens Consumidos</span>
-      <span class="value">{{ apiHealth.tokensUsed }}</span>
+      <ng-container *ngIf="isLoading"><div class="skeleton skeleton-text" style="width: 80px; height: 32px; margin-top: 5px;"></div></ng-container>
+      <span class="value" *ngIf="!isLoading">{{ apiHealth.tokensUsed }}</span>
     </div>
   </div>
 
@@ -42,7 +45,16 @@
       </div>
     </div>
 
-    <div class="table-responsive">
+    <!-- Error State -->
+    <div class="empty-state" *ngIf="errorMessage && !isLoading" style="text-align: center; padding: 40px;">
+      <app-lucide-icon name="alert-triangle" [size]="48" color="#e74c3c"></app-lucide-icon>
+      <h3 style="margin-top: 15px;">Error de conexión</h3>
+      <p style="color: #7F8C8D; margin-bottom: 20px;">{{ errorMessage }}</p>
+      <button class="btn-primary" (click)="fetchLogs()">Reintentar</button>
+    </div>
+
+    <!-- Loading Skeletons for Table -->
+    <div class="table-responsive" *ngIf="isLoading">
       <table>
         <thead>
           <tr>
@@ -54,16 +66,42 @@
           </tr>
         </thead>
         <tbody>
+          <tr *ngFor="let i of [1,2,3,4,5]">
+            <td><div class="skeleton skeleton-text" style="width: 100px; height: 16px;"></div><div class="skeleton skeleton-text" style="width: 140px; height: 12px; margin-top: 5px;"></div></td>
+            <td><div class="skeleton skeleton-text" style="width: 120px; height: 16px;"></div></td>
+            <td><div class="skeleton skeleton-text" style="width: 150px; height: 24px; border-radius: 12px;"></div></td>
+            <td><div class="skeleton skeleton-text" style="width: 60px; height: 24px; border-radius: 12px;"></div></td>
+            <td><div class="skeleton skeleton-text" style="width: 80px; height: 16px;"></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-responsive" *ngIf="!isLoading && !errorMessage">
+      <table>
+        <thead>
+          <tr>
+            <th>ID / Fecha</th>
+            <th>Estudiante</th>
+            <th>Perfil Detectado</th>
+            <th>Latencia</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="logs.length === 0">
+            <td colspan="5" style="text-align: center; padding: 40px;">No hay consultas recientes registradas.</td>
+          </tr>
           <tr *ngFor="let log of logs" 
               (click)="selectLog(log)" 
               [class.selected]="selectedLog?.id === log.id">
             
             <td>
               <strong>{{ log.id }}</strong><br>
-              <span class="text-muted" style="font-size: 0.8rem;">{{ log.date }}</span>
+              <span class="text-muted" style="font-size: 0.8rem;">{{ log.date | date:'dd MMM yyyy, hh:mm a' }}</span>
             </td>
-            <td>{{ log.user }}</td>
-            <td><span class="role-badge">{{ log.profile }}</span></td>
+            <td>{{ log.studentName }}</td>
+            <td><span class="role-badge">{{ log.detectedProfile }}</span></td>
             <td><span class="latency-badge">{{ log.latency }}</span></td>
             <td>
               <span class="status-dot" [class.active]="log.status === 'Éxito'" [class.error]="log.status === 'Error'"></span>
@@ -88,8 +126,8 @@
     <div class="modal-body">
       
       <div class="log-meta">
-        <p><strong>Usuario:</strong> {{ selectedLog?.user }}</p>
-        <p><strong>Fecha:</strong> {{ selectedLog?.date }}</p>
+        <p><strong>Usuario:</strong> {{ selectedLog?.studentName }}</p>
+        <p><strong>Fecha:</strong> {{ selectedLog?.date | date:'dd MMM yyyy, hh:mm a' }}</p>
         <p><strong>Estado:</strong> 
           <span [style.color]="selectedLog?.status === 'Éxito' ? '#2ecc71' : '#e74c3c'">
             {{ selectedLog?.status }}

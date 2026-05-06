@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
+import { AdminService, AiLogsStatsResponse, RecentLogItem } from '../../../core/services/admin.service';
 
 @Component({
   selector: 'app-ai-logs',
@@ -10,55 +11,55 @@ import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon
   templateUrl: './ai-logs.component.html',
   styleUrls: ['./ai-logs.component.scss']
 })
-export class AiLogsComponent {
+export class AiLogsComponent implements OnInit {
+
+  private adminService = inject(AdminService);
+  
+  isLoading = true;
+  errorMessage = '';
 
   // --- MÉTRICAS DE SALUD DE LA API ---
   apiHealth = {
-    status: 'Operativo', // Operativo, Degradado, Caído
-    latency: '240ms',
-    successRate: '99.8%',
-    tokensUsed: '1.2M'
+    status: 'Cargando...', // Operativo, Degradado, Caído
+    latency: '...',
+    successRate: '...',
+    tokensUsed: '...'
   };
 
-  // --- LOGS SIMULADOS DE LA IA ---
-  logs = [
-    { 
-      id: 'REQ-901', 
-      date: '21 Feb 2026, 10:30 AM', 
-      user: 'Ana Sofía', 
-      profile: 'Ingeniería + Tecnología', 
-      status: 'Éxito', 
-      latency: '210ms',
-      prompt: 'Recomendar 3 universidades locales (Córdoba, Veracruz) y 2 cursos online para perfil: Ingeniería de Software.',
-      response: '{\n  "universidades": ["UTCV - Ing. Mecatrónica", "UV - Ing. Informática"],\n  "cursos": ["Coursera: FullStack", "Udemy: Python para IA"]\n}'
-    },
-    { 
-      id: 'REQ-900', 
-      date: '21 Feb 2026, 10:15 AM', 
-      user: 'Carlos R.', 
-      profile: 'Artes Visuales', 
-      status: 'Éxito', 
-      latency: '350ms',
-      prompt: 'Recomendar carreras y cursos para perfil: Artes, diseño digital.',
-      response: '{\n  "universidades": ["Escuela de Artes Visuales", "Gestalt Diseño"],\n  "cursos": ["Domestika: Ilustración Digital"]\n}'
-    },
-    { 
-      id: 'REQ-899', 
-      date: '21 Feb 2026, 09:45 AM', 
-      user: 'Luis M.', 
-      profile: 'Ciencia', 
-      status: 'Error', 
-      latency: '5000ms',
-      prompt: 'Recomendar opciones para perfil: Biología Marina.',
-      response: 'Error 504: Gateway Timeout. La API de la IA tardó demasiado en responder.'
-    }
-  ];
+  // --- LOGS DE LA IA ---
+  logs: RecentLogItem[] = [];
 
   // --- ESTADO PARA EL MODAL ---
-  selectedLog: any = null;
+  selectedLog: RecentLogItem | null = null;
   isModalOpen = false;
 
-  selectLog(log: any) {
+  ngOnInit() {
+    this.fetchLogs();
+  }
+
+  fetchLogs() {
+    this.isLoading = true;
+    this.errorMessage = '';
+    
+    this.adminService.getAiLogsStats().subscribe({
+      next: (res: AiLogsStatsResponse) => {
+        this.apiHealth.successRate = res.successRate || '0%';
+        this.apiHealth.latency = res.averageLatency || '0ms';
+        this.apiHealth.tokensUsed = res.totalTokens || '0';
+        this.apiHealth.status = 'Operativo';
+        this.logs = res.recentLogs || [];
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar datos de IA:', err);
+        this.apiHealth.status = 'Degradado';
+        this.errorMessage = 'Ocurrió un error al cargar las estadísticas de la IA. Por favor, intenta de nuevo más tarde.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  selectLog(log: RecentLogItem) {
     this.selectedLog = this.selectedLog?.id === log.id ? null : log;
   }
 

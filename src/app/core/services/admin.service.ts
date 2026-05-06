@@ -29,6 +29,24 @@ export interface AdminTestQuestion {
   options: AdminTestOption[];
 }
 
+export interface RecentLogItem {
+  id: string;
+  date: string;
+  studentName: string;
+  detectedProfile: string;
+  latency: string;
+  status: string;
+  prompt?: string;
+  response?: string;
+}
+
+export interface AiLogsStatsResponse {
+  successRate: string;
+  averageLatency: string;
+  totalTokens: string;
+  recentLogs: RecentLogItem[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -63,5 +81,10 @@ export class AdminService {
 
   deleteQuestion(id: string): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/tests/questions/${id}`);
+  }
+
+  // --- MONITOREO IA ---
+  getAiLogsStats(): Observable<AiLogsStatsResponse> {
+    return this.http.get<AiLogsStatsResponse>(`${environment.apiUrl}/admin/ai-logs`);
   }
 }
