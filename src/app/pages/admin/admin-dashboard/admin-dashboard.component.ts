@@ -5,6 +5,7 @@ import { BaseChartDirective } from 'ng2-charts'; // Importante para la gráfica
 import { ChartConfiguration } from 'chart.js';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 import { PdfReportTemplateComponent } from '../../../components/pdf-report-template/pdf-report-template.component';
+import { AdminReportTemplateComponent } from '../../../components/admin-report-template/admin-report-template.component';
 import { SteamArea } from '../../test-result/test-result.component';
 import { UniversityRecommendation } from '../../../core/services/test.service';
 import { inject } from '@angular/core';
@@ -15,7 +16,7 @@ import html2canvas from 'html2canvas';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, AdminSidebarComponent, BaseChartDirective, LucideIconComponent, PdfReportTemplateComponent],
+  imports: [CommonModule, AdminSidebarComponent, BaseChartDirective, LucideIconComponent, PdfReportTemplateComponent, AdminReportTemplateComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
@@ -69,18 +70,18 @@ export class AdminDashboardComponent {
   };
 
   async exportDashboardPdf() {
-    const content = document.querySelector('.admin-layout-content') as HTMLElement;
-    if (!content) return;
-
-    this.toastService.showToast('Generando reporte del sistema...', 'info', 'Descargando PDF');
+    this.toastService.showToast('Generando reporte ejecutivo...', 'info', 'Descargando PDF');
 
     try {
-      const canvas = await html2canvas(content, {
-        scale: 2,
+      const pdfTemplate = document.getElementById('admin-report-template-wrapper') as HTMLElement;
+      if (!pdfTemplate) throw new Error('No Admin Report template found');
+
+      const canvas = await html2canvas(pdfTemplate, {
+        scale: 3,
         useCORS: true,
         logging: false,
-        backgroundColor: '#F8FAFC',
-        ignoreElements: (el) => el.classList.contains('btn-export') || el.tagName === 'APP-ADMIN-SIDEBAR'
+        backgroundColor: '#FFFFFF',
+        width: 800
       });
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
@@ -106,11 +107,11 @@ export class AdminDashboardComponent {
         heightLeft -= pageHeight;
       }
 
-      pdf.save(`Reporte_Admin_STEAM_${new Date().toLocaleDateString()}.pdf`);
-      this.toastService.showToast('Reporte exportado correctamente.', 'success');
+      pdf.save(`Reporte_Gestion_STEAM_${new Date().toLocaleDateString()}.pdf`);
+      this.toastService.showToast('Reporte ejecutivo exportado.', 'success');
     } catch (error) {
-      console.error('Error exporting dashboard PDF:', error);
-      this.toastService.showToast('No se pudo generar el PDF.', 'error');
+      console.error('Error exporting admin dashboard PDF:', error);
+      this.toastService.showToast('Error al generar el reporte ejecutivo.', 'error');
     }
   }
 
