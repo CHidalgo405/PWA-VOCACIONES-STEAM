@@ -100,6 +100,9 @@ export class TestResultComponent implements OnInit {
   testAnswers: Record<string, string> = {};
   allQuestions: Question[] = [];
 
+  // Metadata for PDF
+  currentDate: Date = new Date();
+
   ngOnInit(): void {
     const testId = this.route.snapshot.paramMap.get('id');
     if (testId) {
@@ -295,46 +298,44 @@ export class TestResultComponent implements OnInit {
 
   async downloadPDF() {
     this.isLoading = true;
-    this.splashText = 'Generando tu reporte PDF...';
+    this.splashText = 'Generando reporte profesional...';
     
     // Give UI a moment to show the loading screen
     await new Promise(resolve => setTimeout(resolve, 50));
 
     try {
-      const content = document.querySelector('.view-profile') as HTMLElement;
-      if (!content) throw new Error('No content to export');
+      const pdfTemplate = document.getElementById('pdf-report-template') as HTMLElement;
+      if (!pdfTemplate) throw new Error('No PDF template found');
 
-      // Temporarily hide buttons
-      const buttonsBlock = content.querySelector('.cta-buttons-block') as HTMLElement;
-      if (buttonsBlock) buttonsBlock.style.display = 'none';
+      // Make template temporarily visible off-screen for html2canvas
+      pdfTemplate.style.display = 'block';
 
-      // Get background color from container to respect light/dark mode
-      const container = document.querySelector('.result-container') as HTMLElement;
-      const bgColor = container ? window.getComputedStyle(container).backgroundColor : '#F8FAFC';
-
-      const canvas = await html2canvas(content, {
-        scale: 2,
+      // Capture at high scale for maximum sharpness
+      const canvas = await html2canvas(pdfTemplate, {
+        scale: 3, 
         useCORS: true,
         logging: false,
-        backgroundColor: bgColor
+        backgroundColor: '#FFFFFF',
+        width: 800, // Fixed width for A4 proportion
       });
 
-      // Restore buttons
-      if (buttonsBlock) buttonsBlock.style.display = 'flex';
+      // Hide template again
+      pdfTemplate.style.display = 'none';
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       
+      // Calculate A4 dimensions (210x297mm)
+      const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       
       const profileName = this.userProfile.dominantTraits ? this.userProfile.dominantTraits.replace(/\s+/g, '_') : 'Perfil';
       const fileName = `Reporte_STEAM_${profileName}.pdf`;
       pdf.save(fileName);
 
-      this.toastService.showToast('Tu reporte ha sido descargado exitosamente.', 'success', '¡Listo!');
+      this.toastService.showToast('Tu reporte profesional ha sido descargado.', 'success', '¡Listo!');
     } catch (error) {
       console.error('Error generating PDF:', error);
       this.toastService.showToast('Ocurrió un error al generar el PDF.', 'error', 'Error');
