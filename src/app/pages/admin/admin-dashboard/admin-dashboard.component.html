@@ -7,7 +7,7 @@
       <h1>Resumen del Sistema</h1>
       <p>Métricas principales de STEAM Vocations.</p>
     </div>
-    <button class="btn-export"><app-lucide-icon name="download" [size]="16" style="margin-right: 5px;"></app-lucide-icon> Exportar PDF</button>
+    <button class="btn-export" (click)="exportDashboardPdf()"><app-lucide-icon name="download" [size]="16" style="margin-right: 5px;"></app-lucide-icon> Exportar PDF</button>
   </header>
 
   <div class="kpi-grid">
@@ -68,6 +68,7 @@
             <th>Perfil STEAM</th>
             <th>Fecha</th>
             <th>Estado</th>
+            <th style="text-align: center;">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -88,10 +89,25 @@
               <span class="status-dot" [class.done]="user.status === 'Completado'"></span>
               {{ user.status }}
             </td>
+            <td style="text-align: center;">
+              <button class="btn-action-pdf" (click)="downloadStudentPdf(user)" title="Descargar Reporte Vocacional">
+                <app-lucide-icon name="file-text" [size]="16" color="#07B1C9"></app-lucide-icon>
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
+
+  <!-- Template oculto para PDF individual de alumnos -->
+  <app-pdf-report-template 
+    style="display: none;"
+    [dominantTraits]="selectedStudentPdf.dominantTraits"
+    [description]="selectedStudentPdf.description"
+    [greeting]="selectedStudentPdf.greeting"
+    [steamAreas]="selectedStudentPdf.steamAreas"
+    [recommendations]="selectedStudentPdf.recommendations">
+  </app-pdf-report-template>
 </div>

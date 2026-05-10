@@ -146,5 +146,24 @@
       display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e74c3c; margin-right: 5px;
       &.done { background: #2ecc71; }
     }
+
+    .btn-action-pdf {
+      background: transparent;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      color: #07B1C9;
+
+      &:hover {
+        background: rgba(7, 177, 201, 0.05);
+        border-color: #07B1C9;
+        transform: scale(1.1);
+      }
+    }
   }
 }

@@ -4,6 +4,7 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
+import { PdfReportTemplateComponent } from '../../components/pdf-report-template/pdf-report-template.component';
 import { UniversityRecommendation, TestSubmissionResponse, VocationTestService, Question } from '../../core/services/test.service';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -28,7 +29,7 @@ export interface SteamArea {
 @Component({
   selector: 'app-test-result',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, SplashScreenComponent, LucideIconComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, SplashScreenComponent, LucideIconComponent, PdfReportTemplateComponent],
   templateUrl: './test-result.component.html',
   styleUrls: ['./test-result.component.scss']
 })
@@ -324,12 +325,31 @@ export class TestResultComponent implements OnInit {
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       
-      // Calculate A4 dimensions (210x297mm)
+      // PDF dimensions (A4: 210 x 297 mm)
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
       
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      // Calculate how many PDF pages we need
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = pageWidth / imgWidth;
+      const totalPdfHeight = imgHeight * ratio;
+      
+      let heightLeft = totalPdfHeight;
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, totalPdfHeight);
+      heightLeft -= pageHeight;
+
+      // If content is longer than one page, add more pages
+      while (heightLeft > 0) {
+        position = heightLeft - totalPdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, totalPdfHeight);
+        heightLeft -= pageHeight;
+      }
       
       const profileName = this.userProfile.dominantTraits ? this.userProfile.dominantTraits.replace(/\s+/g, '_') : 'Perfil';
       const fileName = `Reporte_STEAM_${profileName}.pdf`;

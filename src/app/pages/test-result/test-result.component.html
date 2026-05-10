@@ -582,79 +582,15 @@
     </div>
 
     <!-- ============================================================
-         PDF EXPORT TEMPLATE (HIDDEN)
+         PDF EXPORT TEMPLATE (HIDDEN) — SHARED COMPONENT
          ============================================================ -->
-    <div id="pdf-report-template" #pdfReportTemplate>
-        <div class="pdf-header">
-            <div class="pdf-logo-wrap">
-                <app-lucide-icon name="sparkles" [size]="28" color="#FFFFFF"></app-lucide-icon>
-            </div>
-            <div class="pdf-title-block">
-                <h1>Reporte de Orientación STEAM</h1>
-                <p>Análisis de Perfil y Afinidades</p>
-            </div>
-            <div class="pdf-date">
-                {{ currentDate | date:'dd/MM/yyyy' }}
-            </div>
-        </div>
-
-        <div class="pdf-body">
-            <!-- Verdict -->
-            <div class="pdf-section pdf-verdict-section">
-                <h2>Veredicto del Perfil</h2>
-                <div class="pdf-verdict-box">
-                    <span class="pdf-greeting">{{ userProfile.greeting }}</span>
-                    <h3>¡Tu perfil dominante es <span class="pdf-highlight">{{ userProfile.dominantTraits }}</span>!</h3>
-                    <p>Hemos analizado tus respuestas para descubrir las áreas donde tu potencial brilla más.</p>
-                </div>
-            </div>
-
-            <!-- STEAM Breakdown -->
-            <div class="pdf-section">
-                <h2>Desglose de Áreas STEAM</h2>
-                <div class="pdf-steam-bars">
-                    <div class="pdf-bar-row" *ngFor="let area of steamAreas">
-                        <div class="pdf-bar-label">
-                            <app-lucide-icon [name]="area.icon" [size]="16" [color]="area.gradientStart"></app-lucide-icon>
-                            <span>{{ area.label }}</span>
-                        </div>
-                        <div class="pdf-bar-track">
-                            <div class="pdf-bar-fill" [style.width]="area.percentage + '%'" [style.background]="area.gradientStart"></div>
-                        </div>
-                        <div class="pdf-bar-pct" [style.color]="area.gradientStart">{{ area.percentage }}%</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- AI Insights -->
-            <div class="pdf-section">
-                <h2>Análisis de tu ADN STEAM (Generado por IA)</h2>
-                <div class="pdf-ai-box">
-                    <p>{{ userProfile.description }}</p>
-                </div>
-            </div>
-
-            <!-- Top Careers -->
-            <div class="pdf-section" *ngIf="recommendedUniversities.length > 0">
-                <h2>Principales Carreras Sugeridas</h2>
-                <div class="pdf-career-list">
-                    <div class="pdf-career-item" *ngFor="let uni of recommendedUniversities | slice:0:3">
-                        <div class="pdf-career-icon">
-                            <app-lucide-icon name="graduation-cap" [size]="20" color="#07B1C9"></app-lucide-icon>
-                        </div>
-                        <div class="pdf-career-info">
-                            <h4>{{ uni.suggestedMajor }}</h4>
-                            <p class="uni-name">{{ uni.name }} - {{ uni.location }}</p>
-                            <p class="uni-match">{{ uni.matchReason | slice:0:120 }}...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="pdf-footer">
-            <p>Generado confidencialmente por <strong>STEAM Vocation App</strong></p>
-        </div>
-    </div>
+    <app-pdf-report-template 
+        style="display: none;"
+        [dominantTraits]="userProfile.dominantTraits"
+        [description]="userProfile.description"
+        [greeting]="userProfile.greeting"
+        [steamAreas]="steamAreas"
+        [recommendations]="recommendedUniversities">
+    </app-pdf-report-template>
 
 </div>
