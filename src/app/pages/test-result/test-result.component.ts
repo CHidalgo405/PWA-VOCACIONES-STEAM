@@ -10,6 +10,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // Metadata for each STEAM area
 export interface SteamArea {
@@ -291,13 +293,54 @@ export class TestResultComponent implements OnInit {
     if (uni) this.openDetails(uni);
   }
 
-  downloadPDF() {
-    // Stub — in production connect to a PDF generation service
-    this.toastService.showToast(
-      'Tu reporte STEAM se está generando. ¡Estará listo pronto!',
-      'info',
-      'Descargando...'
-    );
+  async downloadPDF() {
+    this.isLoading = true;
+    this.splashText = 'Generando tu reporte PDF...';
+    
+    // Give UI a moment to show the loading screen
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    try {
+      const content = document.querySelector('.view-profile') as HTMLElement;
+      if (!content) throw new Error('No content to export');
+
+      // Temporarily hide buttons
+      const buttonsBlock = content.querySelector('.cta-buttons-block') as HTMLElement;
+      if (buttonsBlock) buttonsBlock.style.display = 'none';
+
+      // Get background color from container to respect light/dark mode
+      const container = document.querySelector('.result-container') as HTMLElement;
+      const bgColor = container ? window.getComputedStyle(container).backgroundColor : '#F8FAFC';
+
+      const canvas = await html2canvas(content, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: bgColor
+      });
+
+      // Restore buttons
+      if (buttonsBlock) buttonsBlock.style.display = 'flex';
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      
+      const profileName = this.userProfile.dominantTraits ? this.userProfile.dominantTraits.replace(/\s+/g, '_') : 'Perfil';
+      const fileName = `Reporte_STEAM_${profileName}.pdf`;
+      pdf.save(fileName);
+
+      this.toastService.showToast('Tu reporte ha sido descargado exitosamente.', 'success', '¡Listo!');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      this.toastService.showToast('Ocurrió un error al generar el PDF.', 'error', 'Error');
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   navigateToUniversities() {
