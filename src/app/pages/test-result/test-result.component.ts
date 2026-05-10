@@ -305,11 +305,8 @@ export class TestResultComponent implements OnInit {
     await new Promise(resolve => setTimeout(resolve, 50));
 
     try {
-      const pdfTemplate = document.getElementById('pdf-report-template') as HTMLElement;
+      const pdfTemplate = document.getElementById('pdf-report-template-wrapper') as HTMLElement;
       if (!pdfTemplate) throw new Error('No PDF template found');
-
-      // Make template temporarily visible off-screen for html2canvas
-      pdfTemplate.style.display = 'block';
 
       // Capture at high scale for maximum sharpness
       const canvas = await html2canvas(pdfTemplate, {
@@ -321,7 +318,6 @@ export class TestResultComponent implements OnInit {
       });
 
       // Hide template again
-      pdfTemplate.style.display = 'none';
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       

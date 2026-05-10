@@ -141,10 +141,8 @@ export class AdminDashboardComponent {
 
     // 3. Generate PDF
     try {
-      const pdfTemplate = document.getElementById('pdf-report-template') as HTMLElement;
+      const pdfTemplate = document.getElementById('pdf-report-template-wrapper') as HTMLElement;
       if (!pdfTemplate) throw new Error('No PDF template found');
-
-      pdfTemplate.style.display = 'block';
 
       const canvas = await html2canvas(pdfTemplate, {
         scale: 3,
@@ -153,8 +151,6 @@ export class AdminDashboardComponent {
         backgroundColor: '#FFFFFF',
         width: 800
       });
-
-      pdfTemplate.style.display = 'none';
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const pdf = new jsPDF('p', 'mm', 'a4');

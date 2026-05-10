@@ -582,15 +582,16 @@
     </div>
 
     <!-- ============================================================
-         PDF EXPORT TEMPLATE (HIDDEN) — SHARED COMPONENT
+         PDF EXPORT TEMPLATE (HIDDEN OFF-SCREEN FOR CAPTURE)
          ============================================================ -->
-    <app-pdf-report-template 
-        style="display: none;"
-        [dominantTraits]="userProfile.dominantTraits"
-        [description]="userProfile.description"
-        [greeting]="userProfile.greeting"
-        [steamAreas]="steamAreas"
-        [recommendations]="recommendedUniversities">
-    </app-pdf-report-template>
+    <div id="pdf-report-template-wrapper" style="position: absolute; left: -9999px; top: 0;">
+        <app-pdf-report-template 
+            [dominantTraits]="userProfile.dominantTraits"
+            [description]="userProfile.description"
+            [greeting]="userProfile.greeting"
+            [steamAreas]="steamAreas"
+            [recommendations]="recommendedUniversities">
+        </app-pdf-report-template>
+    </div>
 
 </div>

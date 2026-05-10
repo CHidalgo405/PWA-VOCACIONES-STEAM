@@ -101,13 +101,14 @@
   </div>
 
 
-  <!-- Template oculto para PDF individual de alumnos -->
-  <app-pdf-report-template 
-    style="display: none;"
-    [dominantTraits]="selectedStudentPdf.dominantTraits"
-    [description]="selectedStudentPdf.description"
-    [greeting]="selectedStudentPdf.greeting"
-    [steamAreas]="selectedStudentPdf.steamAreas"
-    [recommendations]="selectedStudentPdf.recommendations">
-  </app-pdf-report-template>
+  <!-- Template oculto para PDF individual de alumnos (OFF-SCREEN) -->
+  <div id="pdf-report-template-wrapper" style="position: absolute; left: -9999px; top: 0;">
+    <app-pdf-report-template 
+      [dominantTraits]="selectedStudentPdf.dominantTraits"
+      [description]="selectedStudentPdf.description"
+      [greeting]="selectedStudentPdf.greeting"
+      [steamAreas]="selectedStudentPdf.steamAreas"
+      [recommendations]="selectedStudentPdf.recommendations">
+    </app-pdf-report-template>
+  </div>
 </div>
