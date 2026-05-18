@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://vocacionessteam-api-production.up.railway.app/api/v1',
+  apiUrl: 'https://vocacionessteam-api-production-d44b.up.railway.app/api/v1',
   firebase: {
     apiKey: "AIzaSyA2BneURMKEgZgIMQYJPlGv5qib7jUP6os",
     authDomain: "vocaciones-steam.firebaseapp.com",
