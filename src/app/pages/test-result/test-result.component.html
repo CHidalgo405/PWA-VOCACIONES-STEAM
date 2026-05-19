@@ -562,9 +562,17 @@
                 </div>
             </div>
             <div class="panel-body" style="padding: 20px;">
-                <div *ngIf="allQuestions.length === 0" style="text-align: center; padding: 20px;">
-                    <app-lucide-icon name="loader" [size]="30" color="var(--primary-color)" class="spin"></app-lucide-icon>
-                    <p style="color: var(--text-muted); margin-top: 10px;">Cargando preguntas...</p>
+                <!-- PREMIUM LOADING STATE -->
+                <div *ngIf="allQuestions.length === 0" class="premium-loader-container fade-in" style="padding: 2rem 1rem;">
+                  <div class="loader-pulse-ring" style="width: 80px; height: 80px; margin-bottom: 15px;">
+                    <div class="pulse-circle pulse-1"></div>
+                    <div class="pulse-circle pulse-2"></div>
+                    <div class="loader-icon-wrap" style="width: 45px; height: 45px;">
+                      <app-lucide-icon name="list-checks" [size]="24" color="#07B1C9" class="spin-slow"></app-lucide-icon>
+                    </div>
+                  </div>
+                  <h3 class="loader-title" style="font-size: 1.1rem;">Recopilando tus respuestas...</h3>
+                  <p class="loader-subtitle" style="font-size: 0.85rem;">Por favor, espera un momento</p>
                 </div>
                 
                 <div *ngIf="allQuestions.length > 0">

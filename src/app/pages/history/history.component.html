@@ -4,9 +4,17 @@
 
   <div class="content-body">
     
-    <div *ngIf="isLoading" class="loading-state">
-      <app-lucide-icon name="loader" [size]="40" color="var(--primary-color)" class="spin"></app-lucide-icon>
-      <p>Cargando tu historial...</p>
+    <!-- PREMIUM LOADING STATE -->
+    <div *ngIf="isLoading" class="premium-loader-container fade-in">
+      <div class="loader-pulse-ring">
+        <div class="pulse-circle pulse-1"></div>
+        <div class="pulse-circle pulse-2"></div>
+        <div class="loader-icon-wrap">
+          <app-lucide-icon name="compass" [size]="36" color="#07B1C9" class="spin-slow"></app-lucide-icon>
+        </div>
+      </div>
+      <h3 class="loader-title">Explorando registros...</h3>
+      <p class="loader-subtitle">Preparando tu historial vocacional STEAM</p>
     </div>
 
     <div *ngIf="!isLoading && testHistory.length === 0" class="empty-state">

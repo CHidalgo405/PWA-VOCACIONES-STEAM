@@ -463,16 +463,13 @@
 /* =========================================
    LOADING & EMPTY STATES
    ========================================= */
-.loading-state, .empty-state {
+.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 4rem 2rem;
-
-  .spin { animation: spin 2s linear infinite; }
-  @keyframes spin { 100% { transform: rotate(360deg); } }
 
   p { color: var(--text-secondary); margin-top: 1rem; }
 
@@ -488,6 +485,77 @@
     cursor: pointer;
   }
 }
+
+/* --- PREMIUM LOADER --- */
+.premium-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  text-align: center;
+  
+  .loader-pulse-ring {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    
+    .pulse-circle {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(7, 177, 201, 0.2);
+      animation: pulseAnim 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      
+      &.pulse-2 {
+        animation-delay: 1s;
+      }
+    }
+    
+    .loader-icon-wrap {
+      position: relative;
+      z-index: 2;
+      background: var(--card-bg);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(7, 177, 201, 0.2);
+    }
+  }
+
+  .loader-title {
+    margin: 0 0 8px 0;
+    color: var(--text-main);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .loader-subtitle {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  @keyframes pulseAnim {
+    0% { transform: scale(0.6); opacity: 1; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+
+  .spin-slow {
+    animation: spin 3s linear infinite;
+  }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+}
+
+
 
 .spacer-bottom { height: 100px; }
 
