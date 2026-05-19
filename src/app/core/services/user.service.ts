@@ -13,6 +13,14 @@ export class UserService {
     return this.http.put(`${environment.apiUrl}/users/avatar`, { avatarUrl });
   }
 
+  updateProfile(data: { fullname: string; title?: string }): Observable<any> {
+    return this.http.put(`${environment.apiUrl}/users/profile`, data);
+  }
+
+  updatePassword(data: { currentPassword: string; newPassword: string }): Observable<any> {
+    return this.http.put(`${environment.apiUrl}/users/password`, data);
+  }
+
   updateSettings(settings: any): Observable<any> {
     return this.http.put(`${environment.apiUrl}/users/settings`, settings);
   }

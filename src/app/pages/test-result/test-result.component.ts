@@ -11,6 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+import { HeaderComponent } from '../../components/header/header.component';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -29,7 +30,7 @@ export interface SteamArea {
 @Component({
   selector: 'app-test-result',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, SplashScreenComponent, LucideIconComponent, PdfReportTemplateComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, SplashScreenComponent, LucideIconComponent, PdfReportTemplateComponent, HeaderComponent],
   templateUrl: './test-result.component.html',
   styleUrls: ['./test-result.component.scss']
 })

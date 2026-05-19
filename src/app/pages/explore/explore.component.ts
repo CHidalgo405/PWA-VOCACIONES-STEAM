@@ -10,11 +10,12 @@ import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
 
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
   selector: 'app-explore',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, FormsModule, RouterModule, LucideIconComponent],
+  imports: [CommonModule, NavbarComponent, FormsModule, RouterModule, LucideIconComponent, HeaderComponent],
   templateUrl: './explore.component.html',
   styleUrls: ['./explore.component.scss']
 })

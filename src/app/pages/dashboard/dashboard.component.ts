@@ -15,7 +15,7 @@ import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.co
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  userName = 'Carlos Ignacio';
+  userName = 'Cargando...';
   userProfile?: Usuario;
   avatarUrl = '';
 
@@ -23,11 +23,7 @@ export class DashboardComponent implements OnInit {
   hasTakenTest = false;
   dominantTraitsStr = 'Pendiente';
 
-  // Mocked stats
-  steamScore = 0;
-  streakDays = 12;
-  testsTaken = 1;
-  compatibility = 94;
+  // (Removed unused mock stats)
 
   // Modal State
   showWelcomeModal = false;
@@ -120,7 +116,6 @@ export class DashboardComponent implements OnInit {
     const MAX_SCORE = 20;
     
     const topScore = Math.max(...Object.values(scores as Record<string, number>), 0);
-    this.steamScore = Math.min(Math.round((topScore / MAX_SCORE) * 100), 100);
 
     const areaColorMap: Record<string, string> = {
       tecnologia: '#F27405',

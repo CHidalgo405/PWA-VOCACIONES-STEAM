@@ -1,0 +1,11 @@
+<header class="app-header">
+  <button *ngIf="showBack" class="back-button" (click)="goBack()" aria-label="Volver atrás">
+    <lucide-icon name="chevron-left" [size]="20"></lucide-icon>
+  </button>
+  <div class="spacer" *ngIf="!showBack"></div>
+  
+  <h1 class="header-title">{{ title }}</h1>
+  
+  <!-- Right spacer to perfectly center the title against the left button -->
+  <div class="spacer"></div>
+</header>

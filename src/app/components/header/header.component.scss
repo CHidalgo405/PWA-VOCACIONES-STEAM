@@ -1,0 +1,47 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--bg-primary, #FFFFFF);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: background-color 0.3s ease;
+
+  .back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(7, 177, 201, 0.1);
+    color: #07B1C9;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    
+    &:hover, &:active {
+      background-color: rgba(7, 177, 201, 0.2);
+      transform: scale(0.95);
+    }
+  }
+
+  /* This spacer mirrors the width of the back button to keep the title exactly in the center */
+  .spacer {
+    width: 44px;
+  }
+
+  .header-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary, #1E293B);
+    margin: 0;
+    text-align: center;
+    flex-grow: 1;
+    letter-spacing: -0.01em;
+  }
+}

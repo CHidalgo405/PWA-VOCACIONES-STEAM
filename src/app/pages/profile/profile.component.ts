@@ -8,12 +8,12 @@ import { UserService } from '../../core/services/user.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { Subscription } from 'rxjs';
-import { TestSubmissionResponse, VocationTestService, TestDetail } from '../../core/services/test.service';
+import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, LucideIconComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, LucideIconComponent, HeaderComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
@@ -25,30 +25,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private userService: UserService,
-    private themeService: ThemeService,
-    private testService: VocationTestService
+    private themeService: ThemeService
   ) { }
 
   user = {
     name: 'Cargando...',
     email: '',
     role: '',
-    title: 'Explorador STEAM',
     level: 5,
     avatar: 'https://ui-avatars.com/api/?name=C&background=07B1C9&color=fff&size=128'
-  };
-
-  /** STEAM Profile State */
-  hasTestResults = false;
-  steamAreas: any[] = [];
-
-  // STEAM area metadata palette (consistent with TestResultComponent)
-  private readonly STEAM_META: Record<string, { label: string; gradientStart: string; gradientEnd: string; icon: string }> = {
-    ciencia:      { label: 'Ciencia',      gradientStart: '#07B1C9', gradientEnd: '#0E9AA7', icon: 'flask-conical' },
-    tecnologia:   { label: 'Tecnología',   gradientStart: '#6366F1', gradientEnd: '#07B1C9', icon: 'cpu'           },
-    ingenieria:   { label: 'Ingeniería',   gradientStart: '#F88718', gradientEnd: '#FBBF24', icon: 'wrench'        },
-    artes:        { label: 'Artes',        gradientStart: '#EC4899', gradientEnd: '#A855F7', icon: 'palette'       },
-    matematicas:  { label: 'Matemáticas',  gradientStart: '#4DB046', gradientEnd: '#22D3EE', icon: 'sigma'         },
   };
 
   ngOnInit() {
@@ -87,76 +72,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
         this.themeService.setTheme(usuario.darkMode);
       }
-
-      if (usuario.id) {
-        this.loadTestResults(usuario.id);
-      }
     });
-  }
-
-  loadTestResults(userId: string) {
-    // 1. Lectura rápida del caché
-    this.readFromCache(userId);
-
-    // 2. Fetch desde la API
-    this.testService.getLatestTest().subscribe({
-      next: (latestTest: TestDetail | null) => {
-        if (latestTest) {
-          localStorage.setItem(`test_result_${userId}`, JSON.stringify(latestTest));
-          this.processScores(latestTest.scores || (latestTest as any).profileScores || {});
-        } else {
-          this.hasTestResults = false;
-          localStorage.removeItem(`test_result_${userId}`);
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching latest test in Profile', err);
-      }
-    });
-  }
-
-  private readFromCache(userId: string) {
-    const rawResult = localStorage.getItem(`test_result_${userId}`);
-    if (rawResult) {
-      try {
-        const result = JSON.parse(rawResult);
-        const scores = result.scores || result.profileScores || {};
-        this.processScores(scores);
-      } catch (e) {
-        console.error('Error parsing test results cache', e);
-        this.hasTestResults = false;
-      }
-    } else {
-      this.hasTestResults = false;
-    }
-  }
-
-  private processScores(scores: Record<string, number>) {
-    const MAX_SCORE = 20;
-
-    this.steamAreas = Object.entries(scores).map(([key, rawScore]) => {
-      const meta = this.STEAM_META[key] ?? {
-        label: key,
-        gradientStart: '#07B1C9',
-        gradientEnd: '#0698AC',
-        icon: 'star',
-      };
-      return {
-        key,
-        label: meta.label,
-        gradientStart: meta.gradientStart,
-        gradientEnd: meta.gradientEnd,
-        icon: meta.icon,
-        rawScore,
-        percentage: Math.min(Math.round(((rawScore as number) / MAX_SCORE) * 100), 100),
-      };
-    }).sort((a, b) => b.rawScore - a.rawScore);
-
-    this.hasTestResults = this.steamAreas.length > 0;
-  }
-
-  goToTest() {
-    this.router.navigate(['/vocation-test']);
   }
 
   ngOnDestroy() {
@@ -166,14 +82,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
 
-
-  // --- INSIGNIAS (GAMIFICATION) ---
-  badges = [
-    { icon: 'rocket', name: 'Pionero', unlocked: true },
-    { icon: 'brain', name: 'Cerebrito', unlocked: true },
-    { icon: 'palette', name: 'Creativo', unlocked: false },
-    { icon: 'users', name: 'Social', unlocked: false }
-  ];
 
   // --- SECCIONES PREMIUM DE AJUSTES ---
   accountSettings = [
@@ -387,20 +295,34 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  // --- SIMULACIÓN DE GUARDADO ---
+  // --- ACTUALIZACIÓN DE DATOS (Backend) ---
   saveProfile() {
     this.isSubmitting = true;
     
-    // Simplificado por UI Mock, pero real se haria peticion combinada con UserService
-    this.userService.updateAvatar(this.profileForm.avatar).subscribe({
+    // Preparar el nombre completo
+    const fullname = `${this.profileForm.firstName} ${this.profileForm.lastName}`.trim();
+
+    this.userService.updateProfile({ fullname, title: this.profileForm.title }).subscribe({
       next: () => {
-        this.user.name = `${this.profileForm.firstName} ${this.profileForm.lastName}`;
+        // Actualizamos estado local
+        this.user.name = fullname;
         this.user.title = this.profileForm.title;
-        this.user.avatar = this.profileForm.avatar;
         
-        this.isSubmitting = false;
-        this.closeModal();
-        this.showSuccessToast('¡Perfil actualizado con éxito!');
+        // Si hay una nueva imagen de avatar que se capturó pero no se guardó, la guardamos también
+        if (this.profileForm.avatar && this.profileForm.avatar !== this.user.avatar) {
+          this.userService.updateAvatar(this.profileForm.avatar).subscribe({
+            next: () => {
+              this.user.avatar = this.profileForm.avatar;
+              this.finalizeSaveProfile();
+            },
+            error: (err) => {
+              console.error('Error actualizando avatar al guardar el perfil', err);
+              this.finalizeSaveProfile(true);
+            }
+          });
+        } else {
+          this.finalizeSaveProfile();
+        }
       },
       error: (err) => {
         this.isSubmitting = false;
@@ -412,17 +334,46 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
+  private finalizeSaveProfile(withAvatarError: boolean = false) {
+    this.isSubmitting = false;
+    this.closeModal();
+    if (withAvatarError) {
+      this.showSuccessToast('Perfil actualizado, pero hubo un error con la foto.');
+    } else {
+      this.showSuccessToast('¡Perfil actualizado con éxito!');
+    }
+  }
+
   savePassword() {
     if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
       alert("Las contraseñas no coinciden.");
       return;
     }
+    
+    if (!this.passwordForm.currentPassword || !this.passwordForm.newPassword) {
+      alert("Por favor completa los campos de contraseña.");
+      return;
+    }
+
     this.isSubmitting = true;
-    setTimeout(() => {
-      this.isSubmitting = false;
-      this.closeModal();
-      this.showSuccessToast('Contraseña cambiada con éxito.');
-    }, 1500);
+    
+    this.userService.updatePassword({
+      currentPassword: this.passwordForm.currentPassword,
+      newPassword: this.passwordForm.newPassword
+    }).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.closeModal();
+        this.showSuccessToast('Contraseña cambiada con éxito.');
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        console.error('Error al cambiar contraseña', err);
+        const detail = typeof err.error?.message === 'string' ? err.error.message : 
+                       (err.message || 'Error desconocido al actualizar contraseña');
+        this.showSuccessToast(`Error: ${detail}`);
+      }
+    });
   }
 
   saveNotifications() {

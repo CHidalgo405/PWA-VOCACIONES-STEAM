@@ -6,11 +6,12 @@ import { ToastService } from '../../core/services/toast.service';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { FormsModule } from '@angular/forms';
+import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, RouterModule, DatePipe, NavbarComponent, LucideIconComponent, FormsModule],
+  imports: [CommonModule, RouterModule, DatePipe, NavbarComponent, LucideIconComponent, FormsModule, HeaderComponent],
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss']
 })

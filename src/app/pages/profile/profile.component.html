@@ -1,67 +1,42 @@
 <div class="profile-container">
-
+  <app-header title="Mi Perfil" [showBack]="true" backRoute="/dashboard"></app-header>
   <div class="profile-grid">
 
-    <!-- HEADER HERO SECTION: ID & Chart -->
-    <div class="header-section">
-      <div class="identity-card">
-        <div class="avatar-wrapper">
-          <img [src]="user.avatar" alt="Avatar" style="object-fit: cover; border-radius: 50%;">
+    <!-- HEADER HERO SECTION: Curved Background & Avatar -->
+    <div class="hero-premium-bg">
+      <div class="hero-content">
+        <div class="avatar-wrapper-premium">
+          <img [src]="user.avatar" alt="Avatar" class="avatar-img">
           <button class="avatar-edit-btn" (click)="fileInputHero.click()" title="Cambiar foto de perfil">
-            <span class="edit-icon"><app-lucide-icon name="pencil" [size]="16" color="black"></app-lucide-icon></span>
+            <app-lucide-icon name="camera" [size]="14" color="white"></app-lucide-icon>
           </button>
           <input type="file" #fileInputHero (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
         </div>
-        <h2>{{ user.name }}</h2><br>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -5px; margin-bottom: 5px;">{{ user.email }}</p>
-        <p class="user-title">{{ user.title }}</p>
-        <button class="btn-edit">Editar Perfil</button>
-
-        <div class="badges-mini-list">
-          <div class="badge-item" *ngFor="let badge of badges" [class.locked]="!badge.unlocked" [title]="badge.name">
-            <div class="badge-icon"><app-lucide-icon [name]="badge.icon" [size]="20" color="var(--primary-color)"></app-lucide-icon></div>
-          </div>
-        </div>
+        <h2 class="user-name-white">{{ user.name }}</h2>
+        <p class="user-email-white">{{ user.email }}</p>
       </div>
+      <!-- Fondo decorativo (ondas fluidas adaptables al tema) -->
+      <div class="hero-wave">
+        <svg viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- The fill color will be managed by CSS to match dark/light mode background -->
+          <path class="wave-path" d="M0,192L48,186.7C96,181,192,171,288,181.3C384,192,480,224,576,224C672,224,768,192,864,170.7C960,149,1056,139,1152,144C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+      </div>
+    </div>
 
-      <div class="chart-card">
-        <h3>Desglose de tu Perfil STEAM</h3>
-        
-        <!-- SUCCESS STATE: Horizontal Progress Bars -->
-        <div class="metrics-list" *ngIf="hasTestResults">
-          <div class="metric-row" *ngFor="let area of steamAreas">
-            <!-- Icon badge -->
-            <div class="metric-icon-badge" 
-                 [style.background]="'linear-gradient(135deg,' + area.gradientStart + ' 0%,' + area.gradientEnd + ' 100%)'">
-              <app-lucide-icon [name]="area.icon" [size]="18" color="white"></app-lucide-icon>
-            </div>
-
-            <!-- Label + bar -->
-            <div class="metric-track-wrap">
-              <div class="metric-header-row">
-                <span class="metric-label">{{ area.label }}</span>
-                <span class="metric-pct" [style.color]="area.gradientStart">{{ area.percentage }}%</span>
-              </div>
-              <div class="metric-bar-bg">
-                <div class="metric-bar-fill"
-                     [style.width]="area.percentage + '%'"
-                     [style.background]="'linear-gradient(90deg,' + area.gradientStart + ',' + area.gradientEnd + ')'">
-                </div>
-              </div>
-            </div>
-          </div>
+    <!-- FLOATING QUICK ACTIONS CARD (Balance / Wallet equivalent) -->
+    <div class="floating-quick-card-container">
+      <div class="floating-quick-card">
+        <div class="quick-action" (click)="handleAction('viewHistory')">
+          <span class="quick-value">Nvl. {{ user.level }}</span>
+          <span class="quick-label">Mi Nivel</span>
         </div>
-
-        <!-- EMPTY STATE: CTA to take the test -->
-        <div class="empty-stats-card" *ngIf="!hasTestResults">
-          <div class="empty-icon-wrap">
-            <app-lucide-icon name="clipboard-check" [size]="40" color="#94A3B8"></app-lucide-icon>
+        <div class="quick-divider"></div>
+        <div class="quick-action" (click)="handleAction('manage')">
+          <div class="quick-icon">
+            <app-lucide-icon name="user" [size]="26" color="#07B1C9"></app-lucide-icon>
           </div>
-          <h4>¿Cuál es tu ADN STEAM?</h4>
-          <p>Aún no has realizado el test vocacional. Descubre tus talentos para ver tus estadísticas aquí.</p>
-          <button class="btn-start-test" (click)="goToTest()">
-            Realizar Test ahora
-          </button>
+          <span class="quick-label">Mi Cuenta</span>
         </div>
       </div>
     </div>
