@@ -6,6 +6,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { VocationTestService } from '../../core/services/test.service';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { Subscription } from 'rxjs';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -25,7 +26,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private userService: UserService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private testService: VocationTestService
   ) { }
 
   user = {
@@ -35,6 +37,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     level: 5,
     avatar: 'https://ui-avatars.com/api/?name=C&background=07B1C9&color=fff&size=128'
   };
+  
+  testCount: number = 0;
 
   ngOnInit() {
     // Sync theme toggle state from ThemeService
@@ -71,6 +75,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
         this.themeService.setTheme(usuario.darkMode);
       }
+    });
+
+    this.testService.getTestHistory().subscribe(history => {
+      this.testCount = history.length;
     });
   }
 

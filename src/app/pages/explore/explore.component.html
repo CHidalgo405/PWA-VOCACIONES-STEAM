@@ -32,7 +32,7 @@
   <main class="explore-content">
     
     <!-- BANNER VERDE -->
-    <section class="banner-section" *ngIf="viewMode === 'explore'">
+    <section class="banner-section" *ngIf="viewMode === 'explore' && hasTakenTest">
       <div class="green-banner">
         <div class="banner-text">
           <span class="badge-text">Basado en tu perfil STEAM</span>
@@ -68,8 +68,24 @@
 
     <ng-container *ngIf="!isLoading">
       
-      <!-- MEJOR COINCIDENCIA (DARK CARD) -->
-      <section class="best-match-section" *ngIf="showBestMatch && bestMatchUniversity">
+      <!-- EMPTY STATE NO TEST -->
+      <div class="empty-state fade-in" *ngIf="!hasTakenTest" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1.5rem; text-align: center; margin-top: 2rem;">
+        <div class="empty-icon-wrap" style="background: rgba(7, 177, 201, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+          <app-lucide-icon name="compass" [size]="40" color="#07B1C9"></app-lucide-icon>
+        </div>
+        <h3 style="color: var(--text-primary); font-size: 1.3rem; font-weight: 700; margin: 0 0 0.5rem 0;">Descubre tu camino</h3>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 300px; line-height: 1.5; margin: 0 0 2rem 0;">
+          Aún no tenemos recomendaciones. Realiza tu primer test vocacional para descubrir qué universidades hacen match con tu perfil STEAM.
+        </p>
+        <button class="btn-primary" routerLink="/vocation-test" style="background-color: #07B1C9; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(7, 177, 201, 0.3);">
+          Hacer test ahora
+        </button>
+      </div>
+
+      <!-- MAIN CONTENT (Only if Test was taken) -->
+      <ng-container *ngIf="hasTakenTest">
+        <!-- MEJOR COINCIDENCIA (DARK CARD) -->
+        <section class="best-match-section" *ngIf="showBestMatch && bestMatchUniversity">
         <div class="section-header">
           <h3>
             <app-lucide-icon name="star" [size]="20" color="#FBBF24" fill="#FBBF24" style="margin-right: 6px; margin-bottom: -4px;"></app-lucide-icon>
@@ -168,6 +184,7 @@
         <button class="btn-reset" *ngIf="viewMode === 'saved'" (click)="switchViewMode('explore')">Volver a explorar</button>
       </div>
 
+      </ng-container>
     </ng-container>
 
   </main>

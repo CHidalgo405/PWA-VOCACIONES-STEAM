@@ -48,68 +48,9 @@ export class ExploreComponent implements OnInit {
   totalCoincidencias: number = 0;
   maxMatchPercentage: number = 0;
 
-  // Datos Simulados Hardcodeados por si no hay test
-  universities = [
-    {
-      id: 1,
-      name: 'Universidad Nacional Autónoma de México',
-      location: 'Ciudad de México, Ciudad de México',
-      image: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
-      logo: 'building',
-      tags: ['Universidad pública', 'Matemáticas + Ciencia'],
-      rating: 4.8,
-      matchPercentage: 95,
-      career: 'Ingeniería en Computación',
-      description: 'Líder en formación tecnológica y científica en el país.',
-      keyDates: 'Examen: 15 de Julio',
-      studyPlan: 'Matemáticas, Electrónica, Computación.'
-    },
-    {
-      id: 2,
-      name: 'Instituto Politécnico Nacional',
-      location: 'Ciudad de México, Ciudad de México',
-      image: 'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&q=80&w=1000',
-      logo: 'graduation-cap',
-      tags: ['Matemáticas + Ciencia', 'Universidad pública'],
-      rating: 4.8,
-      matchPercentage: 92,
-      career: 'Ingeniería en Sistemas Computacionales',
-      description: 'Excelencia académica en el área de ingeniería y ciencias físico-matemáticas.',
-      keyDates: 'Convocatoria: Febrero - Marzo',
-      studyPlan: 'Algoritmos, Estructuras de Datos, Redes, IA.'
-    },
-    {
-      id: 3,
-      name: 'Universidad Autónoma Metropolitana',
-      location: 'Ciudad de México, Ciudad de México',
-      image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000',
-      logo: 'graduation-cap',
-      tags: ['Ciencias Básicas', 'Universidad pública'],
-      rating: 4.7,
-      matchPercentage: 89,
-      career: 'Licenciatura en Computación',
-      description: 'Espacio dedicado a la investigación y desarrollo.',
-      keyDates: 'Inscripciones: Todo el año',
-      studyPlan: 'Lógica, Programación, Arquitectura de Computadoras.'
-    },
-    {
-      id: 4,
-      name: 'Tec de Monterrey (ITESM)',
-      location: 'Santa Fe, Ciudad de México',
-      image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
-      logo: 'graduation-cap',
-      tags: ['Tecnología', 'Universidad privada'],
-      rating: 4.9,
-      matchPercentage: 85,
-      career: 'Ingeniería en Tecnologías Computacionales',
-      description: 'Prestigio internacional con enfoque en emprendimiento e innovación.',
-      keyDates: 'Admisiones: Agosto y Enero',
-      studyPlan: 'Software, Innovación, Liderazgo, Cloud.'
-    }
-  ];
+  universities: any[] = [];
 
   ngOnInit() {
-    this.processData(); // Procesar hardcoded data initially
     this.authService.currentUser$.subscribe(user => {
       if (user?.id) {
         this.loadRecommendations();
@@ -183,8 +124,7 @@ export class ExploreComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error fetching recommendations from latest test', err);
-        this.processData(); // Fallback to hardcoded
+        this.processData();
         this.isLoading = false;
       }
     });
