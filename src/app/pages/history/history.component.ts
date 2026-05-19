@@ -11,7 +11,7 @@ import { HeaderComponent } from '../../components/header/header.component';
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, RouterModule, DatePipe, NavbarComponent, LucideIconComponent, FormsModule, HeaderComponent],
+  imports: [CommonModule, RouterModule, DatePipe, LucideIconComponent, FormsModule, HeaderComponent],
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss']
 })

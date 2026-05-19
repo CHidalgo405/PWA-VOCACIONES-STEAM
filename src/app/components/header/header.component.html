@@ -1,6 +1,6 @@
 <header class="app-header">
-  <button *ngIf="showBack" class="back-button" (click)="goBack()" aria-label="Volver atrás">
-    <lucide-icon name="chevron-left" [size]="20"></lucide-icon>
+  <button class="btn-back" *ngIf="showBack" (click)="goBack()" aria-label="Volver">
+    <app-lucide-icon name="chevron-left" [size]="20"></app-lucide-icon>
   </button>
   <div class="spacer" *ngIf="!showBack"></div>
   

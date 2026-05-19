@@ -10,7 +10,7 @@ import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.co
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, RouterModule, LucideIconComponent],
+  imports: [CommonModule, RouterModule, LucideIconComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })

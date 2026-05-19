@@ -13,7 +13,7 @@ import { HeaderComponent } from '../../components/header/header.component';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, LucideIconComponent, HeaderComponent],
+  imports: [CommonModule, FormsModule, LucideIconComponent, HeaderComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
@@ -54,7 +54,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.user.name = usuario.nombre;
       this.user.email = usuario.email;
       this.user.role = usuario.role;
-      this.user.title = usuario.title || 'Explorador STEAM';
       this.user.level = usuario.level || 5;
 
       if (usuario.fotoUrl) {
@@ -114,7 +113,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   profileForm = {
     firstName: '',
     lastName: '',
-    title: '',
     avatar: ''
   };
 
@@ -179,7 +177,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       const names = this.user.name.split(' ');
       this.profileForm.firstName = names[0] || '';
       this.profileForm.lastName = names.slice(1).join(' ') || '';
-      this.profileForm.title = this.user.title;
       this.profileForm.avatar = this.user.avatar;
       this.avatarError = null;
     } else if (type === 'security') {
@@ -302,11 +299,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
     // Preparar el nombre completo
     const fullname = `${this.profileForm.firstName} ${this.profileForm.lastName}`.trim();
 
-    this.userService.updateProfile({ fullname, title: this.profileForm.title }).subscribe({
+    this.userService.updateProfile({ fullname }).subscribe({
       next: () => {
         // Actualizamos estado local
         this.user.name = fullname;
-        this.user.title = this.profileForm.title;
         
         // Si hay una nueva imagen de avatar que se capturó pero no se guardó, la guardamos también
         if (this.profileForm.avatar && this.profileForm.avatar !== this.user.avatar) {

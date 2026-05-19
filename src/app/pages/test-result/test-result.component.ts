@@ -30,7 +30,7 @@ export interface SteamArea {
 @Component({
   selector: 'app-test-result',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, SplashScreenComponent, LucideIconComponent, PdfReportTemplateComponent, HeaderComponent],
+  imports: [CommonModule, FormsModule, SplashScreenComponent, LucideIconComponent, PdfReportTemplateComponent, HeaderComponent],
   templateUrl: './test-result.component.html',
   styleUrls: ['./test-result.component.scss']
 })
