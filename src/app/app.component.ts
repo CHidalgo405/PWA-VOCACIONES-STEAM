@@ -29,7 +29,9 @@ export class AppComponent implements OnInit {
     ).subscribe((event: any) => {
       // Rutas donde la barra de navegación debe estar visible
       const navRoutes = ['/dashboard', '/explore', '/history', '/profile', '/test-result'];
-      this.showNavbar = navRoutes.some(route => event.urlAfterRedirects.includes(route));
+      const isNavRoute = navRoutes.some(route => event.urlAfterRedirects.includes(route));
+      const isAdminRoute = event.urlAfterRedirects.includes('/admin');
+      this.showNavbar = isNavRoute && !isAdminRoute;
     });
   }
 

@@ -12,6 +12,8 @@ import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { HeaderComponent } from '../../components/header/header.component';
+import { timer } from 'rxjs';
+import { retry } from 'rxjs/operators';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -154,7 +156,16 @@ export class TestResultComponent implements OnInit {
     this.isLoading = true;
     this.splashText = 'Analizando tu perfil STEAM...';
 
-    this.testService.submitTest(answers, savedLocation).subscribe({
+    this.testService.submitTest(answers, savedLocation).pipe(
+      retry({
+        count: 2,
+        delay: (error, retryCount) => {
+          console.warn(`Retry ${retryCount} for AI analysis...`);
+          this.splashText = 'La IA está analizando profundamente... un momento más.';
+          return timer(8000);
+        }
+      })
+    ).subscribe({
       next: (result) => {
         localStorage.setItem(`test_result_${userId}`, JSON.stringify(result));
         this.processResult(result);
@@ -407,7 +418,16 @@ export class TestResultComponent implements OnInit {
     const answersStr = localStorage.getItem(`test_answers_${userId}`);
     const answers = answersStr ? JSON.parse(answersStr) : {};
 
-    this.testService.submitTest(answers, this.locationInput).subscribe({
+    this.testService.submitTest(answers, this.locationInput).pipe(
+      retry({
+        count: 2,
+        delay: (error, retryCount) => {
+          console.warn(`Retry ${retryCount} for AI search...`);
+          this.splashText = 'Buscando las mejores opciones para ti...';
+          return timer(8000);
+        }
+      })
+    ).subscribe({
       next: (result) => {
         this.processResult(result);
         this.isLoading = false;
