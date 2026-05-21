@@ -8,18 +8,19 @@
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
-  overflow: hidden;
+  overflow-y: auto;
   position: relative;
   font-family: 'Inter', sans-serif;
 
   @media (min-width: 1024px) {
     flex-direction: row;
+    overflow: hidden;
   }
 }
 
 .visual-section {
   position: relative;
-  height: 55vh;
+  height: 45vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,7 +45,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 30px 20px;
+  padding: 20px;
   background-color: #ffffff;
   z-index: 2;
 
@@ -67,11 +68,11 @@
 }
 
 .title {
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   font-weight: 800;
   color: #1a1a1a;
   line-height: 1.2;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 
   @media (min-width: 1024px) {
     font-size: 3rem;
@@ -97,7 +98,7 @@
   font-size: 1rem;
   color: #666666;
   line-height: 1.5;
-  margin-bottom: 40px;
+  margin-bottom: 25px;
   font-weight: 500;
 
   @media (min-width: 1024px) {
