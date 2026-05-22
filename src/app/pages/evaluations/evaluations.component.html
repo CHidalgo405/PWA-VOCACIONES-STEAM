@@ -1,53 +1,85 @@
 <!-- =============================================
-     VIEW 1: ONBOARDING
+     VIEW 1: HUB
      ============================================= -->
-<div class="vt-wrapper" *ngIf="viewState === 'onboarding'">
-  <div class="vt-onboarding fade-in">
+<div class="vt-wrapper" *ngIf="viewState === 'hub'">
+  <div class="vt-hub fade-in">
+    
+    <div class="hub-header">
+      <div class="icon-ring">
+        <app-lucide-icon name="layout-dashboard" [size]="40" color="#07B1C9"></app-lucide-icon>
+      </div>
+      <h1 class="hub-title">Hub de Evaluaciones</h1>
+      <p class="hub-desc">Completa los misiones secuencialmente para desbloquear el análisis completo de tu perfil STEAM.</p>
+    </div>
 
-    <!-- Animated background orbs -->
-    <div class="bg-orb orb-1"></div>
-    <div class="bg-orb orb-2"></div>
+    <!-- Stepper Visual -->
+    <div class="stepper-container">
+      <div class="step" [class.completed]="mission1Completed" [class.active]="!mission1Completed">
+        <div class="step-icon"><app-lucide-icon [name]="mission1Completed ? 'check' : 'zap'" [size]="18" [color]="mission1Completed ? '#fff' : '#07B1C9'"></app-lucide-icon></div>
+        <span class="step-label">Misión 1</span>
+      </div>
+      <div class="step-line" [class.filled]="mission1Completed"></div>
+      
+      <div class="step" [class.completed]="mission2Completed" [class.active]="mission1Completed && !mission2Completed" [class.pending]="!mission1Completed">
+        <div class="step-icon"><app-lucide-icon [name]="mission2Completed ? 'check' : 'gamepad-2'" [size]="18" [color]="mission2Completed ? '#fff' : (mission1Completed ? '#07B1C9' : '#94A3B8')"></app-lucide-icon></div>
+        <span class="step-label">Misión 2</span>
+      </div>
+      <div class="step-line" [class.filled]="mission2Completed"></div>
+      
+      <div class="step" [class.completed]="mission3Completed" [class.active]="mission2Completed && !mission3Completed" [class.pending]="!mission2Completed">
+        <div class="step-icon"><app-lucide-icon [name]="mission3Completed ? 'check' : 'alert-triangle'" [size]="18" [color]="mission3Completed ? '#fff' : (mission2Completed ? '#07B1C9' : '#94A3B8')"></app-lucide-icon></div>
+        <span class="step-label">Misión 3</span>
+      </div>
+    </div>
 
-    <div class="onboarding-card">
-      <div class="onboarding-icon">
-        <div class="icon-ring">
-          <app-lucide-icon name="rocket" [size]="48" color="#07B1C9"></app-lucide-icon>
+    <div class="modules-grid">
+      <!-- Módulo 1 -->
+      <div class="module-card" [class.active]="!mission1Completed" [class.locked]="mission1Completed">
+        <div class="module-status">
+          <span class="status-badge" [class.available]="!mission1Completed" [class.locked-badge]="mission1Completed">
+            {{ mission1Completed ? 'Completada' : 'Disponible' }}
+          </span>
+          <app-lucide-icon [name]="mission1Completed ? 'check-circle' : 'zap'" [size]="20" [color]="mission1Completed ? '#4ADE80' : '#07B1C9'"></app-lucide-icon>
         </div>
+        <h3>Misión 1: Test Teórico STEAM</h3>
+        <p>Descubre tu afinidad principal resolviendo 20 escenarios prácticos.</p>
+        <button class="btn-start pulse-anim" (click)="startTest()" *ngIf="!mission1Completed" [disabled]="isLoadingQuestions">
+          <span *ngIf="isLoadingQuestions">Cargando...</span>
+          <span *ngIf="!isLoadingQuestions">Iniciar Misión</span>
+        </button>
+        <button class="btn-locked" disabled *ngIf="mission1Completed">Misión Finalizada</button>
+        <p *ngIf="loadingError" class="error-msg">{{ loadingError }}</p>
       </div>
 
-      <div class="steam-chip">Test Vocacional STEAM</div>
-
-      <h1 class="onboarding-title">¡Descubre tu camino STEAM!</h1>
-      <p class="onboarding-desc">
-        Te presentaremos situaciones reales. No hay respuestas correctas, solo elige lo que
-        te dicte el instinto. Tarda aproximadamente <strong>5 minutos</strong>.
-      </p>
-
-      <div class="onboarding-features">
-        <div class="feature-item">
-          <app-lucide-icon name="shield-check" [size]="18" color="#07B1C9"></app-lucide-icon>
-          <span>Anónimo y sin juicios</span>
+      <!-- Módulo 2 -->
+      <div class="module-card" [class.active]="mission1Completed && !mission2Completed" [class.locked]="!mission1Completed || mission2Completed">
+        <div class="module-status">
+          <span class="status-badge" [class.available]="mission1Completed && !mission2Completed" [class.locked-badge]="!mission1Completed || mission2Completed">
+            {{ mission2Completed ? 'Completada' : (mission1Completed ? 'Disponible' : 'Bloqueado') }}
+          </span>
+          <app-lucide-icon [name]="mission2Completed ? 'check-circle' : 'lock'" [size]="20" [color]="mission2Completed ? '#4ADE80' : '#94A3B8'"></app-lucide-icon>
         </div>
-        <div class="feature-item">
-          <app-lucide-icon name="clock" [size]="18" color="#07B1C9"></app-lucide-icon>
-          <span>{{ questions.length || 20 }} preguntas · ~5 min</span>
-        </div>
-        <div class="feature-item">
-          <app-lucide-icon name="sparkles" [size]="18" color="#07B1C9"></app-lucide-icon>
-          <span>Resultado con IA</span>
-        </div>
+        <h3>Misión 2: Hobbies y Videojuegos</h3>
+        <p>Analiza cómo tus pasatiempos revelan tus talentos ocultos.</p>
+        <button class="btn-start pulse-anim" (click)="startMission2()" *ngIf="mission1Completed && !mission2Completed">Iniciar Misión</button>
+        <button class="btn-locked" disabled *ngIf="!mission1Completed">Requiere Misión 1</button>
+        <button class="btn-locked" disabled *ngIf="mission2Completed">Misión Finalizada</button>
       </div>
 
-      <button class="btn-start pulse-anim" (click)="startTest()"
-        [disabled]="isLoadingQuestions">
-        <span *ngIf="isLoadingQuestions">Cargando preguntas...</span>
-        <span *ngIf="!isLoadingQuestions">
-          <app-lucide-icon name="play" [size]="18" color="white" style="margin-right:8px;margin-bottom:-3px;"></app-lucide-icon>
-          ¡Estoy listo!
-        </span>
-      </button>
-
-      <p *ngIf="loadingError" class="error-msg">{{ loadingError }}</p>
+      <!-- Módulo 3 -->
+      <div class="module-card" [class.active]="mission2Completed && !mission3Completed" [class.locked]="!mission2Completed || mission3Completed">
+        <div class="module-status">
+          <span class="status-badge" [class.available]="mission2Completed && !mission3Completed" [class.locked-badge]="!mission2Completed || mission3Completed">
+            {{ mission3Completed ? 'Completada' : (mission2Completed ? 'Disponible' : 'Bloqueado') }}
+          </span>
+          <app-lucide-icon [name]="mission3Completed ? 'check-circle' : 'lock'" [size]="20" [color]="mission3Completed ? '#4ADE80' : '#94A3B8'"></app-lucide-icon>
+        </div>
+        <h3>Misión 3: Laboratorio de Errores</h3>
+        <p>Evalúa cómo te enfrentas a la frustración y resuelves problemas complejos.</p>
+        <button class="btn-start pulse-anim" (click)="startMission3()" *ngIf="mission2Completed && !mission3Completed">Iniciar Misión</button>
+        <button class="btn-locked" disabled *ngIf="!mission2Completed">Requiere Misión 2</button>
+        <button class="btn-locked" disabled *ngIf="mission3Completed">Misión Finalizada</button>
+      </div>
     </div>
   </div>
 </div>
@@ -230,6 +262,16 @@
   [isVisible]="true">
 </app-splash-screen>
 
+
+<!-- =============================================
+     VIEW 5: MISSION 2 (Hobbies)
+     ============================================= -->
+<app-hobbies-test *ngIf="viewState === 'mission2'" (completed)="onMission2Completed($event)"></app-hobbies-test>
+
+<!-- =============================================
+     VIEW 6: MISSION 3 (Error Lab)
+     ============================================= -->
+<app-error-lab *ngIf="viewState === 'mission3'" (giveUp)="onMission3Completed($event)"></app-error-lab>
 
 <!-- =============================================
      EXIT CONFIRMATION MODAL

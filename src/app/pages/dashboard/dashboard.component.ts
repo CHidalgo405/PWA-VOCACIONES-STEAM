@@ -22,6 +22,13 @@ export class DashboardComponent implements OnInit {
   // User state
   hasTakenTest = false;
   dominantTraitsStr = 'Pendiente';
+  
+  // AI Confidence & Simulators
+  aiConfidence = 0;
+  activeSimulator: { title: string; progress: number } | null = { 
+    title: 'Reto: Construye tu primer circuito', 
+    progress: 50 
+  };
 
   // (Removed unused mock stats)
 
@@ -142,6 +149,9 @@ export class DashboardComponent implements OnInit {
     }).sort((a, b) => b.percentage - a.percentage);
 
     this.dominantTraitsStr = result.dominantTraits || 'Perfil Mixto';
+    
+    // Calculate AI Confidence based on completed modules (Mock: only module 1 is ready, so 33%)
+    this.aiConfidence = 33;
 
     if (result.recommendations && result.recommendations.length > 0) {
       this.recommendedCareers = result.recommendations.slice(0, 5).map((r: any) => ({
@@ -161,6 +171,7 @@ export class DashboardComponent implements OnInit {
 
   private setDefaultProfile() {
     this.hasTakenTest = false;
+    this.aiConfidence = 0;
     this.profileAreas = [
       { name: 'Tecnología', percentage: 0, color: '#F27405' },
       { name: 'Ingeniería', percentage: 0, color: '#4CAF50' },
@@ -171,7 +182,7 @@ export class DashboardComponent implements OnInit {
   }
 
   startTest() {
-    this.router.navigate(['/vocation-test']);
+    this.router.navigate(['/evaluations']);
   }
 
   closeWelcomeModal() {

@@ -11,6 +11,7 @@ import { inject } from '@angular/core';
 
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { HeaderComponent } from '../../components/header/header.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-explore',
@@ -50,9 +51,19 @@ export class ExploreComponent implements OnInit {
 
   universities: any[] = [];
 
+  private router = inject(Router);
+
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       if (user?.id) {
+        // Bloqueo del explorador si no han pasado por el simulador
+        const simulatorCompleted = localStorage.getItem(`simulator_completed_${user.id}`);
+        if (!simulatorCompleted) {
+          this.toastService.showToast('Debes probar una carrera en el simulador primero para desbloquear el explorador.', 'info');
+          this.router.navigate(['/dashboard']);
+          return;
+        }
+
         this.loadRecommendations();
         this.loadSavedUniversities();
       }

@@ -9,17 +9,27 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
-@Component({
-    selector: 'app-vocation-test',
-    standalone: true,
-    imports: [CommonModule, FormsModule, DecimalPipe, SplashScreenComponent, LucideIconComponent],
-    templateUrl: './vocation-test.component.html',
-    styleUrls: ['./vocation-test.component.scss']
-})
-export class VocationTestComponent implements OnInit {
+import { ErrorLabComponent } from './error-lab/error-lab.component';
+import { HobbiesTestComponent } from './hobbies-test/hobbies-test.component';
 
-    // Test states: 'onboarding' | 'questionnaire' | 'location-prompt' | 'analyzing'
-    viewState: 'onboarding' | 'questionnaire' | 'location-prompt' | 'analyzing' = 'onboarding';
+@Component({
+    selector: 'app-evaluations',
+    standalone: true,
+    imports: [CommonModule, FormsModule, DecimalPipe, SplashScreenComponent, LucideIconComponent, HobbiesTestComponent, ErrorLabComponent],
+    templateUrl: './evaluations.component.html',
+    styleUrls: ['./evaluations.component.scss']
+})
+export class EvaluationsComponent implements OnInit {
+
+    // Test states: 'hub' | 'questionnaire' | 'mission2' | 'mission3' | 'location-prompt' | 'analyzing'
+    viewState: 'hub' | 'questionnaire' | 'mission2' | 'mission3' | 'location-prompt' | 'analyzing' = 'hub';
+
+    // Mission States
+    mission1Completed = false;
+    mission2Completed = false;
+    mission3Completed = false;
+    hobbiesAnswers: any = null;
+    errorLabMetrics: any = null;
 
     // Location prompt variables
     wantsLocalUniversities: boolean | null = null;
@@ -73,6 +83,14 @@ export class VocationTestComponent implements OnInit {
         this.currentQuestionIndex = 0;
         this.userAnswers = {};
         this.resetScores();
+    }
+
+    startMission2() {
+        this.viewState = 'mission2';
+    }
+
+    startMission3() {
+        this.viewState = 'mission3';
     }
 
     resetScores() {
@@ -134,8 +152,32 @@ export class VocationTestComponent implements OnInit {
                 this.selectedOptionId = null;
             });
         } else {
-            this.viewState = 'location-prompt';
+            // End of Mission 1
+            this.mission1Completed = true;
+            this.viewState = 'hub';
         }
+    }
+
+    onMission2Completed(answers: any) {
+        this.hobbiesAnswers = answers;
+        this.mission2Completed = true;
+        this.viewState = 'hub';
+    }
+
+    onMission3Completed(metrics: any) {
+        this.errorLabMetrics = metrics;
+        this.mission3Completed = true;
+        this.viewState = 'location-prompt';
+        
+        // Assemble final payload locally
+        const user = this.authService.getCurrentUser();
+        const userId = user?.id || 'guest';
+        const finalPayload = {
+            m1Answers: this.userAnswers,
+            m2Hobbies: this.hobbiesAnswers,
+            m3Metrics: this.errorLabMetrics
+        };
+        localStorage.setItem(`test_answers_extended_${userId}`, JSON.stringify(finalPayload));
     }
 
     /** Briefly removes then re-adds the animation class for smooth transitions */

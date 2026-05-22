@@ -1,0 +1,132 @@
+.hobbies-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.mission-header {
+  text-align: center;
+  margin-bottom: 40px;
+  
+  .badge {
+    background: rgba(7, 177, 201, 0.1);
+    color: #07B1C9;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  
+  h2 {
+    font-size: 24px;
+    margin: 0 0 8px;
+    color: var(--text-primary);
+  }
+  
+  p {
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+}
+
+.card-stack-container {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  height: 400px;
+  perspective: 1000px;
+  margin-bottom: 40px;
+}
+
+.tinder-card {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-surface);
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  border: 1px solid var(--border-light);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+  transform-origin: center bottom;
+  
+  h3 {
+    font-size: 22px;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+  
+  &.swipe-left {
+    transform: translateX(-150%) rotate(-15deg);
+    opacity: 0;
+  }
+  
+  &.swipe-right {
+    transform: translateX(150%) rotate(15deg);
+    opacity: 0;
+  }
+}
+
+.controls {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.btn-swipe {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  }
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--border-light);
+  border-radius: 4px;
+  overflow: hidden;
+  
+  .fill {
+    height: 100%;
+    background: #07B1C9;
+    transition: width 0.3s ease;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

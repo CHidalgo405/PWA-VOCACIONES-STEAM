@@ -160,24 +160,39 @@
       <div class="main-column">
         
         <!-- Tu Perfil Por Area -->
-        <div class="widget-card">
+        <div class="widget-card profile-area-widget">
           <div class="widget-header">
             <h3>Tu perfil por área</h3>
             <a class="widget-action-link" routerLink="/test-result">Ver análisis</a>
           </div>
-          <div class="progress-bars-list">
-            <div class="progress-bar-item" *ngFor="let area of profileAreas">
-              <div class="area-name-col">
-                <span class="color-dot" [style.background-color]="area.color"></span>
-                <span class="area-name">{{ area.name }}</span>
+          <div class="profile-area-layout">
+            <!-- Anillo de Confianza de la IA -->
+            <div class="ai-confidence-container">
+              <svg viewBox="0 0 100 100" class="confidence-ring">
+                <circle class="ring-bg" cx="50" cy="50" r="40"></circle>
+                <!-- 2 * PI * r = 2 * 3.14159 * 40 = 251.3 -->
+                <circle class="ring-fill" cx="50" cy="50" r="40" [style.stroke-dasharray]="(aiConfidence / 100) * 251.3 + ', 251.3'"></circle>
+              </svg>
+              <div class="ring-text">
+                <span class="ring-val">{{ aiConfidence }}%</span>
+                <span class="ring-lbl">Confianza IA</span>
               </div>
-              <div class="bar-col">
-                <div class="track">
-                  <div class="fill" [style.width]="area.percentage + '%'" [style.background-color]="area.color"></div>
+            </div>
+
+            <div class="progress-bars-list">
+              <div class="progress-bar-item" *ngFor="let area of profileAreas">
+                <div class="area-name-col">
+                  <span class="color-dot" [style.background-color]="area.color"></span>
+                  <span class="area-name">{{ area.name }}</span>
                 </div>
-              </div>
-              <div class="percent-col">
-                <span class="percentage" *ngIf="area.percentage > 0">{{ area.percentage }}%</span>
+                <div class="bar-col">
+                  <div class="track">
+                    <div class="fill" [style.width]="area.percentage + '%'" [style.background-color]="area.color"></div>
+                  </div>
+                </div>
+                <div class="percent-col">
+                  <span class="percentage" *ngIf="area.percentage > 0">{{ area.percentage }}%</span>
+                </div>
               </div>
             </div>
           </div>
@@ -230,6 +245,24 @@
             <span class="summary-label">Universidades recomendadas</span>
             <span class="summary-value">12 instituciones</span>
           </div>
+        </div>
+
+        <!-- Simuladores Activos -->
+        <div class="widget-card simulators-card" *ngIf="activeSimulator">
+          <div class="widget-header">
+            <h3>Simuladores Activos</h3>
+            <app-lucide-icon name="activity" [size]="18" color="#07B1C9"></app-lucide-icon>
+          </div>
+          <div class="simulator-item">
+            <span class="sim-title">{{ activeSimulator.title }}</span>
+            <div class="sim-progress-bg">
+              <div class="sim-progress-fill" [style.width]="activeSimulator.progress + '%'"></div>
+            </div>
+            <span class="sim-percent">{{ activeSimulator.progress }}% completado</span>
+          </div>
+          <button class="btn-primary-outline btn-block mt-3" style="width: 100%; padding: 10px; border-radius: 8px; background: transparent; border: 1px solid #07B1C9; color: #07B1C9; font-weight: 600; cursor: pointer; margin-top: 15px;">
+            Continuar Reto
+          </button>
         </div>
 
         <!-- Progreso en la plataforma -->

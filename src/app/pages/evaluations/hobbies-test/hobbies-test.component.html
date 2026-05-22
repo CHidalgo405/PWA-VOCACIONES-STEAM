@@ -1,0 +1,28 @@
+<div class="hobbies-wrapper fade-in">
+  <div class="mission-header">
+    <div class="badge">Misión 2</div>
+    <h2>Hobbies y Videojuegos</h2>
+    <p>¿Qué mecánicas te interesan más? Desliza o usa los botones.</p>
+  </div>
+
+  <div class="card-stack-container" *ngIf="currentCard">
+    <div class="tinder-card" [ngClass]="{'swipe-left': animatingOut === 'left', 'swipe-right': animatingOut === 'right'}">
+      <div class="card-content">
+        <h3>{{ currentCard.text }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls" *ngIf="currentCard">
+    <button class="btn-swipe btn-nope" (click)="swipe('left')">
+      <app-lucide-icon name="x" [size]="28" color="#EF4444"></app-lucide-icon>
+    </button>
+    <button class="btn-swipe btn-like" (click)="swipe('right')">
+      <app-lucide-icon name="heart" [size]="28" color="#10B981"></app-lucide-icon>
+    </button>
+  </div>
+  
+  <div class="progress-bar" *ngIf="currentCard">
+    <div class="fill" [style.width]="(currentIndex / cards.length) * 100 + '%'"></div>
+  </div>
+</div>

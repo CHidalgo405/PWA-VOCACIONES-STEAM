@@ -14,8 +14,9 @@ import { SettingsComponent } from './pages/admin/settings/settings.component';
 import { Error404Component } from './pages/error-404/error-404.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { OAuthCallbackComponent } from './pages/oauth-callback/oauth-callback.component';
-import { VocationTestComponent } from './pages/vocation-test/vocation-test.component';
+import { EvaluationsComponent } from './pages/evaluations/evaluations.component';
 import { TestResultComponent } from './pages/test-result/test-result.component';
+import { CareerSimulatorComponent } from './pages/career-simulator/career-simulator.component';
 import { HistoryComponent } from './pages/history/history.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
@@ -27,9 +28,10 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
   { path: 'olvide-contrasena', component: ForgotPasswordComponent, canActivate: [guestGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
-  { path: 'vocation-test', component: VocationTestComponent, canActivate: [authGuard] },
+  { path: 'evaluations', component: EvaluationsComponent, canActivate: [authGuard] },
   { path: 'test-result', component: TestResultComponent, canActivate: [authGuard] },
   { path: 'test-result/:id', component: TestResultComponent, canActivate: [authGuard] },
+  { path: 'career-simulator/:id', component: CareerSimulatorComponent, canActivate: [authGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'explore', component: ExploreComponent, canActivate: [authGuard] },
