@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideIconComponent } from '../../../../components/lucide-icon/lucide-icon.component';
+import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-error-lab',
