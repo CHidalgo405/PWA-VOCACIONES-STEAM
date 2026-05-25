@@ -741,7 +741,231 @@
   }
 }
 
+/* =========================================
+   AI CONFIDENCE RING (Anillo de Confianza IA)
+   ========================================= */
+.profile-area-layout {
+  display: flex;
+  gap: 25px;
+  align-items: flex-start;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.ai-confidence-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confidence-ring {
+  width: 120px;
+  height: 120px;
+  transform: rotate(-90deg);
+
+  .ring-bg {
+    fill: none;
+    stroke: var(--border-color, rgba(0,0,0,0.1));
+    stroke-width: 6;
+  }
+
+  .ring-fill {
+    fill: none;
+    stroke: var(--steam-blue, #07B1C9);
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dasharray 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 6px rgba(7, 177, 201, 0.4));
+  }
+}
+
+.ring-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+
+  .ring-val {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--steam-blue, #07B1C9);
+    line-height: 1;
+  }
+
+  .ring-lbl {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+/* =========================================
+   MODULES DASHBOARD SECTION
+   ========================================= */
+.modules-section {
+  .widget-action-text {
+    font-size: 0.85rem;
+    color: var(--steam-blue);
+    font-weight: 600;
+  }
+}
+
+.modules-dash-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.module-card-dash {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-canvas);
+  transition: all 0.3s ease;
+
+  &.completed {
+    border-color: rgba(74, 222, 128, 0.3);
+    background: rgba(74, 222, 128, 0.05);
+  }
+
+  &.available {
+    border-color: rgba(7, 177, 201, 0.3);
+    background: rgba(7, 177, 201, 0.03);
+    
+    &:hover {
+      border-color: var(--steam-blue);
+      box-shadow: 0 4px 12px rgba(7, 177, 201, 0.15);
+      transform: translateY(-1px);
+    }
+  }
+
+  &.locked {
+    opacity: 0.6;
+  }
+
+  &.coming-soon {
+    opacity: 0.5;
+    border-style: dashed;
+  }
+
+  .module-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &.done {
+      background: rgba(74, 222, 128, 0.15);
+    }
+
+    &.ready {
+      background: rgba(7, 177, 201, 0.1);
+    }
+
+    &.disabled {
+      background: var(--bg-surface);
+    }
+  }
+
+  .module-info {
+    flex: 1;
+    min-width: 0;
+
+    h4 {
+      margin: 0 0 3px 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .module-status-text {
+      font-size: 0.8rem;
+      font-weight: 500;
+
+      &.completed-text {
+        color: #4ADE80;
+      }
+
+      &.available-text {
+        color: var(--steam-blue);
+      }
+
+      &.locked-text {
+        color: var(--text-muted);
+      }
+
+      &.coming-soon-text {
+        color: var(--text-muted);
+        font-style: italic;
+      }
+    }
+  }
+
+  .btn-module-action {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    &.view {
+      background: rgba(7, 177, 201, 0.1);
+      color: var(--steam-blue);
+      border: 1px solid rgba(7, 177, 201, 0.2);
+
+      &:hover {
+        background: rgba(7, 177, 201, 0.2);
+      }
+    }
+
+    &.start {
+      background: var(--steam-blue);
+      color: white;
+      box-shadow: 0 2px 8px rgba(7, 177, 201, 0.3);
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(7, 177, 201, 0.4);
+        transform: translateY(-1px);
+      }
+    }
+
+    &.locked-btn {
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+  }
+}
+
 .spacer-bottom {
+
   height: 40px;
 }
 

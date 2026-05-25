@@ -30,6 +30,10 @@ export class DashboardComponent implements OnInit {
     progress: 50 
   };
 
+  // Module completion states
+  mission2Completed = false;
+  mission3Completed = false;
+
   // (Removed unused mock stats)
 
   // Modal State
@@ -68,8 +72,32 @@ export class DashboardComponent implements OnInit {
 
         // Load test completion state
         this.loadTestResult(usuario.id);
+
+        // Load module completion states
+        this.loadModuleStates(usuario.id);
       }
     });
+  }
+
+  loadModuleStates(userId: string) {
+    const extendedData = localStorage.getItem(`test_answers_extended_${userId}`);
+    if (extendedData) {
+      try {
+        const parsed = JSON.parse(extendedData);
+        this.mission2Completed = !!parsed.m2Hobbies;
+        this.mission3Completed = !!parsed.m3Metrics;
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
+
+    // Update AI confidence based on completed modules
+    if (this.hasTakenTest) {
+      let confidence = 33;
+      if (this.mission2Completed) confidence += 33;
+      if (this.mission3Completed) confidence += 34;
+      this.aiConfidence = confidence;
+    }
   }
 
   loadTestResult(userId: string) {
@@ -85,6 +113,8 @@ export class DashboardComponent implements OnInit {
           localStorage.setItem(`hasTakenTest_${userId}`, 'true');
           // Actualizamos la interfaz
           this.processResultObject(latestTest);
+          // Re-check module states with updated hasTakenTest
+          this.loadModuleStates(userId);
         } else {
           // El usuario no tiene tests en el servidor
           this.hasTakenTest = false;
@@ -150,7 +180,7 @@ export class DashboardComponent implements OnInit {
 
     this.dominantTraitsStr = result.dominantTraits || 'Perfil Mixto';
     
-    // Calculate AI Confidence based on completed modules (Mock: only module 1 is ready, so 33%)
+    // Calculate AI Confidence based on completed modules
     this.aiConfidence = 33;
 
     if (result.recommendations && result.recommendations.length > 0) {
@@ -183,6 +213,14 @@ export class DashboardComponent implements OnInit {
 
   startTest() {
     this.router.navigate(['/evaluations']);
+  }
+
+  goToHobbiesTest() {
+    this.router.navigate(['/evaluations'], { queryParams: { startMission: 2 } });
+  }
+
+  goToErrorLab() {
+    this.router.navigate(['/evaluations'], { queryParams: { startMission: 3 } });
   }
 
   closeWelcomeModal() {
