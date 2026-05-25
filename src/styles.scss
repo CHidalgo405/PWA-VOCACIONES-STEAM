@@ -116,3 +116,14 @@ body {
     padding: 40px; /* Más aire en PC */
   }
 }
+/* Fix horizontal scroll / leaning right issue on PC */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+app-root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-x: hidden;
+}
