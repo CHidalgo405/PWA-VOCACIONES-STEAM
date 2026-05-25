@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
 import { VocationTestService, Question, Option, TestSubmissionResponse } from '../../core/services/test.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -61,7 +61,6 @@ export class EvaluationsComponent implements OnInit {
 
     constructor(
         private router: Router,
-        private route: ActivatedRoute,
         private testService: VocationTestService,
         private authService: AuthService
     ) { }
@@ -76,19 +75,6 @@ export class EvaluationsComponent implements OnInit {
         ).subscribe(data => {
             this.questions = data;
             this.isLoadingQuestions = false;
-        });
-
-        // Check if coming from dashboard with a specific mission to start
-        this.route.queryParams.subscribe(params => {
-            const startMission = params['startMission'];
-            if (startMission === '2') {
-                this.mission1Completed = true; // Mark mission 1 as done
-                this.viewState = 'mission2';
-            } else if (startMission === '3') {
-                this.mission1Completed = true;
-                this.mission2Completed = true; // Mark missions 1 & 2 as done
-                this.viewState = 'mission3';
-            }
         });
     }
 

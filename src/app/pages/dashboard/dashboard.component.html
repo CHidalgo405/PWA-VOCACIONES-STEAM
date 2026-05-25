@@ -202,83 +202,25 @@
         <div class="widget-card mobile-margin-bottom">
           <div class="widget-header">
             <h3>Carreras para ti</h3>
-            <a class="widget-action-link" routerLink="/explore">Ver todas</a>
+            <a class="widget-action-link">Ver todas</a>
           </div>
           <div class="tags-container mb-3">
             <div class="pill-tag filled" *ngFor="let career of recommendedCareers" [class.dark]="career.category === 'engineering'">
               {{ career.title }}
             </div>
           </div>
-        </div>
 
-        <!-- Módulos de Evaluación -->
-        <div class="widget-card modules-section">
-          <div class="widget-header">
-            <h3>Módulos de Evaluación</h3>
-            <span class="widget-action-text">{{ aiConfidence }}% completado</span>
-          </div>
-
-          <div class="modules-dash-grid">
-            <!-- Módulo 1: Test Teórico (siempre completado si hasTakenTest) -->
-            <div class="module-card-dash completed">
-              <div class="module-icon-wrap done">
-                <app-lucide-icon name="check-circle" [size]="22" color="#4ADE80"></app-lucide-icon>
-              </div>
-              <div class="module-info">
-                <h4>Test Teórico STEAM</h4>
-                <span class="module-status-text completed-text">✓ Completado</span>
-              </div>
-              <button class="btn-module-action view" routerLink="/test-result">Ver resultado</button>
+          <!-- Retry test banner (mobile places it here, desktop can place it in sidebar) -->
+          <div class="retry-banner mobile-only">
+            <div class="retry-content">
+              <h4>¿Quieres más precisión?</h4>
+              <p>Reintentar el test avanzado</p>
             </div>
-
-            <!-- Módulo 2: Hobbies y Videojuegos -->
-            <div class="module-card-dash" [class.completed]="mission2Completed" [class.available]="!mission2Completed">
-              <div class="module-icon-wrap" [class.done]="mission2Completed" [class.ready]="!mission2Completed">
-                <app-lucide-icon [name]="mission2Completed ? 'check-circle' : 'gamepad-2'" [size]="22" [color]="mission2Completed ? '#4ADE80' : '#F88718'"></app-lucide-icon>
-              </div>
-              <div class="module-info">
-                <h4>Hobbies y Videojuegos</h4>
-                <span class="module-status-text" [class.completed-text]="mission2Completed" [class.available-text]="!mission2Completed">
-                  {{ mission2Completed ? '✓ Completado' : 'Disponible' }}
-                </span>
-              </div>
-              <button class="btn-module-action" [class.view]="mission2Completed" [class.start]="!mission2Completed" (click)="mission2Completed ? null : goToHobbiesTest()">
-                {{ mission2Completed ? 'Completado' : 'Iniciar' }}
-              </button>
-            </div>
-
-            <!-- Módulo 3: Laboratorio de Errores -->
-            <div class="module-card-dash" [class.completed]="mission3Completed" [class.available]="!mission3Completed && mission2Completed" [class.locked]="!mission2Completed">
-              <div class="module-icon-wrap" [class.done]="mission3Completed" [class.ready]="mission2Completed && !mission3Completed" [class.disabled]="!mission2Completed">
-                <app-lucide-icon [name]="mission3Completed ? 'check-circle' : 'flask-round'" [size]="22" [color]="mission3Completed ? '#4ADE80' : (mission2Completed ? '#E8372D' : '#94A3B8')"></app-lucide-icon>
-              </div>
-              <div class="module-info">
-                <h4>Laboratorio de Errores</h4>
-                <span class="module-status-text" [class.completed-text]="mission3Completed" [class.available-text]="mission2Completed && !mission3Completed" [class.locked-text]="!mission2Completed">
-                  {{ mission3Completed ? '✓ Completado' : (mission2Completed ? 'Disponible' : 'Requiere Hobbies') }}
-                </span>
-              </div>
-              <button class="btn-module-action" [class.start]="mission2Completed && !mission3Completed" [class.locked-btn]="!mission2Completed" [disabled]="!mission2Completed" (click)="goToErrorLab()">
-                {{ mission3Completed ? 'Completado' : (mission2Completed ? 'Iniciar' : 'Bloqueado') }}
-              </button>
-            </div>
-
-            <!-- Módulo 4: Simulador de Carrera (Próximamente) -->
-            <div class="module-card-dash coming-soon">
-              <div class="module-icon-wrap disabled">
-                <app-lucide-icon name="monitor" [size]="22" color="#94A3B8"></app-lucide-icon>
-              </div>
-              <div class="module-info">
-                <h4>Simulador de Carrera</h4>
-                <span class="module-status-text coming-soon-text">Próximamente</span>
-              </div>
-              <button class="btn-module-action locked-btn" disabled>Próximamente</button>
-            </div>
+            <button class="btn-retry" (click)="startTest()">Reintentar</button>
           </div>
         </div>
 
       </div>
-
 
       <!-- SIDEBAR COLUMN -->
       <div class="sidebar-column">
@@ -305,22 +247,61 @@
           </div>
         </div>
 
-        <!-- Simuladores Activos -->
-        <div class="widget-card simulators-card" *ngIf="activeSimulator">
+        <!-- Misiones de Orientación -->
+        <div class="widget-card missions-card">
           <div class="widget-header">
-            <h3>Simuladores Activos</h3>
-            <app-lucide-icon name="activity" [size]="18" color="#07B1C9"></app-lucide-icon>
+            <h3>Misiones de Orientación</h3>
+            <app-lucide-icon name="target" [size]="18" color="#07B1C9"></app-lucide-icon>
           </div>
-          <div class="simulator-item">
-            <span class="sim-title">{{ activeSimulator.title }}</span>
-            <div class="sim-progress-bg">
-              <div class="sim-progress-fill" [style.width]="activeSimulator.progress + '%'"></div>
+          
+          <div class="missions-list">
+            <!-- Misión 1 -->
+            <div class="mission-item" (click)="goToMission('mission1')">
+              <div class="mission-icon bg-green">
+                <app-lucide-icon name="check" [size]="18" color="#fff"></app-lucide-icon>
+              </div>
+              <div class="mission-info">
+                <span class="m-title">Test Teórico</span>
+                <span class="m-status text-green">Completado</span>
+              </div>
+              <app-lucide-icon name="chevron-right" [size]="16" color="var(--text-muted)"></app-lucide-icon>
             </div>
-            <span class="sim-percent">{{ activeSimulator.progress }}% completado</span>
+
+            <!-- Misión 2 -->
+            <div class="mission-item" (click)="goToMission('mission2')">
+              <div class="mission-icon bg-blue">
+                <app-lucide-icon name="gamepad-2" [size]="18" color="#fff"></app-lucide-icon>
+              </div>
+              <div class="mission-info">
+                <span class="m-title">Hobbies & Videojuegos</span>
+                <span class="m-status text-blue">Iniciar Misión</span>
+              </div>
+              <app-lucide-icon name="chevron-right" [size]="16" color="var(--text-muted)"></app-lucide-icon>
+            </div>
+
+            <!-- Misión 3 -->
+            <div class="mission-item" (click)="goToMission('mission3')">
+              <div class="mission-icon bg-blue">
+                <app-lucide-icon name="alert-triangle" [size]="18" color="#fff"></app-lucide-icon>
+              </div>
+              <div class="mission-info">
+                <span class="m-title">Laboratorio Errores</span>
+                <span class="m-status text-blue">Iniciar Misión</span>
+              </div>
+              <app-lucide-icon name="chevron-right" [size]="16" color="var(--text-muted)"></app-lucide-icon>
+            </div>
+
+            <!-- Simulador -->
+            <div class="mission-item locked">
+              <div class="mission-icon bg-gray">
+                <app-lucide-icon name="lock" [size]="18" color="#fff"></app-lucide-icon>
+              </div>
+              <div class="mission-info">
+                <span class="m-title">Simulador de Carrera</span>
+                <span class="m-status text-gray">Próximamente</span>
+              </div>
+            </div>
           </div>
-          <button class="btn-primary-outline btn-block mt-3" style="width: 100%; padding: 10px; border-radius: 8px; background: transparent; border: 1px solid #07B1C9; color: #07B1C9; font-weight: 600; cursor: pointer; margin-top: 15px;">
-            Continuar Reto
-          </button>
         </div>
 
         <!-- Progreso en la plataforma -->

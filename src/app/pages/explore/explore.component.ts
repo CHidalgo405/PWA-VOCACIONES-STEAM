@@ -56,6 +56,8 @@ export class ExploreComponent implements OnInit {
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       if (user?.id) {
+        // Desbloqueo temporal: se permite acceso libre al explorador
+
         this.loadRecommendations();
         this.loadSavedUniversities();
       }
