@@ -198,55 +198,6 @@
           </div>
         </div>
 
-        <!-- Carreras Para Ti -->
-        <div class="widget-card mobile-margin-bottom">
-          <div class="widget-header">
-            <h3>Carreras para ti</h3>
-            <a class="widget-action-link">Ver todas</a>
-          </div>
-          <div class="tags-container mb-3">
-            <div class="pill-tag filled" *ngFor="let career of recommendedCareers" [class.dark]="career.category === 'engineering'">
-              {{ career.title }}
-            </div>
-          </div>
-
-          <!-- Retry test banner (mobile places it here, desktop can place it in sidebar) -->
-          <div class="retry-banner mobile-only">
-            <div class="retry-content">
-              <h4>¿Quieres más precisión?</h4>
-              <p>Reintentar el test avanzado</p>
-            </div>
-            <button class="btn-retry" (click)="startTest()">Reintentar</button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- SIDEBAR COLUMN -->
-      <div class="sidebar-column">
-        
-        <!-- Resumen de tu perfil -->
-        <div class="widget-card">
-          <h3 class="margin-bottom-md">Resumen de tu perfil</h3>
-          
-          <div class="summary-item">
-            <span class="summary-label">Disciplina principal</span>
-            <span class="summary-value">{{ dominantArea ? dominantArea.name + ' (' + dominantArea.percentage + '%)' : '--' }}</span>
-          </div>
-          <div class="summary-item">
-            <span class="summary-label">Área secundaria</span>
-            <span class="summary-value">{{ secondaryArea ? secondaryArea.name + ' (' + secondaryArea.percentage + '%)' : '--' }}</span>
-          </div>
-          <div class="summary-item">
-            <span class="summary-label">Carreras compatibles</span>
-            <span class="summary-value">47 de 500+</span>
-          </div>
-          <div class="summary-item">
-            <span class="summary-label">Universidades recomendadas</span>
-            <span class="summary-value">12 instituciones</span>
-          </div>
-        </div>
-
         <!-- Misiones de Orientación -->
         <div class="widget-card missions-card">
           <div class="widget-header">
@@ -301,6 +252,55 @@
                 <span class="m-status text-gray">Próximamente</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Carreras Para Ti -->
+        <div class="widget-card mobile-margin-bottom">
+          <div class="widget-header">
+            <h3>Carreras para ti</h3>
+            <a class="widget-action-link">Ver todas</a>
+          </div>
+          <div class="tags-container mb-3">
+            <div class="pill-tag filled" *ngFor="let career of recommendedCareers" [class.dark]="career.category === 'engineering'">
+              {{ career.title }}
+            </div>
+          </div>
+
+          <!-- Retry test banner (mobile places it here, desktop can place it in sidebar) -->
+          <div class="retry-banner mobile-only">
+            <div class="retry-content">
+              <h4>¿Quieres más precisión?</h4>
+              <p>Reintentar el test avanzado</p>
+            </div>
+            <button class="btn-retry" (click)="startTest()">Reintentar</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SIDEBAR COLUMN -->
+      <div class="sidebar-column">
+        
+        <!-- Resumen de tu perfil -->
+        <div class="widget-card">
+          <h3 class="margin-bottom-md">Resumen de tu perfil</h3>
+          
+          <div class="summary-item">
+            <span class="summary-label">Disciplina principal</span>
+            <span class="summary-value">{{ dominantArea ? dominantArea.name + ' (' + dominantArea.percentage + '%)' : '--' }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Área secundaria</span>
+            <span class="summary-value">{{ secondaryArea ? secondaryArea.name + ' (' + secondaryArea.percentage + '%)' : '--' }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Carreras compatibles</span>
+            <span class="summary-value">47 de 500+</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Universidades recomendadas</span>
+            <span class="summary-value">12 instituciones</span>
           </div>
         </div>
 

@@ -4,16 +4,6 @@
 
   <header class="premium-header">
     <div class="header-content">
-      
-      <div class="search-section">
-        <div class="search-bar-premium">
-          <app-lucide-icon name="search" [size]="20" class="search-icon"></app-lucide-icon>
-          <input type="text" placeholder="Buscar universidades o programas..." [(ngModel)]="searchQuery">
-          <button class="filter-trigger" *ngIf="searchQuery" (click)="searchQuery = ''">
-            <app-lucide-icon name="x" [size]="16"></app-lucide-icon>
-          </button>
-        </div>
-      </div>
 
       <nav class="navigation-tabs">
         <div class="tabs-pill">
@@ -26,6 +16,16 @@
           <div class="pill-slider" [class.to-right]="viewMode === 'saved'"></div>
         </div>
       </nav>
+
+      <div class="search-section">
+        <div class="search-bar-premium">
+          <app-lucide-icon name="search" [size]="20" class="search-icon"></app-lucide-icon>
+          <input type="text" placeholder="Buscar universidades o programas..." [(ngModel)]="searchQuery">
+          <button class="filter-trigger" *ngIf="searchQuery" (click)="searchQuery = ''">
+            <app-lucide-icon name="x" [size]="16"></app-lucide-icon>
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 
