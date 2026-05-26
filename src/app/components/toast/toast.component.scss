@@ -1,216 +1,341 @@
-$cyan: #07B1C9;
-$green: #4DB046;
-$orange: #F88718;
-$red: #E8372D;
-$dark: #1a2332;
-$text-muted: #6b7280;
-$white: #FFFFFF;
-
-// --- Background Backdrop ---
-.toast-backdrop {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(10, 15, 25, 0.4);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  z-index: 9998;
-  opacity: 0;
-  animation: backdropFadeIn 0.3s forwards;
-}
-
-@keyframes backdropFadeIn {
-  to { opacity: 1; }
-}
-
-// --- Positioning Container ---
+// --- Toast Container ---
 .toast-container {
   position: fixed;
-  top: 35%; // Center-top placement allows stacking space above and below
+  top: 24px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
-  width: 90%;
-  max-width: 340px;
-  height: 200px; // Provide a bounding box so absolute items don't collapse layout
-  pointer-events: none; // Let clicks pass through container to backdrop/items
+  width: 92%;
+  max-width: 380px;
+  pointer-events: none;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// --- Backdrop is disabled by default to enable page interaction while toasts are visible ---
+.toast-backdrop {
+  display: none;
 }
 
 // --- Card Shell ---
 .toast-card {
-  position: absolute;
   pointer-events: auto;
-  cursor: default;
-  width: 100%;
-  background: $white;
-  border-radius: 20px;
-  box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.15),
-    0 4px 12px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 1.4rem;
-  overflow: visible;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-
-  // Stacking logic based on CSS variable --toast-idx
-  // Newer toasts have 0, older have 1, 2, ...
-  z-index: calc(100 - var(--toast-idx));
-  transform: translateY(calc(var(--toast-idx) * 16px)) scale(calc(1 - var(--toast-idx) * 0.06));
-  opacity: calc(1 - var(--toast-idx) * 0.25);
-
-  // Animation and transitions
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
-  animation: toastSpawn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-
-  // Interactivity for front toast only (or minor bump for others)
-  &:hover {
-    transform: translateY(calc(var(--toast-idx) * 16px - 4px)) scale(calc(1 - var(--toast-idx) * 0.06));
-  }
-
-  // Colored top accent strip
-  &::before {
-    content: '';
-    display: block;
-    width: 100%;
-    height: 8px;
-    border-radius: 20px 20px 0 0;
-  }
-
-  &.toast-success::before { background: $green; }
-  &.toast-error::before   { background: $red; }
-  &.toast-warning::before { background: $orange; }
-  &.toast-info::before    { background: $cyan; }
-}
-
-@keyframes toastSpawn {
-  from {
-    margin-top: -60px;
-    opacity: 0;
-  }
-  to {
-    margin-top: 0;
-    // Opacity interpolates to default element opacity determined by var
-  }
-}
-
-// --- Circular Icon Badge ---
-.toast-badge {
-  margin-top: -24px;
-  margin-bottom: 0.75rem;
-  z-index: 10;
-}
-
-.toast-icon-circle {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 4px solid $white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-
-  svg {
-    width: 26px;
-    height: 26px;
-    color: $white;
-    stroke: $white;
-  }
-
-  .toast-success & { background: $green; }
-  .toast-error &   { background: $red; }
-  .toast-warning & { background: $orange; }
-  .toast-info &    { background: $cyan; }
-}
-
-// --- Text Content ---
-.toast-content {
-  text-align: center;
-  padding: 0 1.25rem;
-  position: relative;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.toast-close-btn {
-  position: absolute;
-  top: -1.2rem;
-  right: 0.2rem;
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  color: #c4c4c4;
   cursor: pointer;
-  line-height: 1;
-  padding: 8px;
-  transition: color 0.2s;
-
-  &:hover { color: $dark; }
-}
-
-.toast-title {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: $dark;
-  margin: 0 0 0.4rem;
-  font-family: 'Inter', sans-serif;
-  letter-spacing: -0.01em;
-}
-
-.toast-message {
-  font-size: 0.85rem;
-  color: $text-muted;
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  line-height: 1.5;
-}
-
-// --- Mobile specific adjustments ---
-@media (max-width: 600px) {
-  .toast-container {
-    top: 30%; // Slightly higher on mobile to give room for keyboard or elements below
-  }
+  width: 100%;
+  border-radius: 32px; // Generous rounded corners for a premium pill-shaped iOS aesthetic
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  box-sizing: border-box;
+  overflow: visible;
   
-  .toast-card {
-    // If it's a mobile screen, the stacking offset can be slightly larger for tap targets
-    transform: translateY(calc(var(--toast-idx) * 20px)) scale(calc(1 - var(--toast-idx) * 0.05));
-    
-    &:hover {
-      transform: translateY(calc(var(--toast-idx) * 20px - 2px)) scale(calc(1 - var(--toast-idx) * 0.05));
+  // Premium smooth shadows
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.05),
+    0 8px 16px -6px rgba(0, 0, 0, 0.03);
+
+  // Transitions & Animations
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  animation: toastSpawn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  // --- Success Variant ---
+  &.toast-success {
+    background: rgba(230, 247, 237, 0.92);
+    border: 1px solid rgba(27, 133, 74, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    .toast-icon-wrapper svg {
+      color: #1a7f37;
+      stroke: #1a7f37;
+    }
+    .toast-title {
+      color: #1a7f37;
+    }
+    .toast-message {
+      color: #437953;
+    }
+    .toast-close-btn svg {
+      color: #1a7f37;
+    }
+  }
+
+  // --- Error Variant ---
+  &.toast-error {
+    background: rgba(253, 235, 236, 0.92);
+    border: 1px solid rgba(220, 38, 38, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    .toast-icon-wrapper svg {
+      color: #cf222e;
+      stroke: #cf222e;
+    }
+    .toast-title {
+      color: #b91c1c;
+    }
+    .toast-message {
+      color: #cf5a5a;
+    }
+    .toast-close-btn svg {
+      color: #cf222e;
+    }
+  }
+
+  // --- Warning Variant ---
+  &.toast-warning {
+    background: rgba(254, 243, 214, 0.92);
+    border: 1px solid rgba(189, 140, 24, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    .toast-icon-wrapper svg {
+      color: #9a6e0a;
+      stroke: #9a6e0a;
+    }
+    .toast-title {
+      color: #855b00;
+    }
+    .toast-message {
+      color: #a37a1f;
+    }
+    .toast-close-btn svg {
+      color: #9a6e0a;
+    }
+  }
+
+  // --- Info Variant ---
+  &.toast-info {
+    background: rgba(232, 242, 254, 0.92);
+    border: 1px solid rgba(37, 99, 235, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    .toast-icon-wrapper svg {
+      color: #1d4ed8;
+      stroke: #1d4ed8;
+    }
+    .toast-title {
+      color: #1e40af;
+    }
+    .toast-message {
+      color: #5b81b8;
+    }
+    .toast-close-btn svg {
+      color: #1d4ed8;
     }
   }
 }
 
-/* =========================================
-   DARK MODE — TOAST
-   ========================================= */
-body.dark-theme {
+// --- Left Icon Wrapper ---
+.toast-icon-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-right: 14px;
+
+  svg {
+    width: 26px;
+    height: 26px;
+    display: block;
+  }
+}
+
+// --- Center Text Content ---
+.toast-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.toast-title {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.toast-message {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+}
+
+// --- Right Close Button ---
+.toast-close-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s, opacity 0.2s;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+  }
+
+  &:hover {
+    svg {
+      opacity: 1;
+    }
+  }
+}
+
+// --- Responsive adaptations ---
+@media (max-width: 480px) {
+  .toast-container {
+    top: 16px;
+    width: 94%;
+  }
+
   .toast-card {
-    background: #1F2937;
-    border-color: rgba(255, 255, 255, 0.06);
-    box-shadow:
-      0 20px 40px rgba(0, 0, 0, 0.4),
-      0 4px 12px rgba(0, 0, 0, 0.3);
+    padding: 12px 16px;
+    border-radius: 28px;
+  }
+
+  .toast-icon-wrapper {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
   }
 
   .toast-title {
-    color: #F9FAFB;
+    font-size: 13.5px;
   }
 
   .toast-message {
-    color: #9CA3AF;
+    font-size: 11.5px;
   }
+}
 
-  .toast-icon-circle {
-    border-color: #1F2937;
+// --- Smooth entrance animation ---
+@keyframes toastSpawn {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.96);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
-  .toast-close-btn {
-    color: #6B7280;
-    &:hover { color: #F9FAFB; }
+/* =========================================
+   DARK THEME COMPATIBILITY
+   ========================================= */
+body.dark-theme {
+  .toast-card {
+    box-shadow:
+      0 12px 30px -5px rgba(0, 0, 0, 0.35),
+      0 8px 16px -6px rgba(0, 0, 0, 0.25);
+
+    &.toast-success {
+      background: rgba(20, 35, 27, 0.88);
+      border-color: rgba(46, 125, 50, 0.35);
+
+      .toast-icon-wrapper svg {
+        color: #4ade80;
+        stroke: #4ade80;
+      }
+      .toast-title {
+        color: #4ade80;
+      }
+      .toast-message {
+        color: #a3e635; // a slightly lighter and vivid text for high readability
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .toast-close-btn svg {
+        color: #4ade80;
+      }
+    }
+
+    &.toast-error {
+      background: rgba(40, 20, 22, 0.88);
+      border-color: rgba(239, 68, 68, 0.35);
+
+      .toast-icon-wrapper svg {
+        color: #f87171;
+        stroke: #f87171;
+      }
+      .toast-title {
+        color: #f87171;
+      }
+      .toast-message {
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .toast-close-btn svg {
+        color: #f87171;
+      }
+    }
+
+    &.toast-warning {
+      background: rgba(38, 30, 16, 0.88);
+      border-color: rgba(245, 158, 11, 0.35);
+
+      .toast-icon-wrapper svg {
+        color: #fbbf24;
+        stroke: #fbbf24;
+      }
+      .toast-title {
+        color: #fbbf24;
+      }
+      .toast-message {
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .toast-close-btn svg {
+        color: #fbbf24;
+      }
+    }
+
+    &.toast-info {
+      background: rgba(17, 28, 45, 0.88);
+      border-color: rgba(59, 130, 246, 0.35);
+
+      .toast-icon-wrapper svg {
+        color: #60a5fa;
+        stroke: #60a5fa;
+      }
+      .toast-title {
+        color: #60a5fa;
+      }
+      .toast-message {
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .toast-close-btn svg {
+        color: #60a5fa;
+      }
+    }
   }
 }
