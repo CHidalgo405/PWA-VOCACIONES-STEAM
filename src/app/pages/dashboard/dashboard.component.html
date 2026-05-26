@@ -241,16 +241,35 @@
               </div>
               <app-lucide-icon name="chevron-right" [size]="16" color="var(--text-muted)"></app-lucide-icon>
             </div>
+          </div>
+        </div>
 
-            <!-- Simulador -->
-            <div class="mission-item locked">
-              <div class="mission-icon bg-gray">
-                <app-lucide-icon name="lock" [size]="18" color="#fff"></app-lucide-icon>
+        <!-- Simulador de Carrera (Widget Independiente) -->
+        <div class="widget-card simulator-card">
+          <div class="simulator-inner">
+            <div class="simulator-details">
+              <div class="simulator-header">
+                <div class="icon-ring-sm bg-purple-soft">
+                  <app-lucide-icon name="terminal" [size]="18" color="#8B5CF6"></app-lucide-icon>
+                </div>
+                <span class="widget-badge purple">Laboratorio Práctico</span>
               </div>
-              <div class="mission-info">
-                <span class="m-title">Simulador de Carrera</span>
-                <span class="m-status text-gray">Próximamente</span>
+              <h3>Simulador de Carrera</h3>
+              <p class="simulator-text">
+                Ponte en los zapatos de un profesional STEAM y vive situaciones reales en tu área de interés para validar tu vocación.
+              </p>
+              <div class="simulator-status-row">
+                <span class="status-indicator">
+                  <span class="status-pulse-dot"></span>
+                  Próximamente
+                </span>
               </div>
+            </div>
+            <div class="simulator-action">
+              <button class="btn-simulator-locked" disabled>
+                <app-lucide-icon name="lock" [size]="16" color="#9CA3AF" style="margin-right: 6px; margin-bottom: -2px;"></app-lucide-icon>
+                Bloqueado
+              </button>
             </div>
           </div>
         </div>

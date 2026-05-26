@@ -1037,6 +1037,128 @@ $warning-bg:   #F59E0B;
 /* =============================================
    RESPONSIVE ADJUSTMENTS
    ============================================= */
+@media (max-width: 600px) {
+  .vt-hub {
+    padding: 24px 16px;
+  }
+
+  .hub-header {
+    margin-bottom: 24px;
+    
+    .icon-ring {
+      width: 72px;
+      height: 72px;
+      box-shadow: 0 0 0 6px rgba(7, 177, 201, 0.05);
+      
+      app-lucide-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        ::ng-deep svg {
+          width: 32px !important;
+          height: 32px !important;
+        }
+      }
+    }
+  }
+
+  .hub-title {
+    font-size: 22px;
+    margin: 12px 0 8px;
+  }
+
+  .hub-desc {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  // --- Stepper Mobile ---
+  .stepper-container {
+    max-width: 100%;
+    margin-bottom: 28px;
+    padding: 0;
+  }
+
+  .step {
+    gap: 6px;
+    
+    .step-icon {
+      width: 36px;
+      height: 36px;
+      border-width: 1.5px;
+      
+      app-lucide-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        ::ng-deep svg {
+          width: 16px !important;
+          height: 16px !important;
+        }
+      }
+    }
+    
+    .step-label {
+      font-size: 11px;
+      font-weight: 600;
+    }
+  }
+
+  .step-line {
+    height: 3px;
+    margin: -20px 6px 0; // Aligns perfectly with smaller 36px icons
+  }
+
+  // --- Cards Mobile ---
+  .modules-grid {
+    gap: 16px;
+  }
+
+  .module-card {
+    padding: 20px 18px;
+    border-radius: 16px;
+    
+    h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    
+    p {
+      font-size: 13px;
+      margin-bottom: 16px;
+      line-height: 1.45;
+    }
+  }
+
+  .module-status {
+    margin-bottom: 14px;
+    
+    app-lucide-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      ::ng-deep svg {
+        width: 18px !important;
+        height: 18px !important;
+      }
+    }
+  }
+
+  .status-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .btn-start, .btn-locked {
+    padding: 12px 20px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+}
+
 @media (min-width: 600px) {
   .vt-header {
     padding: 18px 32px 16px;

@@ -398,12 +398,6 @@ export class TestResultComponent implements OnInit {
     }
   }
 
-  goToSimulator() {
-    // Navigate to simulator with the top major or dominant trait
-    const topMajor = this.recommendedUniversities[0]?.suggestedMajor || this.userProfile.dominantTraits || 'ingenieria';
-    const slug = topMajor.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-');
-    this.router.navigate(['/career-simulator', slug]);
-  }
 
   /** Calculates weighted average: 40% M1, 30% M2, 30% M3 */
   private calculateWeightedScores(apiScores: Record<string, number>, extendedPayload: any): Record<string, number> {
