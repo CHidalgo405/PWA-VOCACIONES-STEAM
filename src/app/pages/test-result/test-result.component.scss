@@ -791,16 +791,18 @@
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: transform var(--duration-tactile) var(--ease-out), background-color var(--duration-hover) var(--ease-out), border-color var(--duration-hover) var(--ease-out), box-shadow var(--duration-hover) var(--ease-out);
     letter-spacing: 0.1px;
 
-    &:hover {
-        background: rgba(7, 177, 201, 0.06);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(7, 177, 201, 0.2);
+    @media (hover: hover) and (pointer: fine) {
+        &:hover {
+            background: rgba(7, 177, 201, 0.06);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(7, 177, 201, 0.2);
+        }
     }
 
-    &:active { transform: translateY(0); }
+    &:active { transform: scale(0.97); }
 }
 
 /* Solid primary Explore button */
@@ -819,16 +821,18 @@
     font-weight: 700;
     cursor: pointer;
     letter-spacing: 0.2px;
-    transition: all 0.25s ease;
+    transition: transform var(--duration-tactile) var(--ease-out), background-color var(--duration-hover) var(--ease-out), box-shadow var(--duration-hover) var(--ease-out);
     box-shadow: 0 6px 20px rgba(7, 177, 201, 0.38);
 
-    &:hover {
-        background: #0698ac;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 28px rgba(7, 177, 201, 0.48);
+    @media (hover: hover) and (pointer: fine) {
+        &:hover {
+            background: #0698ac;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(7, 177, 201, 0.48);
+        }
     }
 
-    &:active { transform: translateY(0); }
+    &:active { transform: scale(0.97); }
 }
 
 /* Outlined answers button */
@@ -846,14 +850,20 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform var(--duration-tactile) var(--ease-out), background-color var(--duration-hover) var(--ease-out), border-color var(--duration-hover) var(--ease-out), box-shadow var(--duration-hover) var(--ease-out);
     margin-top: 4px;
 
-    &:hover {
-        background: var(--bg-canvas, #F8FAFC);
-        border-color: var(--primary-color, #07B1C9);
-        color: var(--primary-color, #07B1C9);
+    @media (hover: hover) and (pointer: fine) {
+        &:hover {
+            background: var(--bg-canvas, #F8FAFC);
+            border-color: var(--primary-color, #07B1C9);
+            color: var(--primary-color, #07B1C9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(7, 177, 201, 0.15);
+        }
     }
+
+    &:active { transform: scale(0.97); }
 }
 
 /* =============================================
@@ -1892,4 +1902,99 @@
         box-shadow: 0 6px 20px rgba(7,177,201,0.25);
         &:hover { box-shadow: 0 10px 28px rgba(7,177,201,0.35); }
     }
+}
+
+/* =========================================
+   STAGGER CASCADING EFFECT FOR RESULTS
+   ========================================= */
+.greeting-chip,
+.hero-verdict,
+.hero-subtitle,
+.chart-glass-card,
+.area-legends .legend-item,
+.steam-metrics-section,
+.metrics-list .metric-row,
+.dna-insights-card,
+.career-list-section,
+.career-vertical-list .career-item-card,
+.cta-buttons-block button {
+  opacity: 0;
+  animation: staggerSlideUp var(--duration-panel) var(--ease-out) forwards;
+}
+
+/* Stagger animation delays for elements on results page */
+.greeting-chip {
+  animation-delay: 0ms;
+}
+.hero-verdict {
+  animation-delay: 40ms;
+}
+.hero-subtitle {
+  animation-delay: 80ms;
+}
+.chart-glass-card {
+  animation-delay: 120ms;
+}
+
+/* Legends inside the glass card stagger */
+.area-legends .legend-item:nth-child(1) {
+  animation-delay: 160ms;
+}
+.area-legends .legend-item:nth-child(2) {
+  animation-delay: 200ms;
+}
+.area-legends .legend-item:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+/* Main breakdown section */
+.steam-metrics-section {
+  animation-delay: 280ms;
+}
+
+/* Metric progress rows cascade cascade */
+.metrics-list .metric-row:nth-child(1) {
+  animation-delay: 320ms;
+}
+.metrics-list .metric-row:nth-child(2) {
+  animation-delay: 360ms;
+}
+.metrics-list .metric-row:nth-child(3) {
+  animation-delay: 400ms;
+}
+.metrics-list .metric-row:nth-child(4) {
+  animation-delay: 440ms;
+}
+.metrics-list .metric-row:nth-child(5) {
+  animation-delay: 480ms;
+}
+
+/* DNA / AI Analysis card */
+.dna-insights-card {
+  animation-delay: 520ms;
+}
+
+/* Career recommendations list card stagger */
+.career-list-section {
+  animation-delay: 560ms;
+}
+.career-vertical-list .career-item-card:nth-child(1) {
+  animation-delay: 600ms;
+}
+.career-vertical-list .career-item-card:nth-child(2) {
+  animation-delay: 640ms;
+}
+.career-vertical-list .career-item-card:nth-child(3) {
+  animation-delay: 680ms;
+}
+
+/* CTA buttons stagger at the very bottom */
+.cta-buttons-block button:nth-child(1) {
+  animation-delay: 720ms;
+}
+.cta-buttons-block button:nth-child(2) {
+  animation-delay: 760ms;
+}
+.cta-buttons-block button:nth-child(3) {
+  animation-delay: 800ms;
 }
