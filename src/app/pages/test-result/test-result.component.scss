@@ -1256,11 +1256,11 @@
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.5);
+    background: rgba(15, 23, 42, 0.4);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     z-index: 1000;
-    animation: fadeIn 0.3s ease;
+    animation: fadeIn var(--duration-hover) var(--ease-out) both;
 }
 
 /* ── Mobile: bottom-sheet ── */
@@ -1275,7 +1275,7 @@
     z-index: 1001;
     border-radius: 28px 28px 0 0;
     box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
-    transition: bottom 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), background-color 0.35s ease;
+    transition: bottom var(--duration-panel) var(--ease-drawer), background-color var(--duration-hover) var(--ease-out);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -1294,13 +1294,50 @@
         border-radius: 0;
         box-shadow: -12px 0 50px rgba(0, 0, 0, 0.14);
         transition:
-            right 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
-            background-color 0.35s ease;
+            right var(--duration-panel) var(--ease-drawer),
+            background-color var(--duration-hover) var(--ease-out);
 
         &.open {
             right: 0;
             bottom: auto;
         }
+    }
+}
+
+/* ── Test Answers Modal (Unstyled originally, built from scratch) ── */
+.side-panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 1000;
+    display: flex;
+    justify-content: flex-end;
+    animation: fadeIn var(--duration-hover) var(--ease-out) both;
+}
+
+.side-panel-content {
+    width: 100%;
+    max-width: 460px;
+    height: 100%;
+    background: var(--bg-surface);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+    animation: slideInRight var(--duration-panel) var(--ease-drawer) both;
+    overflow-y: auto;
+    border-left: 1px solid var(--border-color);
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
 }
 

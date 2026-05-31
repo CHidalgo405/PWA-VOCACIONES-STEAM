@@ -274,18 +274,6 @@
           </div>
         </div>
 
-        <!-- Carreras Para Ti -->
-        <div class="widget-card mobile-margin-bottom">
-          <div class="widget-header">
-            <h3>Carreras para ti</h3>
-            <a class="widget-action-link">Ver todas</a>
-          </div>
-          <div class="tags-container mb-3">
-            <div class="pill-tag filled" *ngFor="let career of recommendedCareers" [class.dark]="career.category === 'engineering'">
-              {{ career.title }}
-            </div>
-          </div>
-
           <!-- Retry test banner (mobile places it here, desktop can place it in sidebar) -->
           <div class="retry-banner mobile-only">
             <div class="retry-content">
@@ -300,6 +288,19 @@
 
       <!-- SIDEBAR COLUMN -->
       <div class="sidebar-column">
+
+        <!-- Carreras Para Ti -->
+        <div class="widget-card mobile-margin-bottom">
+          <div class="widget-header">
+            <h3>Carreras para ti</h3>
+            <a class="widget-action-link">Ver todas</a>
+          </div>
+          <div class="tags-container mb-3">
+            <div class="pill-tag filled" *ngFor="let career of recommendedCareers" [class.dark]="career.category === 'engineering'">
+              {{ career.title }}
+            </div>
+          </div>
+        </div>
         
         <!-- Resumen de tu perfil -->
         <div class="widget-card">

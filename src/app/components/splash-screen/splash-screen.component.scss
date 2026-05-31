@@ -5,13 +5,13 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #FDFDFD; /* Fondo muy limpio como tu imagen */
+  background-color: var(--bg-canvas); /* Fondo inteligente adaptado al tema (Light/Dark) */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 9999; /* Asegura que cubra TODA la app */
-  transition: opacity 0.5s ease, visibility 0.5s ease;
+  transition: opacity var(--duration-panel) var(--ease-out), visibility var(--duration-panel) var(--ease-out);
 
   &.fade-out {
     opacity: 0;
@@ -38,33 +38,33 @@
   border-radius: 50%;
 }
 
-/* Colores STEAM exactos */
+/* Colores STEAM exactos - Perceived performance speeds */
 .steam-blue-orbit {
   width: 165px;
   height: 165px;
   border: 2px solid rgba(7, 177, 201, 0.6); /* #07B1C9 */
-  animation: spin3D 3s linear 0s infinite;
+  animation: spin3D 1.8s linear 0s infinite; /* Accelerated from 3s */
 }
 
 .steam-green-orbit {
   width: 135px;
   height: 135px;
   border: 2px solid rgba(77, 176, 70, 0.6); /* #4DB046 */
-  animation: spin3D 2.5s linear 0.2s infinite;
+  animation: spin3D 1.5s linear 0.15s infinite; /* Accelerated from 2.5s */
 }
 
 .steam-orange-orbit {
   width: 105px;
   height: 105px;
   border: 2px solid rgba(248, 135, 24, 0.6); /* #F88718 */
-  animation: spin3D 2s linear 0.4s infinite;
+  animation: spin3D 1.2s linear 0.3s infinite; /* Accelerated from 2s */
 }
 
 .steam-red-orbit {
   width: 75px;
   height: 75px;
   border: 2px solid rgba(232, 55, 45, 0.6); /* #E8372D */
-  animation: spin3D 1.5s linear 0.6s infinite;
+  animation: spin3D 0.9s linear 0.45s infinite; /* Accelerated from 1.5s */
 }
 
 /* El punto brillante en el centro */
@@ -74,13 +74,13 @@
   background-color: #07B1C9;
   border-radius: 50%;
   box-shadow: 0 0 20px 5px rgba(7, 177, 201, 0.4);
-  animation: pulseCore 1.5s ease-in-out infinite alternate;
+  animation: pulseCore 1.2s var(--ease-in-out) infinite alternate;
 }
 
 /* --- TEXTO DE LA MARCA --- */
 .brand-container {
   text-align: center;
-  animation: floatText 3s ease-in-out infinite alternate;
+  animation: floatText 3s var(--ease-in-out) infinite alternate;
 }
 
 .brand-title {
@@ -93,7 +93,7 @@
 
 .brand-subtitle {
   font-size: 1rem;
-  color: #7F8C8D;
+  color: var(--text-secondary); /* Adaptativo a light y dark mode */
   margin-top: 10px;
   font-weight: 500;
   letter-spacing: 1px;
@@ -105,13 +105,13 @@
     transform: rotate3d(0.5, 0.5, 0.5, 360deg);
   }
   to {
-    transform: rotate3d(0deg, 0deg, 0deg, 0deg); /* Corrección para rotación suave */
+    transform: rotate3d(0deg, 0deg, 0deg, 0deg); /* Rotación fluida */
   }
 }
 
 @keyframes pulseCore {
   0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 30px 10px rgba(7, 177, 201, 0.6); }
+  100% { transform: scale(1.35); opacity: 1; box-shadow: 0 0 30px 10px rgba(7, 177, 201, 0.6); }
 }
 
 @keyframes floatText {

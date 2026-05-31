@@ -119,7 +119,7 @@
 
   /* PILL STYLE NAVIGATION */
   .navigation-tabs {
-    margin-top: 0rem;
+    margin-top: 0;
 
     .tabs-pill {
       position: relative;
@@ -284,7 +284,7 @@
   flex-direction: column;
   gap: 1.5rem;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform var(--duration-tactile) var(--ease-out), box-shadow var(--duration-hover) var(--ease-out);
   margin-bottom: 2.5rem;
   box-shadow: var(--shadow-md);
 
@@ -293,9 +293,15 @@
     align-items: center;
   }
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 
   .card-icon-area {
@@ -385,17 +391,23 @@
   flex-direction: column;
   gap: 1.25rem;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform var(--duration-tactile) var(--ease-out), box-shadow var(--duration-hover) var(--ease-out), border-color var(--duration-hover) var(--ease-out);
 
   @media (min-width: 600px) {
     flex-direction: row;
     align-items: flex-start;
   }
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-    border-color: var(--primary-soft);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+      border-color: var(--primary-soft);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 
   .list-card-icon {
@@ -591,11 +603,13 @@
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: flex-end;
+  animation: fadeIn var(--duration-hover) var(--ease-out) both;
 
   @media (min-width: 768px) {
       align-items: center;
@@ -612,7 +626,7 @@
   display: flex;
   flex-direction: column;
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--duration-panel) var(--ease-drawer);
 
   &.is-active { transform: translateY(0); }
 
@@ -857,4 +871,63 @@
             color: #4ADE80;
         }
     }
+}
+
+/* =========================================
+   STAGGER CASCADING EFFECT FOR CARDS
+   ========================================= */
+.best-match-card,
+.recommended-list-card,
+.premium-empty-state,
+.best-match-section .section-header,
+.all-recommendations-section .section-header {
+  opacity: 0;
+  animation: staggerSlideUp var(--duration-panel) var(--ease-out) forwards;
+}
+
+.best-match-section .section-header {
+  animation-delay: 0ms;
+}
+.best-match-card {
+  animation-delay: 40ms;
+}
+.all-recommendations-section .section-header {
+  animation-delay: 80ms;
+}
+
+/* Cascade delay list for recommended grid cards */
+.recommendations-list .recommended-list-card:nth-child(1) {
+  animation-delay: 120ms;
+}
+.recommendations-list .recommended-list-card:nth-child(2) {
+  animation-delay: 160ms;
+}
+.recommendations-list .recommended-list-card:nth-child(3) {
+  animation-delay: 200ms;
+}
+.recommendations-list .recommended-list-card:nth-child(4) {
+  animation-delay: 240ms;
+}
+.recommendations-list .recommended-list-card:nth-child(5) {
+  animation-delay: 280ms;
+}
+
+@keyframes staggerSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

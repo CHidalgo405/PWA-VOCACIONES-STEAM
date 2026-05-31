@@ -55,6 +55,7 @@ export class EvaluationsComponent implements OnInit {
 
     /** Controls the slide-in transition when switching questions */
     isAnimating: boolean = false;
+    isTransitioningQuestion: boolean = false;
 
     userAnswers: Record<string, string> = {};
     isFinishing: boolean = false;
@@ -182,16 +183,20 @@ export class EvaluationsComponent implements OnInit {
 
     /** Briefly removes then re-adds the animation class for smooth transitions */
     private triggerTransition(callback: () => void) {
+        this.isTransitioningQuestion = true;
         this.isAnimating = false;
-        // Allow one frame for the class removal to register
-        requestAnimationFrame(() => {
+
+        // Wait 120ms for the blur & fade-out to take effect before swapping content
+        setTimeout(() => {
             callback();
+
             requestAnimationFrame(() => {
+                this.isTransitioningQuestion = false;
                 this.isAnimating = true;
-                // Remove class after animation completes so it can re-trigger next time
+                // Remove animation class after slide completes so it can be re-triggered
                 setTimeout(() => { this.isAnimating = false; }, 400);
             });
-        });
+        }, 120);
     }
 
     finishTest() {

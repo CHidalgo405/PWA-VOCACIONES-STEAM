@@ -9,7 +9,6 @@
   color: var(--text-primary);
   font-family: 'Poppins', 'Segoe UI', Interstate, sans-serif;
   transition: background-color 0.35s ease;
-  animation: fadeIn 0.5s ease-out;
 
   &.test-taken {
     /* If we want any specific background variation, we could add here. For now we use global bg. */
@@ -59,6 +58,18 @@
       align-items: center;
       box-shadow: var(--shadow-sm);
       cursor: pointer;
+      transition: transform var(--duration-tactile) var(--ease-out), box-shadow var(--duration-hover) var(--ease-out);
+
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: var(--shadow-md);
+        }
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
 
       .notification-dot {
         position: absolute;
@@ -79,6 +90,17 @@
       box-shadow: var(--shadow-sm);
       cursor: pointer;
       object-fit: cover;
+      transition: transform var(--duration-tactile) var(--ease-out);
+
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
     }
   }
 }
@@ -342,10 +364,17 @@
     gap: 10px;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
+    transition: transform var(--duration-tactile) var(--ease-out), box-shadow var(--duration-hover) var(--ease-out);
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      }
+    }
 
     &:active {
-      transform: scale(0.95);
+      transform: scale(0.97);
     }
   }
 }
@@ -604,9 +633,17 @@
     border-radius: 10px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: transform var(--duration-tactile) var(--ease-out), background-color var(--duration-hover) var(--ease-out);
 
-    &:hover { background: #069cba; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: #069cba;
+        transform: translateY(-1px);
+      }
+    }
+    &:active {
+      transform: scale(0.97);
+    }
   }
 
   &.mobile-only {
@@ -822,13 +859,15 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
   z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
   box-sizing: border-box;
+  animation: overlayFadeIn var(--duration-panel) var(--ease-out) both;
 }
 
 .welcome-modal-content {
@@ -844,7 +883,7 @@
   max-height: calc(100vh - 40px);
   overflow-y: auto;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease-out;
+  animation: modalScaleUp var(--duration-panel) var(--ease-out) both;
 
   h2 {
     color: var(--steam-blue, #07B1C9);
@@ -901,14 +940,17 @@
     font-weight: bold;
     margin-top: auto;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform var(--duration-tactile) var(--ease-out), background-color var(--duration-hover) var(--ease-out);
     flex-shrink: 0;
 
-    &:active {
-      transform: scale(0.98);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: #069cba;
+      }
     }
-    &:hover {
-      opacity: 0.9;
+
+    &:active {
+      transform: scale(0.97);
     }
   }
 
@@ -949,6 +991,28 @@
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(6px);
+  }
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
@@ -1178,5 +1242,77 @@ body.dark-theme {
       background-color: #374151;
       color: #9CA3AF;
     }
+  }
+}
+
+/* =========================================
+   STAGGER ENTRY ANIMATIONS (Cascading)
+   ========================================= */
+.header-section {
+  animation: fadeIn var(--duration-hover) var(--ease-out) both;
+}
+
+.steam-banner,
+.stepper-container,
+.cta-card,
+.why-section,
+.widget-card {
+  opacity: 0;
+  animation: staggerSlideUp var(--duration-panel) var(--ease-out) forwards;
+}
+
+/* Pre-test column sequential delays */
+.steam-banner {
+  animation-delay: 0ms;
+}
+.stepper-container {
+  animation-delay: 40ms;
+}
+.cta-card {
+  animation-delay: 80ms;
+}
+.why-section {
+  animation-delay: 120ms;
+}
+
+/* Post-test column sequential delays */
+.profile-area-widget {
+  animation-delay: 40ms;
+}
+.missions-card {
+  animation-delay: 80ms;
+}
+.simulator-card {
+  animation-delay: 120ms;
+}
+
+/* Sidebar elements delayed to create a beautiful left-to-right cascade */
+.sidebar-column .widget-card:nth-child(1) {
+  animation-delay: 160ms;
+}
+.sidebar-column .widget-card:nth-child(2) {
+  animation-delay: 200ms;
+}
+.sidebar-column .widget-card:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+@keyframes staggerSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
