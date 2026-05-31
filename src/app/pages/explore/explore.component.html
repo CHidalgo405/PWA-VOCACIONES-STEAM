@@ -7,13 +7,18 @@
 
       <nav class="navigation-tabs">
         <div class="tabs-pill">
-          <button class="tab-item" [class.active]="viewMode === 'explore'" (click)="switchViewMode('explore')">
+          <button class="tab-item" (click)="switchViewMode('explore')">
             Recomendadas
           </button>
-          <button class="tab-item" [class.active]="viewMode === 'saved'" (click)="switchViewMode('saved')">
+          <button class="tab-item" (click)="switchViewMode('saved')">
             Guardadas
           </button>
-          <div class="pill-slider" [class.to-right]="viewMode === 'saved'"></div>
+          <div class="pill-slider" [class.to-right]="viewMode === 'saved'">
+            <div class="pill-slider-content" [class.to-right]="viewMode === 'saved'">
+              <div class="tab-item-active">Recomendadas</div>
+              <div class="tab-item-active">Guardadas</div>
+            </div>
+          </div>
         </div>
       </nav>
 

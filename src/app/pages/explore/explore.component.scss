@@ -117,7 +117,7 @@
     }
   }
 
-  /* PILL STYLE NAVIGATION */
+  /* PILL STYLE NAVIGATION (Seamless Sliding Window Clip Transition) */
   .navigation-tabs {
     margin-top: 0;
 
@@ -140,11 +140,8 @@
         color: var(--text-secondary);
         z-index: 2;
         cursor: pointer;
-        transition: color 0.3s;
-
-        &.active {
-          color: var(--primary);
-        }
+        transition: color var(--duration-hover) var(--ease-out);
+        text-align: center;
       }
 
       .pill-slider {
@@ -157,10 +154,36 @@
         border-radius: 0.85rem;
         box-shadow: var(--shadow-sm);
         z-index: 1;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        transition: transform var(--duration-panel) var(--ease-drawer);
+        pointer-events: none; /* Clicks pass through to buttons */
 
         &.to-right {
           transform: translateX(100%);
+        }
+
+        .pill-slider-content {
+          display: flex;
+          width: calc(200% + 8px); /* Matches exact width of parent container .tabs-pill */
+          height: 100%;
+          transform: translateX(0);
+          transition: transform var(--duration-panel) var(--ease-drawer);
+
+          &.to-right {
+            transform: translateX(-50%); /* Counter-shift to stay stationary relative to tabs-pill */
+          }
+
+          .tab-item-active {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--primary);
+            text-align: center;
+            white-space: nowrap;
+          }
         }
       }
     }
