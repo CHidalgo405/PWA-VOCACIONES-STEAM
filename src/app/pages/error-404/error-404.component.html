@@ -1,47 +1,36 @@
 <div class="error-container">
-  
-  <div class="visual-area">
-    
-    <div class="number-404">
-      <span>4</span>
-      <div class="zero-portal">
-        <div class="portal-core"></div>
-        <div class="portal-ring"></div>
-      </div>
-      <span>4</span>
+  <!-- Mesh Gradient Backgrounds -->
+  <div class="ambient-glow primary"></div>
+  <div class="ambient-glow secondary"></div>
+
+  <div class="content-wrapper">
+    <div class="visual-badge">
+      <app-lucide-icon name="alert-circle" [size]="16"></app-lucide-icon>
+      <span>Error 404</span>
     </div>
 
-    <div class="floating-elements">
-      <span class="elem science atom"><app-lucide-icon name="atom" [size]="32" color="var(--steam-blue)"></app-lucide-icon></span>
-      <span class="elem tech code">&lt;/&gt;</span>
-      <span class="elem engineering gear"><app-lucide-icon name="settings" [size]="32" color="var(--steam-orange)"></app-lucide-icon></span>
-      <span class="elem arts palette"><app-lucide-icon name="palette" [size]="32" color="var(--steam-red)"></app-lucide-icon></span>
-      <span class="elem math integral">∫</span>
-      <span class="elem edu book"><app-lucide-icon name="book-open" [size]="32" color="var(--steam-green)"></app-lucide-icon></span>
-    </div>
-    
-    <div class="lost-astronaut" style="display: flex; justify-content: center;"><app-lucide-icon name="rocket" [size]="100" color="var(--primary-color)"></app-lucide-icon></div>
-  </div>
+    <h1 class="error-title">
+      <span class="glitch" data-text="Página no">Página no</span>
+      <span class="glitch" data-text="encontrada">encontrada</span>
+    </h1>
 
-  <div class="text-area">
-    <span class="error-badge">Error de Trayectoria</span>
-    <h1>Parece que te has desviado del camino</h1>
-    <p>
-      La página que buscas ha entrado en una singularidad o nunca existió en este universo STEAM. No te preocupes, recalcularemos tu ruta.
+    <p class="error-subtitle">
+      La trayectoria se ha desviado. El recurso que buscas no existe en este universo o ha sido movido a otra órbita temporal.
     </p>
 
-    <div class="action-buttons">
-      <button class="btn-primary" routerLink="/dashboard" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <app-lucide-icon name="rocket" [size]="20"></app-lucide-icon> Volver al Dashboard
+    <div class="actions">
+      <button class="btn-primary" routerLink="/dashboard">
+        <app-lucide-icon name="home" [size]="20"></app-lucide-icon>
+        <span>Volver al inicio</span>
       </button>
-      
-      <button class="btn-outline" (click)="goBack()" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <app-lucide-icon name="arrow-left" [size]="20"></app-lucide-icon> Regresar
+      <button class="btn-secondary" (click)="goBack()">
+        <app-lucide-icon name="arrow-left" [size]="20"></app-lucide-icon>
+        <span>Regresar</span>
       </button>
     </div>
   </div>
 
-  <div class="bg-gradient-one"></div>
-  <div class="bg-gradient-two"></div>
-
+  <div class="floating-orbit">
+    <app-lucide-icon name="compass" [size]="120" color="var(--text-secondary)" [strokeWidth]="1" class="compass-icon"></app-lucide-icon>
+  </div>
 </div>
