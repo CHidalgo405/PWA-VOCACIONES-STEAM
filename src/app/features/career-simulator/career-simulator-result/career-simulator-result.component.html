@@ -1,0 +1,120 @@
+<div class="result-shell" [ngClass]="steamAreaClass()">
+  
+  @if (status() === 'LOADING') {
+    <div class="skeleton-container">
+      <div class="skeleton-header skeleton-pulse"></div>
+      <div class="skeleton-score skeleton-pulse"></div>
+      <div class="skeleton-block skeleton-pulse"></div>
+      <div class="skeleton-block skeleton-pulse delay-1"></div>
+      <div class="skeleton-block skeleton-pulse delay-2"></div>
+      <div class="skeleton-analyzing-text">
+        <span class="icon">🤖</span> Analizando tu patrón de toma de decisiones...
+      </div>
+    </div>
+  }
+
+  @if (status() === 'ERROR') {
+    <div class="error-container">
+      <div class="error-icon">⚠️</div>
+      <h2>No pudimos obtener tu evaluación</h2>
+      <p>Hubo un problema de conexión o la IA tardó demasiado en responder.</p>
+      <button class="primary-btn retry-btn" (click)="fetchFeedback()">Reintentar</button>
+    </div>
+  }
+
+  @if (status() === 'SUCCESS' && feedback()) {
+    <div class="result-content">
+      
+      <!-- Header -->
+      <header class="result-header stagger-item-1">
+        <div class="career-meta">
+          <span class="steam-badge">{{ steamAreaName() }}</span>
+          <h1>{{ careerData()?.careerName }}</h1>
+        </div>
+        
+        <div class="score-container">
+          <div class="score-circle">
+            <span class="score-value">{{ animatedScore() }}%</span>
+            <span class="score-label">Afinidad</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Discrepancia del Test Vocacional -->
+      @if (discrepancyMessage()) {
+        <div class="discrepancy-banner stagger-item-2">
+          <span class="icon">💡</span>
+          <p>{{ discrepancyMessage() }}</p>
+        </div>
+      }
+
+      <!-- Confidence Level Chip -->
+      <div class="confidence-chip-container stagger-item-3">
+        <div class="confidence-chip" [ngClass]="feedback()!.confidence_level">
+          <span class="indicator-dot"></span>
+          <span>Confianza: {{ feedback()!.confidence_level | uppercase }}</span>
+          
+          @if (feedback()!.confidence_level === 'low') {
+            <div class="tooltip">
+              Tus respuestas fueron muy rápidas o muy consistentes. Considera repetir el simulador con más calma.
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Cómo piensas -->
+      <section class="result-section stagger-item-4">
+        <h3><span class="icon">🧠</span> Cómo piensas</h3>
+        <p class="body-text">{{ feedback()!.reasoning_style }}</p>
+      </section>
+
+      <!-- Tu afinidad con esta área -->
+      <section class="result-section stagger-item-5">
+        <h3><span class="icon">⚡</span> Tu afinidad con esta área</h3>
+        <p class="body-text">{{ feedback()!.steam_affinity_analysis }}</p>
+      </section>
+
+      <!-- Lo que detectamos en ti -->
+      <section class="result-section stagger-item-6">
+        <h3><span class="icon">🎯</span> Lo que detectamos en ti</h3>
+        <div class="strengths-chips">
+          @for (strength of feedback()!.strengths_detected; track strength) {
+            <span class="strength-chip">{{ strength }}</span>
+          }
+        </div>
+      </section>
+
+      <!-- La realidad de esta carrera (Momento honesto) -->
+      <section class="reality-card stagger-item-7">
+        <div class="reality-header">
+          <span class="icon">⚠️</span>
+          <h3>La realidad de esta carrera</h3>
+        </div>
+        <p>{{ feedback()!.honest_reality_check }}</p>
+      </section>
+
+      <!-- Carreras similares sugeridas -->
+      @if (feedback()!.suggested_next_simulators && feedback()!.suggested_next_simulators.length > 0) {
+        <section class="result-section stagger-item-8">
+          <h3><span class="icon">🧭</span> Carreras similares para explorar</h3>
+          <div class="simulators-grid">
+            @for (simSlug of feedback()!.suggested_next_simulators; track simSlug) {
+              <!-- routerLink recarga el componente si navega a otro simulator -->
+              <a [routerLink]="['/career-simulator', simSlug]" class="simulator-card">
+                <span class="sim-name">Simulador de {{ simSlug | titlecase }}</span>
+                <span class="arrow">→</span>
+              </a>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- Acciones Finales -->
+      <footer class="action-footer stagger-item-9">
+        <button class="primary-btn" (click)="goToProfile()">Volver a mi perfil</button>
+        <button class="secondary-btn" (click)="retrySimulator()">Repetir simulador</button>
+      </footer>
+      
+    </div>
+  }
+</div>

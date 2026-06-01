@@ -33,6 +33,9 @@ export const routes: Routes = [
   { path: 'history', component: HistoryComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'explore', component: ExploreComponent, canActivate: [authGuard] },
+  { path: 'career-simulator', loadComponent: () => import('./features/career-simulator/career-simulator-catalog/career-simulator-catalog.component').then(m => m.CareerSimulatorCatalogComponent), canActivate: [authGuard] },
+  { path: 'career-simulator/:slug', loadComponent: () => import('./features/career-simulator/career-simulator.component').then(m => m.CareerSimulatorComponent), canActivate: [authGuard] },
+  { path: 'career-simulator/:slug/result', loadComponent: () => import('./features/career-simulator/career-simulator-result/career-simulator-result.component').then(m => m.CareerSimulatorResultComponent), canActivate: [authGuard] },
 
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'oauth-callback', component: OAuthCallbackComponent },

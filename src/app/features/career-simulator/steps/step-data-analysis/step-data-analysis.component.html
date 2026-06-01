@@ -1,0 +1,83 @@
+<div class="step-container">
+  <header class="step-header">
+    <h2>{{ step().title }}</h2>
+    <p class="scenario-description">{{ step().content }}</p>
+  </header>
+
+  <!-- Representación de Datos -->
+  @if (step().metadata?.dataType === 'BAR_CHART' && step().metadata?.chartData) {
+    <div class="chart-container">
+      @for (item of step().metadata!.chartData; track item.name || item.ciudad) {
+        <div class="bar-row">
+          <span class="bar-label">{{ item.name || item.ciudad || item.label }}</span>
+          <div class="bar-track">
+            <!-- Asumimos que la primera llave extraída contiene el valor principal a renderizar 0-100 -->
+            <div class="bar-fill" [style.width.%]="item[chartDataKeys()[0]] > 100 ? 100 : (item[chartDataKeys()[0]] || 0)">
+              <span class="bar-value">{{ item[chartDataKeys()[0]] }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (step().metadata?.chartData) {
+    <!-- Fallback a TABLA -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Entidad</th>
+            @for (key of chartDataKeys(); track key) {
+              <th>{{ key | titlecase }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of step().metadata!.chartData; track item.name || item.ciudad || item.tipo) {
+            <tr>
+              <td><strong>{{ item.name || item.ciudad || item.tipo }}</strong></td>
+              @for (key of chartDataKeys(); track key) {
+                <td>{{ item[key] }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Opciones (Cards) -->
+  <div class="options-grid">
+    @for (opt of step().options; track opt.id) {
+      <div 
+        class="option-card"
+        [class.selected]="selectedOptionId() === opt.id"
+        [class.unselected]="selectedOptionId() !== null && selectedOptionId() !== opt.id"
+        (click)="selectOption(opt.id)"
+      >
+        <span class="option-text">{{ opt.text }}</span>
+        <div class="radio-indicator">
+          <div class="inner-circle" *ngIf="selectedOptionId() === opt.id"></div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <footer class="action-footer">
+    <div class="reasoning-input">
+      <input 
+        type="text" 
+        [ngModel]="reasoningText()"
+        (input)="updateReasoning($event)"
+        placeholder="Justifica tu elección brevemente (opcional)"
+        maxlength="120"
+      >
+      <span class="char-count" [class.limit-reached]="reasoningText().length >= 120">
+        {{ reasoningText().length }}/120
+      </span>
+    </div>
+    
+    <button class="confirm-btn" [disabled]="!selectedOptionId()" (click)="confirmAnalysis()">
+      Confirmar análisis
+    </button>
+  </footer>
+</div>

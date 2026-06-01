@@ -1,0 +1,64 @@
+<div class="catalog-container">
+  <header class="catalog-header">
+    <h1>Simuladores de carrera</h1>
+    <p>Descubre cómo piensas en distintas profesiones STEAM</p>
+  </header>
+
+  <div class="filters-container">
+    <div class="filters-scroll">
+      @for (filter of filters; track filter) {
+        <button 
+          class="filter-chip"
+          [class.active]="currentFilter() === filter"
+          (click)="setFilter(filter)"
+        >
+          {{ filter }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <main class="simulators-grid">
+    @for (sim of filteredSimulators(); track sim.careerId) {
+      <div class="sim-card" [ngClass]="getAreaClass(sim.careerId)">
+        <div class="card-header">
+          <div class="area-icon">{{ getAreaEmoji(sim.careerId) }}</div>
+          <span class="area-chip">{{ getSteamArea(sim.careerId) }}</span>
+        </div>
+        
+        <div class="card-body">
+          <h3>{{ sim.careerName }}</h3>
+          <div class="meta-info">
+            <span class="duration"><span class="icon">⏱️</span> ~5 min</span>
+          </div>
+        </div>
+        
+        <div class="card-footer">
+          @if (completedSimulators().includes(sim.careerId)) {
+            <div class="completion-status">
+              <span class="badge">Completado ✓</span>
+              @if (getAffinityScore(sim.careerId) !== null) {
+                <span class="score">Afinidad: {{ getAffinityScore(sim.careerId) }}%</span>
+              }
+            </div>
+            <button class="primary-btn outline" (click)="goToSimulator(sim.careerId)">
+              Repetir
+            </button>
+          } @else {
+            <button class="primary-btn" (click)="goToSimulator(sim.careerId)">
+              Iniciar simulación
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (filteredSimulators().length === 0) {
+      <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <h3>Próximamente más simuladores</h3>
+        <p>Estamos trabajando para traer más experiencias para el área de {{ currentFilter() }}.</p>
+      </div>
+    }
+  </main>
+</div>

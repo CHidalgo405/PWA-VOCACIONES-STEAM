@@ -1,0 +1,66 @@
+<div class="step-container">
+  <header class="step-header">
+    <h2>{{ step().title }}</h2>
+    <p class="scenario-description">{{ step().content }}</p>
+  </header>
+
+  <div class="options-grid tradeoff-grid">
+    @for (opt of step().options; track opt.id) {
+      <div 
+        class="tradeoff-card" 
+        [class.expanded]="expandedOptionId() === opt.id"
+        [class.unselected]="expandedOptionId() !== null && expandedOptionId() !== opt.id"
+        (click)="toggleOption(opt.id)"
+      >
+        <div class="card-header">
+          <span class="option-title">{{ opt.text }}</span>
+          <span class="expand-icon" [class.rotated]="expandedOptionId() === opt.id">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
+        </div>
+        
+        <div class="card-details" [@expandCollapse]="expandedOptionId() === opt.id ? 'expanded' : 'collapsed'">
+          <div class="details-content">
+            <div class="consequences">
+              @if (opt.metadata?.consecuencias_positivas) {
+                <div class="pros">
+                  <h4>Ventajas</h4>
+                  <ul>
+                    @for (pro of opt.metadata?.consecuencias_positivas; track pro) {
+                      <li><span class="icon check">✓</span> <span class="text">{{ pro }}</span></li>
+                    }
+                  </ul>
+                </div>
+              }
+              
+              @if (opt.metadata?.consecuencias_negativas) {
+                <div class="cons">
+                  <h4>Desventajas / Riesgos</h4>
+                  <ul>
+                    @for (con of opt.metadata?.consecuencias_negativas; track con) {
+                      <li><span class="icon cross">✗</span> <span class="text">{{ con }}</span></li>
+                    }
+                  </ul>
+                </div>
+              }
+            </div>
+            
+            <div class="action-area">
+              @if (confirmingId() === opt.id) {
+                <div class="success-message" @successPing>
+                  <span class="icon">✨</span> Decisión registrada
+                </div>
+              } @else {
+                <button class="select-btn" (click)="selectTradeoff(opt.id, $event)">
+                  Tomar esta decisión
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

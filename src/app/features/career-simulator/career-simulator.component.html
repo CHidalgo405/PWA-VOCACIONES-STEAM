@@ -1,0 +1,86 @@
+<div class="simulator-shell" [ngClass]="steamAreaClass()">
+  
+  <header class="simulator-header">
+    <div class="career-info">
+      <h1>{{ careerData()?.careerName || 'Cargando Simulador...' }}</h1>
+      @if (careerData()) {
+        <span class="steam-badge">{{ steamAreaName() }}</span>
+      }
+    </div>
+    
+    <!-- Timer versión mobile (se reubica vía css) -->
+    <div class="timer-display mobile-timer" *ngIf="!isCompleted()">
+      <span class="time">{{ timerSeconds() | number:'2.0' }}s</span>
+    </div>
+  </header>
+
+  <div class="progress-container" *ngIf="!isCompleted() && careerData()">
+    <div class="progress-bar">
+      <!-- Mapeo de iconos: 📋 Contexto → 🔍 Análisis → ⚖️ Tradeoff → ⚡ Sorpresa → 🤖 IA → 💭 Reflexión -->
+      <div class="step-icon" [class.active]="currentStepIndex() === 0" [class.completed]="currentStepIndex() > 0">📋</div>
+      <div class="progress-line" [class.completed]="currentStepIndex() > 0"></div>
+      
+      <div class="step-icon" [class.active]="currentStepIndex() === 1" [class.completed]="currentStepIndex() > 1">🔍</div>
+      <div class="progress-line" [class.completed]="currentStepIndex() > 1"></div>
+      
+      <div class="step-icon" [class.active]="currentStepIndex() === 2" [class.completed]="currentStepIndex() > 2">⚖️</div>
+      <div class="progress-line" [class.completed]="currentStepIndex() > 2"></div>
+      
+      <div class="step-icon" [class.active]="currentStepIndex() === 3" [class.completed]="currentStepIndex() > 3">⚡</div>
+      <div class="progress-line" [class.completed]="currentStepIndex() > 3"></div>
+      
+      <div class="step-icon" [class.active]="currentStepIndex() === 4" [class.completed]="currentStepIndex() > 4">🤖</div>
+      <div class="progress-line" [class.completed]="currentStepIndex() > 4"></div>
+      
+      <div class="step-icon" [class.active]="currentStepIndex() === 5" [class.completed]="currentStepIndex() > 5">💭</div>
+    </div>
+  </div>
+
+  @if (showBiasBanner()) {
+    <div class="bias-banner" @fadeIn>
+      <p>Notamos que tus respuestas son muy similares. ¿Estás leyendo cada opción con calma?</p>
+      <button (click)="dismissBiasBanner()">Continuar de todas formas</button>
+    </div>
+  }
+
+  <main class="simulator-content" *ngIf="careerData() && !isCompleted()">
+    <!-- Wrapper para contener la animación direccional -->
+    <div class="step-wrapper" [@stepTransition]="currentStepIndex()">
+      @switch (currentStepType()) {
+        @case ('CONTEXT') {
+          <app-step-context></app-step-context>
+        }
+        @case ('DATA_ANALYSIS') {
+          @if (currentStepData(); as stepData) {
+            <app-step-data-analysis 
+              [step]="$any(stepData)"
+              (stepCompleted)="onStepCompleted($event)">
+            </app-step-data-analysis>
+          }
+        }
+        @case ('TRADEOFF_DECISION') {
+          @if (currentStepData(); as stepData) {
+            <app-step-tradeoff-decision 
+              [step]="$any(stepData)"
+              (stepCompleted)="onStepCompleted($event)">
+            </app-step-tradeoff-decision>
+          }
+        }
+        @case ('SURPRISE_REVEAL') {
+          <app-step-surprise-reveal></app-step-surprise-reveal>
+        }
+        @case ('AI_FEEDBACK') {
+          <app-step-ai-feedback></app-step-ai-feedback>
+        }
+        @case ('EMOTIONAL_REFLECTION') {
+          <app-step-emotional-reflection></app-step-emotional-reflection>
+        }
+      }
+    </div>
+    
+    <!-- Timer versión desktop -->
+    <div class="timer-display desktop-timer">
+      <span class="time">{{ timerSeconds() | number:'2.0' }}s</span>
+    </div>
+  </main>
+</div>
