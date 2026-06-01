@@ -202,13 +202,10 @@ export class CareerSimulatorService {
       };
     });
 
-    // Mapeo rudimentario de área STEAM basado en el ID, para cumplir con el contrato de la API
-    let steamArea = 'ciencia'; // Default (ej. epidemiología)
-    if (state.currentCareerData.careerId === 'ux-ui-design') {
-      steamArea = 'artes';
-    } else if (state.currentCareerData.careerId === 'ciencia-datos') {
-      steamArea = 'matematicas';
-    }
+    // Mapeo dinámico de área STEAM para cumplir con el contrato de la API
+    const steamArea = state.currentCareerData.steamAreaName.toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
 
     const payload: SimulatorFeedbackRequest = {
       career_slug: state.currentCareerData.careerId,

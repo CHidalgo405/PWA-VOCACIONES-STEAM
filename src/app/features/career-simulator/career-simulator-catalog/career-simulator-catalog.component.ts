@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, signal, computed, inject } 
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { CareerSimulatorService } from '../../../core/services/career-simulator.service';
-import { CAREER_SIMULATORS } from '../../../core/data/career-simulators.data';
+import { CAREER_SIMULATORS, CAREER_SIMULATOR_MAP } from '../../../core/data/career-simulators.data';
 import { CareerSimulatorData } from '../../../core/models/career-simulator.models';
 
 type SteamAreaFilter = 'Todas' | 'Ciencia' | 'Tecnología' | 'Ingeniería' | 'Artes' | 'Matemáticas';
@@ -91,25 +91,22 @@ export class CareerSimulatorCatalogComponent implements OnInit {
     }
   }
 
-  // Helper para inferir el área base desde el slug piloto
+  // Helper para obtener el área desde los metadatos de la carrera
   public getSteamArea(careerId: string): SteamAreaFilter {
-    if (careerId === 'epidemiologia') return 'Ciencia';
-    if (careerId === 'ux-ui-design') return 'Artes';
-    if (careerId === 'ciencia-datos') return 'Matemáticas';
-    return 'Tecnología';
+    const sim = CAREER_SIMULATOR_MAP.get(careerId);
+    return (sim?.steamAreaName ?? 'Tecnología') as SteamAreaFilter;
   }
 
   public getAreaClass(careerId: string): string {
-    if (careerId === 'epidemiologia') return 'steam-ciencia';
-    if (careerId === 'ux-ui-design') return 'steam-artes';
-    if (careerId === 'ciencia-datos') return 'steam-matematicas';
-    return 'steam-tecnologia';
+    const sim = CAREER_SIMULATOR_MAP.get(careerId);
+    if (!sim) return 'steam-tecnologia';
+    // El SCSS del catálogo espera 'steam-artes' con S
+    if (sim.areaClass === 'steam-arte') return 'steam-artes';
+    return sim.areaClass;
   }
 
   public getAreaEmoji(careerId: string): string {
-    if (careerId === 'epidemiologia') return '🔬';
-    if (careerId === 'ux-ui-design') return '🎨';
-    if (careerId === 'ciencia-datos') return '🧮';
-    return '💻';
+    const sim = CAREER_SIMULATOR_MAP.get(careerId);
+    return sim?.areaEmoji ?? '💻';
   }
 }

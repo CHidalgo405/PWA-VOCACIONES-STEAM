@@ -105,22 +105,12 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
 
   // Clases CSS dinámicas para pintar el entorno según el área STEAM principal
   public steamAreaClass = computed(() => {
-    const id = this.careerData()?.careerId;
-    if (!id) return '';
-    if (id === 'epidemiologia') return 'steam-ciencia';
-    if (id === 'ux-ui-design') return 'steam-arte';
-    if (id === 'ciencia-datos') return 'steam-matematicas';
-    return 'steam-tecnologia';
+    return this.careerData()?.areaClass ?? 'steam-tecnologia';
   });
 
   // Nombre formateado para el Badge
   public steamAreaName = computed(() => {
-    const id = this.careerData()?.careerId;
-    if (!id) return '';
-    if (id === 'epidemiologia') return 'Ciencia';
-    if (id === 'ux-ui-design') return 'Artes';
-    if (id === 'ciencia-datos') return 'Matemáticas';
-    return 'STEAM';
+    return this.careerData()?.steamAreaName ?? 'STEAM';
   });
 
   constructor() {

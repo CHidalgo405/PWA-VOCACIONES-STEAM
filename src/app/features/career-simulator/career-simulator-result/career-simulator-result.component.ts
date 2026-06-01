@@ -33,21 +33,11 @@ export class CareerSimulatorResultComponent implements OnInit {
 
   // Clases CSS dinámicas para pintar el entorno según el área STEAM principal
   public steamAreaClass = computed(() => {
-    const id = this.careerData()?.careerId;
-    if (!id) return '';
-    if (id === 'epidemiologia') return 'steam-ciencia';
-    if (id === 'ux-ui-design') return 'steam-arte';
-    if (id === 'ciencia-datos') return 'steam-matematicas';
-    return 'steam-tecnologia';
+    return this.careerData()?.areaClass ?? 'steam-tecnologia';
   });
 
   public steamAreaName = computed(() => {
-    const id = this.careerData()?.careerId;
-    if (!id) return '';
-    if (id === 'epidemiologia') return 'Ciencia';
-    if (id === 'ux-ui-design') return 'Artes';
-    if (id === 'ciencia-datos') return 'Matemáticas';
-    return 'STEAM';
+    return this.careerData()?.steamAreaName ?? 'STEAM';
   });
 
   ngOnInit() {
@@ -131,14 +121,13 @@ export class CareerSimulatorResultComponent implements OnInit {
       if (storedProfile) {
         const profile = JSON.parse(storedProfile);
         
-        let areaKey = '';
-        const id = this.careerData()?.careerId;
-        
-        // Mapeo crudo (luego expandible con DB)
-        if (id === 'epidemiologia') areaKey = 'ciencia';
-        else if (id === 'ux-ui-design') areaKey = 'artes';
-        else if (id === 'ciencia-datos') areaKey = 'matematicas';
-        else areaKey = 'tecnologia';
+        let areaKey = 'tecnologia';
+        const areaName = this.careerData()?.steamAreaName;
+        if (areaName) {
+          areaKey = areaName.toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+        }
 
         if (profile.desglose_steam && typeof profile.desglose_steam[areaKey] === 'number') {
           const profileScore = profile.desglose_steam[areaKey];
