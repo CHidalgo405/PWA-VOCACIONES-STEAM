@@ -40,6 +40,30 @@ export class ProfileComponent implements OnInit, OnDestroy {
   
   testCount: number = 0;
 
+  badges = [
+    { id: 'first-step', name: 'Primer Paso', icon: 'star', unlocked: false, description: 'Completaste tu primer test vocacional STEAM.' },
+    { id: 'steam-explorer', name: 'Explorador STEAM', icon: 'compass', unlocked: false, description: 'Nivel 5 o superior alcanzado en tu cuenta.' },
+    { id: 'science-fan', name: 'Afinidad Científica', icon: 'flask-conical', unlocked: false, description: 'Completa al menos 2 tests vocacionales.' },
+    { id: 'tech-innovator', name: 'Innovador Digital', icon: 'cpu', unlocked: false, description: 'Completa al menos 4 tests vocacionales.' }
+  ];
+
+  updateBadges() {
+    this.badges.forEach(badge => {
+      if (badge.id === 'first-step') {
+        badge.unlocked = this.testCount > 0;
+      }
+      if (badge.id === 'steam-explorer') {
+        badge.unlocked = this.user.level >= 5;
+      }
+      if (badge.id === 'science-fan') {
+        badge.unlocked = this.testCount >= 2;
+      }
+      if (badge.id === 'tech-innovator') {
+        badge.unlocked = this.testCount >= 4;
+      }
+    });
+  }
+
   ngOnInit() {
     // Sync theme toggle state from ThemeService
     const themeSetting = this.preferencesSettings.find(s => s.action === 'theme');
@@ -75,10 +99,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
         this.themeService.setTheme(usuario.darkMode);
       }
+      this.updateBadges();
     });
 
     this.testService.getTestHistory().subscribe(history => {
       this.testCount = history.length;
+      this.updateBadges();
     });
   }
 

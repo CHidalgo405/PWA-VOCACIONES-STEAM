@@ -1,119 +1,162 @@
 <div class="profile-container">
   <app-header title="Mi Perfil" [showBack]="true" backRoute="/dashboard"></app-header>
-  <div class="profile-grid">
-
-    <!-- HEADER HERO SECTION: Curved Background & Avatar -->
-    <div class="hero-premium-bg">
-      <div class="hero-content">
-        <div class="avatar-wrapper-premium">
-          <img [src]="user.avatar" alt="Avatar" class="avatar-img">
-          <button class="avatar-edit-btn" (click)="fileInputHero.click()" title="Cambiar foto de perfil">
-            <app-lucide-icon name="camera" [size]="14" color="white"></app-lucide-icon>
-          </button>
-          <input type="file" #fileInputHero (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
-        </div>
-        <h2 class="user-name-white">{{ user.name }}</h2>
-        <p class="user-email-white">{{ user.email }}</p>
-      </div>
-      <!-- Fondo decorativo (ondas fluidas adaptables al tema) -->
-      <div class="hero-wave">
-        <svg viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- The fill color will be managed by CSS to match dark/light mode background -->
-          <path class="wave-path" d="M0,192L48,186.7C96,181,192,171,288,181.3C384,192,480,224,576,224C672,224,768,192,864,170.7C960,149,1056,139,1152,144C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
-      </div>
-    </div>
-
-    <!-- FLOATING QUICK ACTIONS CARD (Balance / Wallet equivalent) -->
-    <div class="floating-quick-card-container">
-      <div class="floating-quick-card">
-        <div class="quick-action" (click)="handleAction('viewHistory')">
-          <span class="quick-value">{{ testCount }}</span>
-          <span class="quick-label">Tests Realizados</span>
-        </div>
-        <div class="quick-divider"></div>
-        <div class="quick-action" (click)="handleAction('manage')">
-          <div class="quick-icon">
-            <app-lucide-icon name="user" [size]="26" color="#07B1C9"></app-lucide-icon>
-          </div>
-          <span class="quick-label">Mi Cuenta</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- SETTINGS SECTION -->
-    <div class="settings-section">
-
-      <!-- CUENTA -->
-      <div class="settings-group">
-        <h3 class="group-title">Cuenta</h3>
-        <div class="settings-card">
-          <div class="setting-item" *ngFor="let item of accountSettings" (click)="handleAction(item.action)">
-            <div class="setting-left">
-              <span class="setting-icon"><app-lucide-icon [name]="item.icon" [size]="20" color="var(--text-dark)"></app-lucide-icon></span>
-              <span class="setting-title">{{ item.title }}</span>
-            </div>
-            <span class="setting-arrow">›</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- PREFERENCIAS -->
-      <div class="settings-group">
-        <h3 class="group-title">Preferencias</h3>
-        <div class="settings-card">
-          <div class="setting-item" *ngFor="let item of preferencesSettings"
-            (click)="!item.isToggle && handleAction(item.action)">
-            <div class="setting-left">
-              <span class="setting-icon"><app-lucide-icon [name]="item.icon" [size]="20" color="var(--text-dark)"></app-lucide-icon></span>
-              <span class="setting-title">{{ item.title }}</span>
-            </div>
-
-            <div class="setting-right">
-              <span *ngIf="item.value" class="setting-value">{{ item.value }}</span>
-              <span *ngIf="!item.isToggle && !item.value" class="setting-arrow">›</span>
-
-              <label *ngIf="item.isToggle" class="switch" (click)="$event.stopPropagation()">
-                <input type="checkbox" [checked]="item.toggleState" (change)="togglePreference(item)">
-                <span class="slider round"></span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SOPORTE -->
-      <div class="settings-group">
-        <h3 class="group-title">Soporte y Más</h3>
-        <div class="settings-card">
-          <div class="setting-item" *ngFor="let item of supportSettings" (click)="handleAction(item.action)">
-            <div class="setting-left">
-              <span class="setting-icon"><app-lucide-icon [name]="item.icon" [size]="20" color="var(--text-dark)"></app-lucide-icon></span>
-              <span class="setting-title">{{ item.title }}</span>
-            </div>
-            <div class="setting-right">
-              <span *ngIf="item.value" class="setting-value">{{ item.value }}</span>
-              <span *ngIf="!item.value" class="setting-arrow">›</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <button class="btn-logout-premium" (click)="logout()">
-        <app-lucide-icon name="log-out" [size]="20" style="margin-right: 8px; margin-bottom: -4px;"></app-lucide-icon> Cerrar Sesión
-      </button> <br>
-
-    </div>
-
-  </div>
-
   
+  <div class="profile-layout">
+    
+    <!-- LEFT COLUMN: User Card & Stats Bento -->
+    <div class="profile-left-col">
+      
+      <!-- HERO PREMIUM CARD -->
+      <div class="premium-hero-card">
+        <div class="card-glow-effect"></div>
+        <div class="hero-card-content">
+          <div class="avatar-wrapper-premium">
+            <img [src]="user.avatar" alt="Avatar" class="avatar-img">
+            <button class="avatar-edit-btn" (click)="fileInputHero.click()" title="Cambiar foto de perfil">
+              <app-lucide-icon name="pencil" [size]="14" color="white"></app-lucide-icon>
+            </button>
+            <input type="file" #fileInputHero (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
+          </div>
+          
+          <h2 class="user-name-title">{{ user.name }}</h2>
+          <p class="user-email-subtitle">{{ user.email }}</p>
+          
+          <div class="user-level-badge">
+            <app-lucide-icon name="zap" [size]="14" color="#F88718"></app-lucide-icon>
+            <span>Nivel {{ user.level }} · Explorador STEAM</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- STATS BENTO SECTION -->
+      <div class="stats-bento-grid">
+        
+        <!-- Tests Completed Bento Card -->
+        <div class="bento-card stat-completed-card" (click)="handleAction('viewHistory')">
+          <div class="bento-bg-gradient"></div>
+          <span class="stat-number">{{ testCount }}</span>
+          <span class="stat-label">Tests Realizados</span>
+          <div class="stat-link-action">
+            <span>Ver historial</span>
+            <app-lucide-icon name="arrow-right" [size]="14"></app-lucide-icon>
+          </div>
+        </div>
+        
+        <!-- Account Status Bento Card -->
+        <div class="bento-card account-shortcut-card" (click)="handleAction('manage')">
+          <div class="bento-icon-wrap">
+            <app-lucide-icon name="user" [size]="28" color="var(--steam-blue)"></app-lucide-icon>
+          </div>
+          <span class="bento-card-title">Mi Cuenta</span>
+          <span class="bento-card-subtitle">Administra tus datos</span>
+        </div>
+        
+      </div>
 
+      <!-- BADGES & ACHIEVEMENTS BENTO -->
+      <div class="badges-bento-card">
+        <h3 class="bento-section-title">
+          <app-lucide-icon name="star" [size]="18" color="#F88718"></app-lucide-icon> Logros y Medallas
+        </h3>
+        <div class="badges-horizontal-list">
+          <div class="badge-item-mini" *ngFor="let badge of badges" (click)="openBadgeModal(badge)" [class.locked]="!badge.unlocked" [title]="badge.name">
+            <div class="badge-mini-icon-circle">
+              <app-lucide-icon [name]="badge.icon" [size]="20"></app-lucide-icon>
+            </div>
+            <span class="badge-mini-name">{{ badge.name }}</span>
+            <div class="badge-lock-overlay" *ngIf="!badge.unlocked">
+              <app-lucide-icon name="lock" [size]="10"></app-lucide-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- RIGHT COLUMN: Settings Groups -->
+    <div class="profile-right-col">
+      
+      <div class="settings-sections-wrapper">
+        
+        <!-- GROUP: CUENTA -->
+        <div class="settings-card-group group-cuenta">
+          <h3 class="settings-group-header">Cuenta</h3>
+          <div class="settings-list">
+            <div class="setting-row-item" *ngFor="let item of accountSettings" (click)="handleAction(item.action)">
+              <div class="row-left">
+                <div class="row-icon-container">
+                  <app-lucide-icon [name]="item.icon" [size]="18"></app-lucide-icon>
+                </div>
+                <span class="row-title">{{ item.title }}</span>
+              </div>
+              <app-lucide-icon name="chevron-right" [size]="16" class="row-arrow"></app-lucide-icon>
+            </div>
+          </div>
+        </div>
+        
+        <!-- GROUP: PREFERENCIAS -->
+        <div class="settings-card-group group-preferencias">
+          <h3 class="settings-group-header">Preferencias</h3>
+          <div class="settings-list">
+            <div class="setting-row-item" *ngFor="let item of preferencesSettings" [class.no-click]="item.isToggle" (click)="!item.isToggle && handleAction(item.action)">
+              <div class="row-left">
+                <div class="row-icon-container">
+                  <app-lucide-icon [name]="item.icon" [size]="18"></app-lucide-icon>
+                </div>
+                <span class="row-title">{{ item.title }}</span>
+              </div>
+              
+              <div class="row-right">
+                <span *ngIf="item.value" class="row-value-text">{{ item.value }}</span>
+                <app-lucide-icon *ngIf="!item.isToggle && !item.value" name="chevron-right" [size]="16" class="row-arrow"></app-lucide-icon>
+                
+                <label *ngIf="item.isToggle" class="apple-switch" (click)="$event.stopPropagation()">
+                  <input type="checkbox" [checked]="item.toggleState" (change)="togglePreference(item)">
+                  <span class="apple-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- GROUP: SOPORTE -->
+        <div class="settings-card-group group-soporte">
+          <h3 class="settings-group-header">Soporte y Más</h3>
+          <div class="settings-list">
+            <div class="setting-row-item" *ngFor="let item of supportSettings" (click)="handleAction(item.action)">
+              <div class="row-left">
+                <div class="row-icon-container">
+                  <app-lucide-icon [name]="item.icon" [size]="18"></app-lucide-icon>
+                </div>
+                <span class="row-title">{{ item.title }}</span>
+              </div>
+              
+              <div class="row-right">
+                <span *ngIf="item.value" class="row-value-text">{{ item.value }}</span>
+                <app-lucide-icon *ngIf="!item.value" name="chevron-right" [size]="16" class="row-arrow"></app-lucide-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- LOGOUT BUTTON -->
+        <button class="premium-logout-button" (click)="logout()">
+          <app-lucide-icon name="log-out" [size]="18"></app-lucide-icon>
+          <span>Cerrar Sesión</span>
+        </button>
+        
+      </div>
+      
+    </div>
+    
+  </div>
+  
   <!-- TOAST NOTIFICATIONS -->
-  <div class="toast-message" [class.show]="showToast"
-    style="position: fixed; top: 20px; right: 20px; background: #2C3E50; color: white; padding: 15px 25px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.3s ease, margin-top 0.3s ease; opacity: 0; pointer-events: none;"
-    [style.opacity]="showToast ? '1' : '0'">
-    {{ toastMessage }}
+  <div class="toast-message-premium" [class.show]="showToast">
+    <div class="toast-content-wrapper">
+      <app-lucide-icon name="info" [size]="16" color="#07B1C9"></app-lucide-icon>
+      <span class="toast-text">{{ toastMessage }}</span>
+    </div>
   </div>
 
   <!-- OVERLAY PARA TODOS LOS MODALES -->
@@ -128,11 +171,15 @@
         </div>
         <div class="modal-body">
           <form (ngSubmit)="saveProfile()" #editForm="ngForm">
-            <div class="avatar-edit-section" style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px;">
-              <img [src]="profileForm.avatar" alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
-              <button type="button" class="btn-secondary" style="font-size: 0.8rem; padding: 8px 15px;" (click)="fileInput.click()">Cambiar Foto</button>
+            <div class="avatar-edit-section">
+              <div class="avatar-edit-preview-wrap">
+                <img [src]="profileForm.avatar" alt="Avatar" class="avatar-edit-preview">
+                <button type="button" class="avatar-preview-btn" (click)="fileInput.click()">
+                  <app-lucide-icon name="pencil" [size]="14" color="white"></app-lucide-icon>
+                </button>
+              </div>
               <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
-              <small *ngIf="avatarError" style="color: #e74c3c; text-align: center; margin-top: 5px;">{{ avatarError }}</small>
+              <small *ngIf="avatarError" class="avatar-error-text">{{ avatarError }}</small>
             </div>
             <div class="form-grid">
               <div class="input-group">
@@ -143,7 +190,6 @@
                 <label>Apellidos</label>
                 <input type="text" name="lastName" [(ngModel)]="profileForm.lastName" required>
               </div>
-
             </div>
             <div class="modal-footer">
               <button type="button" class="btn-secondary" (click)="closeModal()" [disabled]="isSubmitting">Cancelar</button>
@@ -164,26 +210,26 @@
         </div>
         <div class="modal-body">
           <form (ngSubmit)="savePassword()" #pwdForm="ngForm">
-            <div class="form-grid" style="display: flex; flex-direction: column; gap: 15px;">
-              <div class="input-group full-width">
+            <div class="form-grid-stack">
+              <div class="input-group">
                 <label>Contraseña Actual</label>
                 <input type="password" name="currentPassword" [(ngModel)]="passwordForm.currentPassword" required>
               </div>
-              <div class="input-group full-width">
+              <div class="input-group">
                 <label>Nueva Contraseña</label>
                 <input type="password" name="newPassword" [(ngModel)]="passwordForm.newPassword" required minlength="8">
               </div>
-              <div class="input-group full-width">
+              <div class="input-group">
                 <label>Confirmar Nueva Contraseña</label>
                 <input type="password" name="confirmPassword" [(ngModel)]="passwordForm.confirmPassword" required minlength="8">
-                <small *ngIf="passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword" style="color: #e74c3c; margin-top: 5px;">Las contraseñas no coinciden.</small>
+                <small *ngIf="passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword" class="password-error-text">Las contraseñas no coinciden.</small>
               </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn-secondary" (click)="closeModal()" [disabled]="isSubmitting">Cancelar</button>
               <button type="submit" class="btn-primary" [disabled]="!pwdForm.form.valid || isSubmitting || passwordForm.newPassword !== passwordForm.confirmPassword">
                 <span *ngIf="isSubmitting">⏳ Procesando...</span>
-                <span *ngIf="!isSubmitting"><app-lucide-icon name="lock" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Actualizar Contraseña</span>
+                <span *ngIf="!isSubmitting"><app-lucide-icon name="lock" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Actualizar</span>
               </button>
             </div>
           </form>
@@ -196,48 +242,40 @@
           <h2>Preferencias de Notificación</h2>
           <button class="btn-close-modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
         </div>
-        <div class="modal-body">
-          <div class="settings-group" style="margin-top: 0;">
-            <div class="settings-card" style="box-shadow: none; border: 1px solid #eee;">
-              <div class="setting-item" style="cursor: default;" (click)="notificationSettings.pushEnabled = !notificationSettings.pushEnabled">
-                <div class="setting-left">
-                  <span class="setting-icon"><app-lucide-icon name="smartphone" [size]="20" color="var(--text-dark)"></app-lucide-icon></span>
-                  <span class="setting-title">Notificaciones Push</span>
-                </div>
-                <div class="setting-right">
-                  <label class="switch" (click)="$event.stopPropagation()">
-                    <input type="checkbox" [(ngModel)]="notificationSettings.pushEnabled">
-                    <span class="slider round"></span>
-                  </label>
-                </div>
+        <div class="modal-body" style="padding-top: 10px;">
+          <div class="modal-settings-list">
+            <div class="modal-setting-row" (click)="notificationSettings.pushEnabled = !notificationSettings.pushEnabled">
+              <div class="modal-row-left">
+                <app-lucide-icon name="smartphone" [size]="18" color="var(--text-secondary)"></app-lucide-icon>
+                <span>Notificaciones Push</span>
               </div>
-              <div class="setting-item" style="cursor: default;" (click)="notificationSettings.emailMarketing = !notificationSettings.emailMarketing">
-                <div class="setting-left">
-                  <span class="setting-icon"><app-lucide-icon name="mail" [size]="20" color="var(--text-dark)"></app-lucide-icon></span>
-                  <span class="setting-title">Correos Promocionales</span>
-                </div>
-                <div class="setting-right">
-                  <label class="switch" (click)="$event.stopPropagation()">
-                    <input type="checkbox" [(ngModel)]="notificationSettings.emailMarketing">
-                    <span class="slider round"></span>
-                  </label>
-                </div>
+              <label class="apple-switch" (click)="$event.stopPropagation()">
+                <input type="checkbox" [(ngModel)]="notificationSettings.pushEnabled">
+                <span class="apple-slider"></span>
+              </label>
+            </div>
+            <div class="modal-setting-row" (click)="notificationSettings.emailMarketing = !notificationSettings.emailMarketing">
+              <div class="modal-row-left">
+                <app-lucide-icon name="mail" [size]="18" color="var(--text-secondary)"></app-lucide-icon>
+                <span>Correos Promocionales</span>
               </div>
-              <div class="setting-item" style="cursor: default;" (click)="notificationSettings.weeklySummary = !notificationSettings.weeklySummary">
-                <div class="setting-left">
-                  <span class="setting-icon"><app-lucide-icon name="bar-chart-3" [size]="20" color="var(--text-dark)"></app-lucide-icon></span>
-                  <span class="setting-title">Resumen Semanal</span>
-                </div>
-                <div class="setting-right">
-                  <label class="switch" (click)="$event.stopPropagation()">
-                    <input type="checkbox" [(ngModel)]="notificationSettings.weeklySummary">
-                    <span class="slider round"></span>
-                  </label>
-                </div>
+              <label class="apple-switch" (click)="$event.stopPropagation()">
+                <input type="checkbox" [(ngModel)]="notificationSettings.emailMarketing">
+                <span class="apple-slider"></span>
+              </label>
+            </div>
+            <div class="modal-setting-row" (click)="notificationSettings.weeklySummary = !notificationSettings.weeklySummary">
+              <div class="modal-row-left">
+                <app-lucide-icon name="bar-chart-3" [size]="18" color="var(--text-secondary)"></app-lucide-icon>
+                <span>Resumen Semanal</span>
               </div>
+              <label class="apple-switch" (click)="$event.stopPropagation()">
+                <input type="checkbox" [(ngModel)]="notificationSettings.weeklySummary">
+                <span class="apple-slider"></span>
+              </label>
             </div>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer" style="padding: 20px 0 0 0; border-top: 1px solid var(--border-light); background: transparent;">
             <button type="button" class="btn-secondary" (click)="closeModal()" [disabled]="isSubmitting">Cerrar</button>
             <button type="button" class="btn-primary" (click)="saveNotifications()" [disabled]="isSubmitting">
                <span *ngIf="isSubmitting">⏳ Guardando...</span>
@@ -250,51 +288,48 @@
       <!-- 4. MODAL: AYUDA Y CONTACTO -->
       <ng-container *ngIf="activeModal === 'help'">
         <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
-          <h2 style="font-size: 1.6rem; margin-bottom: 10px; display: flex; align-items: center;"><app-lucide-icon name="rocket" [size]="24" color="black" style="margin-right: 8px;"></app-lucide-icon> Centro de Ayuda</h2>
+          <h2 style="font-size: 1.4rem; display: flex; align-items: center; gap: 8px;">
+            <app-lucide-icon name="rocket" [size]="22" color="var(--steam-blue)"></app-lucide-icon> Centro de Ayuda
+          </h2>
           <button class="btn-close-modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
         </div>
-        <div class="modal-body" style="padding-top: 10px;">
-          <p style="color: #64748B; margin-bottom: 25px;">¿Tienes dudas sobre STEAM Vocations? Estamos aquí para ayudarte a encontrar tu camino.</p>
+        <div class="modal-body" style="padding-top: 15px;">
+          <p class="help-intro-text">¿Tienes dudas sobre STEAM Vocaciones? Estamos aquí para ayudarte a encontrar tu camino.</p>
           
-          <div style="background: #F8FAFC; border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px dashed #CBD5E1;">
-            <h3 style="margin: 0 0 10px 0; color: #1E293B; font-size: 1.1rem;">Contáctanos directamente</h3>
-            <p style="margin: 0 0 5px 0; color: #475569; display: flex; align-items: center; gap: 10px;">
-              <span style="display: flex;"><app-lucide-icon name="mail" [size]="16"></app-lucide-icon></span> <strong>soporte&#64;steamvocations.app</strong>
-            </p>
-            <p style="margin: 0; color: #475569; display: flex; align-items: center; gap: 10px;">
-              <span style="display: flex;"><app-lucide-icon name="clock" [size]="16"></app-lucide-icon></span> Lunes a Viernes, 9:00 AM - 6:00 PM (UTC-6)
-            </p>
+          <div class="contact-card-premium">
+            <h3 class="contact-card-title">Contáctanos directamente</h3>
+            <p class="contact-detail"><app-lucide-icon name="mail" [size]="14"></app-lucide-icon> <strong>soporte&#64;steamvocations.app</strong></p>
+            <p class="contact-detail"><app-lucide-icon name="clock" [size]="14"></app-lucide-icon> Lunes a Viernes, 9:00 AM - 6:00 PM (UTC-6)</p>
           </div>
 
-          <button class="btn-primary" style="width: 100%; display: flex; justify-content: center; gap: 10px; align-items: center;" (click)="openSupportMailer()">
-            <app-lucide-icon name="send" [size]="16" color="white" style="margin-right: 8px; margin-bottom: -3px;"></app-lucide-icon> Enviar un mensaje ahora
+          <button class="btn-primary" style="width: 100%; display: flex; justify-content: center; gap: 8px; align-items: center;" (click)="openSupportMailer()">
+            <app-lucide-icon name="mail" [size]="16" color="white"></app-lucide-icon> Enviar un mensaje ahora
           </button>
         </div>
       </ng-container>
 
       <!-- 5. MODAL: DETALLES DE INSIGNIA -->
       <ng-container *ngIf="activeModal === 'badge' && selectedBadge">
-        <div class="modal-header" style="border-bottom: none; display: flex; justify-content: flex-end;">
+        <div class="modal-header" style="border-bottom: none; display: flex; justify-content: flex-end; padding-bottom: 0;">
           <button class="btn-close-modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
         </div>
         <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 0;">
           
-          <div class="badge-icon-giant" [style.filter]="selectedBadge.unlocked ? 'none' : 'grayscale(1) opacity(0.5)'" style="font-size: 5rem; background: #F8FAFC; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px;">
-            <app-lucide-icon [name]="selectedBadge.icon" [size]="64"></app-lucide-icon>
+          <div class="badge-icon-giant-wrapper" [class.unlocked]="selectedBadge.unlocked">
+            <app-lucide-icon [name]="selectedBadge.icon" [size]="56" [color]="selectedBadge.unlocked ? '#07B1C9' : '#9CA3AF'"></app-lucide-icon>
           </div>
           
-          <h2 style="font-size: 1.8rem; margin: 0 0 10px 0; color: #1E293B;">{{ selectedBadge.name }}</h2>
+          <h2 class="badge-modal-title">{{ selectedBadge.name }}</h2>
           
-          <div [ngClass]="selectedBadge.unlocked ? 'status-unlocked' : 'status-locked'" style="padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; margin-bottom: 20px;"
-               [style.background]="selectedBadge.unlocked ? '#DCFCE7' : '#F1F5F9'"
-               [style.color]="selectedBadge.unlocked ? '#166534' : '#64748B'">
-            <app-lucide-icon [name]="selectedBadge.unlocked ? 'star' : 'lock'" [size]="14" style="margin-right: 4px; margin-bottom: -2px;"></app-lucide-icon> {{ selectedBadge.unlocked ? 'Insignia Desbloqueada' : 'Insignia Bloqueada' }}
+          <div class="badge-modal-status-tag" [class.unlocked]="selectedBadge.unlocked">
+            <app-lucide-icon [name]="selectedBadge.unlocked ? 'star' : 'lock'" [size]="12"></app-lucide-icon> 
+            <span>{{ selectedBadge.unlocked ? 'Insignia Desbloqueada' : 'Insignia Bloqueada' }}</span>
           </div>
 
-          <p style="color: #64748B; line-height: 1.6; padding: 0 20px;">
+          <p class="badge-modal-description">
             {{ selectedBadge.unlocked 
               ? 'Has demostrado habilidades excepcionales en esta área. ¡Sigue así!'
-              : 'Sigue interactuando con la plataforma, completa más módulos y descubre nuevas áreas para desbloquear este logro.' }}
+              : selectedBadge.description }}
           </p>
         </div>
       </ng-container>
@@ -302,19 +337,19 @@
     </div>
   </div>
 
-  <!-- OVERLAY ESPECIAL CERRAR SESIÓN -->
+  <!-- OVERLAY ESPECIAL CERRAR SESIÓN (ALERTA CRÍTICA) -->
   <div class="custom-alert-overlay" *ngIf="activeModal === 'logout'">
-    <div class="alert-box" style="border-top: 5px solid #2C3E50;">
-      <div class="alert-icon"><app-lucide-icon name="log-out" [size]="24"></app-lucide-icon></div>
-      <h3 style="margin: 0; color: #2C3E50;">¿Cerrar Sesión?</h3>
-      <p style="color: #7F8C8D; font-size: 0.95rem; text-align: center;">
+    <div class="alert-box">
+      <div class="alert-icon-wrapper">
+        <app-lucide-icon name="log-out" [size]="24" color="#E11D48"></app-lucide-icon>
+      </div>
+      <h3 class="alert-title">¿Cerrar Sesión?</h3>
+      <p class="alert-text">
         Tendrás que volver a ingresar tus credenciales para acceder a tu perfil STEAM.
       </p>
-      <div class="alert-actions"
-        style="display: flex; gap: 10px; width: 100%; justify-content: center; margin-top: 15px;">
+      <div class="alert-actions">
         <button class="btn-secondary" (click)="closeModal()">Cancelar</button>
-        <button class="btn-primary" (click)="confirmLogout()"
-          style="background: #e74c3c; border-color: #e74c3c;">Sí, cerrar sesión</button>
+        <button class="btn-primary danger-action" (click)="confirmLogout()">Sí, cerrar sesión</button>
       </div>
     </div>
   </div>
