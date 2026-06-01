@@ -24,22 +24,22 @@
         <div class="card-details" [@expandCollapse]="expandedOptionId() === opt.id ? 'expanded' : 'collapsed'">
           <div class="details-content">
             <div class="consequences">
-              @if (opt.metadata?.consecuencias_positivas) {
+              @if (opt.metadata?.['consecuencias_positivas']) {
                 <div class="pros">
                   <h4>Ventajas</h4>
                   <ul>
-                    @for (pro of opt.metadata?.consecuencias_positivas; track pro) {
+                    @for (pro of opt.metadata?.['consecuencias_positivas']; track pro) {
                       <li><span class="icon check">✓</span> <span class="text">{{ pro }}</span></li>
                     }
                   </ul>
                 </div>
               }
               
-              @if (opt.metadata?.consecuencias_negativas) {
+              @if (opt.metadata?.['consecuencias_negativas']) {
                 <div class="cons">
                   <h4>Desventajas / Riesgos</h4>
                   <ul>
-                    @for (con of opt.metadata?.consecuencias_negativas; track con) {
+                    @for (con of opt.metadata?.['consecuencias_negativas']; track con) {
                       <li><span class="icon cross">✗</span> <span class="text">{{ con }}</span></li>
                     }
                   </ul>
