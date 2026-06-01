@@ -49,6 +49,20 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    // 1. Carga Rápida Síncrona Offline-First (desde el usuario en caché)
+    const cachedUser = this.authService.getCurrentUser();
+    if (cachedUser) {
+      this.userProfile = cachedUser;
+      this.userName = cachedUser.nombre || this.userName;
+      if (cachedUser.fotoUrl) {
+        this.avatarUrl = cachedUser.fotoUrl;
+      }
+      if (cachedUser.id) {
+        this.readFromCache(cachedUser.id);
+      }
+    }
+
+    // 2. Suscripción Asíncrona (Carga desde el Servidor en segundo plano)
     this.authService.obtenerPerfil().subscribe(usuario => {
       this.userProfile = usuario;
       this.userName = usuario.nombre || this.userName;
@@ -66,7 +80,7 @@ export class DashboardComponent implements OnInit {
           document.body.style.overflow = 'hidden';
         }
 
-        // Load test completion state
+        // Carga/Actualiza desde la API
         this.loadTestResult(usuario.id);
       }
     });
