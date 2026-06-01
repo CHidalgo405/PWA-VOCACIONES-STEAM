@@ -1927,73 +1927,73 @@
   animation-delay: 0ms;
 }
 .hero-verdict {
-  animation-delay: 40ms;
+  animation-delay: 100ms;
 }
 .hero-subtitle {
-  animation-delay: 80ms;
+  animation-delay: 500ms;
 }
 .chart-glass-card {
-  animation-delay: 120ms;
+  animation-delay: 300ms;
 }
 
 /* Legends inside the glass card stagger */
 .area-legends .legend-item:nth-child(1) {
-  animation-delay: 160ms;
+  animation-delay: 1000ms;
 }
 .area-legends .legend-item:nth-child(2) {
   animation-delay: 200ms;
 }
 .area-legends .legend-item:nth-child(3) {
-  animation-delay: 240ms;
+  animation-delay: 1500ms;
 }
 
 /* Main breakdown section */
 .steam-metrics-section {
-  animation-delay: 280ms;
+  animation-delay: 700ms;
 }
 
 /* Metric progress rows cascade cascade */
 .metrics-list .metric-row:nth-child(1) {
-  animation-delay: 320ms;
+  animation-delay: 2000ms;
 }
 .metrics-list .metric-row:nth-child(2) {
-  animation-delay: 360ms;
+  animation-delay: 900ms;
 }
 .metrics-list .metric-row:nth-child(3) {
   animation-delay: 400ms;
 }
 .metrics-list .metric-row:nth-child(4) {
-  animation-delay: 440ms;
+  animation-delay: 1100ms;
 }
 .metrics-list .metric-row:nth-child(5) {
-  animation-delay: 480ms;
+  animation-delay: 1200ms;
 }
 
 /* DNA / AI Analysis card */
 .dna-insights-card {
-  animation-delay: 520ms;
+  animation-delay: 1300ms;
 }
 
 /* Career recommendations list card stagger */
 .career-list-section {
-  animation-delay: 560ms;
+  animation-delay: 1400ms;
 }
 .career-vertical-list .career-item-card:nth-child(1) {
   animation-delay: 600ms;
 }
 .career-vertical-list .career-item-card:nth-child(2) {
-  animation-delay: 640ms;
+  animation-delay: 1600ms;
 }
 .career-vertical-list .career-item-card:nth-child(3) {
-  animation-delay: 680ms;
+  animation-delay: 1700ms;
 }
 
 /* CTA buttons stagger at the very bottom */
 .cta-buttons-block button:nth-child(1) {
-  animation-delay: 720ms;
+  animation-delay: 1800ms;
 }
 .cta-buttons-block button:nth-child(2) {
-  animation-delay: 760ms;
+  animation-delay: 1900ms;
 }
 .cta-buttons-block button:nth-child(3) {
   animation-delay: 800ms;

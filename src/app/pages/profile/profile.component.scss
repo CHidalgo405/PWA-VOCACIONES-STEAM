@@ -50,7 +50,7 @@
   align-items: center;
   text-align: center;
   box-sizing: border-box;
-  animation: staggerSlideUp 0.4s var(--ease-out) both;
+  animation: staggerSlideUp 0.8s var(--ease-out) both;
   transition: transform var(--duration-hover) var(--ease-out), box-shadow var(--duration-hover) var(--ease-out);
   
   @media (hover: hover) and (pointer: fine) {
@@ -160,8 +160,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  animation: staggerSlideUp 0.4s var(--ease-out) both;
-  animation-delay: 50ms;
+  animation: staggerSlideUp 0.8s var(--ease-out) both;
+  animation-delay: 125ms;
 }
 
 .bento-card {
@@ -279,8 +279,8 @@
   flex-direction: column;
   gap: 16px;
   box-sizing: border-box;
-  animation: staggerSlideUp 0.4s var(--ease-out) both;
-  animation-delay: 100ms;
+  animation: staggerSlideUp 0.8s var(--ease-out) both;
+  animation-delay: 250ms;
   
   .bento-section-title {
     font-size: 0.92rem;
@@ -408,18 +408,18 @@
   box-sizing: border-box;
   
   &.group-cuenta {
-    animation: staggerSlideUp 0.4s var(--ease-out) both;
-    animation-delay: 120ms;
+    animation: staggerSlideUp 0.8s var(--ease-out) both;
+    animation-delay: 300ms;
   }
   
   &.group-preferencias {
-    animation: staggerSlideUp 0.4s var(--ease-out) both;
-    animation-delay: 180ms;
+    animation: staggerSlideUp 0.8s var(--ease-out) both;
+    animation-delay: 450ms;
   }
   
   &.group-soporte {
-    animation: staggerSlideUp 0.4s var(--ease-out) both;
-    animation-delay: 240ms;
+    animation: staggerSlideUp 0.8s var(--ease-out) both;
+    animation-delay: 600ms;
   }
   
   .settings-group-header {
@@ -597,8 +597,8 @@
   justify-content: center;
   gap: 8px;
   box-sizing: border-box;
-  animation: staggerSlideUp 0.4s var(--ease-out) both;
-  animation-delay: 280ms;
+  animation: staggerSlideUp 0.8s var(--ease-out) both;
+  animation-delay: 700ms;
   transition: all var(--duration-hover) var(--ease-out);
   
   @media (hover: hover) and (pointer: fine) {
