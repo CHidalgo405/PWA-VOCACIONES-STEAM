@@ -1,45 +1,30 @@
-<div class="auth-wrapper">
-  <!-- Glowing Ambient Meshes -->
-  <div class="ambient-glow glow-1"></div>
-  <div class="ambient-glow glow-2"></div>
+<div class="onboarding-container">
+  
+  <div class="visual-section">
+    <img src="assets/illustration-0.png" alt="Onboarding Illustration" class="combined-illustration">
+  </div>
 
-  <div class="onboarding-card">
-    
-    <!-- Image Side (Top on Mobile, Left on Desktop) -->
-    <div class="onboarding-image-side">
-      <div class="arch-shape"></div>
-      <img src="assets/illustration-0.png" alt="Vocaciones STEAM" class="hero-illustration">
-    </div>
-
-    <!-- Content Side (Bottom on Mobile, Right on Desktop) -->
-    <div class="onboarding-content-side">
-      <div class="content-wrapper">
-        
-        <!-- Brand Header -->
-        <div class="auth-brand-header">
-          <div class="logo-symbol-wrap">
-            <app-lucide-icon name="atom" [size]="20" color="white"></app-lucide-icon>
-          </div>
-          <h2 class="logo-brand-title">STEAM <span class="logo-brand-sub">Vocations</span></h2>
-        </div>
-
-        <h1 class="title">Empieza tu futuro <br class="desktop-hidden"><span class="highlight-text">con vocaciones STEAM</span></h1>
-        <p class="subtitle">Descubre tu camino ideal en ciencia, tecnología, ingeniería, artes y matemáticas mediante nuestro test vocacional impulsado por IA.</p>
-        
-        <!-- Action Buttons -->
-        <div class="action-buttons-container">
-          <button class="premium-submit-button" routerLink="/register">
-            <span>Comenzar ahora</span>
-            <app-lucide-icon name="arrow-right" [size]="18" color="white"></app-lucide-icon>
-          </button>
-          
-          <button class="btn-outline" routerLink="/login">
-            Ya tengo cuenta
+  <div class="content-section">
+    <div class="content-wrapper">
+      <h1 class="title">Empieza tu futuro <br class="desktop-hidden"><span class="desktop-only">con vocaciones </span>STEAM</h1>
+      <p class="subtitle">Encuentra tu vocación en ciencia, tecnología y más</p>
+      
+      <!-- Mobile Next Button -->
+      <div class="mobile-actions">
+        <div class="progress-ring-container" routerLink="/login">
+          <div class="progress-ring"></div>
+          <button class="btn-icon">
+            <app-lucide-icon name="arrow-right" [size]="24" color="white"></app-lucide-icon>
           </button>
         </div>
+      </div>
 
+      <!-- Desktop Buttons -->
+      <div class="desktop-actions">
+        <button class="btn-outline" routerLink="/login">Iniciar Sesión</button>
+        <button class="btn-primary" routerLink="/register">Registrarse</button>
       </div>
     </div>
-
   </div>
+
 </div>

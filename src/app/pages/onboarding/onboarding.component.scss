@@ -1,330 +1,212 @@
-/* --- PREMIUM ONBOARDING DESIGN SYSTEM --- */
-.auth-wrapper {
-  position: relative;
+:host {
+  display: block;
+}
+
+.onboarding-container {
   min-height: 100vh;
   width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--bg-canvas);
-  padding: 16px;
-  box-sizing: border-box;
-  overflow: hidden;
-  transition: background-color 0.35s ease;
-
-  @media (min-width: 900px) {
-    padding: 40px;
-  }
-}
-
-/* --- AMBIENT BLURRED MESH EFFECT --- */
-.ambient-glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.12;
-  z-index: 1;
-  pointer-events: none;
-  
-  &.glow-1 {
-    top: -10%;
-    left: -10%;
-    width: 450px;
-    height: 450px;
-    background: var(--steam-blue);
-  }
-  
-  &.glow-2 {
-    bottom: -10%;
-    right: -10%;
-    width: 450px;
-    height: 450px;
-    background: var(--steam-orange);
-  }
-}
-
-/* --- ONBOARDING CONTAINER --- */
-.onboarding-card {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 450px;
-  background: var(--bg-surface);
-  border-radius: 24px;
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border-color);
-  overflow: hidden;
-  display: flex;
   flex-direction: column;
-  box-sizing: border-box;
-  animation: staggerSlideUp 0.5s var(--ease-out) both;
-  transition: background-color 0.35s ease, border-color 0.35s ease;
-  
-  @media (min-width: 900px) {
-    max-width: 1000px;
+  background-color: #ffffff;
+  overflow-y: auto;
+  position: relative;
+  font-family: 'Inter', sans-serif;
+
+  @media (min-width: 1024px) {
     flex-direction: row;
-    height: 600px;
+    overflow: hidden;
   }
 }
 
-/* --- IMAGE HERO SIDE --- */
-.onboarding-image-side {
+.visual-section {
   position: relative;
+  height: 45vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  background-color: var(--bg-canvas);
-  height: 320px;
-  box-sizing: border-box;
-  overflow: hidden;
-  transition: background-color 0.35s ease;
-  
-  .arch-shape {
-    position: absolute;
-    bottom: -30px;
-    width: 250px;
-    height: 350px;
-    background-color: var(--bg-elevated);
-    border-radius: 200px 200px 0 0;
-    z-index: 1;
-    transition: background-color 0.35s ease;
+  justify-content: center;
+  z-index: 1;
+
+  @media (min-width: 1024px) {
+    height: 100vh;
+    flex: 1.2;
   }
-  
-  .hero-illustration {
-    position: relative;
+
+  .combined-illustration {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center bottom;
     z-index: 2;
-    width: 85%;
-    max-width: 320px;
-    height: auto;
-    object-fit: contain;
-    margin-bottom: -10px;
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  @media (min-width: 900px) {
-    flex: 1.1;
-    height: auto;
-    border-right: 1px solid var(--border-color);
-    padding-top: 4rem;
-
-    .arch-shape {
-      width: 350px;
-      height: 500px;
-      bottom: -50px;
-    }
-
-    .hero-illustration {
-      width: 80%;
-      max-width: 450px;
-      margin-bottom: -20px;
-    }
   }
 }
 
-/* --- CONTENT SIDE --- */
-.onboarding-content-side {
+.content-section {
   flex: 1;
-  background: var(--bg-surface);
-  padding: 32px 24px;
-  box-sizing: border-box;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  transition: background-color 0.35s ease;
-  
-  @media (min-width: 900px) {
-    padding: 48px 56px;
+  padding: 20px;
+  background-color: #ffffff;
+  z-index: 2;
+
+  @media (min-width: 1024px) {
+    flex: 1;
+    padding: 0 80px;
+    justify-content: flex-start;
   }
 }
 
 .content-wrapper {
-  max-width: 100%;
-  
-  @media (min-width: 900px) {
-    max-width: 400px;
-    margin: 0 auto;
+  max-width: 450px;
+  text-align: center;
+  width: 100%;
+
+  @media (min-width: 1024px) {
+    text-align: left;
+    max-width: 500px;
   }
 }
 
-/* --- BRAND LOGO CABECERA --- */
-.auth-brand-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 24px;
-  animation: staggerSlideUp 0.6s var(--ease-out) both;
-  animation-delay: 0.1s;
-  
-  .logo-symbol-wrap {
-    background: linear-gradient(135deg, var(--steam-blue) 0%, #0E9AA7 100%);
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(7, 177, 201, 0.2);
-  }
-  
-  .logo-brand-title {
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin: 0;
-    letter-spacing: -0.02em;
-    
-    .logo-brand-sub {
-      color: var(--steam-blue);
-      font-weight: 400;
-    }
-  }
-}
-
-/* --- TYPOGRAPHY --- */
 .title {
   font-size: 1.8rem;
   font-weight: 800;
-  color: var(--text-primary);
-  line-height: 1.15;
-  margin-bottom: 12px;
-  letter-spacing: -0.03em;
-  animation: staggerSlideUp 0.6s var(--ease-out) both;
-  animation-delay: 0.2s;
+  color: #1a1a1a;
+  line-height: 1.2;
+  margin-bottom: 10px;
 
-  .highlight-text {
-    color: var(--steam-blue);
-  }
-
-  @media (min-width: 900px) {
-    font-size: 2.4rem;
-    margin-bottom: 16px;
-  }
-}
-
-.subtitle {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 32px;
-  font-weight: 400;
-  animation: staggerSlideUp 0.6s var(--ease-out) both;
-  animation-delay: 0.3s;
-
-  @media (min-width: 900px) {
-    font-size: 1.05rem;
-    margin-bottom: 40px;
+  @media (min-width: 1024px) {
+    font-size: 3rem;
+    margin-bottom: 20px;
   }
 }
 
 .desktop-hidden {
   display: block;
-  @media (min-width: 900px) {
+  @media (min-width: 1024px) {
     display: none;
   }
 }
 
-/* --- ACTION BUTTONS --- */
-.action-buttons-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  animation: staggerSlideUp 0.6s var(--ease-out) both;
-  animation-delay: 0.4s;
-
-  @media (min-width: 900px) {
-    flex-direction: row;
-    gap: 16px;
+.desktop-only {
+  display: none;
+  @media (min-width: 1024px) {
+    display: inline;
   }
 }
 
-/* --- PREMIUM SUBMIT ACTION --- */
-.premium-submit-button {
-  width: 100%;
-  padding: 14px 20px;
-  background: linear-gradient(135deg, var(--steam-blue) 0%, #0E9AA7 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
+.subtitle {
   font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
+  color: #666666;
+  line-height: 1.5;
+  margin-bottom: 25px;
+  font-weight: 500;
+
+  @media (min-width: 1024px) {
+    font-size: 1.2rem;
+    margin-bottom: 50px;
+  }
+}
+
+/* Mobile Actions */
+.mobile-actions {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 10px;
-  box-sizing: border-box;
-  box-shadow: 0 4px 15px rgba(7, 177, 201, 0.25);
-  transition: all var(--duration-hover) var(--ease-out);
-  font-family: inherit;
-  
-  @media (min-width: 900px) {
-    flex: 1.2;
+  align-items: center;
+
+  @media (min-width: 1024px) {
+    display: none;
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(7, 177, 201, 0.35);
-      filter: brightness(1.05);
+  .progress-ring-container {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 50%;
+    background: conic-gradient(#07B1C9 0% 30%, #e0e0e0 30% 100%);
+    
+    &::before {
+      content: "";
+      position: absolute;
+      width: 62px;
+      height: 62px;
+      background-color: #ffffff;
+      border-radius: 50%;
+    }
+
+    .btn-icon {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      background-color: #07B1C9; 
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      box-shadow: 0 4px 10px rgba(7, 177, 201, 0.4);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+      
+      &:active {
+        transform: scale(0.95);
+      }
     }
   }
-  
-  &:active {
-    transform: scale(0.975);
-  }
 }
 
-/* --- OUTLINE BUTTON --- */
-.btn-outline {
-  width: 100%;
-  padding: 14px 20px;
-  background-color: transparent;
-  color: var(--text-primary);
-  border: 1.5px solid var(--border-color);
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--duration-hover) var(--ease-out);
-  box-sizing: border-box;
-  font-family: inherit;
+/* Desktop Actions */
+.desktop-actions {
+  display: none;
+  gap: 20px;
 
-  @media (min-width: 900px) {
-    flex: 1;
+  @media (min-width: 1024px) {
+    display: flex;
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      background-color: var(--bg-canvas);
-      border-color: var(--text-muted);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-sm);
+  button {
+    padding: 15px 30px;
+    border-radius: 8px; /* Rounded corners like in mockup */
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+
+    &:active {
+      transform: scale(0.98);
     }
   }
-  
-  &:active {
-    transform: scale(0.975);
-  }
-}
 
-/* --- ANIMATION PLOTS --- */
-@keyframes staggerSlideUp {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+  .btn-primary {
+    background-color: #07B1C9;
+    color: white;
+    min-width: 150px;
+    box-shadow: 0 8px 20px -5px rgba(7, 177, 201, 0.4);
 
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
-  100% { transform: translateY(0px); }
+    &:hover {
+      background-color: #069cba;
+      transform: translateY(-2px);
+    }
+  }
+
+  .btn-outline {
+    background-color: transparent;
+    color: #4a4a4a;
+    border: 2px solid #a3a3a3;
+    min-width: 150px;
+
+    /* In mockup the login button has blue border and text: */
+    /* Wait, checking mockup for Iniciar Sesion button -> it seems to have blue text & blue border */
+    border-color: #07B1C9;
+    color: #07B1C9;
+
+    &:hover {
+      background-color: rgba(7, 177, 201, 0.05);
+    }
+  }
 }
