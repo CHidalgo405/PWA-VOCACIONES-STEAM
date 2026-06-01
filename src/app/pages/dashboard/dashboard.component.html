@@ -250,7 +250,7 @@
             <div class="simulator-details">
               <div class="simulator-header">
                 <div class="icon-ring-sm bg-purple-soft">
-                  <app-lucide-icon name="terminal" [size]="18" color="#8B5CF6"></app-lucide-icon>
+                  <app-lucide-icon name="rocket" [size]="18" color="#8B5CF6"></app-lucide-icon>
                 </div>
                 <span class="widget-badge purple">Laboratorio Práctico</span>
               </div>
@@ -259,16 +259,16 @@
                 Ponte en los zapatos de un profesional STEAM y vive situaciones reales en tu área de interés para validar tu vocación.
               </p>
               <div class="simulator-status-row">
-                <span class="status-indicator">
-                  <span class="status-pulse-dot"></span>
-                  Próximamente
+                <span class="status-indicator active">
+                  <span class="status-pulse-dot live"></span>
+                  Disponible — 3 carreras
                 </span>
               </div>
             </div>
             <div class="simulator-action">
-              <button class="btn-simulator-locked" disabled>
-                <app-lucide-icon name="lock" [size]="16" color="#9CA3AF" style="margin-right: 6px; margin-bottom: -2px;"></app-lucide-icon>
-                Bloqueado
+              <button class="btn-simulator" routerLink="/career-simulator">
+                <app-lucide-icon name="arrow-right" [size]="16" color="#fff" style="margin-right: 6px; margin-bottom: -2px;"></app-lucide-icon>
+                Explorar simuladores
               </button>
             </div>
           </div>
