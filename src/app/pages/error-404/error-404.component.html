@@ -1,36 +1,38 @@
-<div class="error-container">
-  <!-- Mesh Gradient Backgrounds -->
-  <div class="ambient-glow primary"></div>
-  <div class="ambient-glow secondary"></div>
-
-  <div class="content-wrapper">
-    <div class="visual-badge">
-      <app-lucide-icon name="alert-circle" [size]="16"></app-lucide-icon>
-      <span>Error 404</span>
-    </div>
-
-    <h1 class="error-title">
-      <span class="glitch" data-text="Página no">Página no</span>
-      <span class="glitch" data-text="encontrada">encontrada</span>
-    </h1>
-
-    <p class="error-subtitle">
-      La trayectoria se ha desviado. El recurso que buscas no existe en este universo o ha sido movido a otra órbita temporal.
-    </p>
-
-    <div class="actions">
-      <button class="btn-primary" routerLink="/dashboard">
-        <app-lucide-icon name="home" [size]="20"></app-lucide-icon>
-        <span>Volver al inicio</span>
-      </button>
-      <button class="btn-secondary" (click)="goBack()">
-        <app-lucide-icon name="arrow-left" [size]="20"></app-lucide-icon>
-        <span>Regresar</span>
-      </button>
-    </div>
+<div class="error-wrapper">
+  <!-- Mesh Gradient Background -->
+  <div class="mesh-background">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
   </div>
 
-  <div class="floating-orbit">
-    <app-lucide-icon name="compass" [size]="120" color="var(--text-secondary)" [strokeWidth]="1" class="compass-icon"></app-lucide-icon>
+  <div class="content-container cascade-group">
+    <!-- Visual Centerpiece -->
+    <div class="visual-centerpiece cascade-item">
+      <div class="glass-orb">
+        <app-lucide-icon name="compass" [size]="80" class="compass-icon"></app-lucide-icon>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="text-content cascade-item">
+      <div class="error-code">404</div>
+      <h1 class="title">Te has salido del mapa</h1>
+      <p class="description">
+        La coordenada que buscas no existe en este universo STEAM. Pero no te preocupes, siempre podemos trazar una nueva ruta.
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions cascade-item">
+      <button class="btn btn-primary" routerLink="/dashboard">
+        <app-lucide-icon name="home" [size]="20"></app-lucide-icon>
+        <span>Volver a la Base</span>
+      </button>
+      <button class="btn btn-secondary" (click)="goBack()">
+        <app-lucide-icon name="arrow-left" [size]="20"></app-lucide-icon>
+        <span>Retroceder</span>
+      </button>
+    </div>
   </div>
 </div>
