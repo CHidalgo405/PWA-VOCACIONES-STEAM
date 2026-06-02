@@ -159,51 +159,89 @@
       </div>
     </div>
 
-    <!-- NUEVO: Panel Hero Consolidado (Perfil + Resumen) -->
-    <div class="hero-stats-panel fade-in-up">
-      <div class="hero-main-stat">
-        <div class="ai-confidence-container">
-          <svg viewBox="0 0 100 100" class="confidence-ring">
-            <circle class="ring-bg" cx="50" cy="50" r="40"></circle>
-            <!-- 2 * PI * r = 251.3 -->
-            <circle class="ring-fill" cx="50" cy="50" r="40" [style.stroke-dasharray]="(aiConfidence / 100) * 251.3 + ', 251.3'"></circle>
-          </svg>
-          <div class="ring-text">
-            <span class="ring-val">{{ aiConfidence }}%</span>
-            <span class="ring-lbl">Confianza IA</span>
+    <!-- SECCIÓN A: GAMIFICACIÓN HERO (Resolución & Insignias) -->
+    <section class="gamification-hero fade-in-up">
+      <div class="resolution-panel glassmorphism-card">
+        
+        <div class="res-info-col">
+          <div class="res-header-title">
+            <app-lucide-icon name="crosshair" [size]="20" color="#00E5FF"></app-lucide-icon>
+            <span class="res-label">Precisión del Perfil</span>
+          </div>
+          <div class="res-bar-container">
+            <div class="res-bar-fill" [style.width]="profileResolution() + '%'"></div>
+          </div>
+          <span class="res-pct">{{ profileResolution() }}% Calibrado</span>
+        </div>
+        
+        <div class="badges-panel">
+          <span class="badges-label">Insignias de Talento</span>
+          <div class="badges-row">
+            @for (badge of badges(); track badge.id) {
+              <div class="badge-slot" [class.unlocked]="badge.unlockedAt" [title]="badge.description">
+                @if (badge.unlockedAt) {
+                  <app-lucide-icon [name]="badge.iconName" [size]="24" class="badge-icon"></app-lucide-icon>
+                } @else {
+                  <div class="badge-silhouette">
+                    <app-lucide-icon name="lock" [size]="16" class="lock-icon"></app-lucide-icon>
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
-        <div class="summary-details">
-          <span class="summary-eyebrow">Disciplina Principal</span>
-          <h2>{{ dominantArea ? dominantArea.name : '--' }} <span class="accent-text" [style.color]="dominantArea?.color">{{ dominantArea?.percentage }}%</span></h2>
-          <span class="summary-secondary" *ngIf="secondaryArea">Área secundaria: {{ secondaryArea.name }} ({{ secondaryArea.percentage }}%)</span>
-          <a class="btn-view-analysis" routerLink="/test-result">
-            <app-lucide-icon name="bar-chart-2" [size]="14"></app-lucide-icon> Ver análisis detallado
-          </a>
-        </div>
+
       </div>
-      
-      <div class="hero-progress-bars">
-        <div class="progress-bars-list">
-          @for (area of profileAreas; track area.name) {
-            <div class="progress-bar-item">
-              <div class="area-name-col">
-                <span class="color-dot" [style.background-color]="area.color"></span>
-                <span class="area-name">{{ area.name }}</span>
+    </section>
+
+    <!-- SECCIÓN B: MÓDULOS DE CALIBRACIÓN -->
+    <section class="calibration-modules-section fade-in-up" style="animation-delay: 0.1s;">
+      <div class="section-header-cal">
+        <h2>Módulos de Calibración</h2>
+        <p>Aumenta la precisión de tu perfil resolviendo estos desafíos.</p>
+      </div>
+
+      <div class="calibration-grid">
+        @for (module of calibrationModules(); track module.id) {
+          @if (module.id !== 'mission1' || module.status !== 'completed') {
+            <div class="cal-module-card glassmorphism-card" 
+                 [class.locked]="module.status === 'locked'" 
+                 [class.completed]="module.status === 'completed'"
+                 [class.available]="module.status === 'available'">
+              
+              <div class="cal-icon-wrap">
+                @if (module.status === 'locked') {
+                  <app-lucide-icon name="lock" [size]="32" class="huge-lock"></app-lucide-icon>
+                } @else {
+                  <app-lucide-icon [name]="module.id === 'mission2' ? 'gamepad-2' : 'flask-conical'" [size]="28" color="var(--primary-neon, #00E5FF)"></app-lucide-icon>
+                }
               </div>
-              <div class="bar-col">
-                <div class="track">
-                  <div class="fill" [style.width]="area.percentage + '%'" [style.background-color]="area.color"></div>
-                </div>
+              
+              <div class="cal-content">
+                <h3>{{ module.name }}</h3>
+                <span class="cal-status">
+                  @if (module.status === 'locked') { Bloqueado }
+                  @if (module.status === 'available') { Disponible ahora }
+                  @if (module.status === 'completed') { Completado }
+                </span>
               </div>
-              <div class="percent-col">
-                <span class="percentage" *ngIf="area.percentage > 0">{{ area.percentage }}%</span>
+
+              <div class="cal-action">
+                <button class="btn-cal-action" [disabled]="module.status === 'locked'" (click)="goToMission(module.id)">
+                  @if (module.status === 'completed') {
+                    Revisar
+                  } @else if (module.status === 'available') {
+                    Iniciar <app-lucide-icon name="arrow-right" [size]="16" style="margin-left:6px;"></app-lucide-icon>
+                  } @else {
+                    <app-lucide-icon name="lock" [size]="16"></app-lucide-icon>
+                  }
+                </button>
               </div>
             </div>
           }
-        </div>
+        }
       </div>
-    </div>
+    </section>
 
     <!-- NUEVA GRID: Foco en CTAs -->
     <div class="desktop-grid post-test-grid-new">
@@ -239,68 +277,26 @@
           </div>
         </div>
 
-        <!-- Simulador de Carrera (Hero CTA) -->
-        <div class="widget-card simulator-hero-card">
-          <div class="simulator-hero-bg"></div>
-          <div class="simulator-hero-content">
-            <span class="widget-badge purple"><app-lucide-icon name="flask-conical" [size]="14"></app-lucide-icon> Laboratorio Práctico</span>
-            <h2>Simulador de Carrera</h2>
-            <p>
-              ¿No estás seguro de qué carrera elegir? Ponte en los zapatos de un profesional STEAM y vive situaciones reales para validar tu vocación.
-            </p>
-            <div class="simulator-features">
-              <div class="feat"><app-lucide-icon name="check" [size]="14"></app-lucide-icon> Retos reales</div>
-              <div class="feat"><app-lucide-icon name="check" [size]="14"></app-lucide-icon> 10 simuladores</div>
-            </div>
-            <button class="btn-simulator-large" routerLink="/career-simulator">
-              Ingresar al simulador
-              <app-lucide-icon name="rocket" [size]="18" color="#fff"></app-lucide-icon>
-            </button>
-          </div>
-        </div>
+
 
       </div>
 
       <!-- SIDEBAR COLUMN: Minimized Actions -->
       <div class="sidebar-column">
 
-        <!-- Misiones de Orientación (Minimizado/Compacto) -->
-        <div class="widget-card compact-card missions-compact-card">
+        <!-- Enlaces Rapidos -->
+        <div class="widget-card compact-card">
           <div class="widget-header">
             <div class="title-with-icon">
-              <app-lucide-icon name="target" [size]="16" color="var(--steam-blue)"></app-lucide-icon>
-              <h3>Misiones</h3>
+              <app-lucide-icon name="bar-chart-2" [size]="16" color="var(--steam-blue)"></app-lucide-icon>
+              <h3>Reporte STEAM</h3>
             </div>
           </div>
-          <p class="subtitle-text-xs">Sube el nivel de precisión de tus resultados.</p>
-          
-          <div class="missions-compact-list">
-            <!-- Misión 1 (Done) -->
-            <div class="mission-item-compact done" (click)="goToMission('mission1')">
-              <div class="status-icon">
-                <app-lucide-icon name="check-circle-2" [size]="16" color="var(--steam-green)"></app-lucide-icon>
-              </div>
-              <div class="mission-text">Test Teórico</div>
-            </div>
-
-            <!-- Misión 2 -->
-            <div class="mission-item-compact pending" (click)="goToMission('mission2')">
-              <div class="status-icon">
-                <app-lucide-icon name="circle" [size]="16" color="var(--text-muted)"></app-lucide-icon>
-              </div>
-              <div class="mission-text">Hobbies & Juegos</div>
-              <app-lucide-icon name="chevron-right" [size]="14" class="arrow"></app-lucide-icon>
-            </div>
-
-            <!-- Misión 3 -->
-            <div class="mission-item-compact pending" (click)="goToMission('mission3')">
-              <div class="status-icon">
-                <app-lucide-icon name="circle" [size]="16" color="var(--text-muted)"></app-lucide-icon>
-              </div>
-              <div class="mission-text">Lab. Errores</div>
-              <app-lucide-icon name="chevron-right" [size]="14" class="arrow"></app-lucide-icon>
-            </div>
-          </div>
+          <p class="subtitle-text-xs mb-3">Revisa el análisis detallado de tu perfil base y recomendaciones específicas.</p>
+          <button class="btn-retry-outline" routerLink="/test-result" style="width: 100%; justify-content: center;">
+            Ver Resultados
+            <app-lucide-icon name="arrow-right" [size]="14" style="margin-left:6px;"></app-lucide-icon>
+          </button>
         </div>
 
         <!-- Progreso y Reintentar -->

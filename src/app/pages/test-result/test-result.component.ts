@@ -9,6 +9,7 @@ import { UniversityRecommendation, TestSubmissionResponse, VocationTestService, 
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ProfileStateService } from '../../core/services/profile-state.service';
 import { inject } from '@angular/core';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -91,6 +92,9 @@ export class TestResultComponent implements OnInit {
   private testService = inject(VocationTestService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private profileState = inject(ProfileStateService);
+
+  readonly resolutionPct = this.profileState.profileResolution;
 
   // STEAM area metadata palette
   private readonly STEAM_META: Record<string, { label: string; gradientStart: string; gradientEnd: string; icon: string }> = {

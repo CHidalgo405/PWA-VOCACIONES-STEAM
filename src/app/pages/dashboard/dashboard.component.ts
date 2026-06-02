@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService, Usuario } from '../../core/services/auth.service';
 import { TestSubmissionResponse, VocationTestService, TestDetail } from '../../core/services/test.service';
+import { ProfileStateService } from '../../core/services/profile-state.service';
 
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
@@ -23,14 +24,15 @@ export class DashboardComponent implements OnInit {
   hasTakenTest = false;
   dominantTraitsStr = 'Pendiente';
   
+  // Gamification State
+  private profileState = inject(ProfileStateService);
+  profileResolution = this.profileState.profileResolution;
+  badges = this.profileState.badges;
+  calibrationModules = this.profileState.calibrationModules;
+  hasTakenBaseTest = this.profileState.hasTakenBaseTest;
+
   // AI Confidence & Simulators
   aiConfidence = 0;
-  activeSimulator: { title: string; progress: number } | null = { 
-    title: 'Reto: Construye tu primer circuito', 
-    progress: 50 
-  };
-
-  // (Removed unused mock stats)
 
   // Modal State
   showWelcomeModal = false;
@@ -203,9 +205,9 @@ export class DashboardComponent implements OnInit {
     if (missionId === 'mission1') {
       this.router.navigate(['/evaluations']);
     } else if (missionId === 'mission2') {
-      this.router.navigate(['/evaluations/mission-2']);
+      this.router.navigate(['/evaluations/hobbies-test']);
     } else if (missionId === 'mission3') {
-      this.router.navigate(['/evaluations/mission-3']);
+      this.router.navigate(['/evaluations/error-lab']);
     }
   }
 
