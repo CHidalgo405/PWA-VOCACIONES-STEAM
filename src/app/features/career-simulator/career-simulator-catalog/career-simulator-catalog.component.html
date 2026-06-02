@@ -1,7 +1,12 @@
 <div class="catalog-container">
   <header class="catalog-header">
-    <h1>Simuladores de carrera</h1>
-    <p>Descubre cómo piensas en distintas profesiones STEAM</p>
+    <button class="btn-back" (click)="goBack()">
+      <app-lucide-icon name="arrow-left" [size]="24"></app-lucide-icon>
+    </button>
+    <div class="header-titles">
+      <h1>Simuladores de carrera</h1>
+      <p>Descubre cómo piensas en distintas profesiones STEAM</p>
+    </div>
   </header>
 
   <div class="filters-container">
@@ -29,7 +34,7 @@
         <div class="card-body">
           <h3>{{ sim.careerName }}</h3>
           <div class="meta-info">
-            <span class="duration"><span class="icon">⏱️</span> ~5 min</span>
+            <span class="duration"><app-lucide-icon name="clock" [size]="14"></app-lucide-icon> ~5 min</span>
           </div>
         </div>
         

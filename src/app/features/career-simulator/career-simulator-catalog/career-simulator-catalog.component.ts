@@ -5,12 +5,14 @@ import { CareerSimulatorService } from '../../../core/services/career-simulator.
 import { CAREER_SIMULATORS, CAREER_SIMULATOR_MAP } from '../../../core/data/career-simulators.data';
 import { CareerSimulatorData } from '../../../core/models/career-simulator.models';
 
+import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
+
 type SteamAreaFilter = 'Todas' | 'Ciencia' | 'Tecnología' | 'Ingeniería' | 'Artes' | 'Matemáticas';
 
 @Component({
   selector: 'app-career-simulator-catalog',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, LucideIconComponent],
   templateUrl: './career-simulator-catalog.component.html',
   styleUrls: ['./career-simulator-catalog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -76,6 +78,10 @@ export class CareerSimulatorCatalogComponent implements OnInit {
 
   public setFilter(filter: SteamAreaFilter) {
     this.currentFilter.set(filter);
+  }
+
+  public goBack() {
+    this.router.navigate(['/dashboard']);
   }
 
   public goToSimulator(careerId: string) {

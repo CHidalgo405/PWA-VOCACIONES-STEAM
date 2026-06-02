@@ -1,7 +1,7 @@
 :host {
   display: block;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: var(--bg-canvas);
   
   --steam-ciencia: #3b82f6; 
   --steam-tecnologia: #8b5cf6; 
@@ -18,19 +18,43 @@
 
 .catalog-header {
   margin-bottom: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
   
-  h1 {
-    font-size: 2.25rem;
-    color: #0f172a;
-    margin: 0 0 0.5rem 0;
-    font-weight: 800;
-    letter-spacing: -0.03em;
+  .btn-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+      background: var(--bg-elevated);
+      transform: translateX(-4px);
+    }
   }
-  
-  p {
-    font-size: 1.125rem;
-    color: #475569;
-    margin: 0;
+
+  .header-titles {
+    h1 {
+      font-size: 2.25rem;
+      color: var(--text-primary);
+      margin: 0 0 0.25rem 0;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    
+    p {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
   }
 }
 
@@ -46,7 +70,7 @@
     right: 0;
     width: 40px;
     height: 100%;
-    background: linear-gradient(to right, transparent, #f8fafc);
+    background: linear-gradient(to right, transparent, var(--bg-canvas));
     pointer-events: none;
   }
   
@@ -66,23 +90,23 @@
   .filter-chip {
     white-space: nowrap;
     padding: 0.5rem 1.25rem;
-    background: white;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: 9999px;
     font-size: 0.95rem;
     font-weight: 600;
-    color: #475569;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
     
     &:hover {
-      background: #f1f5f9;
+      background: var(--bg-elevated);
     }
     
     &.active {
-      background: #0f172a;
+      background: var(--steam-blue);
       color: white;
-      border-color: #0f172a;
+      border-color: var(--steam-blue);
     }
   }
 }
@@ -102,10 +126,13 @@
 }
 
 .sim-card {
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   display: flex;
   flex-direction: column;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
@@ -113,7 +140,7 @@
   
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    box-shadow: var(--glass-shadow-hover);
   }
   
   // Variables mapeadas según el área para usar en los componentes internos
@@ -124,8 +151,8 @@
   &.steam-matematicas { --card-color: var(--steam-matematicas); --card-bg: #ecfdf5; }
   
   // Default de fallback
-  --card-color: #64748b;
-  --card-bg: #f1f5f9;
+  --card-color: var(--text-secondary);
+  --card-bg: var(--bg-surface);
   
   border-top: 5px solid var(--card-color);
   
@@ -158,7 +185,7 @@
     h3 {
       margin: 0 0 0.75rem 0;
       font-size: 1.25rem;
-      color: #0f172a;
+      color: var(--text-primary);
       line-height: 1.3;
     }
     
@@ -166,7 +193,7 @@
       display: flex;
       gap: 1rem;
       font-size: 0.875rem;
-      color: #64748b;
+      color: var(--text-secondary);
       
       .duration {
         display: flex;
@@ -179,8 +206,8 @@
   
   .card-footer {
     padding: 1.5rem;
-    background-color: #f8fafc;
-    border-top: 1px solid #f1f5f9;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-top: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -191,8 +218,8 @@
       align-items: center;
       
       .badge {
-        background: #ecfdf5;
-        color: #047857;
+        background: rgba(77, 176, 70, 0.15);
+        color: var(--steam-green, #4CAF50);
         padding: 0.25rem 0.6rem;
         border-radius: 6px;
         font-size: 0.75rem;
@@ -202,7 +229,7 @@
       .score {
         font-size: 0.875rem;
         font-weight: 600;
-        color: #334155;
+        color: var(--text-primary);
       }
     }
     
@@ -232,7 +259,7 @@
         border: 1px solid var(--card-color);
         
         &:hover {
-          background: var(--card-bg);
+          background: rgba(255, 255, 255, 0.05);
         }
       }
     }
@@ -247,24 +274,24 @@
   justify-content: center;
   padding: 5rem 2rem;
   text-align: center;
-  background: white;
+  background: var(--bg-surface);
   border-radius: 16px;
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed var(--border-color);
   
   .empty-icon {
-    color: #94a3b8;
+    color: var(--text-muted);
     margin-bottom: 1.5rem;
   }
   
   h3 {
     margin: 0 0 0.5rem 0;
-    color: #0f172a;
+    color: var(--text-primary);
     font-size: 1.25rem;
   }
   
   p {
     margin: 0;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 }
 
