@@ -17,20 +17,10 @@ import { SimulatorStep } from '../../core/models/career-simulator.models';
 
 import { StepDataAnalysisComponent } from './steps/step-data-analysis/step-data-analysis.component';
 import { StepTradeoffDecisionComponent } from './steps/step-tradeoff-decision/step-tradeoff-decision.component';
-
-// --- PLACEHOLDERS RESTANTES PARA SUB-COMPONENTES ---
-@Component({ selector: 'app-step-context', standalone: true, template: `<div><h3>Contexto</h3><p>Cargando información del entorno...</p></div>` })
-export class StepContextComponent {}
-
-@Component({ selector: 'app-step-surprise-reveal', standalone: true, template: `<div><h3>Sorpresa</h3><p>Revelando la realidad...</p></div>` })
-export class StepSurpriseRevealComponent {}
-
-@Component({ selector: 'app-step-ai-feedback', standalone: true, template: `<div><h3>Feedback de IA</h3><p>Procesando...</p></div>` })
-export class StepAIFeedbackComponent {}
-
-@Component({ selector: 'app-step-emotional-reflection', standalone: true, template: `<div><h3>Reflexión</h3><p>Cargando encuesta...</p></div>` })
-export class StepEmotionalReflectionComponent {}
-// ---------------------------------------------------
+import { StepContextComponent } from './steps/step-context/step-context.component';
+import { StepSurpriseRevealComponent } from './steps/step-surprise-reveal/step-surprise-reveal.component';
+import { StepAIFeedbackComponent } from './steps/step-ai-feedback/step-ai-feedback.component';
+import { StepEmotionalReflectionComponent } from './steps/step-emotional-reflection/step-emotional-reflection.component';
 
 @Component({
   selector: 'app-career-simulator',

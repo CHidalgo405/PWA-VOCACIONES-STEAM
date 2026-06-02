@@ -1,0 +1,106 @@
+@import '../simulator-step-base';
+
+.context-step {
+  text-align: center;
+  align-items: center;
+  padding: 40px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+
+  .step-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+
+    .icon-blob {
+      width: 70px;
+      height: 70px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(7, 177, 201, 0.1);
+    }
+
+    .step-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--steam-blue);
+      background: rgba(7, 177, 201, 0.05);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(7, 177, 201, 0.2);
+    }
+  }
+
+  .step-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+  }
+
+  .content-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: var(--glass-shadow);
+    margin-bottom: 30px;
+    
+    .step-content {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+  }
+
+  .action-footer {
+    width: 100%;
+    justify-content: center;
+    border-top: none;
+    
+    .primary-btn {
+      width: 100%;
+      max-width: 300px;
+      padding: 16px 24px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--steam-blue);
+      color: white;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &.pulse {
+        animation: pulse 2s infinite;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(7, 177, 201, 0.3);
+      }
+    }
+  }
+}
+
+@keyframes slideInBottom {
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.slide-in-bottom {
+  animation: slideInBottom 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

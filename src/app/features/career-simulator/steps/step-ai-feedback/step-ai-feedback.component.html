@@ -1,0 +1,24 @@
+<div class="step-container ai-step slide-in-bottom">
+  <div class="step-header">
+    <div class="icon-blob bg-green-light">
+      <app-lucide-icon name="bot" [size]="28" color="var(--steam-green, #10b981)"></app-lucide-icon>
+    </div>
+    <span class="step-badge ai-badge">Análisis de Inteligencia Artificial</span>
+  </div>
+  
+  <h2 class="step-title">{{ step().title }}</h2>
+  
+  <div class="ai-processing-card">
+    <div class="scanner-line"></div>
+    <div class="content-wrapper">
+      <app-lucide-icon name="cpu" [size]="32" class="pulse-icon" color="var(--steam-green, #10b981)"></app-lucide-icon>
+      <p class="step-content typing-effect">{{ step().content }}</p>
+    </div>
+  </div>
+  
+  <div class="action-footer mt-4">
+    <button class="primary-btn outline" (click)="continue()">
+      Completar Análisis <app-lucide-icon name="chevron-right" [size]="16"></app-lucide-icon>
+    </button>
+  </div>
+</div>

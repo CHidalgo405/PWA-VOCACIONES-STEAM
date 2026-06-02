@@ -1,0 +1,19 @@
+<div class="step-container context-step slide-in-bottom">
+  <div class="step-header">
+    <div class="icon-blob bg-blue-light">
+      <app-lucide-icon name="briefcase" [size]="24" color="var(--steam-blue)"></app-lucide-icon>
+    </div>
+    <span class="step-badge">Contexto de la Simulación</span>
+  </div>
+  
+  <h2 class="step-title">{{ step().title }}</h2>
+  <div class="content-card">
+    <p class="step-content">{{ step().content }}</p>
+  </div>
+  
+  <div class="action-footer">
+    <button class="primary-btn pulse" (click)="startSimulation()">
+      Entendido, empezar el reto <app-lucide-icon name="arrow-right" [size]="16"></app-lucide-icon>
+    </button>
+  </div>
+</div>

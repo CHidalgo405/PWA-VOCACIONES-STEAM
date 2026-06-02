@@ -1,0 +1,34 @@
+<div class="step-container emotional-step slide-in-bottom">
+  <div class="step-header">
+    <div class="icon-blob bg-orange-light">
+      <app-lucide-icon name="heart" [size]="28" color="#f97316"></app-lucide-icon>
+    </div>
+    <span class="step-badge emotional-badge">Reflexión Personal</span>
+  </div>
+  
+  <h2 class="step-title">{{ step().title }}</h2>
+  <div class="content-card">
+    <p class="step-content">{{ step().content }}</p>
+  </div>
+  
+  <div class="options-list mt-4">
+    @for (option of step().options; track option.id) {
+      <div class="decision-option" 
+           [class.selected]="selectedOptionId() === option.id"
+           (click)="selectOption(option.id)">
+        <div class="option-radio">
+          <div class="inner-dot" *ngIf="selectedOptionId() === option.id"></div>
+        </div>
+        <div class="option-content">
+          <span class="option-text">{{ option.text }}</span>
+        </div>
+      </div>
+    }
+  </div>
+  
+  <div class="action-footer">
+    <button class="primary-btn pulse" [disabled]="!selectedOptionId()" (click)="finishReflection()">
+      Finalizar Simulación <app-lucide-icon name="check-circle" [size]="16"></app-lucide-icon>
+    </button>
+  </div>
+</div>

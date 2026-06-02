@@ -1,0 +1,183 @@
+@import '../simulator-step-base';
+
+.emotional-step {
+  text-align: center;
+  align-items: center;
+  padding: 40px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+
+  .step-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+
+    .icon-blob {
+      width: 70px;
+      height: 70px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(249, 115, 22, 0.15); // orange-500
+    }
+
+    .step-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #f97316;
+      background: rgba(249, 115, 22, 0.05);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(249, 115, 22, 0.2);
+    }
+  }
+
+  .step-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+  }
+
+  .content-card {
+    background: transparent;
+    padding: 10px 30px;
+    margin-bottom: 10px;
+    
+    .step-content {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+
+    .decision-option {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+
+      .option-radio {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.2s;
+
+        .inner-dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #f97316;
+        }
+      }
+
+      .option-content {
+        flex: 1;
+        .option-text {
+          font-size: 1rem;
+          color: var(--text-primary);
+          font-weight: 500;
+        }
+      }
+
+      &:hover {
+        background: var(--bg-surface);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      }
+
+      &.selected {
+        border-color: #f97316;
+        background: rgba(249, 115, 22, 0.05);
+        box-shadow: 0 4px 15px rgba(249, 115, 22, 0.1);
+        
+        .option-radio {
+          border-color: #f97316;
+        }
+      }
+    }
+  }
+
+  .action-footer {
+    width: 100%;
+    justify-content: center;
+    border-top: none;
+    margin-top: 30px;
+    
+    .primary-btn {
+      width: 100%;
+      max-width: 300px;
+      padding: 16px 24px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #f97316;
+      color: white;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &.pulse {
+        animation: pulse-orange 2s infinite;
+      }
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
+      }
+
+      &:disabled {
+        background: var(--bg-surface);
+        color: var(--text-muted);
+        border: 1px solid var(--border-color);
+        cursor: not-allowed;
+        animation: none;
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
+@keyframes pulse-orange {
+  0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(249, 115, 22, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+}
+
+@keyframes slideInBottom {
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.slide-in-bottom {
+  animation: slideInBottom 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
