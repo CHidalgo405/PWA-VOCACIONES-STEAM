@@ -1,91 +1,4 @@
 <!-- =============================================
-     VIEW 1: HUB
-     ============================================= -->
-<div class="vt-wrapper" *ngIf="viewState === 'hub'">
-  <div class="vt-hub fade-in">
-    
-    <div class="hub-header">
-      <div class="icon-ring">
-        <app-lucide-icon name="layout-dashboard" [size]="40" color="#07B1C9"></app-lucide-icon>
-      </div>
-      <h1 class="hub-title">Hub de Evaluaciones</h1>
-      <p class="hub-desc">Completa los misiones secuencialmente para desbloquear el análisis completo de tu perfil STEAM.</p>
-    </div>
-
-    <!-- Stepper Visual -->
-    <div class="stepper-container">
-      <div class="step" [class.completed]="mission1Completed" [class.active]="!mission1Completed">
-        <div class="step-icon"><app-lucide-icon [name]="mission1Completed ? 'check' : 'zap'" [size]="18" [color]="mission1Completed ? '#fff' : '#07B1C9'"></app-lucide-icon></div>
-        <span class="step-label">Misión 1</span>
-      </div>
-      <div class="step-line" [class.filled]="mission1Completed"></div>
-      
-      <div class="step" [class.completed]="mission2Completed" [class.active]="mission1Completed && !mission2Completed" [class.pending]="!mission1Completed">
-        <div class="step-icon"><app-lucide-icon [name]="mission2Completed ? 'check' : 'gamepad-2'" [size]="18" [color]="mission2Completed ? '#fff' : (mission1Completed ? '#07B1C9' : '#94A3B8')"></app-lucide-icon></div>
-        <span class="step-label">Misión 2</span>
-      </div>
-      <div class="step-line" [class.filled]="mission2Completed"></div>
-      
-      <div class="step" [class.completed]="mission3Completed" [class.active]="mission2Completed && !mission3Completed" [class.pending]="!mission2Completed">
-        <div class="step-icon"><app-lucide-icon [name]="mission3Completed ? 'check' : 'alert-triangle'" [size]="18" [color]="mission3Completed ? '#fff' : (mission2Completed ? '#07B1C9' : '#94A3B8')"></app-lucide-icon></div>
-        <span class="step-label">Misión 3</span>
-      </div>
-    </div>
-
-    <div class="modules-grid">
-      <!-- Módulo 1 -->
-      <div class="module-card" [class.active]="!mission1Completed" [class.locked]="mission1Completed">
-        <div class="module-status">
-          <span class="status-badge" [class.available]="!mission1Completed" [class.locked-badge]="mission1Completed">
-            {{ mission1Completed ? 'Completada' : 'Disponible' }}
-          </span>
-          <app-lucide-icon [name]="mission1Completed ? 'check-circle' : 'zap'" [size]="20" [color]="mission1Completed ? '#4ADE80' : '#07B1C9'"></app-lucide-icon>
-        </div>
-        <h3>Misión 1: Test Teórico STEAM</h3>
-        <p>Descubre tu afinidad principal resolviendo 20 escenarios prácticos.</p>
-        <button class="btn-start pulse-anim" (click)="startTest()" *ngIf="!mission1Completed" [disabled]="isLoadingQuestions">
-          <span *ngIf="isLoadingQuestions">Cargando...</span>
-          <span *ngIf="!isLoadingQuestions">Iniciar Misión</span>
-        </button>
-        <button class="btn-locked" disabled *ngIf="mission1Completed">Misión Finalizada</button>
-        <p *ngIf="loadingError" class="error-msg">{{ loadingError }}</p>
-      </div>
-
-      <!-- Módulo 2 -->
-      <div class="module-card" [class.active]="mission1Completed && !mission2Completed" [class.locked]="!mission1Completed || mission2Completed">
-        <div class="module-status">
-          <span class="status-badge" [class.available]="mission1Completed && !mission2Completed" [class.locked-badge]="!mission1Completed || mission2Completed">
-            {{ mission2Completed ? 'Completada' : (mission1Completed ? 'Disponible' : 'Bloqueado') }}
-          </span>
-          <app-lucide-icon [name]="mission2Completed ? 'check-circle' : 'lock'" [size]="20" [color]="mission2Completed ? '#4ADE80' : '#94A3B8'"></app-lucide-icon>
-        </div>
-        <h3>Misión 2: Hobbies y Videojuegos</h3>
-        <p>Analiza cómo tus pasatiempos revelan tus talentos ocultos.</p>
-        <button class="btn-start pulse-anim" (click)="startMission2()" *ngIf="mission1Completed && !mission2Completed">Iniciar Misión</button>
-        <button class="btn-locked" disabled *ngIf="!mission1Completed">Requiere Misión 1</button>
-        <button class="btn-locked" disabled *ngIf="mission2Completed">Misión Finalizada</button>
-      </div>
-
-      <!-- Módulo 3 -->
-      <div class="module-card" [class.active]="mission2Completed && !mission3Completed" [class.locked]="!mission2Completed || mission3Completed">
-        <div class="module-status">
-          <span class="status-badge" [class.available]="mission2Completed && !mission3Completed" [class.locked-badge]="!mission2Completed || mission3Completed">
-            {{ mission3Completed ? 'Completada' : (mission2Completed ? 'Disponible' : 'Bloqueado') }}
-          </span>
-          <app-lucide-icon [name]="mission3Completed ? 'check-circle' : 'lock'" [size]="20" [color]="mission3Completed ? '#4ADE80' : '#94A3B8'"></app-lucide-icon>
-        </div>
-        <h3>Misión 3: Laboratorio de Errores</h3>
-        <p>Evalúa cómo te enfrentas a la frustración y resuelves problemas complejos.</p>
-        <button class="btn-start pulse-anim" (click)="startMission3()" *ngIf="mission2Completed && !mission3Completed">Iniciar Misión</button>
-        <button class="btn-locked" disabled *ngIf="!mission2Completed">Requiere Misión 2</button>
-        <button class="btn-locked" disabled *ngIf="mission3Completed">Misión Finalizada</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- =============================================
      VIEW 2: QUESTIONNAIRE
      ============================================= -->
 <div class="vt-wrapper" *ngIf="viewState === 'questionnaire'">
@@ -206,50 +119,7 @@
 </div>
 
 
-<!-- =============================================
-     VIEW 3: LOCATION PROMPT
-     ============================================= -->
-<div class="vt-wrapper" *ngIf="viewState === 'location-prompt'">
-  <div class="vt-onboarding fade-in">
-    <!-- Reusing onboarding styling -->
-    <div class="bg-orb orb-1"></div>
-    <div class="bg-orb orb-2"></div>
 
-    <div class="onboarding-card">
-      <div class="onboarding-icon">
-        <div class="icon-ring">
-          <app-lucide-icon name="map-pin" [size]="48" color="#07B1C9"></app-lucide-icon>
-        </div>
-      </div>
-
-      <h1 class="onboarding-title" style="margin-top: 15px;">¡Test Completado!</h1>
-      <p class="onboarding-desc">
-        ¿Te gustaría que nuestra IA incluya opciones de universidades <strong>cerca de ti</strong> en tus resultados?
-      </p>
-
-      <div class="location-toggle-group">
-        <button class="toggle-btn" [class.active]="wantsLocalUniversities === true" (click)="wantsLocalUniversities = true">
-          Sí, buscar cerca
-        </button>
-        <button class="toggle-btn" [class.active]="wantsLocalUniversities === false" (click)="wantsLocalUniversities = false; userLocation = ''">
-          No, gracias
-        </button>
-      </div>
-
-      <div class="location-input-wrap fade-in-up" *ngIf="wantsLocalUniversities">
-        <input type="text" [(ngModel)]="userLocation" placeholder="Ej. Córdoba, Veracruz o C.P. 94500" class="vt-location-input">
-      </div>
-
-      <button class="btn-start pulse-anim" (click)="finishTest()" style="margin-top: 25px;"
-              [disabled]="wantsLocalUniversities === null || (wantsLocalUniversities === true && !userLocation.trim()) || isFinishing">
-        <span>
-          <app-lucide-icon name="check-circle" [size]="18" color="white" style="margin-right:8px;margin-bottom:-3px;"></app-lucide-icon>
-          Generar Resultados
-        </span>
-      </button>
-    </div>
-  </div>
-</div>
 
 
 <!-- =============================================
@@ -261,17 +131,6 @@
   [controlExternally]="true"
   [isVisible]="true">
 </app-splash-screen>
-
-
-<!-- =============================================
-     VIEW 5: MISSION 2 (Hobbies)
-     ============================================= -->
-<app-hobbies-test *ngIf="viewState === 'mission2'" (completed)="onMission2Completed($event)"></app-hobbies-test>
-
-<!-- =============================================
-     VIEW 6: MISSION 3 (Error Lab)
-     ============================================= -->
-<app-error-lab *ngIf="viewState === 'mission3'" (giveUp)="onMission3Completed($event)"></app-error-lab>
 
 <!-- =============================================
      EXIT CONFIRMATION MODAL

@@ -1,0 +1,19 @@
+<div class="location-filter-wrapper">
+  <div class="filter-header">
+    <app-lucide-icon name="map-pin" [size]="18" color="var(--steam-blue)"></app-lucide-icon>
+    <span>Filtra por ubicación</span>
+  </div>
+  <p class="filter-desc">Añade tu ciudad o estado para encontrar universidades recomendadas cerca de ti.</p>
+  <div class="input-group">
+    <input 
+      type="text" 
+      [ngModel]="location()" 
+      (ngModelChange)="location.set($event)"
+      (keydown)="handleKeydown($event)"
+      placeholder="Ej. Córdoba, Veracruz o C.P. 94500" 
+      class="location-input" />
+    <button class="btn-apply" (click)="applyLocation()" [disabled]="!location().trim()">
+      Actualizar
+    </button>
+  </div>
+</div>

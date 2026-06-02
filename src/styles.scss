@@ -26,6 +26,13 @@
   --bg-elevated: #F1F5F9;
   --bg-glass: rgba(255, 255, 255, 0.85);
 
+  /* Glassmorphism Tokens (Light) */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --glass-shadow-hover: 0 12px 40px 0 rgba(31, 38, 135, 0.12);
+  --glass-blur: 12px;
+
   --text-primary: #1E293B;
   --text-secondary: #64748B;
   --text-muted: #9CA3AF;
@@ -57,10 +64,20 @@
    DESIGN TOKENS — DARK MODE
    ========================================= */
 body.dark-theme {
-  --bg-canvas: #111827;
+  --bg-canvas: #0A0A0A;
   --bg-surface: #1F2937;
   --bg-elevated: #374151;
   --bg-glass: rgba(31, 41, 55, 0.85);
+
+  /* Glassmorphism Tokens (Dark) */
+  --glass-bg: rgba(20, 20, 20, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --glass-shadow-hover: 0 12px 40px 0 rgba(7, 177, 201, 0.15); /* Neon glow hover */
+  --glass-blur: 12px;
+
+  /* Neon overrides for Dark Mode */
+  --steam-blue: #00E5FF;
 
   --text-primary: #F9FAFB;
   --text-secondary: #9CA3AF;

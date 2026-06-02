@@ -1,5 +1,7 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 
 @Component({
@@ -10,7 +12,7 @@ import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon
   styleUrls: ['./error-lab.component.scss']
 })
 export class ErrorLabComponent implements OnInit, OnDestroy {
-  @Output() giveUp = new EventEmitter<{ timeSpent: number; attempts: number }>();
+  constructor(private router: Router, private authService: AuthService) {}
 
   timeSpent = 0;
   attempts = 0;
@@ -54,9 +56,19 @@ export class ErrorLabComponent implements OnInit, OnDestroy {
   }
 
   finish() {
-    this.giveUp.emit({
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id || 'guest';
+    
+    // Save locally
+    const metrics = {
       timeSpent: this.timeSpent,
       attempts: this.attempts
-    });
+    };
+    localStorage.setItem(`mission3_metrics_${userId}`, JSON.stringify(metrics));
+    
+    // In a real scenario, this might also call an API to save mission progress
+    
+    // Navigate back to Dashboard
+    this.router.navigate(['/dashboard']);
   }
 }

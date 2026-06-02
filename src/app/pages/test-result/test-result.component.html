@@ -280,10 +280,12 @@
     </app-splash-screen>
 
 
-    <!-- ============================================================
+    <!-- =============================================
          VIEW 2: UNIVERSITIES — REDESIGNED SPLIT-VIEW
-         ============================================================ -->
+         ============================================= -->
     <div class="view-universities" *ngIf="viewState === 'universities' && !isLoading">
+
+        <app-location-filter (locationChanged)="updateLocation($event)"></app-location-filter>
 
         <!-- Header -->
         <div class="universities-header">

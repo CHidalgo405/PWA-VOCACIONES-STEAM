@@ -9,31 +9,17 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
-import { ErrorLabComponent } from './error-lab/error-lab.component';
-import { HobbiesTestComponent } from './hobbies-test/hobbies-test.component';
-
 @Component({
     selector: 'app-evaluations',
     standalone: true,
-    imports: [CommonModule, FormsModule, DecimalPipe, SplashScreenComponent, LucideIconComponent, HobbiesTestComponent, ErrorLabComponent],
+    imports: [CommonModule, FormsModule, DecimalPipe, SplashScreenComponent, LucideIconComponent],
     templateUrl: './evaluations.component.html',
     styleUrls: ['./evaluations.component.scss']
 })
 export class EvaluationsComponent implements OnInit {
 
-    // Test states: 'hub' | 'questionnaire' | 'mission2' | 'mission3' | 'location-prompt' | 'analyzing'
-    viewState: 'hub' | 'questionnaire' | 'mission2' | 'mission3' | 'location-prompt' | 'analyzing' = 'hub';
-
-    // Mission States
-    mission1Completed = false;
-    mission2Completed = false;
-    mission3Completed = false;
-    hobbiesAnswers: any = null;
-    errorLabMetrics: any = null;
-
-    // Location prompt variables
-    wantsLocalUniversities: boolean | null = null;
-    userLocation: string = '';
+    // Test states: 'questionnaire' | 'analyzing'
+    viewState: 'questionnaire' | 'analyzing' = 'questionnaire';
 
     // Questions Data
     questions: Question[] = [];
@@ -77,21 +63,6 @@ export class EvaluationsComponent implements OnInit {
             this.questions = data;
             this.isLoadingQuestions = false;
         });
-    }
-
-    startTest() {
-        this.viewState = 'questionnaire';
-        this.currentQuestionIndex = 0;
-        this.userAnswers = {};
-        this.resetScores();
-    }
-
-    startMission2() {
-        this.viewState = 'mission2';
-    }
-
-    startMission3() {
-        this.viewState = 'mission3';
     }
 
     resetScores() {
@@ -154,31 +125,8 @@ export class EvaluationsComponent implements OnInit {
             });
         } else {
             // End of Mission 1
-            this.mission1Completed = true;
-            this.viewState = 'hub';
+            this.finishTest();
         }
-    }
-
-    onMission2Completed(answers: any) {
-        this.hobbiesAnswers = answers;
-        this.mission2Completed = true;
-        this.viewState = 'hub';
-    }
-
-    onMission3Completed(metrics: any) {
-        this.errorLabMetrics = metrics;
-        this.mission3Completed = true;
-        this.viewState = 'location-prompt';
-        
-        // Assemble final payload locally
-        const user = this.authService.getCurrentUser();
-        const userId = user?.id || 'guest';
-        const finalPayload = {
-            m1Answers: this.userAnswers,
-            m2Hobbies: this.hobbiesAnswers,
-            m3Metrics: this.errorLabMetrics
-        };
-        localStorage.setItem(`test_answers_extended_${userId}`, JSON.stringify(finalPayload));
     }
 
     /** Briefly removes then re-adds the animation class for smooth transitions */
@@ -213,13 +161,6 @@ export class EvaluationsComponent implements OnInit {
         // Save answers so the results page can call the API
         const userId = user?.id || 'guest';
         localStorage.setItem(`test_answers_${userId}`, JSON.stringify(this.userAnswers));
-
-        // Save location if user wants local universities
-        if (this.wantsLocalUniversities && this.userLocation.trim()) {
-            localStorage.setItem(`test_location_${userId}`, this.userLocation.trim());
-        } else {
-            localStorage.removeItem(`test_location_${userId}`);
-        }
 
         // Simulate a brief delay before navigating
         setTimeout(() => {

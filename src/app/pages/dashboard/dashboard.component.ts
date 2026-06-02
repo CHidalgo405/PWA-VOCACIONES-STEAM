@@ -200,9 +200,13 @@ export class DashboardComponent implements OnInit {
   }
 
   goToMission(missionId: string) {
-    // Navigate to evaluations hub. The hub handles displaying missions.
-    // In the future, we can pass queryParams to auto-start a mission.
-    this.router.navigate(['/evaluations'], { queryParams: { mission: missionId } });
+    if (missionId === 'mission1') {
+      this.router.navigate(['/evaluations']);
+    } else if (missionId === 'mission2') {
+      this.router.navigate(['/evaluations/mission-2']);
+    } else if (missionId === 'mission3') {
+      this.router.navigate(['/evaluations/mission-3']);
+    }
   }
 
   closeWelcomeModal() {

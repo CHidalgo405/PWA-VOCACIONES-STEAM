@@ -20,6 +20,7 @@ import { HistoryComponent } from './pages/history/history.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { missionUnlockGuard } from './core/guards/mission-unlock.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/welcome', pathMatch: 'full' },
@@ -28,6 +29,8 @@ export const routes: Routes = [
   { path: 'olvide-contrasena', component: ForgotPasswordComponent, canActivate: [guestGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'evaluations', component: EvaluationsComponent, canActivate: [authGuard] },
+  { path: 'evaluations/mission-2', loadComponent: () => import('./pages/evaluations/hobbies-test/hobbies-test.component').then(m => m.HobbiesTestComponent), canActivate: [authGuard, missionUnlockGuard] },
+  { path: 'evaluations/mission-3', loadComponent: () => import('./pages/evaluations/error-lab/error-lab.component').then(m => m.ErrorLabComponent), canActivate: [authGuard, missionUnlockGuard] },
   { path: 'test-result', component: TestResultComponent, canActivate: [authGuard] },
   { path: 'test-result/:id', component: TestResultComponent, canActivate: [authGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [authGuard] },

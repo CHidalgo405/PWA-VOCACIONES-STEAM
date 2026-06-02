@@ -12,6 +12,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { HeaderComponent } from '../../components/header/header.component';
+import { LocationFilterComponent } from '../../components/location-filter/location-filter.component';
 import { timer } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import jsPDF from 'jspdf';
@@ -32,7 +33,7 @@ export interface SteamArea {
 @Component({
   selector: 'app-test-result',
   standalone: true,
-  imports: [CommonModule, FormsModule, SplashScreenComponent, LucideIconComponent, PdfReportTemplateComponent, HeaderComponent],
+  imports: [CommonModule, FormsModule, SplashScreenComponent, LucideIconComponent, PdfReportTemplateComponent, HeaderComponent, LocationFilterComponent],
   templateUrl: './test-result.component.html',
   styleUrls: ['./test-result.component.scss']
 })
@@ -504,8 +505,18 @@ export class TestResultComponent implements OnInit {
       error: (err) => {
         console.error('Error during AI Search:', err);
         this.isLoading = false;
+        this.toastService.showToast('Error al buscar universidades en la zona solicitada.', 'error');
       }
     });
+  }
+
+  updateLocation(newLocation: string) {
+    this.locationInput = newLocation;
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id || 'guest';
+    localStorage.setItem(`test_location_${userId}`, newLocation);
+    
+    this.startAISearch();
   }
 
   openDetails(university: UniversityRecommendation) {

@@ -1,5 +1,7 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 
 interface HobbyCard {
@@ -16,7 +18,7 @@ interface HobbyCard {
   styleUrls: ['./hobbies-test.component.scss']
 })
 export class HobbiesTestComponent {
-  @Output() completed = new EventEmitter<any>();
+  constructor(private router: Router, private authService: AuthService) {}
 
   cards: HobbyCard[] = [
     { id: '1', text: 'Construir bases y estructuras', category: 'ingenieria' },
@@ -52,6 +54,15 @@ export class HobbiesTestComponent {
   }
 
   finish() {
-    this.completed.emit(this.answers);
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id || 'guest';
+    
+    // Save locally
+    localStorage.setItem(`mission2_answers_${userId}`, JSON.stringify(this.answers));
+    
+    // In a real scenario, this might also call an API to save mission progress
+    
+    // Navigate back to Dashboard
+    this.router.navigate(['/dashboard']);
   }
 }
