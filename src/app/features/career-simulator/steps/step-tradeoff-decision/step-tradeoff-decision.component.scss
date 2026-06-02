@@ -7,8 +7,8 @@
 }
 
 .tradeoff-card {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
@@ -16,7 +16,7 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   
   &:hover:not(.expanded) {
-    border-color: #cbd5e1;
+    border-color: var(--border-color);
     transform: translateY(-2px);
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
   }
@@ -28,7 +28,7 @@
     
     .card-header {
       background-color: rgba(var(--area-color-rgb, 59, 130, 246), 0.03);
-      border-bottom: 1px solid #f1f5f9;
+      border-bottom: 1px solid var(--border-color);
       
       .option-title {
         color: var(--area-color, #3b82f6);
@@ -38,7 +38,7 @@
   
   &.unselected {
     opacity: 0.6;
-    background-color: #f8fafc;
+    background-color: var(--bg-canvas);
     transform: scale(0.98);
   }
   
@@ -51,7 +51,7 @@
     
     .option-title {
       font-weight: 600;
-      color: #1e293b;
+      color: var(--text-primary);
       font-size: 1.05rem;
       line-height: 1.4;
       padding-right: 1rem;
@@ -59,7 +59,7 @@
     }
     
     .expand-icon {
-      color: #94a3b8;
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -90,7 +90,7 @@
       font-size: 0.875rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: #64748b;
+      color: var(--text-secondary);
       font-weight: 700;
     }
     
@@ -109,7 +109,7 @@
         
         .text {
           font-size: 0.95rem;
-          color: #334155;
+          color: var(--text-primary);
           line-height: 1.5;
         }
         
@@ -131,7 +131,7 @@
     justify-content: flex-end;
     align-items: center;
     min-height: 54px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--border-color);
     padding-top: 1.25rem;
     
     .select-btn {
@@ -158,7 +158,7 @@
       align-items: center;
       gap: 0.5rem;
       font-size: 1.1rem;
-      background: #ecfdf5;
+      background: rgba(16, 185, 129, 0.1);
       padding: 0.5rem 1.25rem;
       border-radius: 8px;
     }
