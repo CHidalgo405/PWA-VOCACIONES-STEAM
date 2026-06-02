@@ -4,7 +4,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService, Usuario } from '../../core/services/auth.service';
 import { TestSubmissionResponse, VocationTestService, TestDetail } from '../../core/services/test.service';
-import { ProfileStateService } from '../../core/services/profile-state.service';
+import { ProfileResolutionService } from '../../core/services/profile-resolution.service';
 
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
@@ -24,15 +24,16 @@ export class DashboardComponent implements OnInit {
   hasTakenTest = false;
   dominantTraitsStr = 'Pendiente';
   
-  // Gamification State
-  private profileState = inject(ProfileStateService);
-  profileResolution = this.profileState.profileResolution;
-  badges = this.profileState.badges;
-  calibrationModules = this.profileState.calibrationModules;
-  hasTakenBaseTest = this.profileState.hasTakenBaseTest;
-
   // AI Confidence & Simulators
-  aiConfidence = 0;
+  public profileResolution = inject(ProfileResolutionService);
+  iaConfidenceLevel = this.profileResolution.iaConfidenceLevel;
+  confidenceBadges = this.profileResolution.confidenceBadges;
+  activeSimulator: { title: string; progress: number } | null = { 
+    title: 'Reto: Construye tu primer circuito', 
+    progress: 50 
+  };
+
+  // (Removed unused mock stats)
 
   // Modal State
   showWelcomeModal = false;
@@ -166,8 +167,8 @@ export class DashboardComponent implements OnInit {
 
     this.dominantTraitsStr = result.dominantTraits || 'Perfil Mixto';
     
-    // Calculate AI Confidence based on completed modules (Mock: only module 1 is ready, so 33%)
-    this.aiConfidence = 33;
+    // AI Confidence is now handled by ProfileResolutionService
+    // We removed this.aiConfidence = 33;
 
     if (result.recommendations && result.recommendations.length > 0) {
       this.recommendedCareers = result.recommendations.slice(0, 5).map((r: any) => ({
@@ -187,7 +188,7 @@ export class DashboardComponent implements OnInit {
 
   private setDefaultProfile() {
     this.hasTakenTest = false;
-    this.aiConfidence = 0;
+    // aiConfidence handled by service
     this.profileAreas = [
       { name: 'Tecnología', percentage: 0, color: '#F27405' },
       { name: 'Ingeniería', percentage: 0, color: '#4CAF50' },
@@ -205,9 +206,9 @@ export class DashboardComponent implements OnInit {
     if (missionId === 'mission1') {
       this.router.navigate(['/evaluations']);
     } else if (missionId === 'mission2') {
-      this.router.navigate(['/evaluations/hobbies-test']);
+      this.router.navigate(['/evaluations/mission-2']);
     } else if (missionId === 'mission3') {
-      this.router.navigate(['/evaluations/error-lab']);
+      this.router.navigate(['/evaluations/mission-3']);
     }
   }
 
