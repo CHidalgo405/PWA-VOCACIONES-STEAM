@@ -3,16 +3,18 @@
 .emotional-step {
   text-align: center;
   align-items: center;
-  padding: 40px 20px;
   max-width: 600px;
   margin: 0 auto;
+  width: 100%;
 
   .step-header {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s;
 
     .icon-blob {
       width: 70px;
@@ -22,36 +24,46 @@
       align-items: center;
       justify-content: center;
       background: rgba(249, 115, 22, 0.15); // orange-500
+      transition: transform 0.3s;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
     }
 
     .step-badge {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: #f97316;
       background: rgba(249, 115, 22, 0.05);
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 20px;
       border: 1px solid rgba(249, 115, 22, 0.2);
     }
   }
 
   .step-title {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
     font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
+    line-height: 1.2;
   }
 
   .content-card {
     background: transparent;
-    padding: 10px 30px;
+    padding: 10px clamp(15px, 4vw, 30px);
     margin-bottom: 10px;
+    opacity: 0;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
     
     .step-content {
-      font-size: 1.15rem;
-      line-height: 1.7;
+      font-size: clamp(1.05rem, 4vw, 1.15rem);
+      line-height: 1.6;
       color: var(--text-secondary);
       margin: 0;
     }
@@ -62,19 +74,21 @@
     flex-direction: column;
     gap: 12px;
     width: 100%;
+    opacity: 0;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.4s;
 
     .decision-option {
       background: var(--glass-bg);
       backdrop-filter: blur(var(--glass-blur));
       -webkit-backdrop-filter: blur(var(--glass-blur));
       border: 1px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 16px 20px;
       display: flex;
       align-items: center;
       gap: 15px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       text-align: left;
 
       .option-radio {
@@ -86,13 +100,14 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        transition: all 0.2s;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
         .inner-dot {
-          width: 10px;
-          height: 10px;
+          width: 0;
+          height: 0;
           border-radius: 50%;
           background: #f97316;
+          transition: width 0.2s, height 0.2s;
         }
       }
 
@@ -102,22 +117,33 @@
           font-size: 1rem;
           color: var(--text-primary);
           font-weight: 500;
+          transition: color 0.2s;
         }
       }
 
-      &:hover {
+      &:hover:not(.selected) {
         background: var(--bg-surface);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transform: translateX(4px);
+        border-color: rgba(249, 115, 22, 0.3);
       }
 
       &.selected {
         border-color: #f97316;
         background: rgba(249, 115, 22, 0.05);
         box-shadow: 0 4px 15px rgba(249, 115, 22, 0.1);
+        transform: scale(1.02);
         
         .option-radio {
           border-color: #f97316;
+          
+          .inner-dot {
+            width: 10px;
+            height: 10px;
+          }
+        }
+        
+        .option-content .option-text {
+          color: #f97316;
         }
       }
     }
@@ -128,10 +154,13 @@
     justify-content: center;
     border-top: none;
     margin-top: 30px;
+    padding: 0;
+    opacity: 0;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.5s;
     
     .primary-btn {
       width: 100%;
-      max-width: 300px;
+      max-width: 320px;
       padding: 16px 24px;
       font-size: 1.1rem;
       font-weight: 600;
@@ -141,18 +170,39 @@
       gap: 10px;
       background: #f97316;
       color: white;
-      border-radius: 12px;
+      border-radius: 16px;
       border: none;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+      }
 
       &.pulse {
         animation: pulse-orange 2s infinite;
       }
 
       &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 12px 24px rgba(249, 115, 22, 0.4);
+        
+        &::after {
+          left: 150%;
+        }
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(0) scale(0.98);
       }
 
       &:disabled {
@@ -173,11 +223,7 @@
   100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
 }
 
-@keyframes slideInBottom {
-  0% { transform: translateY(30px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-
-.slide-in-bottom {
-  animation: slideInBottom 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@keyframes fadeUp {
+  0% { transform: translateY(20px); opacity: 0; filter: blur(4px); }
+  100% { transform: translateY(0); opacity: 1; filter: blur(0); }
 }

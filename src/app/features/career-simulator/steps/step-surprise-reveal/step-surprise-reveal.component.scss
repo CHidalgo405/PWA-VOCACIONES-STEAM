@@ -3,16 +3,18 @@
 .surprise-step {
   text-align: center;
   align-items: center;
-  padding: 40px 20px;
   max-width: 600px;
   margin: 0 auto;
+  width: 100%;
 
   .step-header {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s;
 
     .icon-blob {
       width: 70px;
@@ -23,26 +25,35 @@
       justify-content: center;
       background: rgba(139, 92, 246, 0.15); // steam-purple
       animation: gentle-shake 3s infinite ease-in-out;
+      transition: transform 0.3s;
+      
+      &:hover {
+        transform: scale(1.1);
+        animation-play-state: paused;
+      }
     }
 
     .step-badge {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: var(--steam-purple, #8b5cf6);
       background: rgba(139, 92, 246, 0.05);
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 20px;
       border: 1px solid rgba(139, 92, 246, 0.2);
     }
   }
 
   .step-title {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
     font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    line-height: 1.2;
+    opacity: 0;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
   }
 
   .content-card.surprise-card {
@@ -50,14 +61,23 @@
     border-left: 4px solid var(--steam-purple, #8b5cf6);
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
-    border-radius: 12px 20px 20px 12px;
-    padding: 30px;
+    border-radius: 12px 24px 24px 12px;
+    padding: clamp(20px, 5vw, 36px);
     box-shadow: 0 10px 30px rgba(139, 92, 246, 0.1);
     margin-bottom: 30px;
+    width: 100%;
+    opacity: 0;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    &:hover {
+      transform: translateX(4px);
+      box-shadow: 0 15px 40px rgba(139, 92, 246, 0.15);
+    }
     
     .step-content {
-      font-size: 1.15rem;
-      line-height: 1.7;
+      font-size: clamp(1.05rem, 4vw, 1.2rem);
+      line-height: 1.6;
       color: var(--text-primary);
       margin: 0;
       font-style: italic;
@@ -68,10 +88,13 @@
     width: 100%;
     justify-content: center;
     border-top: none;
+    padding: 0;
+    opacity: 0;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.4s;
     
     .primary-btn.outline {
       width: 100%;
-      max-width: 300px;
+      max-width: 320px;
       padding: 16px 24px;
       font-size: 1.1rem;
       font-weight: 600;
@@ -81,14 +104,23 @@
       gap: 10px;
       background: transparent;
       color: var(--text-primary);
-      border-radius: 12px;
+      border-radius: 16px;
       border: 2px solid var(--border-color);
       cursor: pointer;
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
 
       &:hover {
         background: var(--bg-elevated);
-        transform: translateY(-2px);
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        border-color: var(--steam-purple, #8b5cf6);
+        color: var(--steam-purple, #8b5cf6);
+      }
+      
+      &:active {
+        transform: translateY(0) scale(0.98);
       }
     }
   }
@@ -97,16 +129,12 @@
 @keyframes gentle-shake {
   0% { transform: rotate(0deg); }
   25% { transform: rotate(5deg); }
-  50% { transform: rotate(0eg); }
+  50% { transform: rotate(0deg); }
   75% { transform: rotate(-5deg); }
   100% { transform: rotate(0deg); }
 }
 
-@keyframes slideInBottom {
-  0% { transform: translateY(30px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-
-.slide-in-bottom {
-  animation: slideInBottom 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@keyframes fadeUp {
+  0% { transform: translateY(20px); opacity: 0; filter: blur(4px); }
+  100% { transform: translateY(0); opacity: 1; filter: blur(0); }
 }
