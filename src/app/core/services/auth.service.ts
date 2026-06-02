@@ -1,9 +1,22 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, map, catchError, tap, throwError } from 'rxjs';
+import { signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { ThemeService } from './theme.service';
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  lucideIconName: string;
+}
+
+export interface CalibrationModule {
+  id: string;
+  status: 'locked' | 'available' | 'completed';
+}
 
 export interface Usuario {
   id?: string;
@@ -14,6 +27,10 @@ export interface Usuario {
   title?: string;
   level?: number;
   darkMode?: boolean;
+  baseResolution?: number;
+  unlockedBadges?: Badge[];
+  calibrationModules?: CalibrationModule[];
+  nicheCareers?: string[];
 }
 
 @Injectable({
@@ -30,6 +47,9 @@ export class AuthService {
   // currentUser subject to react to user changes
   private currentUserSubject = new BehaviorSubject<Usuario | null>(this.getCurrentUser());
   public currentUser$ = this.currentUserSubject.asObservable();
+  
+  // State signal for modern Angular reactivity
+  public currentUserSig = signal<Usuario | null>(this.getCurrentUser());
 
   constructor() { 
     // Apply theme from cached user if exists
@@ -126,7 +146,14 @@ export class AuthService {
            fotoUrl: res.avatarUrl || res.fotoUrl,
            title: res.title,
            level: res.level,
-           darkMode: res.settings?.darkMode
+           darkMode: res.settings?.darkMode,
+           baseResolution: res.baseResolution || 50,
+           unlockedBadges: res.unlockedBadges || [],
+           calibrationModules: res.calibrationModules || [
+             { id: 'hobbies', status: 'available' },
+             { id: 'error-lab', status: 'available' }
+           ],
+           nicheCareers: res.nicheCareers || []
         };
         this.setCurrentUser(user);
         return user;
@@ -148,7 +175,14 @@ export class AuthService {
       fotoUrl: user.avatarUrl,
       title: user.title,
       level: user.level,
-      darkMode: user.settings?.darkMode
+      darkMode: user.settings?.darkMode,
+      baseResolution: user.baseResolution || 50,
+      unlockedBadges: user.unlockedBadges || [],
+      calibrationModules: user.calibrationModules || [
+        { id: 'hobbies', status: 'available' },
+        { id: 'error-lab', status: 'available' }
+      ],
+      nicheCareers: user.nicheCareers || []
     };
 
     localStorage.setItem(this.TOKEN_KEY, token);
@@ -163,9 +197,56 @@ export class AuthService {
   private setCurrentUser(usuario: Usuario) {
     localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
     this.currentUserSubject.next(usuario);
+    this.currentUserSig.set(usuario); // Update signal
     if (usuario.darkMode !== undefined) {
       this.themeService.setTheme(usuario.darkMode);
     }
+  }
+
+  // ---------------------------------------------------------
+  // GAMIFICATION & CALIBRATION LOGIC
+  // ---------------------------------------------------------
+  completeCalibrationModule(moduleId: string) {
+    const user = this.getCurrentUser();
+    if (!user) return;
+
+    // Simulate increasing base resolution by 15%
+    user.baseResolution = Math.min((user.baseResolution || 50) + 15, 100);
+
+    // Update module status
+    if (user.calibrationModules) {
+      const module = user.calibrationModules.find(m => m.id === moduleId);
+      if (module) module.status = 'completed';
+    }
+
+    // Assign specific badges based on the module
+    if (!user.unlockedBadges) user.unlockedBadges = [];
+    
+    if (moduleId === 'hobbies') {
+      user.unlockedBadges.push({
+        id: 'badge-architect',
+        name: 'Mente Arquitectónica',
+        description: 'Capacidad excepcional para estructurar y diseñar sistemas complejos.',
+        lucideIconName: 'component'
+      });
+      if (!user.nicheCareers) user.nicheCareers = [];
+      user.nicheCareers.push('Arquitectura de Software', 'Ingeniería de Sistemas');
+    } else if (moduleId === 'error-lab') {
+      user.unlockedBadges.push({
+        id: 'badge-crisis',
+        name: 'Solucionador de Crisis',
+        description: 'Habilidad comprobada para depurar y resolver problemas bajo presión.',
+        lucideIconName: 'bug'
+      });
+      if (!user.nicheCareers) user.nicheCareers = [];
+      user.nicheCareers.push('Ciberseguridad', 'Ingeniería DevOps');
+    }
+
+    // Persist new state
+    this.setCurrentUser(user);
+    
+    // In a real scenario, we would also sync this with the backend:
+    // this.http.post(`${environment.apiUrl}/users/calibration`, { moduleId }).subscribe();
   }
 
   logout() {

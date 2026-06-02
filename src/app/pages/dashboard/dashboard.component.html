@@ -166,10 +166,10 @@
           <svg viewBox="0 0 100 100" class="confidence-ring">
             <circle class="ring-bg" cx="50" cy="50" r="40"></circle>
             <!-- 2 * PI * r = 251.3 -->
-            <circle class="ring-fill" cx="50" cy="50" r="40" [style.stroke-dasharray]="(iaConfidenceLevel() / 100) * 251.3 + ', 251.3'"></circle>
+            <circle class="ring-fill" cx="50" cy="50" r="40" [style.stroke-dasharray]="(aiConfidence / 100) * 251.3 + ', 251.3'"></circle>
           </svg>
           <div class="ring-text">
-            <span class="ring-val">{{ iaConfidenceLevel() }}%</span>
+            <span class="ring-val">{{ aiConfidence }}%</span>
             <span class="ring-lbl">Confianza IA</span>
           </div>
         </div>
@@ -178,18 +178,27 @@
           <h2>{{ dominantArea ? dominantArea.name : '--' }} <span class="accent-text" [style.color]="dominantArea?.color">{{ dominantArea?.percentage }}%</span></h2>
           <span class="summary-secondary" *ngIf="secondaryArea">Área secundaria: {{ secondaryArea.name }} ({{ secondaryArea.percentage }}%)</span>
           
+          <!-- Badges Section -->
           <div class="badges-container">
-            @for (badge of confidenceBadges(); track badge.label) {
-              @if (badge.achieved) {
-                <div class="badge-item achieved" [title]="badge.label">
-                  <app-lucide-icon [name]="badge.iconName" [size]="16"></app-lucide-icon>
+            <span class="badges-title">Insignias de Talento</span>
+            <div class="badges-grid">
+              @if (authService.currentUserSig()?.unlockedBadges?.length) {
+                @for (badge of authService.currentUserSig()?.unlockedBadges; track badge.id) {
+                  <div class="badge-item active" [title]="badge.description">
+                    <app-lucide-icon [name]="badge.lucideIconName" [size]="18"></app-lucide-icon>
+                  </div>
+                }
+              } @else {
+                <div class="badge-item empty">
+                  <app-lucide-icon name="shield-question" [size]="18"></app-lucide-icon>
+                </div>
+                <div class="badge-item empty">
+                  <app-lucide-icon name="shield-question" [size]="18"></app-lucide-icon>
                 </div>
               }
-            }
-            @if (iaConfidenceLevel() < 30) {
-              <span class="badges-empty-text">Completa misiones para ganar insignias</span>
-            }
+            </div>
           </div>
+          
           <a class="btn-view-analysis" routerLink="/test-result">
             <app-lucide-icon name="bar-chart-2" [size]="14"></app-lucide-icon> Ver análisis detallado
           </a>
@@ -214,6 +223,57 @@
               </div>
             </div>
           }
+        </div>
+      </div>
+    </div>
+
+    <!-- GAMIFICATION BANNER -->
+    <div class="gamification-banner">
+      <div class="banner-text">
+        <app-lucide-icon name="map" [size]="20" class="banner-icon"></app-lucide-icon>
+        <span>Este es tu perfil base, pero tienes talentos ocultos que aún no hemos mapeado.</span>
+      </div>
+      
+      <div class="calibration-modules-container">
+        <h4 class="modules-title">Módulos de Calibración</h4>
+        <div class="modules-grid">
+          
+          <!-- Module 1: Hobbies (Using mock data or real signal state) -->
+          <div class="module-slot" 
+               [class.completed]="authService.currentUserSig()?.calibrationModules?.[0]?.status === 'completed'"
+               [class.available]="authService.currentUserSig()?.calibrationModules?.[0]?.status === 'available'"
+               [class.locked]="authService.currentUserSig()?.calibrationModules?.[0]?.status === 'locked'"
+               (click)="goToMission('mission2')">
+            <div class="slot-icon">
+              @if (authService.currentUserSig()?.calibrationModules?.[0]?.status === 'completed') {
+                <app-lucide-icon name="check-circle-2" [size]="16"></app-lucide-icon>
+              } @else if (authService.currentUserSig()?.calibrationModules?.[0]?.status === 'locked') {
+                <app-lucide-icon name="lock" [size]="16"></app-lucide-icon>
+              } @else {
+                <app-lucide-icon name="gamepad-2" [size]="16"></app-lucide-icon>
+              }
+            </div>
+            <span class="slot-name">Hobbies & Juegos</span>
+          </div>
+
+          <!-- Module 2: Error Lab -->
+          <div class="module-slot"
+               [class.completed]="authService.currentUserSig()?.calibrationModules?.[1]?.status === 'completed'"
+               [class.available]="authService.currentUserSig()?.calibrationModules?.[1]?.status === 'available'"
+               [class.locked]="authService.currentUserSig()?.calibrationModules?.[1]?.status === 'locked'"
+               (click)="goToMission('mission3')">
+            <div class="slot-icon">
+              @if (authService.currentUserSig()?.calibrationModules?.[1]?.status === 'completed') {
+                <app-lucide-icon name="check-circle-2" [size]="16"></app-lucide-icon>
+              } @else if (authService.currentUserSig()?.calibrationModules?.[1]?.status === 'locked') {
+                <app-lucide-icon name="lock" [size]="16"></app-lucide-icon>
+              } @else {
+                <app-lucide-icon name="bug-play" [size]="16"></app-lucide-icon>
+              }
+            </div>
+            <span class="slot-name">Lab. Errores</span>
+          </div>
+
         </div>
       </div>
     </div>
@@ -249,6 +309,26 @@
                 </div>
               </div>
             }
+            
+            <!-- Niche Careers (Unlockable) -->
+            @if (authService.currentUserSig()?.nicheCareers?.length) {
+              @for (niche of authService.currentUserSig()?.nicheCareers; track niche) {
+                <div class="career-card niche-career slide-in-bottom">
+                  <div class="card-icon special">
+                    <app-lucide-icon name="sparkles" [size]="20" color="var(--steam-blue)"></app-lucide-icon>
+                  </div>
+                  <h4>{{ niche }}</h4>
+                  <div class="unlocked-badge-label">
+                    <app-lucide-icon name="unlock" [size]="12"></app-lucide-icon>
+                    Desbloqueada por calibración
+                  </div>
+                  <div class="card-footer-action">
+                    <span>Explorar</span>
+                    <app-lucide-icon name="arrow-right" [size]="14"></app-lucide-icon>
+                  </div>
+                </div>
+              }
+            }
           </div>
         </div>
 
@@ -276,45 +356,6 @@
 
       <!-- SIDEBAR COLUMN: Minimized Actions -->
       <div class="sidebar-column">
-
-        <!-- Misiones de Orientación (Minimizado/Compacto) -->
-        <div class="widget-card compact-card missions-compact-card">
-          <div class="widget-header">
-            <div class="title-with-icon">
-              <app-lucide-icon name="target" [size]="16" color="var(--steam-blue)"></app-lucide-icon>
-              <h3>Misiones</h3>
-            </div>
-          </div>
-          <p class="subtitle-text-xs">Sube el nivel de precisión de tus resultados.</p>
-          
-          <div class="missions-compact-list">
-            @for (mission of profileResolution.missions(); track mission.id) {
-              <!-- Ocultamos la misión 4 del mini widget si queremos solo las 3 primeras, o la mostramos si es necesario. 
-                   El user mencionó: ('Test Teórico', 'Hobbies & Juegos', 'Lab. Errores') así que podemos dejar que salgan todas o filtrar. 
-                   Como profileResolution.missions() incluye 'Simulador de Carrera' (mission4), mostremos todas. -->
-              <div class="mission-item-compact" 
-                   [class]="mission.status" 
-                   (click)="mission.status !== 'locked' ? goToMission(mission.id) : null">
-                
-                <div class="status-icon">
-                  @if (mission.status === 'completed') {
-                    <app-lucide-icon name="check-circle-2" [size]="16" color="var(--steam-green)"></app-lucide-icon>
-                  } @else if (mission.status === 'available') {
-                    <app-lucide-icon name="play-circle" [size]="16" color="var(--steam-blue)" class="pulse-icon"></app-lucide-icon>
-                  } @else {
-                    <app-lucide-icon name="lock" [size]="16" color="var(--text-muted)"></app-lucide-icon>
-                  }
-                </div>
-                
-                <div class="mission-text">{{ mission.title }}</div>
-                
-                @if (mission.status === 'available') {
-                  <app-lucide-icon name="chevron-right" [size]="14" class="arrow"></app-lucide-icon>
-                }
-              </div>
-            }
-          </div>
-        </div>
 
         <!-- Progreso y Reintentar -->
         <div class="widget-card compact-card">

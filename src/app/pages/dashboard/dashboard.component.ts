@@ -1,10 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService, Usuario } from '../../core/services/auth.service';
 import { TestSubmissionResponse, VocationTestService, TestDetail } from '../../core/services/test.service';
-import { ProfileResolutionService } from '../../core/services/profile-resolution.service';
 
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
@@ -25,9 +24,7 @@ export class DashboardComponent implements OnInit {
   dominantTraitsStr = 'Pendiente';
   
   // AI Confidence & Simulators
-  public profileResolution = inject(ProfileResolutionService);
-  iaConfidenceLevel = this.profileResolution.iaConfidenceLevel;
-  confidenceBadges = this.profileResolution.confidenceBadges;
+  aiConfidence = 0;
   activeSimulator: { title: string; progress: number } | null = { 
     title: 'Reto: Construye tu primer circuito', 
     progress: 50 
@@ -47,7 +44,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private router: Router, 
-    private authService: AuthService,
+    public authService: AuthService,
     private testService: VocationTestService
   ) { }
 
@@ -167,8 +164,8 @@ export class DashboardComponent implements OnInit {
 
     this.dominantTraitsStr = result.dominantTraits || 'Perfil Mixto';
     
-    // AI Confidence is now handled by ProfileResolutionService
-    // We removed this.aiConfidence = 33;
+    // Calculate AI Confidence based on completed modules (Mock: only module 1 is ready, so 33%)
+    this.aiConfidence = 33;
 
     if (result.recommendations && result.recommendations.length > 0) {
       this.recommendedCareers = result.recommendations.slice(0, 5).map((r: any) => ({
@@ -188,7 +185,7 @@ export class DashboardComponent implements OnInit {
 
   private setDefaultProfile() {
     this.hasTakenTest = false;
-    // aiConfidence handled by service
+    this.aiConfidence = 0;
     this.profileAreas = [
       { name: 'Tecnología', percentage: 0, color: '#F27405' },
       { name: 'Ingeniería', percentage: 0, color: '#4CAF50' },
