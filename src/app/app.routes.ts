@@ -41,6 +41,7 @@ export const routes: Routes = [
   { path: 'career-simulator/:slug/result', loadComponent: () => import('./features/career-simulator/career-simulator-result/career-simulator-result.component').then(m => m.CareerSimulatorResultComponent), canActivate: [authGuard] },
 
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'mapa-universidades', loadComponent: () => import('./features/universities-map/universities-map.component').then(m => m.UniversitiesMapComponent), canActivate: [authGuard] },
   { path: 'oauth-callback', component: OAuthCallbackComponent },
   { path: 'admin', redirectTo: '/admin/dashboard', pathMatch: 'full' },
   { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [authGuard, adminGuard] },

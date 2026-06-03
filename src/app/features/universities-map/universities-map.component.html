@@ -1,0 +1,25 @@
+<div class="map-container">
+  <h2>Mapa de Universidades STEAM</h2>
+  <p>Encuentra las instituciones que ofrecen carreras STEAM cerca de ti.</p>
+
+  <ng-container *ngIf="isApiLoaded; else loading">
+    <google-map [options]="mapOptions" height="70vh" width="100%">
+      
+      <!-- Iterar sobre las universidades obtenidas de Firebase -->
+      <ng-container *ngIf="universities$ | async as universities">
+        <map-marker 
+          *ngFor="let uni of universities" 
+          [position]="getMarkerPosition(uni.location)"
+          [title]="uni.name"
+        ></map-marker>
+      </ng-container>
+
+    </google-map>
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="loading-state">
+      <p>Cargando el mapa...</p>
+    </div>
+  </ng-template>
+</div>
