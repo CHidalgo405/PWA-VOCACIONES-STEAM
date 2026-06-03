@@ -13,7 +13,7 @@
         
         <!-- Marcador de la ubicación del usuario (punto azul) -->
         <map-marker 
-          *ngIf="userPosition"
+          *ngIf="userPosition && userMarkerIcon"
           [position]="userPosition"
           [options]="{ icon: userMarkerIcon }"
           title="Tú estás aquí"

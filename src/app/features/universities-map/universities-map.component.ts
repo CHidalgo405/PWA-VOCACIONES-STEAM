@@ -31,11 +31,7 @@ export class UniversitiesMapComponent implements OnInit {
   zoom = 6;
 
   // Icono SVG personalizado para el usuario (punto azul)
-  userMarkerIcon: google.maps.Icon = {
-    url: 'data:image/svg+xml;utf-8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234285F4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>',
-    scaledSize: new google.maps.Size(24, 24),
-    anchor: new google.maps.Point(12, 12)
-  };
+  userMarkerIcon: google.maps.Icon | null = null;
 
   // Opciones iniciales por defecto
   mapOptions: google.maps.MapOptions = {
@@ -48,6 +44,14 @@ export class UniversitiesMapComponent implements OnInit {
     this.loaderService.loadMapScript()
       .then(() => {
         this.isApiLoaded = true;
+        
+        // Inicializamos el icono después de que google.maps está cargado
+        this.userMarkerIcon = {
+          url: 'data:image/svg+xml;utf-8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234285F4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>',
+          scaledSize: new google.maps.Size(24, 24),
+          anchor: new google.maps.Point(12, 12)
+        };
+
         this.universities$ = this.universityService.getUniversities();
         // Pedir la ubicación al iniciar
         this.getUserLocation();
