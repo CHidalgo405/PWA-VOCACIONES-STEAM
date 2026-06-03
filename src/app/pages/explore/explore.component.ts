@@ -193,8 +193,9 @@ export class ExploreComponent implements OnInit {
       return;
     }
 
-    // El keyword se basa en el resultado dominante (ej. Tecnología) + universidad
-    const searchQuery = this.dominantTraitsStr + ' universidad';
+    // Usamos simplemente 'universidad' para asegurar resultados.
+    // Combinarlo con 'Tecnología' o 'STEAM' hace que Google Places no devuelva resultados.
+    const searchQuery = 'universidad';
 
     this.universityService.searchNearbyUniversities(this.googleMap.googleMap, this.userPosition, 30000, searchQuery).subscribe({
       next: (results) => {
