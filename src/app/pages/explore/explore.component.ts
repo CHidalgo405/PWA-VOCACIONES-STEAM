@@ -135,6 +135,33 @@ export class ExploreComponent implements OnInit {
     }
   }
 
+  loadSavedUniversities() {
+    this.userService.getSavedUniversities().subscribe({
+      next: (data) => {
+        const mappedSaved = data.map(item => ({
+          id: item.id,
+          name: item.universityName,
+          location: item.location,
+          image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
+          logo: 'graduation-cap',
+          tags: [item.careerName, 'Selección IA'],
+          rating: 4.8,
+          matchPercentage: 90,
+          career: item.careerName,
+          description: item.relationshipExplanation || 'Universidad guardada.',
+          keyDates: item.keyDates || 'Consultar sitio web',
+          studyPlan: item.studyPlan || 'Varios módulos',
+          position: { lat: 14.6349, lng: -90.5069 } // No tenemos el geocoder, pondremos dummy para que no rompa el mapa
+        }));
+
+        this.savedUniversities = mappedSaved;
+      },
+      error: (err) => {
+        console.error("Error cargando universidades guardadas", err);
+      }
+    });
+  }
+
   loadRecommendations() {
     this.isLoading = true;
     this.testService.getLatestTest().subscribe({
