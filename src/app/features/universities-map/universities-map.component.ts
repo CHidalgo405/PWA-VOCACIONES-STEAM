@@ -85,7 +85,7 @@ export class UniversitiesMapComponent implements OnInit {
                 this.searchUniversities(this.googleMap.googleMap, userLocation);
               } else {
                 // Si la instancia nativa no está lista, nos suscribimos al evento tilesloaded una sola vez
-                const listener = this.googleMap.tilesLoaded.subscribe(() => {
+                const listener = this.googleMap.tilesloaded.subscribe(() => {
                   if (this.googleMap.googleMap) {
                     this.searchUniversities(this.googleMap.googleMap, userLocation);
                     listener.unsubscribe();

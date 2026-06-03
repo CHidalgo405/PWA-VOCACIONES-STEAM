@@ -133,56 +133,35 @@ export class ExploreComponent implements OnInit {
 
   resolveUniversityPositions(unis: any[]): Promise<any[]> {
     return new Promise((resolve) => {
-      this.loaderService.loadMapScript().then(() => {
-        this.universityService.getUniversities().subscribe({
-          next: async (dbUnis) => {
-            const geocoder = new google.maps.Geocoder();
-            const updatedUnis = [];
+      this.loaderService.loadMapScript().then(async () => {
+        const geocoder = new google.maps.Geocoder();
+        const updatedUnis = [];
 
-            for (const uni of unis) {
-              let latLng: google.maps.LatLngLiteral | null = null;
+        for (const uni of unis) {
+          let latLng: google.maps.LatLngLiteral | null = null;
 
-              // 1. Intentar coincidencia local con la base de datos de Firestore
-              const dbMatch = dbUnis.find(du => 
-                du.name.toLowerCase().includes(uni.name.toLowerCase()) || 
-                uni.name.toLowerCase().includes(du.name.toLowerCase())
-              );
-
-              if (dbMatch && dbMatch.location) {
-                latLng = {
-                  lat: dbMatch.location.latitude,
-                  lng: dbMatch.location.longitude
-                };
-              } else {
-                // 2. Intentar geocodificar usando la API de Google Maps Geocoding
-                const searchQuery = `${uni.name}, ${uni.location}`;
-                try {
-                  const geoResult = await this.geocodeAddress(geocoder, searchQuery);
-                  if (geoResult) {
-                    latLng = geoResult;
-                  }
-                } catch (e) {
-                  console.warn(`No se pudo geocodificar la dirección para: ${searchQuery}`, e);
-                }
-              }
-
-              // Coordenadas por defecto si todo falla
-              if (!latLng) {
-                latLng = { lat: 14.6349, lng: -90.5069 };
-              }
-
-              updatedUnis.push({
-                ...uni,
-                position: latLng
-              });
+          // Intentar geocodificar usando la API de Google Maps Geocoding
+          const searchQuery = `${uni.name}, ${uni.location}`;
+          try {
+            const geoResult = await this.geocodeAddress(geocoder, searchQuery);
+            if (geoResult) {
+              latLng = geoResult;
             }
-            resolve(updatedUnis);
-          },
-          error: (err) => {
-            console.error("Error al cargar universidades de Firestore para coincidencia:", err);
-            resolve(unis.map(u => ({ ...u, position: { lat: 14.6349, lng: -90.5069 } })));
+          } catch (e) {
+            console.warn(`No se pudo geocodificar la dirección para: ${searchQuery}`, e);
           }
-        });
+
+          // Coordenadas por defecto si todo falla (Guatemala por defecto)
+          if (!latLng) {
+            latLng = { lat: 14.6349, lng: -90.5069 };
+          }
+
+          updatedUnis.push({
+            ...uni,
+            position: latLng
+          });
+        }
+        resolve(updatedUnis);
       }).catch(err => {
         console.error("Script de Google Maps no cargado durante resolución de posiciones:", err);
         resolve(unis.map(u => ({ ...u, position: { lat: 14.6349, lng: -90.5069 } })));
