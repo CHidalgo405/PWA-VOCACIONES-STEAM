@@ -8,18 +8,25 @@
     </div>
 
   <ng-container *ngIf="isApiLoaded; else loading">
-    <google-map [options]="mapOptions" height="70vh" width="100%">
-      
-      <!-- Iterar sobre las universidades obtenidas de Firebase -->
-      <ng-container *ngIf="universities$ | async as universities">
-        <map-marker 
-          *ngFor="let uni of universities" 
-          [position]="getMarkerPosition(uni.location)"
-          [title]="uni.name"
-        ></map-marker>
-      </ng-container>
+    <div class="map-view-area">
+      <google-map #googleMap [options]="mapOptions" height="70vh" width="100%">
+        
+        <!-- Iterar sobre las universidades obtenidas de Firebase -->
+        <ng-container *ngIf="universities$ | async as universities">
+          <map-marker 
+            *ngFor="let uni of universities" 
+            [position]="getMarkerPosition(uni.location)"
+            [title]="uni.name"
+          ></map-marker>
+        </ng-container>
 
-    </google-map>
+      </google-map>
+
+      <!-- Botón flotante para mi ubicación -->
+      <button class="location-fab" (click)="getUserLocation()" [class.locating]="isLocating" title="Mi ubicación">
+        <app-lucide-icon name="crosshair" [size]="24" color="#07B1C9"></app-lucide-icon>
+      </button>
+    </div>
   </ng-container>
 
   <ng-template #loading>
