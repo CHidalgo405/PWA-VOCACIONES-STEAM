@@ -237,43 +237,24 @@
       <div class="calibration-modules-container">
         <h4 class="modules-title">Módulos de Calibración</h4>
         <div class="modules-grid">
-          
-          <!-- Module 1: Hobbies (Using mock data or real signal state) -->
-          <div class="module-slot" 
-               [class.completed]="authService.currentUserSig()?.calibrationModules?.[0]?.status === 'completed'"
-               [class.available]="authService.currentUserSig()?.calibrationModules?.[0]?.status === 'available'"
-               [class.locked]="authService.currentUserSig()?.calibrationModules?.[0]?.status === 'locked'"
-               (click)="goToMission('mission2')">
-            <div class="slot-icon">
-              @if (authService.currentUserSig()?.calibrationModules?.[0]?.status === 'completed') {
-                <app-lucide-icon name="check-circle-2" [size]="16"></app-lucide-icon>
-              } @else if (authService.currentUserSig()?.calibrationModules?.[0]?.status === 'locked') {
-                <app-lucide-icon name="lock" [size]="16"></app-lucide-icon>
-              } @else {
-                <app-lucide-icon name="gamepad-2" [size]="16"></app-lucide-icon>
-              }
+          @for (modConfig of calibrationModulesConfig; track modConfig.id) {
+            <div class="module-slot" 
+                 [class.completed]="getModuleState(modConfig.id) === 'completed'"
+                 [class.available]="getModuleState(modConfig.id) === 'available'"
+                 [class.locked]="getModuleState(modConfig.id) === 'locked'"
+                 (click)="goToMission(modConfig.id)">
+              <div class="slot-icon">
+                @if (getModuleState(modConfig.id) === 'completed') {
+                  <app-lucide-icon name="check-circle-2" [size]="16"></app-lucide-icon>
+                } @else if (getModuleState(modConfig.id) === 'locked') {
+                  <app-lucide-icon name="lock" [size]="16"></app-lucide-icon>
+                } @else {
+                  <app-lucide-icon [name]="modConfig.icon" [size]="16"></app-lucide-icon>
+                }
+              </div>
+              <span class="slot-name">{{ modConfig.title }}</span>
             </div>
-            <span class="slot-name">Hobbies & Juegos</span>
-          </div>
-
-          <!-- Module 2: Error Lab -->
-          <div class="module-slot"
-               [class.completed]="authService.currentUserSig()?.calibrationModules?.[1]?.status === 'completed'"
-               [class.available]="authService.currentUserSig()?.calibrationModules?.[1]?.status === 'available'"
-               [class.locked]="authService.currentUserSig()?.calibrationModules?.[1]?.status === 'locked'"
-               (click)="goToMission('mission3')">
-            <div class="slot-icon">
-              @if (authService.currentUserSig()?.calibrationModules?.[1]?.status === 'completed') {
-                <app-lucide-icon name="check-circle-2" [size]="16"></app-lucide-icon>
-              } @else if (authService.currentUserSig()?.calibrationModules?.[1]?.status === 'locked') {
-                <app-lucide-icon name="lock" [size]="16"></app-lucide-icon>
-              } @else {
-                <app-lucide-icon name="bug-play" [size]="16"></app-lucide-icon>
-              }
-            </div>
-            <span class="slot-name">Lab. Errores</span>
-          </div>
-
+          }
         </div>
       </div>
     </div>

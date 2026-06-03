@@ -169,20 +169,10 @@ export class TestResultComponent implements OnInit {
       })
     ).subscribe({
       next: (result) => {
-        // Apply weighted calculation
-        const extendedAnswersStr = localStorage.getItem(`test_answers_extended_${userId}`);
-        const extendedPayload = extendedAnswersStr ? JSON.parse(extendedAnswersStr) : null;
-        
-        if (extendedPayload) {
-          result.scores = this.calculateWeightedScores(result.scores, extendedPayload);
-        } else {
-          // Fallback: Scale API scores to 100
-          if (result.scores) {
-            Object.keys(result.scores).forEach(k => {
-              result.scores[k] = Math.min((result.scores[k] / 20) * 100, 100);
-            });
-          }
-        }
+        // Save raw scores
+        localStorage.setItem(`test_raw_scores_${userId}`, JSON.stringify(result.scores));
+        // Apply weighted calculation using calibration modules
+        result.scores = this.testService.calculateWeightedScores(result.scores, userId);
 
         localStorage.setItem(`test_result_${userId}`, JSON.stringify(result));
         this.processResult(result);
@@ -395,54 +385,7 @@ export class TestResultComponent implements OnInit {
   }
 
 
-  /** Calculates weighted average: 40% M1, 30% M2, 30% M3 */
-  private calculateWeightedScores(apiScores: Record<string, number>, extendedPayload: any): Record<string, number> {
-    if (!extendedPayload) return apiScores;
 
-    const m2Hobbies = extendedPayload.m2Hobbies || {};
-    const m3Metrics = extendedPayload.m3Metrics || { attempts: 0, timeSpent: 0 };
-
-    const finalScores: Record<string, number> = {};
-    const traits = ['ciencia', 'tecnologia', 'ingenieria', 'artes', 'matematicas'];
-    traits.forEach(t => finalScores[t] = 0);
-
-    // 1. M1 (Teoría) -> 40% (API score out of 20 mapped to 40 max points)
-    traits.forEach(t => {
-      const apiRaw = apiScores[t] || 0;
-      finalScores[t] += Math.min((apiRaw / 20) * 40, 40);
-    });
-
-    // 2. M2 (Hobbies) -> 30%
-    const categoryLikes: Record<string, number> = { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 };
-    const hobbyCategoryMap: Record<string, string> = {
-      '1': 'ingenieria', '2': 'matematicas', '3': 'artes',
-      '4': 'ciencia', '5': 'tecnologia', '6': 'ingenieria'
-    };
-
-    Object.entries(m2Hobbies).forEach(([id, status]) => {
-      if (status === 'liked') {
-        const cat = hobbyCategoryMap[id];
-        if (cat) categoryLikes[cat]++;
-      }
-    });
-
-    traits.forEach(t => {
-      const likes = categoryLikes[t] || 0;
-      const m2Score = Math.min((likes / 2) * 30, 30); // Max 30 pts (2 likes = 30)
-      finalScores[t] += m2Score;
-    });
-
-    // 3. M3 (Resiliencia) -> 30% (Distributed to all traits)
-    const attempts = m3Metrics.attempts || 0;
-    const m3Score = Math.min((attempts / 5) * 30, 30); // Max 30 pts (5 attempts = 30)
-
-    traits.forEach(t => {
-      finalScores[t] += m3Score;
-      finalScores[t] = Math.min(Math.round(finalScores[t]), 100);
-    });
-
-    return finalScores;
-  }
 
   /** Safe area accessors — eliminates optional chaining in templates */
   areaGradientStart(i: number): string {

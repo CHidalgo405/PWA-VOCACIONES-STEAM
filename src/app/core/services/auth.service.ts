@@ -150,8 +150,10 @@ export class AuthService {
            baseResolution: res.baseResolution || 50,
            unlockedBadges: res.unlockedBadges || [],
            calibrationModules: res.calibrationModules || [
-             { id: 'hobbies', status: 'available' },
-             { id: 'error-lab', status: 'available' }
+             { id: 'gaming_habits', status: 'available' },
+             { id: 'physical_hobbies', status: 'available' },
+             { id: 'digital_consumption', status: 'locked' },
+             { id: 'everyday_mechanics', status: 'locked' }
            ],
            nicheCareers: res.nicheCareers || []
         };
@@ -179,8 +181,10 @@ export class AuthService {
       baseResolution: user.baseResolution || 50,
       unlockedBadges: user.unlockedBadges || [],
       calibrationModules: user.calibrationModules || [
-        { id: 'hobbies', status: 'available' },
-        { id: 'error-lab', status: 'available' }
+        { id: 'gaming_habits', status: 'available' },
+        { id: 'physical_hobbies', status: 'available' },
+        { id: 'digital_consumption', status: 'locked' },
+        { id: 'everyday_mechanics', status: 'locked' }
       ],
       nicheCareers: user.nicheCareers || []
     };
@@ -222,24 +226,53 @@ export class AuthService {
     // Assign specific badges based on the module
     if (!user.unlockedBadges) user.unlockedBadges = [];
     
-    if (moduleId === 'hobbies') {
+    if (moduleId === 'gaming_habits') {
       user.unlockedBadges.push({
-        id: 'badge-architect',
-        name: 'Mente Arquitectónica',
-        description: 'Capacidad excepcional para estructurar y diseñar sistemas complejos.',
-        lucideIconName: 'component'
+        id: 'badge-gamer',
+        name: 'Estratega Virtual',
+        description: 'Habilidad para tomar decisiones rápidas y planificar en entornos complejos.',
+        lucideIconName: 'gamepad-2'
       });
       if (!user.nicheCareers) user.nicheCareers = [];
-      user.nicheCareers.push('Arquitectura de Software', 'Ingeniería de Sistemas');
-    } else if (moduleId === 'error-lab') {
+      user.nicheCareers.push('Desarrollo de Videojuegos', 'Inteligencia Artificial');
+
+      // Unlock digital_consumption
+      const nextMod = user.calibrationModules?.find(m => m.id === 'digital_consumption');
+      if (nextMod && nextMod.status === 'locked') nextMod.status = 'available';
+
+    } else if (moduleId === 'physical_hobbies') {
       user.unlockedBadges.push({
-        id: 'badge-crisis',
-        name: 'Solucionador de Crisis',
-        description: 'Habilidad comprobada para depurar y resolver problemas bajo presión.',
-        lucideIconName: 'bug'
+        id: 'badge-ecosystems',
+        name: 'Explorador Naturalista',
+        description: 'Curiosidad científica y conexión con ecosistemas físicos y biológicos.',
+        lucideIconName: 'leaf'
       });
       if (!user.nicheCareers) user.nicheCareers = [];
-      user.nicheCareers.push('Ciberseguridad', 'Ingeniería DevOps');
+      user.nicheCareers.push('Biotecnología', 'Ingeniería Ambiental');
+
+      // Unlock everyday_mechanics
+      const nextMod = user.calibrationModules?.find(m => m.id === 'everyday_mechanics');
+      if (nextMod && nextMod.status === 'locked') nextMod.status = 'available';
+
+    } else if (moduleId === 'digital_consumption') {
+      user.unlockedBadges.push({
+        id: 'badge-digital',
+        name: 'Curador Digital',
+        description: 'Capacidad analítica frente a la información y tecnologías de consumo.',
+        lucideIconName: 'monitor-smartphone'
+      });
+      if (!user.nicheCareers) user.nicheCareers = [];
+      user.nicheCareers.push('Análisis de Datos', 'Marketing Digital Avanzado');
+
+    } else if (moduleId === 'everyday_mechanics') {
+      user.unlockedBadges.push({
+        id: 'badge-mechanic',
+        name: 'Ingenio Práctico',
+        description: 'Destreza para resolver problemas mecánicos y de organización en el día a día.',
+        lucideIconName: 'wrench'
+      });
+      if (!user.nicheCareers) user.nicheCareers = [];
+      user.nicheCareers.push('Ingeniería Mecatrónica', 'Diseño Industrial');
     }
 
     // Persist new state

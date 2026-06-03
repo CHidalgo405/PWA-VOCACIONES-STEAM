@@ -1250,12 +1250,6 @@
   flex-direction: column;
   gap: 20px;
   
-  @media (min-width: 992px) {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
   .banner-text {
     display: flex;
     align-items: flex-start;
@@ -1264,7 +1258,6 @@
     color: var(--text-primary);
     font-weight: 500;
     line-height: 1.5;
-    flex: 1;
     
     .banner-icon {
       color: var(--steam-blue);
@@ -1274,7 +1267,7 @@
   }
   
   .calibration-modules-container {
-    flex: 1.5;
+    width: 100%;
     
     .modules-title {
       font-size: 0.85rem;
@@ -1285,12 +1278,16 @@
     }
     
     .modules-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
       
-      @media (min-width: 640px) {
-        flex-direction: row;
+      @media (min-width: 580px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      @media (min-width: 1024px) {
+        grid-template-columns: repeat(4, 1fr);
       }
       
       .module-slot {

@@ -30,6 +30,13 @@ export class DashboardComponent implements OnInit {
     progress: 50 
   };
 
+  calibrationModulesConfig = [
+    { id: 'gaming_habits', title: 'Hábitos de Gaming', icon: 'gamepad-2' },
+    { id: 'physical_hobbies', title: 'Hobbies y Ecosistemas', icon: 'leaf' },
+    { id: 'digital_consumption', title: 'Consumo Digital', icon: 'monitor-smartphone' },
+    { id: 'everyday_mechanics', title: 'Resolución Doméstica', icon: 'wrench' }
+  ];
+
   // (Removed unused mock stats)
 
   // Modal State
@@ -94,6 +101,7 @@ export class DashboardComponent implements OnInit {
     this.testService.getLatestTest().subscribe({
       next: (latestTest: TestDetail | null) => {
         if (latestTest) {
+          localStorage.setItem(`test_raw_scores_${userId}`, JSON.stringify(latestTest.scores));
           // Actualizamos la caché
           localStorage.setItem(`test_result_${userId}`, JSON.stringify(latestTest));
           localStorage.setItem(`hasTakenTest_${userId}`, 'true');
@@ -132,11 +140,9 @@ export class DashboardComponent implements OnInit {
   private processResultObject(result: any) {
     this.hasTakenTest = true;
     
-    // Support both scores and profileScores to be safe
-    const scores = result.scores || result.profileScores || {};
-    const MAX_SCORE = 20;
-    
-    const topScore = Math.max(...Object.values(scores as Record<string, number>), 0);
+    const userId = this.userProfile?.id || 'guest';
+    const rawScores = result.scores || result.profileScores || {};
+    const weightedScores = this.testService.calculateWeightedScores(rawScores, userId);
 
     const areaColorMap: Record<string, string> = {
       tecnologia: '#F27405',
@@ -154,18 +160,23 @@ export class DashboardComponent implements OnInit {
       matematicas: 'Matemáticas'
     };
 
-    this.profileAreas = Object.entries(scores).map(([key, rawScore]) => {
+    this.profileAreas = Object.entries(weightedScores).map(([key, scoreVal]) => {
       return {
         name: areaNameMap[key] || key,
-        percentage: Math.min(Math.round(((rawScore as number) / MAX_SCORE) * 100), 100),
+        percentage: scoreVal as number,
         color: areaColorMap[key] || '#999999'
       };
     }).sort((a, b) => b.percentage - a.percentage);
 
     this.dominantTraitsStr = result.dominantTraits || 'Perfil Mixto';
     
-    // Calculate AI Confidence based on completed modules (Mock: only module 1 is ready, so 33%)
-    this.aiConfidence = 33;
+    // Calculate AI Confidence based on completed modules
+    if (!this.hasTakenTest) {
+      this.aiConfidence = 0;
+    } else {
+      const completedCount = this.userProfile?.calibrationModules?.filter(m => m.status === 'completed').length || 0;
+      this.aiConfidence = Math.min(20 + completedCount * 20, 100);
+    }
 
     if (result.recommendations && result.recommendations.length > 0) {
       this.recommendedCareers = result.recommendations.slice(0, 5).map((r: any) => ({
@@ -199,13 +210,20 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/evaluations']);
   }
 
-  goToMission(missionId: string) {
-    if (missionId === 'mission1') {
+  getModuleState(moduleId: string): 'locked' | 'available' | 'completed' {
+    const modules = this.authService.currentUserSig()?.calibrationModules;
+    const mod = modules?.find(m => m.id === moduleId);
+    return mod ? mod.status : 'locked';
+  }
+
+  goToMission(moduleId: string) {
+    if (moduleId === 'mission1') {
       this.router.navigate(['/evaluations']);
-    } else if (missionId === 'mission2') {
-      this.router.navigate(['/evaluations/mission-2']);
-    } else if (missionId === 'mission3') {
-      this.router.navigate(['/evaluations/mission-3']);
+    } else {
+      const state = this.getModuleState(moduleId);
+      if (state !== 'locked') {
+        this.router.navigate(['/evaluations/calibration', moduleId]);
+      }
     }
   }
 
