@@ -25,9 +25,17 @@ export class UniversitiesMapComponent implements OnInit {
   isApiLoaded = false;
   isLocating = false;
   universities$: Observable<University[]> | null = null;
+  userPosition: google.maps.LatLngLiteral | null = null;
   
   center: google.maps.LatLngLiteral = { lat: 14.6349, lng: -90.5069 }; // Por defecto
   zoom = 6;
+
+  // Icono SVG personalizado para el usuario (punto azul)
+  userMarkerIcon: google.maps.Icon = {
+    url: 'data:image/svg+xml;utf-8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234285F4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>',
+    scaledSize: new google.maps.Size(24, 24),
+    anchor: new google.maps.Point(12, 12)
+  };
 
   // Opciones iniciales por defecto
   mapOptions: google.maps.MapOptions = {
@@ -60,6 +68,7 @@ export class UniversitiesMapComponent implements OnInit {
               lng: position.coords.longitude
             };
             this.center = userLocation;
+            this.userPosition = userLocation;
             this.zoom = 13;
             
             if (this.googleMap) {
@@ -74,7 +83,8 @@ export class UniversitiesMapComponent implements OnInit {
             this.isLocating = false;
           });
         },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        // Aumentamos el timeout y bajamos la precisión para que Safari no falle al pedir permisos
+        { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 }
       );
     } else {
       console.warn('Geolocalización no soportada por el navegador.');

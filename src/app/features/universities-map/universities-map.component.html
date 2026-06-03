@@ -11,6 +11,14 @@
     <div class="map-view-area">
       <google-map #googleMap [options]="mapOptions" [center]="center" [zoom]="zoom" height="70vh" width="100%">
         
+        <!-- Marcador de la ubicación del usuario (punto azul) -->
+        <map-marker 
+          *ngIf="userPosition"
+          [position]="userPosition"
+          [options]="{ icon: userMarkerIcon }"
+          title="Tú estás aquí"
+        ></map-marker>
+
         <!-- Iterar sobre las universidades obtenidas de Firebase -->
         <ng-container *ngIf="universities$ | async as universities">
           <map-marker 
