@@ -5,11 +5,12 @@ import { GoogleMapsLoaderService } from '../../core/services/google-maps-loader.
 import { UniversityService } from '../../core/services/university.service';
 import { University } from '../../core/models/university.model';
 import { Observable } from 'rxjs';
+import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
   selector: 'app-universities-map',
   standalone: true,
-  imports: [CommonModule, GoogleMapsModule],
+  imports: [CommonModule, GoogleMapsModule, HeaderComponent],
   templateUrl: './universities-map.component.html',
   styleUrls: ['./universities-map.component.scss']
 })

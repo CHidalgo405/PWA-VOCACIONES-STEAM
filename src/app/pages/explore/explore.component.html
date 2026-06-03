@@ -132,7 +132,7 @@
       <section class="all-recommendations-section" *ngIf="filteredOtherUniversities.length > 0">
         <div class="section-header space-between">
           <h3>{{ viewMode === 'explore' ? 'Todas las recomendadas' : 'Universidades guardadas' }}</h3>
-          <a href="#" class="link-cyan" *ngIf="viewMode === 'explore'">Ver mapa &rarr;</a>
+          <a routerLink="/mapa-universidades" class="link-cyan" *ngIf="viewMode === 'explore'">Ver mapa &rarr;</a>
         </div>
 
         <div class="recommendations-list">

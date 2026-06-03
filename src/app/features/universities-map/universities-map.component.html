@@ -1,6 +1,11 @@
-<div class="map-container">
-  <h2>Mapa de Universidades STEAM</h2>
-  <p>Encuentra las instituciones que ofrecen carreras STEAM cerca de ti.</p>
+<div class="map-page-wrapper">
+  <app-header title="Mapa de Universidades" [showBack]="true" backRoute="/explore"></app-header>
+
+  <div class="map-container">
+    <div class="map-header-text">
+      <h2>Mapa de Universidades STEAM</h2>
+      <p>Encuentra las instituciones que ofrecen carreras STEAM cerca de ti.</p>
+    </div>
 
   <ng-container *ngIf="isApiLoaded; else loading">
     <google-map [options]="mapOptions" height="70vh" width="100%">
@@ -22,4 +27,6 @@
       <p>Cargando el mapa...</p>
     </div>
   </ng-template>
+  </div>
 </div>
+
