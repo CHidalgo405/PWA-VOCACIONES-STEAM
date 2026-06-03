@@ -9,7 +9,7 @@
 
   <ng-container *ngIf="isApiLoaded; else loading">
     <div class="map-view-area">
-      <google-map #googleMap [options]="mapOptions" height="70vh" width="100%">
+      <google-map #googleMap [options]="mapOptions" [center]="center" [zoom]="zoom" height="70vh" width="100%">
         
         <!-- Iterar sobre las universidades obtenidas de Firebase -->
         <ng-container *ngIf="universities$ | async as universities">
@@ -24,7 +24,7 @@
 
       <!-- Botón flotante para mi ubicación -->
       <button class="location-fab" (click)="getUserLocation()" [class.locating]="isLocating" title="Mi ubicación">
-        <app-lucide-icon name="crosshair" [size]="24" color="#07B1C9"></app-lucide-icon>
+        <app-lucide-icon name="target" [size]="24" color="#07B1C9"></app-lucide-icon>
       </button>
     </div>
   </ng-container>
