@@ -20,7 +20,7 @@ export class GoogleMapsLoaderService {
     this.loadPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
       // Asegúrate de tener googleMapsApiKey en tu environment
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=places`;
       script.async = true;
       script.defer = true;
       

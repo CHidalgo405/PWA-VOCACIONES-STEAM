@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, ViewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GoogleMap, GoogleMapsModule } from '@angular/google-maps';
+import { GoogleMap, GoogleMapsModule, MapInfoWindow, MapMarker } from '@angular/google-maps';
 import { GoogleMapsLoaderService } from '../../core/services/google-maps-loader.service';
 import { UniversityService } from '../../core/services/university.service';
 import { University } from '../../core/models/university.model';
@@ -21,10 +21,14 @@ export class UniversitiesMapComponent implements OnInit {
   private ngZone = inject(NgZone);
 
   @ViewChild(GoogleMap) googleMap!: GoogleMap;
+  @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
 
   isApiLoaded = false;
   isLocating = false;
-  universities$: Observable<University[]> | null = null;
+  isSearching = false;
+  
+  universities: University[] = [];
+  selectedUniversity: University | null = null;
   userPosition: google.maps.LatLngLiteral | null = null;
   
   center: google.maps.LatLngLiteral = { lat: 14.6349, lng: -90.5069 }; // Por defecto
@@ -52,7 +56,6 @@ export class UniversitiesMapComponent implements OnInit {
           anchor: new google.maps.Point(12, 12)
         };
 
-        this.universities$ = this.universityService.getUniversities();
         // Pedir la ubicación al iniciar
         this.getUserLocation();
       })
@@ -77,6 +80,18 @@ export class UniversitiesMapComponent implements OnInit {
             
             if (this.googleMap) {
               this.googleMap.panTo(userLocation);
+              // Si el mapa ya está inicializado, buscar universidades cercanas
+              if (this.googleMap.googleMap) {
+                this.searchUniversities(this.googleMap.googleMap, userLocation);
+              } else {
+                // Si la instancia nativa no está lista, nos suscribimos al evento tilesloaded una sola vez
+                const listener = this.googleMap.tilesLoaded.subscribe(() => {
+                  if (this.googleMap.googleMap) {
+                    this.searchUniversities(this.googleMap.googleMap, userLocation);
+                    listener.unsubscribe();
+                  }
+                });
+              }
             }
             this.isLocating = false;
           });
@@ -95,11 +110,29 @@ export class UniversitiesMapComponent implements OnInit {
     }
   }
 
-  // Método para convertir GeoPoint de Firebase a google.maps.LatLngLiteral
-  getMarkerPosition(location: any): google.maps.LatLngLiteral {
+  searchUniversities(mapInstance: google.maps.Map, location: google.maps.LatLngLiteral) {
+    this.isSearching = true;
+    this.universityService.searchNearbyUniversities(mapInstance, location, 20000).subscribe({
+      next: (results) => {
+        this.universities = results;
+        this.isSearching = false;
+      },
+      error: (err) => {
+        console.error('Error buscando universidades:', err);
+        this.isSearching = false;
+      }
+    });
+  }
+
+  openInfoWindow(marker: MapMarker, university: University) {
+    this.selectedUniversity = university;
+    this.infoWindow.open(marker);
+  }
+
+  getMarkerPosition(location: { lat: number, lng: number }): google.maps.LatLngLiteral {
     return {
-      lat: location.latitude,
-      lng: location.longitude
+      lat: location.lat,
+      lng: location.lng
     };
   }
 }

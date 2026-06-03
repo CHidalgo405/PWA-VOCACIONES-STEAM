@@ -97,3 +97,46 @@ google-map {
   }
 }
 
+.searching-overlay {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 10px 20px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  z-index: 1000;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(7, 177, 201, 0.3);
+    border-radius: 50%;
+    border-top-color: #07B1C9;
+    animation: spin 1s ease-in-out infinite;
+  }
+}
+
+.info-window-content {
+  padding: 5px;
+  min-width: 200px;
+  font-family: 'Inter', sans-serif;
+  
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+

@@ -19,16 +19,38 @@
           title="Tú estás aquí"
         ></map-marker>
 
-        <!-- Iterar sobre las universidades obtenidas de Firebase -->
-        <ng-container *ngIf="universities$ | async as universities">
-          <map-marker 
-            *ngFor="let uni of universities" 
-            [position]="getMarkerPosition(uni.location)"
-            [title]="uni.name"
-          ></map-marker>
-        </ng-container>
+        <!-- Iterar sobre las universidades obtenidas de Google Places -->
+        <map-marker 
+          *ngFor="let uni of universities" 
+          #marker="mapMarker"
+          [position]="getMarkerPosition(uni.location)"
+          [title]="uni.name"
+          (mapClick)="openInfoWindow(marker, uni)"
+        ></map-marker>
+
+        <!-- Info Window interactivo para las universidades -->
+        <map-info-window>
+          <div *ngIf="selectedUniversity" class="info-window-content">
+            <h3 style="margin-top: 0; color: #333;">{{ selectedUniversity.name }}</h3>
+            <p *ngIf="selectedUniversity.address" style="color: #666; font-size: 14px;">📍 {{ selectedUniversity.address }}</p>
+            <p *ngIf="selectedUniversity.rating" style="color: #f5b041; font-weight: bold; margin-bottom: 5px;">
+              ⭐ {{ selectedUniversity.rating }} ({{ selectedUniversity.userRatingsTotal }} reseñas)
+            </p>
+            <p *ngIf="selectedUniversity.isOpen !== undefined" 
+               [style.color]="selectedUniversity.isOpen ? 'green' : 'red'" 
+               style="font-size: 13px;">
+              {{ selectedUniversity.isOpen ? '🟢 Abierto ahora' : '🔴 Cerrado ahora' }}
+            </p>
+          </div>
+        </map-info-window>
 
       </google-map>
+
+      <!-- Indicador de carga cuando busca universidades -->
+      <div *ngIf="isSearching" class="searching-overlay">
+        <div class="spinner"></div>
+        <p>Buscando universidades cercanas...</p>
+      </div>
 
       <!-- Botón flotante para mi ubicación -->
       <button class="location-fab" (click)="getUserLocation()" [class.locating]="isLocating" title="Mi ubicación">
