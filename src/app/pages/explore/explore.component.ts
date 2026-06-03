@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FormsModule } from '@angular/forms'; // Para el buscador
@@ -12,11 +12,14 @@ import { inject } from '@angular/core';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { HeaderComponent } from '../../components/header/header.component';
 import { Router } from '@angular/router';
+import { GoogleMapsModule, GoogleMap } from '@angular/google-maps';
+import { GoogleMapsLoaderService } from '../../core/services/google-maps-loader.service';
+import { UniversityService } from '../../core/services/university.service';
 
 @Component({
   selector: 'app-explore',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LucideIconComponent, HeaderComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LucideIconComponent, HeaderComponent, GoogleMapsModule],
   templateUrl: './explore.component.html',
   styleUrls: ['./explore.component.scss']
 })
@@ -26,6 +29,25 @@ export class ExploreComponent implements OnInit {
   private userService = inject(UserService);
   private toastService = inject(ToastService);
   private testService = inject(VocationTestService);
+  private loaderService = inject(GoogleMapsLoaderService);
+  private universityService = inject(UniversityService);
+  private ngZone = inject(NgZone);
+
+  @ViewChild(GoogleMap) googleMap!: GoogleMap;
+
+  isApiLoaded = false;
+  isLocating = false;
+  userPosition: google.maps.LatLngLiteral | null = null;
+  userMarkerIcon: google.maps.Icon | null = null;
+  
+  center: google.maps.LatLngLiteral = { lat: 14.6349, lng: -90.5069 }; // Por defecto
+  zoom = 6;
+
+  mapOptions: google.maps.MapOptions = {
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false
+  };
 
   constructor(private authService: AuthService) {}
 
@@ -54,20 +76,140 @@ export class ExploreComponent implements OnInit {
   private router = inject(Router);
 
   ngOnInit() {
+    this.loaderService.loadMapScript()
+      .then(() => {
+        this.isApiLoaded = true;
+        this.userMarkerIcon = {
+          url: 'data:image/svg+xml;utf-8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234285F4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>',
+          scaledSize: new google.maps.Size(24, 24),
+          anchor: new google.maps.Point(12, 12)
+        };
+        this.getUserLocation();
+      })
+      .catch(err => {
+        console.error('No se pudo cargar Google Maps en ExploreComponent:', err);
+      });
+
     this.authService.currentUser$.subscribe(user => {
       if (user?.id) {
-        // Desbloqueo temporal: se permite acceso libre al explorador
-
         this.loadRecommendations();
         this.loadSavedUniversities();
       }
     });
   }
 
+  getUserLocation() {
+    if (navigator.geolocation) {
+      this.isLocating = true;
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.ngZone.run(() => {
+            const userLocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            this.center = userLocation;
+            this.userPosition = userLocation;
+            this.zoom = 13;
+            
+            if (this.googleMap) {
+              this.googleMap.panTo(userLocation);
+            }
+            this.isLocating = false;
+          });
+        },
+        (error) => {
+          this.ngZone.run(() => {
+            console.warn('Error obteniendo ubicación o permiso denegado:', error);
+            this.isLocating = false;
+          });
+        },
+        { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 }
+      );
+    } else {
+      console.warn('Geolocalización no soportada por el navegador.');
+    }
+  }
+
+  resolveUniversityPositions(unis: any[]): Promise<any[]> {
+    return new Promise((resolve) => {
+      this.loaderService.loadMapScript().then(() => {
+        this.universityService.getUniversities().subscribe({
+          next: async (dbUnis) => {
+            const geocoder = new google.maps.Geocoder();
+            const updatedUnis = [];
+
+            for (const uni of unis) {
+              let latLng: google.maps.LatLngLiteral | null = null;
+
+              // 1. Intentar coincidencia local con la base de datos de Firestore
+              const dbMatch = dbUnis.find(du => 
+                du.name.toLowerCase().includes(uni.name.toLowerCase()) || 
+                uni.name.toLowerCase().includes(du.name.toLowerCase())
+              );
+
+              if (dbMatch && dbMatch.location) {
+                latLng = {
+                  lat: dbMatch.location.latitude,
+                  lng: dbMatch.location.longitude
+                };
+              } else {
+                // 2. Intentar geocodificar usando la API de Google Maps Geocoding
+                const searchQuery = `${uni.name}, ${uni.location}`;
+                try {
+                  const geoResult = await this.geocodeAddress(geocoder, searchQuery);
+                  if (geoResult) {
+                    latLng = geoResult;
+                  }
+                } catch (e) {
+                  console.warn(`No se pudo geocodificar la dirección para: ${searchQuery}`, e);
+                }
+              }
+
+              // Coordenadas por defecto si todo falla
+              if (!latLng) {
+                latLng = { lat: 14.6349, lng: -90.5069 };
+              }
+
+              updatedUnis.push({
+                ...uni,
+                position: latLng
+              });
+            }
+            resolve(updatedUnis);
+          },
+          error: (err) => {
+            console.error("Error al cargar universidades de Firestore para coincidencia:", err);
+            resolve(unis.map(u => ({ ...u, position: { lat: 14.6349, lng: -90.5069 } })));
+          }
+        });
+      }).catch(err => {
+        console.error("Script de Google Maps no cargado durante resolución de posiciones:", err);
+        resolve(unis.map(u => ({ ...u, position: { lat: 14.6349, lng: -90.5069 } })));
+      });
+    });
+  }
+
+  private geocodeAddress(geocoder: google.maps.Geocoder, address: string): Promise<google.maps.LatLngLiteral | null> {
+    return new Promise((resolve) => {
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+          const loc = results[0].geometry.location;
+          resolve({
+            lat: loc.lat(),
+            lng: loc.lng()
+          });
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
   loadSavedUniversities() {
     this.userService.getSavedUniversities().subscribe({
       next: (data) => {
-        this.savedUniversities = data.map(item => ({
+        const mappedSaved = data.map(item => ({
           id: item.id,
           name: item.universityName,
           location: item.location,
@@ -75,15 +217,19 @@ export class ExploreComponent implements OnInit {
           logo: 'graduation-cap',
           tags: [item.careerName, 'Selección IA'],
           rating: 4.8,
-          matchPercentage: 90, // Un número alto simulado para las guardadas
+          matchPercentage: 90,
           career: item.careerName,
           description: item.relationshipExplanation || 'Universidad guardada.',
           keyDates: item.keyDates || 'Consultar sitio web',
           studyPlan: item.studyPlan || 'Varios módulos'
         }));
+
+        this.resolveUniversityPositions(mappedSaved).then(resolvedSaved => {
+          this.savedUniversities = resolvedSaved;
+        });
       },
       error: (err) => {
-        console.error("Error loading saved universities", err);
+        console.error("Error cargando universidades guardadas", err);
       }
     });
   }
@@ -96,7 +242,6 @@ export class ExploreComponent implements OnInit {
           this.hasTakenTest = true;
           this.dominantTraitsStr = latestTest.dominantTraits || 'STEAM';
           
-          // Mapear recomendaciones de IA al formato de UI
           const defaultImages = [
             'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
             'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&q=80&w=1000',
@@ -104,8 +249,7 @@ export class ExploreComponent implements OnInit {
             'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000'
           ];
           
-          this.universities = latestTest.recommendations.map((rec: any, index: number) => {
-            // Simulamos un Match descendente a partir del 95%
+          const mappedUnis = latestTest.recommendations.map((rec: any, index: number) => {
             const matchPct = Math.max(70, 95 - (index * 3));
             
             return {
@@ -115,7 +259,7 @@ export class ExploreComponent implements OnInit {
               image: defaultImages[index % defaultImages.length],
               logo: index === 0 ? 'building' : 'graduation-cap', 
               tags: [latestTest.dominantTraits || 'Ciencia', 'Universidad recomendada'],
-              rating: parseFloat((4.9 - (index * 0.1)).toFixed(1)), // Rating simulado descendentemente
+              rating: parseFloat((4.9 - (index * 0.1)).toFixed(1)),
               matchPercentage: matchPct,
               career: rec.suggestedMajor,
               description: rec.matchReason,
@@ -123,12 +267,19 @@ export class ExploreComponent implements OnInit {
               studyPlan: Array.isArray(rec.studyPlan) ? rec.studyPlan.join(', ') : (rec.studyPlan || 'Plan multidisciplinario.')
             };
           });
+
+          this.resolveUniversityPositions(mappedUnis).then(resolvedUnis => {
+            this.universities = resolvedUnis;
+            this.processData();
+            this.isLoading = false;
+          });
+        } else {
+          this.processData();
+          this.isLoading = false;
         }
-        
-        this.processData();
-        this.isLoading = false;
       },
       error: (err) => {
+        console.error("Error cargando recomendaciones", err);
         this.processData();
         this.isLoading = false;
       }
@@ -140,7 +291,6 @@ export class ExploreComponent implements OnInit {
     
     if (this.universities.length > 0) {
       this.bestMatchUniversity = this.universities[0];
-      // Encontrar el match máximo real del array
       this.maxMatchPercentage = Math.max(...this.universities.map(u => u.matchPercentage));
       this.otherUniversities = this.universities.slice(1);
     } else {
@@ -148,6 +298,17 @@ export class ExploreComponent implements OnInit {
       this.maxMatchPercentage = 0;
       this.otherUniversities = [];
     }
+  }
+
+  get currentUniversitiesList(): any[] {
+    const list = this.viewMode === 'saved' ? this.savedUniversities : this.universities;
+    if (!this.searchQuery) return list;
+    const query = this.searchQuery.toLowerCase();
+    return list.filter(uni => 
+      uni.name.toLowerCase().includes(query) || 
+      uni.location.toLowerCase().includes(query) ||
+      (uni.career && uni.career.toLowerCase().includes(query))
+    );
   }
 
   // Getters computados para el filtrado en tiempo real
@@ -206,6 +367,11 @@ export class ExploreComponent implements OnInit {
   openUniversityDetail(uni: any) {
     this.selectedUniversity = uni;
     this.isUniversityModalOpen = true;
+    if (uni && uni.position && this.googleMap) {
+      this.googleMap.panTo(uni.position);
+      this.center = uni.position;
+      this.zoom = 14;
+    }
   }
 
   closeUniversityModal() {

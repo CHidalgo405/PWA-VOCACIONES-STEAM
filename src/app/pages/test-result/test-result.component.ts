@@ -391,12 +391,7 @@ export class TestResultComponent implements OnInit {
   }
 
   navigateToUniversities() {
-    if (this.recommendedUniversities && this.recommendedUniversities.length > 0) {
-      this.viewState = 'universities';
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    } else {
-      this.startAISearch();
-    }
+    this.router.navigate(['/explore']);
   }
 
 

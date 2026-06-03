@@ -34,7 +34,9 @@
   padding: 1.5rem 1.25rem 1rem 1.25rem;
 
   @media (min-width: 1024px) {
-    padding: 2rem 15% 1rem 15%;
+    padding: 2rem 24px 1rem 24px;
+    max-width: 1400px;
+    margin: 0 auto;
   }
 
   .header-content {
@@ -194,10 +196,107 @@
    CONTENT AREA
    ========================================= */
 .explore-content {
-  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 1rem 1.25rem;
+  
+  &.has-test {
+    .explore-list-column {
+      order: 2; /* Muestra el mapa arriba en móvil */
+      width: 100%;
+    }
+    .explore-map-column {
+      order: 1; /* Mapa primero en móvil */
+      width: 100%;
+    }
+  }
 
   @media (min-width: 1024px) {
-    padding: 2rem 15%;
+    padding: 2rem 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+    flex-direction: row;
+    gap: 32px;
+    align-items: flex-start;
+
+    &.has-test {
+      .explore-list-column {
+        width: 45%;
+        order: 1; /* Lista a la izquierda */
+        max-height: 75vh;
+        overflow-y: auto;
+        padding-right: 12px;
+
+        /* Scrollbar personalizado */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(7, 177, 201, 0.25) transparent;
+        &::-webkit-scrollbar { width: 5px; }
+        &::-webkit-scrollbar-thumb {
+          background: rgba(7, 177, 201, 0.3);
+          border-radius: 10px;
+        }
+      }
+
+      .explore-map-column {
+        width: 55%;
+        order: 2; /* Mapa a la derecha */
+        height: 72vh;
+        position: sticky;
+        top: 140px; /* Se alinea con el header sticky */
+      }
+    }
+
+    &:not(.has-test) {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      .explore-list-column {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.explore-map-column {
+  width: 100%;
+  height: 380px;
+  
+  .map-sticky-wrapper {
+    position: relative;
+    height: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-light);
+  }
+}
+
+.location-fab {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  outline: none;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+  
+  &.locating {
+    animation: spin 2s linear infinite;
   }
 }
 
