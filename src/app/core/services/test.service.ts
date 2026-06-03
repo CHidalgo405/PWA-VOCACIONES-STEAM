@@ -97,69 +97,7 @@ export class VocationTestService {
   }
 
   calculateWeightedScores(apiScores: Record<string, number>, userId: string): Record<string, number> {
-    const finalScores: Record<string, number> = {};
-    const traits = ['ciencia', 'tecnologia', 'ingenieria', 'artes', 'matematicas'];
-    traits.forEach(t => finalScores[t] = 0);
-
-    const calibrationPayload: Record<string, any> = {
-      gaming_habits: JSON.parse(localStorage.getItem(`calibration_gaming_habits_answers_${userId}`) || '{}'),
-      physical_hobbies: JSON.parse(localStorage.getItem(`calibration_physical_hobbies_answers_${userId}`) || '{}'),
-      digital_consumption: JSON.parse(localStorage.getItem(`calibration_digital_consumption_answers_${userId}`) || '{}'),
-      everyday_mechanics: JSON.parse(localStorage.getItem(`calibration_everyday_mechanics_answers_${userId}`) || '{}')
-    };
-
-    const completedModules = Object.values(calibrationPayload).some((answers: any) => Object.keys(answers).length > 0);
-
-    if (!completedModules) {
-      // Fallback: Scale API scores to 100
-      traits.forEach(t => {
-        const apiRaw = apiScores[t] || 0;
-        finalScores[t] = Math.min(Math.round((apiRaw / 20) * 100), 100);
-      });
-      return finalScores;
-    }
-
-    // 1. M1 (Teoría) -> 60%
-    traits.forEach(t => {
-      const apiRaw = apiScores[t] || 0;
-      finalScores[t] += Math.min((apiRaw / 20) * 60, 60);
-    });
-
-    // 2. Módulos de Calibración -> 40% (10% cada uno)
-    const categoryMap: Record<string, string> = {
-      gh1: 'ingenieria', gh2: 'tecnologia', gh3: 'matematicas', gh4: 'ciencia', gh5: 'artes', gh6: 'ciencia',
-      ph1: 'ciencia', ph2: 'ingenieria', ph3: 'artes', ph4: 'ciencia', ph5: 'matematicas', ph6: 'tecnologia',
-      dc1: 'ciencia', dc2: 'tecnologia', dc3: 'artes', dc4: 'ingenieria', dc5: 'matematicas', dc6: 'tecnologia',
-      em1: 'ingenieria', em2: 'tecnologia', em3: 'matematicas', em4: 'artes', em5: 'ciencia', em6: 'ingenieria'
-    };
-
-    const modules = ['gaming_habits', 'physical_hobbies', 'digital_consumption', 'everyday_mechanics'];
-    
-    modules.forEach(modId => {
-      const answers = calibrationPayload[modId] || {};
-      const categoryLikes: Record<string, number> = { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 };
-      
-      Object.entries(answers).forEach(([qId, status]) => {
-        if (status === 'liked') {
-          const cat = categoryMap[qId];
-          if (cat) {
-            categoryLikes[cat]++;
-          }
-        }
-      });
-
-      traits.forEach(t => {
-        const likes = categoryLikes[t] || 0;
-        // Each like adds 5 points, max 10 points per module per trait
-        const modScore = Math.min(likes * 5, 10);
-        finalScores[t] += modScore;
-      });
-    });
-
-    traits.forEach(t => {
-      finalScores[t] = Math.min(Math.round(finalScores[t]), 100);
-    });
-
-    return finalScores;
+    // Deprecated client-side calculation. Now the backend returns pre-calibrated weighted scores.
+    return apiScores || {};
   }
 }

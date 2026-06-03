@@ -2,12 +2,13 @@ import { Injectable, inject, DestroyRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, map } from 'rxjs/operators';
 import { 
   SimulatorSessionState, 
-  UserStepDecision
+  UserStepDecision,
+  CareerSimulatorData
 } from '../models/career-simulator.models';
-import { CAREER_SIMULATOR_MAP } from '../data/career-simulators.data';
+import { environment } from '../../../environments/environment';
 import { 
   SimulatorFeedbackRequest, 
   SimulatorFeedbackResponse, 
@@ -44,22 +45,77 @@ export class CareerSimulatorService {
    */
   public readonly currentSession$ = this.sessionSubject.asObservable();
 
+  private inferAreaClass(steamAreaName: string): string {
+    const area = (steamAreaName || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (area.includes('ciencia')) return 'steam-ciencia';
+    if (area.includes('tecnologia')) return 'steam-tecnologia';
+    if (area.includes('ingenieria')) return 'steam-ingenieria';
+    if (area.includes('arte')) return 'steam-arte';
+    if (area.includes('matematica')) return 'steam-matematicas';
+    return 'steam-tecnologia';
+  }
+
+  private inferAreaEmoji(steamAreaName: string): string {
+    const area = (steamAreaName || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (area.includes('ciencia')) return '🔬';
+    if (area.includes('tecnologia')) return '💻';
+    if (area.includes('ingenieria')) return '🏗️';
+    if (area.includes('arte')) return '🎨';
+    if (area.includes('matematica')) return '🧮';
+    return '💻';
+  }
+
+  public getSimulators(): Observable<CareerSimulatorData[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/simulators`).pipe(
+      map(sims => sims.map(sim => ({
+        careerId: sim.careerId || sim.id,
+        careerName: sim.careerName,
+        description: sim.description,
+        steamAreaName: sim.steamAreaName,
+        areaClass: sim.areaClass || this.inferAreaClass(sim.steamAreaName),
+        areaEmoji: sim.areaEmoji || this.inferAreaEmoji(sim.steamAreaName),
+        steps: sim.steps
+      })))
+    );
+  }
+
+  public getSimulator(id: string): Observable<CareerSimulatorData> {
+    return this.http.get<any>(`${environment.apiUrl}/simulators/${id}`).pipe(
+      map(sim => ({
+        careerId: sim.careerId || sim.id,
+        careerName: sim.careerName,
+        description: sim.description,
+        steamAreaName: sim.steamAreaName,
+        areaClass: sim.areaClass || this.inferAreaClass(sim.steamAreaName),
+        areaEmoji: sim.areaEmoji || this.inferAreaEmoji(sim.steamAreaName),
+        steps: sim.steps
+      }))
+    );
+  }
+
   /**
-   * Inicializa una nueva sesión de simulación buscando la carrera por su slug.
+   * Inicializa una nueva sesión de simulación buscando la carrera de forma asíncrona en la API.
    * @param careerSlug El ID o slug de la carrera a simular.
    */
   public startSession(careerSlug: string): void {
-    const careerData = CAREER_SIMULATOR_MAP.get(careerSlug);
-    if (!careerData) {
-      console.error(`No se encontró la carrera con slug: ${careerSlug}`);
-      return;
-    }
-
     this.sessionSubject.next({
       ...this.initialState,
-      currentCareerData: careerData,
-      currentStepStartTime: Date.now(),
-      biasFlags: { too_fast: false, linear_pattern_detected: false }
+      isLoadingAIFeedback: true // Representa cargando metadatos
+    });
+
+    this.getSimulator(careerSlug).subscribe({
+      next: (careerData) => {
+        this.sessionSubject.next({
+          ...this.initialState,
+          currentCareerData: careerData,
+          currentStepStartTime: Date.now(),
+          biasFlags: { too_fast: false, linear_pattern_detected: false }
+        });
+      },
+      error: (err) => {
+        console.error(`No se pudo cargar la sesión del simulador ${careerSlug} desde la API:`, err);
+        this.sessionSubject.next(null);
+      }
     });
   }
 
@@ -164,8 +220,8 @@ export class CareerSimulatorService {
   }
 
   /**
-   * Toma el estado actual de la sesión, construye el payload (SimulatorFeedbackRequest)
-   * y hace el POST a la Serverless API Route para obtener el feedback de la IA.
+   * Toma el estado actual de la sesión, construye el payload y hace el POST
+   * al endpoint REST del backend para evaluar las decisiones matemáticamente.
    * @returns Observable con la respuesta (SimulatorFeedbackResponse).
    */
   public submitForAIFeedback(): Observable<SimulatorFeedbackResponse> {
@@ -174,68 +230,60 @@ export class CareerSimulatorService {
       return throwError(() => new Error('No hay una sesión activa de simulación.'));
     }
 
-    const totalTimeMs = state.userDecisions.reduce((acc, curr) => acc + (curr.timeSpentMs || 0), 0);
-    const avgResponseTimeSeconds = (state.userDecisions.length > 0) 
-      ? Math.round((totalTimeMs / 1000) / state.userDecisions.length) 
-      : 0;
-
-    // Convertir las decisiones locales al contrato de la API
-    const mappedDecisions: SimulatorFeedbackDecision[] = state.userDecisions.map((decision, idx) => {
-      let optionIndex: number | undefined = undefined;
-      let decisionText = decision.reasoning || '';
-      
-      const stepDef = state.currentCareerData!.steps.find(s => s.id === decision.stepId);
-      if (stepDef && stepDef.options && decision.selectedOptionId) {
-        optionIndex = stepDef.options.findIndex(opt => opt.id === decision.selectedOptionId);
-        if (optionIndex !== -1) {
-          const optText = stepDef.options[optionIndex].text;
-          decisionText = decisionText ? `${optText} - ${decisionText}` : optText;
-        }
-      }
-
-      return {
-        step: idx + 1,
-        step_type: decision.stepType,
-        decision_text: decisionText || 'Lectura o interacción básica completada',
-        time_spent_seconds: Math.round((decision.timeSpentMs || 0) / 1000),
-        option_chosen_index: optionIndex !== -1 ? optionIndex : undefined
-      };
-    });
-
-    // Mapeo dinámico de área STEAM para cumplir con el contrato de la API
-    const steamArea = state.currentCareerData.steamAreaName.toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
-    const payload: SimulatorFeedbackRequest = {
-      career_slug: state.currentCareerData.careerId,
-      career_name: state.currentCareerData.careerName,
-      steam_area: steamArea,
-      user_decisions: mappedDecisions,
-      avg_response_time_seconds: avgResponseTimeSeconds,
-      bias_flags: state.biasFlags
-    };
+    // Mapear al contrato simplificado del Backend
+    const decisions = state.userDecisions.map(d => ({
+      stepId: d.stepId,
+      selectedOptionId: d.selectedOptionId || null
+    }));
 
     // Actualizar estado para reflejar la carga
     this.sessionSubject.next({ ...state, isLoadingAIFeedback: true });
 
-    return this.http.post<SimulatorFeedbackResponse>('/api/ia/career-simulator-feedback', payload)
+    const currentId = state.currentCareerData.careerId;
+
+    return this.http.post<any>(`${environment.apiUrl}/simulators/${currentId}/submit`, { decisions })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        tap(response => {
+        map((response: any) => {
+          const defaultSims = [
+            'epidemiologia', 'ux-ui-design', 'ciencia-datos', 'astrofisica', 
+            'inteligencia-artificial', 'ciberseguridad', 'ingenieria-civil', 
+            'ingenieria-biomedica', 'animacion-3d'
+          ];
+          const suggested = defaultSims.filter(s => s !== currentId).slice(0, 3);
+
+          const mappedResponse: SimulatorFeedbackResponse = {
+            reasoning_style: response.feedbackMessage || 'Completado con éxito.',
+            steam_affinity_analysis: 'Afinidad detallada por áreas: ' + 
+              Object.entries(response.aggregatedScores || {})
+                .map(([k, v]) => `${k.toUpperCase()}: ${v}`)
+                .join(', '),
+            strengths_detected: response.strengths || [],
+            honest_reality_check: response.areasForImprovement && response.areasForImprovement.length > 0
+              ? 'Áreas de mejora a considerar: ' + response.areasForImprovement.join('. ')
+              : 'Buen instinto para el área; sigue fortaleciendo tus habilidades.',
+            affinity_score: response.affinityScore || 0,
+            confidence_level: state.biasFlags.too_fast ? 'low' : 'high',
+            suggested_next_simulators: suggested
+          };
+
+          return mappedResponse;
+        }),
+        tap(mappedResponse => {
           // Guardar el feedback en el estado temporalmente
           const currentState = this.sessionSubject.value!;
           this.sessionSubject.next({
             ...currentState,
             isLoadingAIFeedback: false,
-            aiFeedbackData: response
+            aiFeedbackData: mappedResponse
           });
         }),
-        catchError(() => {
+        catchError((err) => {
+          console.error('Error submitting simulator decisions:', err);
           // Revertir el estado de carga y emitir error tipado
           const currentState = this.sessionSubject.value!;
           this.sessionSubject.next({ ...currentState, isLoadingAIFeedback: false });
-          return throwError(() => new Error('Ocurrió un error al contactar con la IA para obtener tu feedback.'));
+          return throwError(() => new Error('Ocurrió un error al enviar tus decisiones al servidor.'));
         })
       );
   }

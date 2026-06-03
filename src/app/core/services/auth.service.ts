@@ -207,6 +207,14 @@ export class AuthService {
     }
   }
 
+  submitCalibration(moduleId: string, answers: Record<string, string>): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/tests/calibration`, { moduleId, answers }).pipe(
+      tap(() => {
+        this.completeCalibrationModule(moduleId);
+      })
+    );
+  }
+
   // ---------------------------------------------------------
   // GAMIFICATION & CALIBRATION LOGIC
   // ---------------------------------------------------------
@@ -277,10 +285,8 @@ export class AuthService {
 
     // Persist new state
     this.setCurrentUser(user);
-    
-    // In a real scenario, we would also sync this with the backend:
-    // this.http.post(`${environment.apiUrl}/users/calibration`, { moduleId }).subscribe();
   }
+
 
   logout() {
     sessionStorage.removeItem(this.USER_KEY);

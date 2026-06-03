@@ -87,4 +87,21 @@ export class AdminService {
   getAiLogsStats(): Observable<AiLogsStatsResponse> {
     return this.http.get<AiLogsStatsResponse>(`${environment.apiUrl}/admin/ai-logs`);
   }
+
+  // --- ADMINISTRACIÓN DE SIMULADORES ---
+  getAdminSimulators(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/admin/simulators`);
+  }
+
+  createSimulator(simulator: any): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/admin/simulators`, simulator);
+  }
+
+  updateSimulator(id: string, simulator: any): Observable<any> {
+    return this.http.put<any>(`${environment.apiUrl}/admin/simulators/${id}`, simulator);
+  }
+
+  deleteSimulator(id: string): Observable<any> {
+    return this.http.delete<any>(`${environment.apiUrl}/admin/simulators/${id}`);
+  }
 }

@@ -25,8 +25,8 @@ export class CareerSimulatorCatalogComponent implements OnInit {
   public completedSimulators = signal<string[]>([]);
   public userSteamProfile = signal<any>(null);
 
-  // Lista base estática extraída del data
-  private allSimulators = signal<CareerSimulatorData[]>(CAREER_SIMULATORS);
+  // Lista base dinámica
+  private allSimulators = signal<CareerSimulatorData[]>([]);
 
   // Computed state para las cards filtradas y ordenadas
   public filteredSimulators = computed(() => {
@@ -61,9 +61,22 @@ export class CareerSimulatorCatalogComponent implements OnInit {
   ngOnInit() {
     this.completedSimulators.set(this.simulatorService.getCompletedSimulators());
 
-    // NOTA TÉCNICA: Se lee el perfil STEAM de localStorage directamente en el ngOnInit 
-    // en lugar de usar un InjectionToken por simplicidad dado que la PWA es cliente puro
-    // sin SSR, y este perfil es estático durante esta vista.
+    // Carga de simuladores desde la API con fallback estático
+    this.simulatorService.getSimulators().subscribe({
+      next: (sims) => {
+        if (sims && sims.length > 0) {
+          this.allSimulators.set(sims);
+        } else {
+          console.log('No simulators in DB, falling back to static list.');
+          this.allSimulators.set(CAREER_SIMULATORS);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load simulators from API, falling back to static list:', err);
+        this.allSimulators.set(CAREER_SIMULATORS);
+      }
+    });
+
     try {
       const stored = localStorage.getItem('steam_profile');
       if (stored) {
@@ -91,14 +104,14 @@ export class CareerSimulatorCatalogComponent implements OnInit {
     }
   }
 
-  // Helper para obtener el área desde los metadatos de la carrera
+  // Helper para obtener el área desde los metadatos de la carrera o lista dinámica
   public getSteamArea(careerId: string): SteamAreaFilter {
-    const sim = CAREER_SIMULATOR_MAP.get(careerId);
+    const sim = CAREER_SIMULATOR_MAP.get(careerId) || this.allSimulators().find(s => s.careerId === careerId);
     return (sim?.steamAreaName ?? 'Tecnología') as SteamAreaFilter;
   }
 
   public getAreaClass(careerId: string): string {
-    const sim = CAREER_SIMULATOR_MAP.get(careerId);
+    const sim = CAREER_SIMULATOR_MAP.get(careerId) || this.allSimulators().find(s => s.careerId === careerId);
     if (!sim) return 'steam-tecnologia';
     // El SCSS del catálogo espera 'steam-artes' con S
     if (sim.areaClass === 'steam-arte') return 'steam-artes';
@@ -106,7 +119,7 @@ export class CareerSimulatorCatalogComponent implements OnInit {
   }
 
   public getAreaEmoji(careerId: string): string {
-    const sim = CAREER_SIMULATOR_MAP.get(careerId);
+    const sim = CAREER_SIMULATOR_MAP.get(careerId) || this.allSimulators().find(s => s.careerId === careerId);
     return sim?.areaEmoji ?? '💻';
   }
 }

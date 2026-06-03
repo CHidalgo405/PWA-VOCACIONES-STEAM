@@ -117,16 +117,17 @@ export class HobbiesTestComponent implements OnInit {
   }
 
   finish() {
-    const user = this.authService.getCurrentUser();
-    const userId = user?.id || 'guest';
-    
-    // Save locally
-    localStorage.setItem(`calibration_${this.moduleId}_answers_${userId}`, JSON.stringify(this.answers));
-    
-    // Complete calibration module
-    this.authService.completeCalibrationModule(this.moduleId);
-    
-    // Navigate back to Dashboard
-    this.router.navigate(['/dashboard']);
+    // Save to the backend database via AuthService
+    this.authService.submitCalibration(this.moduleId, this.answers).subscribe({
+      next: () => {
+        // Navigate back to Dashboard
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        console.error('Error saving calibration to backend:', err);
+        // Fallback to navigate to Dashboard anyway so user does not get stuck
+        this.router.navigate(['/dashboard']);
+      }
+    });
   }
 }
