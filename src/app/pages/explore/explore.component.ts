@@ -79,8 +79,9 @@ export class ExploreComponent implements OnInit {
     this.loaderService.loadMapScript()
       .then(() => {
         this.isApiLoaded = true;
+        const svgMarker = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4285F4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>';
         this.userMarkerIcon = {
-          url: 'data:image/svg+xml;utf-8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234285F4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>',
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgMarker),
           scaledSize: new google.maps.Size(24, 24),
           anchor: new google.maps.Point(12, 12)
         };
@@ -116,6 +117,9 @@ export class ExploreComponent implements OnInit {
               this.googleMap.panTo(userLocation);
             }
             this.isLocating = false;
+            
+            // Intentamos disparar la búsqueda de Places si ya tenemos el test cargado
+            this.triggerPlacesSearch();
           });
         },
         (error) => {
@@ -131,136 +135,75 @@ export class ExploreComponent implements OnInit {
     }
   }
 
-  resolveUniversityPositions(unis: any[]): Promise<any[]> {
-    return new Promise((resolve) => {
-      this.loaderService.loadMapScript().then(async () => {
-        const geocoder = new google.maps.Geocoder();
-        const updatedUnis = [];
-
-        for (const uni of unis) {
-          let latLng: google.maps.LatLngLiteral | null = null;
-
-          // Intentar geocodificar usando la API de Google Maps Geocoding
-          const searchQuery = `${uni.name}, ${uni.location}`;
-          try {
-            const geoResult = await this.geocodeAddress(geocoder, searchQuery);
-            if (geoResult) {
-              latLng = geoResult;
-            }
-          } catch (e) {
-            console.warn(`No se pudo geocodificar la dirección para: ${searchQuery}`, e);
-          }
-
-          // Coordenadas por defecto si todo falla (Guatemala por defecto)
-          if (!latLng) {
-            latLng = { lat: 14.6349, lng: -90.5069 };
-          }
-
-          updatedUnis.push({
-            ...uni,
-            position: latLng
-          });
-        }
-        resolve(updatedUnis);
-      }).catch(err => {
-        console.error("Script de Google Maps no cargado durante resolución de posiciones:", err);
-        resolve(unis.map(u => ({ ...u, position: { lat: 14.6349, lng: -90.5069 } })));
-      });
-    });
-  }
-
-  private geocodeAddress(geocoder: google.maps.Geocoder, address: string): Promise<google.maps.LatLngLiteral | null> {
-    return new Promise((resolve) => {
-      geocoder.geocode({ address }, (results, status) => {
-        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-          const loc = results[0].geometry.location;
-          resolve({
-            lat: loc.lat(),
-            lng: loc.lng()
-          });
-        } else {
-          resolve(null);
-        }
-      });
-    });
-  }
-
-  loadSavedUniversities() {
-    this.userService.getSavedUniversities().subscribe({
-      next: (data) => {
-        const mappedSaved = data.map(item => ({
-          id: item.id,
-          name: item.universityName,
-          location: item.location,
-          image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
-          logo: 'graduation-cap',
-          tags: [item.careerName, 'Selección IA'],
-          rating: 4.8,
-          matchPercentage: 90,
-          career: item.careerName,
-          description: item.relationshipExplanation || 'Universidad guardada.',
-          keyDates: item.keyDates || 'Consultar sitio web',
-          studyPlan: item.studyPlan || 'Varios módulos'
-        }));
-
-        this.resolveUniversityPositions(mappedSaved).then(resolvedSaved => {
-          this.savedUniversities = resolvedSaved;
-        });
-      },
-      error: (err) => {
-        console.error("Error cargando universidades guardadas", err);
-      }
-    });
-  }
-
   loadRecommendations() {
     this.isLoading = true;
     this.testService.getLatestTest().subscribe({
       next: (latestTest: TestDetail | null) => {
-        if (latestTest && latestTest.recommendations && latestTest.recommendations.length > 0) {
+        if (latestTest) {
           this.hasTakenTest = true;
           this.dominantTraitsStr = latestTest.dominantTraits || 'STEAM';
-          
-          const defaultImages = [
-            'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
-            'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&q=80&w=1000',
-            'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
-            'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000'
-          ];
-          
-          const mappedUnis = latestTest.recommendations.map((rec: any, index: number) => {
-            const matchPct = Math.max(70, 95 - (index * 3));
-            
-            return {
-              id: index + 1,
-              name: rec.name,
-              location: rec.location || 'Ubicación no especificada',
-              image: defaultImages[index % defaultImages.length],
-              logo: index === 0 ? 'building' : 'graduation-cap', 
-              tags: [latestTest.dominantTraits || 'Ciencia', 'Universidad recomendada'],
-              rating: parseFloat((4.9 - (index * 0.1)).toFixed(1)),
-              matchPercentage: matchPct,
-              career: rec.suggestedMajor,
-              description: rec.matchReason,
-              keyDates: rec.keyDates || 'Consultar sitio web oficial',
-              studyPlan: Array.isArray(rec.studyPlan) ? rec.studyPlan.join(', ') : (rec.studyPlan || 'Plan multidisciplinario.')
-            };
-          });
-
-          this.resolveUniversityPositions(mappedUnis).then(resolvedUnis => {
-            this.universities = resolvedUnis;
-            this.processData();
-            this.isLoading = false;
-          });
+          this.triggerPlacesSearch();
         } else {
           this.processData();
           this.isLoading = false;
         }
       },
       error: (err) => {
-        console.error("Error cargando recomendaciones", err);
+        console.error("Error cargando perfil del test", err);
         this.processData();
         this.isLoading = false;
+      }
+    });
+  }
+
+  triggerPlacesSearch() {
+    // Solo procedemos si ya tomamos el test, y ya tenemos la ubicación
+    if (!this.hasTakenTest || !this.userPosition) return;
+
+    // Si el mapa aún no está listo en la vista, lo intentamos en un breve timeout
+    if (!this.googleMap || !this.googleMap.googleMap) {
+      setTimeout(() => this.triggerPlacesSearch(), 300);
+      return;
+    }
+
+    // El keyword se basa en el resultado dominante (ej. Tecnología) + universidad
+    const searchQuery = this.dominantTraitsStr + ' universidad';
+
+    this.universityService.searchNearbyUniversities(this.googleMap.googleMap, this.userPosition, 30000, searchQuery).subscribe({
+      next: (results) => {
+        const defaultImages = [
+          'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
+          'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&q=80&w=1000',
+          'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
+          'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000'
+        ];
+
+        this.universities = results.map((place, index) => {
+          const matchPct = Math.max(70, 95 - (index * 2));
+          return {
+            id: place.id,
+            name: place.name,
+            location: place.address || 'Ubicación no especificada',
+            image: place.logoUrl || defaultImages[index % defaultImages.length],
+            logo: index === 0 ? 'building' : 'graduation-cap', 
+            tags: [this.dominantTraitsStr, 'Google Places'],
+            rating: place.rating || 4.5,
+            matchPercentage: matchPct,
+            career: this.dominantTraitsStr,
+            description: place.isOpen ? 'Abierto en este momento.' : 'Cerrado en este momento.',
+            keyDates: 'Consultar sitio web',
+            studyPlan: 'Programas de ' + this.dominantTraitsStr,
+            position: place.location // ¡Para el mapa!
+          };
+        });
+
+        this.processData();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error("Error buscando en Google Places", err);
+        this.isLoading = false;
+        this.processData();
       }
     });
   }

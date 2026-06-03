@@ -50,8 +50,10 @@ export class UniversitiesMapComponent implements OnInit {
         this.isApiLoaded = true;
         
         // Inicializamos el icono después de que google.maps está cargado
+        const svgMarker = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4285F4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>';
+        
         this.userMarkerIcon = {
-          url: 'data:image/svg+xml;utf-8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234285F4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>',
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgMarker),
           scaledSize: new google.maps.Size(24, 24),
           anchor: new google.maps.Point(12, 12)
         };

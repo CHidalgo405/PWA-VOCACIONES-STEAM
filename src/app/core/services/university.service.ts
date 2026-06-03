@@ -14,7 +14,7 @@ export class UniversityService {
    * @param location Coordenadas centrales para la búsqueda
    * @param radius Radio en metros
    */
-  searchNearbyUniversities(mapInstance: google.maps.Map, location: google.maps.LatLngLiteral, radius: number = 50000): Observable<University[]> {
+  searchNearbyUniversities(mapInstance: google.maps.Map, location: google.maps.LatLngLiteral, radius: number = 30000, keyword: string = 'universidad'): Observable<University[]> {
     return new Observable<University[]>(observer => {
       // Necesitamos ejecutar esto asegurándonos de que la librería Places esté cargada
       if (!google.maps || !google.maps.places) {
@@ -28,7 +28,7 @@ export class UniversityService {
         location: location,
         radius: radius,
         type: 'university',
-        keyword: 'universidad' // Opcional, para ayudar a afinar en LATAM
+        keyword: keyword
       };
 
       service.nearbySearch(request, (results, status) => {
