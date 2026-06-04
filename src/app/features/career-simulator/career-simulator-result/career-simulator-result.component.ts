@@ -151,6 +151,10 @@ export class CareerSimulatorResultComponent implements OnInit {
     this.router.navigate(['/profile']);
   }
 
+  public goToCatalog() {
+    this.router.navigate(['/career-simulator']);
+  }
+
   public retrySimulator() {
     this.simulatorService.resetSession();
     this.router.navigate(['/career-simulator', this.slug()]);

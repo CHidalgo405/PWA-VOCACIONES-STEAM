@@ -1,8 +1,8 @@
 import { Injectable, inject, DestroyRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
+import { catchError, tap, map, delay } from 'rxjs/operators';
 import { 
   SimulatorSessionState, 
   UserStepDecision,
@@ -275,52 +275,32 @@ export class CareerSimulatorService {
     // Actualizar estado para reflejar la carga
     this.sessionSubject.next({ ...state, isLoadingAIFeedback: true });
 
-    // Endpoint independiente del servicio de Inteligencia Artificial
-    return this.http.post<any>(`${environment.apiUrl}/ia/career-simulator-feedback`, payload)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        map((response: any) => {
-          const defaultSims = [
-            'epidemiologia', 'ux-ui-design', 'ciencia-datos', 'astrofisica', 
-            'inteligencia-artificial', 'ciberseguridad', 'ingenieria-civil', 
-            'ingenieria-biomedica', 'animacion-3d'
-          ];
-          const suggested = defaultSims.filter(s => s !== state.currentCareerData!.careerId).slice(0, 3);
+    // --- DEMO MOCK: Retornar resultado simulado estático ---
+    const mockResponse: SimulatorFeedbackResponse = {
+      reasoning_style: 'Analítico y estructurado. Tomaste decisiones basadas en datos objetivos antes que en corazonadas.',
+      steam_affinity_analysis: 'CIENCIA: Fuerte, TECNOLOGÍA: Moderado, MATEMÁTICAS: Fuerte',
+      strengths_detected: [
+        'Priorización de riesgos inminentes',
+        'Uso de lógica estructurada',
+        'Visión de impacto a gran escala'
+      ],
+      honest_reality_check: 'Tu nivel de paciencia para lidiar con variables incompletas demuestra que estarías cómodo en entornos de incertidumbre, un aspecto vital de esta carrera.',
+      affinity_score: 85,
+      confidence_level: state.biasFlags.too_fast ? 'low' : 'high',
+      suggested_next_simulators: ['ciencia-de-datos', 'inteligencia-artificial-ml', 'uxui-design']
+    };
 
-          const mappedResponse: SimulatorFeedbackResponse = {
-            reasoning_style: response.feedbackMessage || 'Completado con éxito.',
-            steam_affinity_analysis: 'Afinidad detallada por áreas: ' + 
-              Object.entries(response.aggregatedScores || {})
-                .map(([k, v]) => `${k.toUpperCase()}: ${v}`)
-                .join(', '),
-            strengths_detected: response.strengths || [],
-            honest_reality_check: response.areasForImprovement && response.areasForImprovement.length > 0
-              ? 'Áreas de mejora a considerar: ' + response.areasForImprovement.join('. ')
-              : 'Buen instinto para el área; sigue fortaleciendo tus habilidades.',
-            affinity_score: response.affinityScore || 0,
-            confidence_level: state.biasFlags.too_fast ? 'low' : 'high',
-            suggested_next_simulators: suggested
-          };
-
-          return mappedResponse;
-        }),
-        tap(mappedResponse => {
-          // Guardar el feedback en el estado temporalmente
-          const currentState = this.sessionSubject.value!;
-          this.sessionSubject.next({
-            ...currentState,
-            isLoadingAIFeedback: false,
-            aiFeedbackData: mappedResponse
-          });
-        }),
-        catchError((err) => {
-          console.error('Error submitting simulator decisions:', err);
-          // Revertir el estado de carga y emitir error tipado
-          const currentState = this.sessionSubject.value!;
-          this.sessionSubject.next({ ...currentState, isLoadingAIFeedback: false });
-          return throwError(() => new Error('Ocurrió un error al enviar tus decisiones al servidor.'));
-        })
-      );
+    return of(mockResponse).pipe(
+      delay(3000), // Simular tiempo de procesamiento de IA (3 segundos)
+      tap((response) => {
+        const currentState = this.sessionSubject.value!;
+        this.sessionSubject.next({
+          ...currentState,
+          isLoadingAIFeedback: false,
+          aiFeedbackData: response
+        });
+      })
+    );
   }
 
   /**
