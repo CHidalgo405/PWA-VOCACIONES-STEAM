@@ -95,10 +95,23 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    // Usamos setTimeout para asegurar que Angular ya renderizó la vista (en caso de usar caché síncrono)
+    // Usamos setTimeout para asegurar que Angular ya renderizó la vista 
+    // en el caso de depender de un caché inicial super rápido.
     setTimeout(() => {
       this.ctx = gsap.context(() => {
-        const tl = gsap.timeline();
+        
+        // --- FIX: Evitar conflicto entre transiciones CSS y GSAP ---
+        // GSAP se traba si las clases tienen 'transition: all' en CSS.
+        // Solución: Desactivamos transiciones inline al inicio, y las restauramos al final.
+        const animatedTargets = '.user-greeting, .header-actions, .steam-banner, .hero-stats-panel, .stepper-container, .module-slot, .widget-card, .cta-card, .why-card';
+        
+        gsap.set(animatedTargets, { transition: 'none' });
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            gsap.set(animatedTargets, { clearProps: 'transition' });
+          }
+        });
 
         // 1. El texto de bienvenida y los gráficos circulares/banners: fade-in y escalar desde 0.95
         tl.from('.user-greeting, .header-actions, .steam-banner, .hero-stats-panel, .stepper-container', {
@@ -109,14 +122,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           stagger: 0.1
         });
 
-        // 2. Las tarjetas (Módulos de Calibración, Carreras, etc): entrar desde derecha (translateX 30px)
+        // 2. Las tarjetas (Módulos de Calibración, Carreras, etc): entrar desde la derecha (translateX 30px)
         tl.from('.module-slot, .widget-card, .cta-card, .why-card', {
           duration: 0.8,
           opacity: 0,
           x: 30, // equivalente a translateX(30px)
           ease: 'expo.out',
           stagger: 0.1
-        }, "-=0.4"); // Solapamiento con la animación anterior para mayor dinamismo
+        }, "-=0.4"); // Solapamiento sutil de -0.4s con la animación anterior para mayor dinamismo
       });
     }, 50);
   }
