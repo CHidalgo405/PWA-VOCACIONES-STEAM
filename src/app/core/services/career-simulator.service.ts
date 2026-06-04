@@ -66,28 +66,31 @@ export class CareerSimulatorService {
   }
 
   public getSimulators(): Observable<CareerSimulatorData[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/simulators`).pipe(
+    // Nota: Si el endpoint GET ALL (/api/v1/career-simulators) requiere token de admin,
+    // y este método es llamado por un estudiante, la llamada fallará con 403 Forbidden.
+    // Si la API lo expone públicamente para lectura, esto funcionará correctamente.
+    return this.http.get<any[]>(`${environment.apiUrl}/api/v1/career-simulators`).pipe(
       map(sims => sims.map(sim => ({
-        careerId: sim.careerId || sim.id,
+        careerId: sim.slug || sim.id,
         careerName: sim.careerName,
-        description: sim.description,
-        steamAreaName: sim.steamAreaName,
-        areaClass: sim.areaClass || this.inferAreaClass(sim.steamAreaName),
-        areaEmoji: sim.areaEmoji || this.inferAreaEmoji(sim.steamAreaName),
+        description: sim.description || sim.shortDescription,
+        steamAreaName: sim.steamArea || sim.steamAreaName,
+        areaClass: sim.colorToken ? `bg-[${sim.colorToken}]` : this.inferAreaClass(sim.steamArea || sim.steamAreaName),
+        areaEmoji: sim.icon || this.inferAreaEmoji(sim.steamArea || sim.steamAreaName),
         steps: sim.steps
       })))
     );
   }
 
-  public getSimulator(id: string): Observable<CareerSimulatorData> {
-    return this.http.get<any>(`${environment.apiUrl}/simulators/${id}`).pipe(
+  public getSimulator(slug: string): Observable<CareerSimulatorData> {
+    return this.http.get<any>(`${environment.apiUrl}/api/v1/career-simulators/${slug}`).pipe(
       map(sim => ({
-        careerId: sim.careerId || sim.id,
+        careerId: sim.slug || sim.id,
         careerName: sim.careerName,
-        description: sim.description,
-        steamAreaName: sim.steamAreaName,
-        areaClass: sim.areaClass || this.inferAreaClass(sim.steamAreaName),
-        areaEmoji: sim.areaEmoji || this.inferAreaEmoji(sim.steamAreaName),
+        description: sim.description || sim.shortDescription,
+        steamAreaName: sim.steamArea || sim.steamAreaName,
+        areaClass: sim.colorToken ? `bg-[${sim.colorToken}]` : this.inferAreaClass(sim.steamArea || sim.steamAreaName),
+        areaEmoji: sim.icon || this.inferAreaEmoji(sim.steamArea || sim.steamAreaName),
         steps: sim.steps
       }))
     );
@@ -230,18 +233,49 @@ export class CareerSimulatorService {
       return throwError(() => new Error('No hay una sesión activa de simulación.'));
     }
 
-    // Mapear al contrato simplificado del Backend
-    const decisions = state.userDecisions.map(d => ({
-      stepId: d.stepId,
-      selectedOptionId: d.selectedOptionId || null
-    }));
+    // Mapear las decisiones al nuevo payload esperado (pasos 2 y 3 típicamente son DATA_ANALYSIS y TRADEOFF_DECISION)
+    const decisionsForAI: SimulatorFeedbackDecision[] = state.userDecisions.map((d, index) => {
+      // Find the option text if it was a selection
+      let decisionText = d.reasoning || '';
+      let optionChosenIndex = undefined;
+
+      if (d.selectedOptionId) {
+        const stepData = state.currentCareerData?.steps.find(s => s.id === d.stepId);
+        if (stepData && stepData.options) {
+          const optIndex = stepData.options.findIndex(o => o.id === d.selectedOptionId);
+          if (optIndex !== -1) {
+            optionChosenIndex = optIndex;
+            decisionText = stepData.options[optIndex].text;
+          }
+        }
+      }
+
+      return {
+        step: index + 1,
+        step_type: d.stepType,
+        decision_text: decisionText,
+        time_spent_seconds: d.timeSpentMs / 1000,
+        option_chosen_index: optionChosenIndex
+      };
+    });
+
+    const totalResponseTime = state.userDecisions.reduce((acc, curr) => acc + (curr.timeSpentMs / 1000), 0);
+    const avgResponseTime = decisionsForAI.length > 0 ? totalResponseTime / decisionsForAI.length : 0;
+
+    const payload: SimulatorFeedbackRequest = {
+      career_slug: state.currentCareerData.careerId,
+      career_name: state.currentCareerData.careerName,
+      steam_area: state.currentCareerData.steamAreaName,
+      user_decisions: decisionsForAI,
+      avg_response_time_seconds: avgResponseTime,
+      bias_flags: state.biasFlags
+    };
 
     // Actualizar estado para reflejar la carga
     this.sessionSubject.next({ ...state, isLoadingAIFeedback: true });
 
-    const currentId = state.currentCareerData.careerId;
-
-    return this.http.post<any>(`${environment.apiUrl}/simulators/${currentId}/submit`, { decisions })
+    // Endpoint independiente del servicio de Inteligencia Artificial
+    return this.http.post<any>(`${environment.apiUrl}/api/ia/career-simulator-feedback`, payload)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((response: any) => {
@@ -250,7 +284,7 @@ export class CareerSimulatorService {
             'inteligencia-artificial', 'ciberseguridad', 'ingenieria-civil', 
             'ingenieria-biomedica', 'animacion-3d'
           ];
-          const suggested = defaultSims.filter(s => s !== currentId).slice(0, 3);
+          const suggested = defaultSims.filter(s => s !== state.currentCareerData!.careerId).slice(0, 3);
 
           const mappedResponse: SimulatorFeedbackResponse = {
             reasoning_style: response.feedbackMessage || 'Completado con éxito.',
