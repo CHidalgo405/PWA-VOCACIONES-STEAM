@@ -7,7 +7,6 @@ import { ToastService } from '../../../core/services/toast.service';
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 import { CareerSimulatorData, SimulatorStep, SimulatorStepOption } from '../../../core/models/career-simulator.models';
-import { CAREER_SIMULATORS } from '../../../core/data/career-simulators.data';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -268,42 +267,6 @@ export class ManageSimulatorsComponent implements OnInit {
           console.error('Error deleting simulator:', err);
           this.toastService.showToast('No se pudo eliminar el simulador.', 'error', 'Error');
           this.isLoading.set(false);
-        }
-      });
-    }
-  }
-
-  // Seeding Database Tool
-  public seedDatabase() {
-    if (confirm('¿Deseas sembrar los 9 simuladores por defecto en la base de datos? Esto registrará las carreras originales.')) {
-      this.isSubmitting.set(true);
-      this.toastService.showToast('Sembrando simuladores en la BD... un momento.', 'info', 'Procesando');
-
-      // Create an array of HTTP requests to post all default simulators
-      const requests = CAREER_SIMULATORS.map(sim => {
-        const payload = {
-          careerId: sim.careerId,
-          careerName: sim.careerName,
-          description: sim.description,
-          steamAreaName: sim.steamAreaName,
-          areaClass: sim.areaClass,
-          areaEmoji: sim.areaEmoji,
-          steps: sim.steps
-        };
-        return this.adminService.createSimulator(payload);
-      });
-
-      forkJoin(requests).subscribe({
-        next: (results) => {
-          this.toastService.showToast(`Se sembraron ${results.length} simuladores correctamente.`, 'success', 'Éxito');
-          this.loadSimulators();
-          this.isSubmitting.set(false);
-        },
-        error: (err) => {
-          console.error('Error seeding simulators database:', err);
-          this.toastService.showToast('Ocurrió un error al sembrar los simuladores. Es posible que algunos ya existan.', 'error', 'Error');
-          this.loadSimulators(); // reload whatever got inserted
-          this.isSubmitting.set(false);
         }
       });
     }

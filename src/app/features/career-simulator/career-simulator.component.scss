@@ -1,6 +1,9 @@
 :host {
   display: block;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   background-color: var(--bg-canvas);
   
   // Custom Properties para colores STEAM dinámicos
@@ -238,5 +241,72 @@
     padding: 1rem;
     min-height: 300px;
     border-radius: 16px;
+  }
+}
+
+/* ── DARK MODE OVERRIDES ── */
+:host-context(body.dark-theme) {
+  --bg-canvas: #020617; // Slate 950
+  --bg-surface: #0f172a; // Slate 900
+  --bg-elevated: #1e293b; // Slate 800
+  --border-color: #334155; // Slate 700
+  --text-primary: #f8fafc; // Slate 50
+  --text-secondary: #cbd5e1; // Slate 300
+  --text-muted: #64748b; // Slate 500
+
+  background-color: var(--bg-canvas);
+
+  .simulator-header .career-info h1 {
+    color: var(--text-primary);
+  }
+
+  .timer-display {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  .progress-container .progress-bar {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+  }
+
+  .progress-container .step-icon {
+    background-color: var(--bg-elevated);
+    color: var(--text-muted);
+
+    &.active {
+      color: #fff;
+      box-shadow: 0 0 0 4px var(--bg-canvas), 0 4px 6px rgba(0,0,0,0.3);
+    }
+  }
+
+  .progress-container .progress-line {
+    background-color: var(--bg-elevated);
+  }
+
+  .bias-banner {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-left-color: #f59e0b;
+    
+    p { color: #fcd34d; }
+    
+    button {
+      background-color: transparent;
+      border-color: #f59e0b;
+      color: #fcd34d;
+      
+      &:hover {
+        background-color: rgba(245, 158, 11, 0.2);
+      }
+    }
+  }
+
+  .simulator-content .step-wrapper {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
   }
 }

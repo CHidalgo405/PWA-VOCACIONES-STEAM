@@ -20,16 +20,28 @@
 
   <main class="simulators-grid">
     @for (sim of filteredSimulators(); track sim.careerId) {
-      <div class="sim-card" [ngClass]="getAreaClass(sim.careerId)">
+      <div class="sim-card" [style.--card-color]="sim.colorToken || '#8b5cf6'">
         <div class="card-header">
-          <div class="area-icon">{{ getAreaEmoji(sim.careerId) }}</div>
-          <span class="area-chip">{{ getSteamArea(sim.careerId) }}</span>
+          <div class="area-icon">
+            <app-lucide-icon *ngIf="sim.icon" [name]="sim.icon" [size]="32" [color]="sim.colorToken || '#8b5cf6'"></app-lucide-icon>
+            <span *ngIf="!sim.icon">{{ sim.areaEmoji }}</span>
+          </div>
+          <span class="area-chip" [style.color]="sim.colorToken || '#8b5cf6'" [style.backgroundColor]="(sim.colorToken || '#8b5cf6') + '20'">{{ getSteamArea(sim) }}</span>
         </div>
         
         <div class="card-body">
           <h3>{{ sim.careerName }}</h3>
+          <p class="sim-description">{{ sim.description }}</p>
           <div class="meta-info">
-            <span class="duration"><span class="icon">⏱️</span> ~5 min</span>
+            <span class="difficulty" *ngIf="sim.difficulty">
+              <app-lucide-icon name="bar-chart-2" [size]="14"></app-lucide-icon>
+              {{ sim.difficulty | titlecase }}
+            </span>
+          </div>
+          <div class="tags-container" *ngIf="sim.tags && sim.tags.length">
+            @for (tag of (sim.tags.length > 3 ? (sim.tags | slice:0:3) : sim.tags); track tag) {
+              <span class="tag">#{{ tag }}</span>
+            }
           </div>
         </div>
         

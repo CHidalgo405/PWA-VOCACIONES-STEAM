@@ -66,18 +66,19 @@ export class CareerSimulatorService {
   }
 
   public getSimulators(): Observable<CareerSimulatorData[]> {
-    // Nota: Si el endpoint GET ALL (/api/v1/career-simulators) requiere token de admin,
-    // y este método es llamado por un estudiante, la llamada fallará con 403 Forbidden.
-    // Si la API lo expone públicamente para lectura, esto funcionará correctamente.
     return this.http.get<any[]>(`${environment.apiUrl}/api/v1/career-simulators`).pipe(
       map(sims => sims.map(sim => ({
         careerId: sim.slug || sim.id,
         careerName: sim.careerName,
-        description: sim.description || sim.shortDescription,
+        description: sim.shortDescription || sim.description,
         steamAreaName: sim.steamArea || sim.steamAreaName,
-        areaClass: sim.colorToken ? `bg-[${sim.colorToken}]` : this.inferAreaClass(sim.steamArea || sim.steamAreaName),
+        areaClass: sim.colorToken ? sim.colorToken : this.inferAreaClass(sim.steamArea || sim.steamAreaName),
         areaEmoji: sim.icon || this.inferAreaEmoji(sim.steamArea || sim.steamAreaName),
-        steps: sim.steps
+        difficulty: sim.difficulty,
+        tags: sim.tags,
+        colorToken: sim.colorToken,
+        icon: sim.icon,
+        steps: sim.steps || []
       })))
     );
   }
@@ -195,7 +196,7 @@ export class CareerSimulatorService {
     const optionIndices = applicableDecisions.map(decision => {
       const stepData = state.currentCareerData?.steps.find(s => s.id === decision.stepId);
       if (!stepData || !stepData.options) return -1;
-      return stepData.options.findIndex(opt => opt.id === decision.selectedOptionId);
+      return stepData.options.findIndex((opt: any) => opt.id === decision.selectedOptionId);
     }).filter(idx => idx !== -1);
 
     if (optionIndices.length < 3) return false;
@@ -242,7 +243,7 @@ export class CareerSimulatorService {
       if (d.selectedOptionId) {
         const stepData = state.currentCareerData?.steps.find(s => s.id === d.stepId);
         if (stepData && stepData.options) {
-          const optIndex = stepData.options.findIndex(o => o.id === d.selectedOptionId);
+          const optIndex = stepData.options.findIndex((o: any) => o.id === d.selectedOptionId);
           if (optIndex !== -1) {
             optionChosenIndex = optIndex;
             decisionText = stepData.options[optIndex].text;

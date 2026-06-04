@@ -8,10 +8,6 @@
       <p>Administra los retos prácticos y decisiones de carrera interactivos.</p>
     </div>
     <div class="header-actions">
-      <button class="btn-secondary seed-btn" (click)="seedDatabase()" [disabled]="isSubmitting()">
-        <app-lucide-icon name="database" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
-        Sembrar Base de Datos
-      </button>
       <button class="btn-primary" (click)="openModal('create')">
         <app-lucide-icon name="plus" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
         Nuevo Simulador
@@ -100,7 +96,6 @@
         <div class="empty-icon"><app-lucide-icon name="folder-open" [size]="48" color="#bdc3c7"></app-lucide-icon></div>
         <h3>No hay simuladores disponibles</h3>
         <p>No se encontraron simuladores activos en la base de datos.</p>
-        <button class="btn-secondary" style="margin-top: 15px;" (click)="seedDatabase()">Sembrar Datos Iniciales</button>
       </div>
     </div>
   </div>

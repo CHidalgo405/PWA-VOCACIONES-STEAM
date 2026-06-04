@@ -64,23 +64,23 @@ export interface CareerSimulatorData {
   /** Descripción breve o premisa de la simulación de esta carrera */
   description: string;
   /** Área STEAM a la que pertenece esta carrera */
-  steamAreaName: 'Ciencia' | 'Tecnología' | 'Ingeniería' | 'Artes' | 'Matemáticas';
+  steamAreaName: string;
   /** Clase CSS correspondiente a su área STEAM para pintar el entorno */
   areaClass: string;
   /** Emoji representativo para la tarjeta del catálogo */
   areaEmoji: string;
-  /** 
-   * Los 6 pasos secuenciales definidos para esta carrera.
-   * Deben seguir el orden: CONTEXT, DATA_ANALYSIS, TRADEOFF_DECISION, SURPRISE_REVEAL, AI_FEEDBACK, EMOTIONAL_REFLECTION.
+  /** Dificultad asignada al simulador */
+  difficulty?: string;
+  /** Etiquetas asociadas al simulador */
+  tags?: string[];
+  /** Color principal para el branding del simulador */
+  colorToken?: string;
+  /** Icono en formato lucide u otro */
+  icon?: string;
+  /**
+   * Los pasos secuenciales definidos para esta carrera.
    */
-  steps: [
-    SimulatorStep,
-    SimulatorStep,
-    SimulatorStep,
-    SimulatorStep,
-    SimulatorStep,
-    SimulatorStep
-  ];
+  steps: any[];
 }
 
 /**
