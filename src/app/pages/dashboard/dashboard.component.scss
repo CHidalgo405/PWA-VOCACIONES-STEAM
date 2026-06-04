@@ -1279,16 +1279,8 @@
     
     .modules-grid {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      
-      @media (min-width: 580px) {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      
-      @media (min-width: 1024px) {
-        grid-template-columns: repeat(4, 1fr);
-      }
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
       
       .module-slot {
         display: flex;
@@ -1300,6 +1292,8 @@
         border-radius: 12px;
         flex: 1;
         transition: all 0.2s ease;
+        position: relative;
+        z-index: 2;
         
         .slot-icon {
           display: flex;
@@ -1308,12 +1302,16 @@
           width: 32px;
           height: 32px;
           border-radius: 8px;
+          position: relative;
+          z-index: 10;
         }
         
         .slot-name {
           font-weight: 600;
           font-size: 0.9rem;
           color: var(--text-primary);
+          position: relative;
+          z-index: 10;
         }
         
         &.available {
