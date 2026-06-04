@@ -1,5 +1,7 @@
 <app-toast></app-toast>
 <app-splash-screen></app-splash-screen>
 
-<router-outlet></router-outlet>
+<main class="route-animation-wrapper" [@routeAnimations]="prepareRoute()">
+  <router-outlet></router-outlet>
+</main>
 <app-navbar *ngIf="showNavbar"></app-navbar>

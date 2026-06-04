@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd, ChildrenOutletContexts } from '@angular/router';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter } from 'rxjs/operators';
 import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
@@ -7,18 +7,21 @@ import { ToastComponent } from './components/toast/toast.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { ThemeService } from './core/services/theme.service';
 import { NgIf } from '@angular/common';
+import { fadeSlideAnimation } from './route-animations';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, SplashScreenComponent, ToastComponent, NavbarComponent, NgIf],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
+  animations: [fadeSlideAnimation]
 })
 export class AppComponent implements OnInit {
   title = 'steam-vocation-pwa';
   private swUpdate = inject(SwUpdate);
   private themeService = inject(ThemeService);
   private router = inject(Router);
+  private contexts = inject(ChildrenOutletContexts);
 
   showNavbar = false;
 
@@ -48,5 +51,9 @@ export class AppComponent implements OnInit {
         }
       });
     }
+  }
+
+  prepareRoute() {
+    return this.contexts.getContext('primary')?.route?.snapshot?.routeConfig?.path || 'initial';
   }
 }

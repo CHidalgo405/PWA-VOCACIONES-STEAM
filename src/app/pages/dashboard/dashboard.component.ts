@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { RouterModule, Router } from '@angular/router';
@@ -6,6 +6,7 @@ import { AuthService, Usuario } from '../../core/services/auth.service';
 import { TestSubmissionResponse, VocationTestService, TestDetail } from '../../core/services/test.service';
 
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+import gsap from 'gsap';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,7 +15,7 @@ import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.co
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   userName = 'Cargando...';
   userProfile?: Usuario;
   avatarUrl = '';
@@ -37,8 +38,6 @@ export class DashboardComponent implements OnInit {
     { id: 'everyday_mechanics', title: 'Resolución Doméstica', icon: 'wrench' }
   ];
 
-  // (Removed unused mock stats)
-
   // Modal State
   showWelcomeModal = false;
 
@@ -48,6 +47,8 @@ export class DashboardComponent implements OnInit {
   recommendedCareers: { title: string; category: string }[] = [];
   dominantArea: any = null;
   secondaryArea: any = null;
+
+  private ctx!: gsap.Context;
 
   constructor(
     private router: Router, 
@@ -91,6 +92,40 @@ export class DashboardComponent implements OnInit {
         this.loadTestResult(usuario.id);
       }
     });
+  }
+
+  ngAfterViewInit() {
+    // Usamos setTimeout para asegurar que Angular ya renderizó la vista (en caso de usar caché síncrono)
+    setTimeout(() => {
+      this.ctx = gsap.context(() => {
+        const tl = gsap.timeline();
+
+        // 1. El texto de bienvenida y los gráficos circulares/banners: fade-in y escalar desde 0.95
+        tl.from('.user-greeting, .header-actions, .steam-banner, .hero-stats-panel, .stepper-container', {
+          duration: 0.8,
+          opacity: 0,
+          scale: 0.95,
+          ease: 'power3.out',
+          stagger: 0.1
+        });
+
+        // 2. Las tarjetas (Módulos de Calibración, Carreras, etc): entrar desde derecha (translateX 30px)
+        tl.from('.module-slot, .widget-card, .cta-card, .why-card', {
+          duration: 0.8,
+          opacity: 0,
+          x: 30, // equivalente a translateX(30px)
+          ease: 'expo.out',
+          stagger: 0.1
+        }, "-=0.4"); // Solapamiento con la animación anterior para mayor dinamismo
+      });
+    }, 50);
+  }
+
+  ngOnDestroy() {
+    // Evita memory leaks destruyendo el contexto completo de GSAP (líneas de tiempo y tweens asociadas)
+    if (this.ctx) {
+      this.ctx.revert();
+    }
   }
 
   loadTestResult(userId: string) {
