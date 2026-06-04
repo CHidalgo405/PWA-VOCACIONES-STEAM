@@ -164,39 +164,6 @@
 
 
 
-        <!-- ══════════════════════════════════════════════
-             BODY BLOCK 4 — CAREER GRID
-             ══════════════════════════════════════════════ -->
-        <section class="career-grid-section" *ngIf="careerCards.length > 0">
-            <div class="section-label">
-                <app-lucide-icon name="library" [size]="16" color="#07B1C9"
-                    style="margin-right:6px;margin-bottom:-2px;">
-                </app-lucide-icon>
-                Carreras recomendadas para ti
-            </div>
-
-            <div class="career-floating-grid">
-                <div class="career-floating-card" *ngFor="let card of careerCards; let i = index" (click)="openCardDetail(i)">
-                    <div class="career-card-bg-blob" [style.background]="card.color"></div>
-                    <div class="career-card-content">
-                        <div class="career-icon-wrapper" [style.background]="card.color + '22'" [style.color]="card.color">
-                            <app-lucide-icon [name]="card.icon" [size]="24" [color]="card.color"></app-lucide-icon>
-                        </div>
-                        <div class="career-text-group">
-                            <h4 class="career-major-title">{{ card.major }}</h4>
-                            <span class="career-uni-subtitle">
-                                <app-lucide-icon name="building-2" [size]="12" color="#64748B" style="margin-right:4px; margin-bottom: -1px;"></app-lucide-icon>
-                                {{ card.uniName }}
-                            </span>
-                        </div>
-                        <div class="career-action-icon" [style.color]="card.color">
-                            <app-lucide-icon name="arrow-up-right" [size]="20"></app-lucide-icon>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- /career-grid-section -->
 
         <!-- ══════════════════════════════════════════════
              BODY BLOCK 5 — CTA BUTTONS REDESIGN

@@ -128,19 +128,6 @@
           </div>
         </div>
 
-        <!-- Carreras Recomendadas (Bloqueado) -->
-        <div class="widget-card">
-          <h3 class="margin-bottom-sm">Carreras recomendadas</h3>
-          <p class="subtitle-text">Completa el test para desbloquear tus carreras ideales</p>
-          <div class="tags-container locked">
-            @for (career of recommendedCareers; track career.title) {
-              <div class="pill-tag ghost">
-                {{ career.title }}
-              </div>
-            }
-            <div class="pill-tag ghost">IA</div>
-          </div>
-        </div>
 
       </div>
     </div>
@@ -264,54 +251,6 @@
       <!-- MAIN COLUMN: Prominent CTA's -->
       <div class="main-column">
         
-        <!-- Carreras Para Ti (Protagonista) -->
-        <div class="widget-card careers-highlight">
-          <div class="widget-header">
-            <div class="title-with-icon">
-              <div class="icon-blob bg-blue-light">
-                <app-lucide-icon name="briefcase" [size]="20" color="var(--steam-blue)"></app-lucide-icon>
-              </div>
-              <h2>Carreras para ti</h2>
-            </div>
-            <a class="widget-action-link" routerLink="/test-result">Explorar todas</a>
-          </div>
-          <p class="subtitle-text mb-4">Opciones de alto impacto basadas en tu perfil de {{ dominantTraitsStr }}.</p>
-          
-          <div class="career-cards-grid">
-            @for (career of recommendedCareers; track career.title) {
-              <div class="career-card" [class.dark]="career.category === 'engineering' || career.category === 'technology'">
-                <div class="card-icon">
-                  <app-lucide-icon name="graduation-cap" [size]="20"></app-lucide-icon>
-                </div>
-                <h4>{{ career.title }}</h4>
-                <div class="card-footer-action">
-                  <span>Ver detalles</span>
-                  <app-lucide-icon name="arrow-right" [size]="14"></app-lucide-icon>
-                </div>
-              </div>
-            }
-            
-            <!-- Niche Careers (Unlockable) -->
-            @if (authService.currentUserSig()?.nicheCareers?.length) {
-              @for (niche of authService.currentUserSig()?.nicheCareers; track niche) {
-                <div class="career-card niche-career slide-in-bottom">
-                  <div class="card-icon special">
-                    <app-lucide-icon name="sparkles" [size]="20" color="var(--steam-blue)"></app-lucide-icon>
-                  </div>
-                  <h4>{{ niche }}</h4>
-                  <div class="unlocked-badge-label">
-                    <app-lucide-icon name="unlock" [size]="12"></app-lucide-icon>
-                    Desbloqueada por calibración
-                  </div>
-                  <div class="card-footer-action">
-                    <span>Explorar</span>
-                    <app-lucide-icon name="arrow-right" [size]="14"></app-lucide-icon>
-                  </div>
-                </div>
-              }
-            }
-          </div>
-        </div>
 
         <!-- Simulador de Carrera (Hero CTA) -->
         <div class="widget-card simulator-hero-card">
