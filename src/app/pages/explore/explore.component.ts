@@ -269,8 +269,7 @@ export class ExploreComponent implements OnInit {
           scaledSize: new google.maps.Size(42, 42),
           anchor: new google.maps.Point(21, 42)
         },
-        zIndex: 1000,
-        animation: google.maps.Animation.DROP
+        zIndex: 1000
       };
     }
     
