@@ -206,7 +206,7 @@ export class ExploreComponent implements OnInit {
           'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000'
         ];
 
-        this.universities = results.map((place, index) => {
+        this.universities = results.map((place: any, index: number) => {
           const matchPct = Math.max(70, 95 - (index * 2));
           return {
             id: place.id,
@@ -227,6 +227,26 @@ export class ExploreComponent implements OnInit {
 
         this.processData();
         this.isLoading = false;
+
+        // Animar la cámara para encuadrar todas las universidades y al usuario (FitBounds)
+        if (this.googleMap && this.googleMap.googleMap && this.universities.length > 0) {
+          const bounds = new google.maps.LatLngBounds();
+          if (this.userPosition) {
+            bounds.extend(this.userPosition);
+          }
+          this.universities.forEach(u => {
+            if (u.position) {
+              bounds.extend(u.position);
+            }
+          });
+          // Ajustamos la cámara suavemente
+          this.googleMap.googleMap.fitBounds(bounds, {
+            bottom: 40,
+            left: 40,
+            right: 40,
+            top: 40
+          });
+        }
       },
       error: (err) => {
         console.error("Error buscando en Google Places", err);
@@ -234,6 +254,35 @@ export class ExploreComponent implements OnInit {
         this.processData();
       }
     });
+  }
+
+  getMarkerOptions(uni: any): google.maps.MarkerOptions {
+    const isSelected = this.selectedUniversity && this.selectedUniversity.id === uni.id;
+    
+    if (isSelected) {
+      // Marcador grande y color principal (cyan) para la seleccionada
+      const selectedSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#07B1C9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
+      return {
+        icon: {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(selectedSvg),
+          scaledSize: new google.maps.Size(42, 42),
+          anchor: new google.maps.Point(21, 42)
+        },
+        zIndex: 1000,
+        animation: google.maps.Animation.DROP
+      };
+    }
+    
+    // Marcador normal (rojo clásico)
+    const normalSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#EF4444" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
+    return {
+      icon: {
+        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(normalSvg),
+        scaledSize: new google.maps.Size(28, 28),
+        anchor: new google.maps.Point(14, 28)
+      },
+      zIndex: 1
+    };
   }
 
   processData() {

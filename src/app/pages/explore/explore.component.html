@@ -212,6 +212,7 @@
             *ngFor="let uni of currentUniversitiesList" 
             [position]="uni.position"
             [title]="uni.name"
+            [options]="getMarkerOptions(uni)"
             (mapClick)="openUniversityDetail(uni)"
           ></map-marker>
 
