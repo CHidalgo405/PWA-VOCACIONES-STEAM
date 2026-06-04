@@ -57,7 +57,7 @@ export class UniversityService {
           rating: place.rating,
           userRatingsTotal: place.userRatingCount,
           logoUrl: place.photos && place.photos.length > 0 
-            ? `https://places.googleapis.com/v1/${place.photos[0].name}/media?maxHeightPx=200&maxWidthPx=200&key=${environment.googleMapsApiKey}`
+            ? `https://places.googleapis.com/v1/${place.photos[0].name}/media?maxHeightPx=800&maxWidthPx=800&key=${environment.googleMapsApiKey}`
             : undefined,
           isOpen: place.regularOpeningHours ? place.regularOpeningHours.openNow : undefined
         }));
