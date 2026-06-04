@@ -10,7 +10,7 @@
   <div class="content-card">
     <p class="step-content" *ngIf="step().metadata?.['role']" style="margin-bottom: 0.5rem;"><strong>Rol:</strong> {{ step().metadata?.['role'] }}</p>
     <p class="step-content" *ngIf="step().metadata?.['pressureContext']" style="margin-bottom: 1rem;"><strong>Contexto:</strong> {{ step().metadata?.['pressureContext'] }}</p>
-    <p class="step-content">{{ (step() as any).question || step().content }}</p>
+    <p class="step-content">{{ step().question || step().content }}</p>
   </div>
   
   <div class="action-footer">

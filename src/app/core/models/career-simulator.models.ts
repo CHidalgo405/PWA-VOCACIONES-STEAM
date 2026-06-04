@@ -45,11 +45,13 @@ export interface SimulatorStep {
   /** Título del paso a mostrar en la interfaz */
   title: string;
   /** Contenido principal, descripción de la situación o tarea a realizar */
-  content: string;
+  content?: string;
+  /** El texto o pregunta principal en la nueva estructura JSONB */
+  question?: string;
   /** Opciones disponibles si el paso requiere una decisión */
   options?: SimulatorStepOption[];
   /** Datos adicionales específicos del paso (ej. datos crudos para analizar en DATA_ANALYSIS) */
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, any>;
 }
 
 /**
