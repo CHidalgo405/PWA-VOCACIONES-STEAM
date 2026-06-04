@@ -128,8 +128,7 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopTimer();
-    // Limpieza de memoria general al destruir el shell
-    this.simulatorService.resetSession();
+    // No reseteamos la sesión aquí porque la página de resultados la necesita
   }
 
   private startTimer() {

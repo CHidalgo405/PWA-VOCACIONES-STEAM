@@ -6,13 +6,13 @@
     <span class="step-badge ai-badge">Análisis de Inteligencia Artificial</span>
   </div>
   
-  <h2 class="step-title">{{ step().title }}</h2>
+  <h2 class="step-title">{{ step().title || 'Cómo piensas' }}</h2>
   
   <div class="ai-processing-card">
     <div class="scanner-line"></div>
     <div class="content-wrapper">
       <app-lucide-icon name="cpu" [size]="32" class="pulse-icon" color="var(--steam-green, #10b981)"></app-lucide-icon>
-      <p class="step-content typing-effect">{{ step().content }}</p>
+      <p class="step-content typing-effect">{{ step().metadata?.['loadingMessages']?.[0] || 'Preparando análisis de IA...' }}</p>
     </div>
   </div>
   

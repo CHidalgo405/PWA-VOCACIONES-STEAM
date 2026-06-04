@@ -6,9 +6,9 @@
     <span class="step-badge emotional-badge">Reflexión Personal</span>
   </div>
   
-  <h2 class="step-title">{{ step().title }}</h2>
+  <h2 class="step-title">{{ step().title || 'Reflexión Personal' }}</h2>
   <div class="content-card">
-    <p class="step-content">{{ step().content }}</p>
+    <p class="step-content">{{ (step() as any).question || step().content }}</p>
   </div>
   
   <div class="options-list mt-4">

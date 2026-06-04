@@ -6,14 +6,21 @@
     <span class="step-badge surprise-badge">Baño de Realidad</span>
   </div>
   
-  <h2 class="step-title">{{ step().title }}</h2>
+  <h2 class="step-title">{{ step().title || 'La realidad de la carrera' }}</h2>
   <div class="content-card surprise-card">
-    <p class="step-content">{{ step().content }}</p>
+    <p class="step-content">{{ (step() as any).question || step().content }}</p>
+    <br *ngIf="step().metadata?.['followUpText']" />
+    <p class="step-content" *ngIf="step().metadata?.['followUpText']">{{ step().metadata?.['followUpText'] }}</p>
+    
+    <div *ngIf="step().metadata?.['flipSideText']" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+      <strong style="color: var(--text-primary);">{{ step().metadata?.['flipSideLabel'] || 'Pero también esto es real:' }}</strong>
+      <p style="margin-top: 0.5rem;" class="step-content">{{ step().metadata?.['flipSideText'] }}</p>
+    </div>
   </div>
   
   <div class="action-footer">
     <button class="primary-btn outline" (click)="continue()">
-      Interesante, continuar <app-lucide-icon name="arrow-right" [size]="16"></app-lucide-icon>
+      {{ step().metadata?.['ctaLabel'] || 'Interesante, continuar' }} <app-lucide-icon name="arrow-right" [size]="16"></app-lucide-icon>
     </button>
   </div>
 </div>

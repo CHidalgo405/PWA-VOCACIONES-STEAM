@@ -6,14 +6,16 @@
     <span class="step-badge">Contexto de la Simulación</span>
   </div>
   
-  <h2 class="step-title">{{ step().title }}</h2>
+  <h2 class="step-title">{{ step().title || 'Contexto de la Simulación' }}</h2>
   <div class="content-card">
-    <p class="step-content">{{ step().content }}</p>
+    <p class="step-content" *ngIf="step().metadata?.['role']" style="margin-bottom: 0.5rem;"><strong>Rol:</strong> {{ step().metadata?.['role'] }}</p>
+    <p class="step-content" *ngIf="step().metadata?.['pressureContext']" style="margin-bottom: 1rem;"><strong>Contexto:</strong> {{ step().metadata?.['pressureContext'] }}</p>
+    <p class="step-content">{{ (step() as any).question || step().content }}</p>
   </div>
   
   <div class="action-footer">
     <button class="primary-btn pulse" (click)="startSimulation()">
-      Entendido, empezar el reto <app-lucide-icon name="arrow-right" [size]="16"></app-lucide-icon>
+      {{ step().metadata?.['ctaLabel'] || 'Entendido, empezar el reto' }} <app-lucide-icon name="arrow-right" [size]="16"></app-lucide-icon>
     </button>
   </div>
 </div>
