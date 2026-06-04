@@ -60,9 +60,21 @@ export class EvaluationsComponent implements OnInit {
                 return of([]);
             })
         ).subscribe(data => {
-            this.questions = data;
+            // Clonamos y barajamos el array para que el orden sea aleatorio en cada intento
+            this.questions = this.shuffleArray([...data]);
             this.isLoadingQuestions = false;
         });
+    }
+
+    /** Algoritmo de Fisher-Yates para barajar el array de forma aleatoria y equitativa */
+    private shuffleArray<T>(array: T[]): T[] {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
     }
 
     resetScores() {
