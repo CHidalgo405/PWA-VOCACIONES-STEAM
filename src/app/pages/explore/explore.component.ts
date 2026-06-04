@@ -57,6 +57,7 @@ export class ExploreComponent implements OnInit {
 
   // Variables para Modales
   isUniversityModalOpen: boolean = false;
+  isUniversityModalClosing: boolean = false;
   selectedUniversity: any = null;
   
   // Estado de vista
@@ -362,9 +363,12 @@ export class ExploreComponent implements OnInit {
     }
   }
 
+
+
   // Métodos para el Modal de Universidad
   openUniversityDetail(uni: any) {
     this.selectedUniversity = uni;
+    this.isUniversityModalClosing = false;
     this.isUniversityModalOpen = true;
     if (uni && uni.position && this.googleMap) {
       this.googleMap.panTo(uni.position);
@@ -374,10 +378,12 @@ export class ExploreComponent implements OnInit {
   }
 
   closeUniversityModal() {
-    this.isUniversityModalOpen = false;
+    this.isUniversityModalClosing = true;
     setTimeout(() => {
+      this.isUniversityModalOpen = false;
+      this.isUniversityModalClosing = false;
       this.selectedUniversity = null;
-    }, 300);
+    }, 300); // 300ms coincide con la animación CSS
   }
 
   saveUniversity(uni?: any) {
