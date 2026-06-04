@@ -89,19 +89,19 @@ export class AdminService {
   }
 
   // --- ADMINISTRACIÓN DE SIMULADORES ---
-  getAdminSimulators(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/api/v1/career-simulators`);
+  public getAdminSimulators(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/career-simulators`);
   }
 
-  createSimulator(simulator: any): Observable<any> {
-    return this.http.post<any>(`${environment.apiUrl}/api/v1/career-simulators`, simulator);
+  public createSimulator(simulator: any): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/career-simulators`, simulator);
   }
 
-  updateSimulator(id: string, simulator: any): Observable<any> {
-    return this.http.put<any>(`${environment.apiUrl}/api/v1/career-simulators/${id}`, simulator);
+  public updateSimulator(id: string, simulator: any): Observable<any> {
+    return this.http.put<any>(`${environment.apiUrl}/career-simulators/${id}`, simulator);
   }
 
-  deleteSimulator(id: string): Observable<any> {
-    return this.http.delete<any>(`${environment.apiUrl}/api/v1/career-simulators/${id}`);
+  public deleteSimulator(id: string): Observable<any> {
+    return this.http.delete<any>(`${environment.apiUrl}/career-simulators/${id}`);
   }
 }

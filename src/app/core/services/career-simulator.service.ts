@@ -66,7 +66,7 @@ export class CareerSimulatorService {
   }
 
   public getSimulators(): Observable<CareerSimulatorData[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/api/v1/career-simulators`).pipe(
+    return this.http.get<any[]>(`${environment.apiUrl}/career-simulators`).pipe(
       map(sims => sims.map(sim => ({
         careerId: sim.slug || sim.id,
         careerName: sim.careerName,
@@ -84,7 +84,7 @@ export class CareerSimulatorService {
   }
 
   public getSimulator(slug: string): Observable<CareerSimulatorData> {
-    return this.http.get<any>(`${environment.apiUrl}/api/v1/career-simulators/${slug}`).pipe(
+    return this.http.get<any>(`${environment.apiUrl}/career-simulators/${slug}`).pipe(
       map(sim => ({
         careerId: sim.slug || sim.id,
         careerName: sim.careerName,
@@ -276,7 +276,7 @@ export class CareerSimulatorService {
     this.sessionSubject.next({ ...state, isLoadingAIFeedback: true });
 
     // Endpoint independiente del servicio de Inteligencia Artificial
-    return this.http.post<any>(`${environment.apiUrl}/api/ia/career-simulator-feedback`, payload)
+    return this.http.post<any>(`${environment.apiUrl}/ia/career-simulator-feedback`, payload)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((response: any) => {
