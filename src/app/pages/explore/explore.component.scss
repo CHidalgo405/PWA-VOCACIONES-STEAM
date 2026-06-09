@@ -1117,3 +1117,36 @@
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+/* --- SCROLL ANIMATIONS --- */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  /* The initial transition covers the scroll in effect */
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+
+  &.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Redefining hover behaviors for elements that are .animate-on-scroll to not conflict */
+.best-match-card.animate-on-scroll {
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow var(--duration-hover) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .best-match-card.animate-on-scroll.in-view:hover {
+    transform: translateY(-4px);
+  }
+}
+
+.recommended-list-card.animate-on-scroll {
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow var(--duration-hover) var(--ease-out), border-color var(--duration-hover) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .recommended-list-card.animate-on-scroll.in-view:hover {
+    transform: translateY(-2px);
+  }
+}
