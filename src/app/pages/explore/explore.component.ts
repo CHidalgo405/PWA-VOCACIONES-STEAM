@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, NgZone, ViewChildren, QueryList, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FormsModule } from '@angular/forms'; // Para el buscador
@@ -15,15 +15,16 @@ import { Router } from '@angular/router';
 import { GoogleMapsModule, GoogleMap } from '@angular/google-maps';
 import { GoogleMapsLoaderService } from '../../core/services/google-maps-loader.service';
 import { UniversityService } from '../../core/services/university.service';
+import { ScrollRevealDirective } from './scroll-reveal.directive';
 
 @Component({
   selector: 'app-explore',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LucideIconComponent, HeaderComponent, GoogleMapsModule],
+  imports: [CommonModule, FormsModule, RouterModule, LucideIconComponent, HeaderComponent, GoogleMapsModule, ScrollRevealDirective],
   templateUrl: './explore.component.html',
   styleUrls: ['./explore.component.scss']
 })
-export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ExploreComponent implements OnInit {
   
   hasTakenTest = false;
   private userService = inject(UserService);
@@ -34,8 +35,6 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngZone = inject(NgZone);
 
   @ViewChild(GoogleMap) googleMap!: GoogleMap;
-  @ViewChildren('uniCard') uniCards!: QueryList<ElementRef>;
-  private observer: IntersectionObserver | null = null;
 
   isApiLoaded = false;
   isLocating = false;
@@ -100,48 +99,6 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadSavedUniversities();
       }
     });
-  }
-
-  ngAfterViewInit() {
-    this.setupIntersectionObserver();
-    this.uniCards.changes.subscribe(() => {
-      this.setupIntersectionObserver();
-    });
-  }
-
-  setupIntersectionObserver() {
-    if (this.observer) {
-      this.observer.disconnect();
-    }
-    
-    // Configuración para que el efecto sea fluido: 
-    // se dispara cuando el 10% de la tarjeta es visible
-    this.observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in-view');
-        } else {
-          // Opcional: remover clase si se quiere repetir el efecto al hacer scroll hacia arriba
-          // entry.target.classList.remove('in-view');
-        }
-      });
-    }, {
-      threshold: 0.1,
-      rootMargin: '0px 0px -20px 0px'
-    });
-
-    // Observar las tarjetas actuales
-    if (this.uniCards) {
-      this.uniCards.forEach(card => {
-        this.observer!.observe(card.nativeElement);
-      });
-    }
-  }
-
-  ngOnDestroy() {
-    if (this.observer) {
-      this.observer.disconnect();
-    }
   }
 
   getUserLocation() {

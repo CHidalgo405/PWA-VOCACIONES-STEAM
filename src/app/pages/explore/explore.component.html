@@ -100,7 +100,7 @@
               </h3>
             </div>
 
-            <div class="best-match-card animate-on-scroll" (click)="openUniversityDetail(bestMatchUniversity)" #uniCard>
+            <div class="best-match-card animate-on-scroll" (click)="openUniversityDetail(bestMatchUniversity)" appScrollReveal>
               <div class="card-icon-area">
                 <div class="icon-circle">
                   <app-lucide-icon [name]="bestMatchUniversity.logo || 'building'" [size]="32" color="#D4D4D8"></app-lucide-icon>
@@ -137,7 +137,7 @@
             </div>
 
             <div class="recommendations-list">
-              <div class="recommended-list-card animate-on-scroll" *ngFor="let uni of filteredOtherUniversities" (click)="openUniversityDetail(uni)" #uniCard>
+              <div class="recommended-list-card animate-on-scroll" *ngFor="let uni of filteredOtherUniversities" (click)="openUniversityDetail(uni)" appScrollReveal>
                 
                 <div class="list-card-icon">
                   <div class="square-icon-bg">
