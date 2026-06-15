@@ -78,7 +78,7 @@ import { UniversityRecommendation } from '../../core/services/test.service';
         </div>
 
         <div class="pdf-footer">
-            <p>Generado confidencialmente por <strong>STEAM Vocation App</strong></p>
+            <p>Generado confidencialmente por <strong>Vocaciones STEAM App</strong></p>
         </div>
     </div>
   `,

@@ -1,6 +1,6 @@
-# 🚀 STEAM Vocations PWA: API & Backend Master Blueprint
+# 🚀 Vocaciones STEAM PWA: API & Backend Master Blueprint
 
-Este documento es la especificación técnica maestra para la construcción del backend de la aplicación **STEAM Vocations PWA**. Está diseñado para que un desarrollador backend construya la API desde cero utilizando **NestJS, PostgreSQL y TypeORM**.
+Este documento es la especificación técnica maestra para la construcción del backend de la aplicación **Vocaciones STEAM PWA**. Está diseñado para que un desarrollador backend construya la API desde cero utilizando **NestJS, PostgreSQL y TypeORM**.
 
 ## 🛠 Stack Tecnológico Estricto
 - **Framework:** NestJS (Node.js)
@@ -216,7 +216,7 @@ Utilizar `@nestjs/passport` y `passport-google-oauth20`.
 - Google devuelve la llamada a `GET /auth/google/callback`.
 - El `GoogleStrategy` extrae el `email`, `fullname` y `avatarUrl`.
 - Si el usuario existe en BD, genera JWT. Si no existe, lo crea automáticamente sin password y con `isEmailVerified = true` y genera JWT.
-- Redirige al frontend con el token (Ej: `https://steamvocations.app/oauth-callback?token=eyJhbG...`).
+- Redirige al frontend con el token (Ej: `https://vocacionessteam.app/oauth-callback?token=eyJhbG...`).
 
 ### 3.3 Guards y Decoradores
 **JwtAuthGuard**:

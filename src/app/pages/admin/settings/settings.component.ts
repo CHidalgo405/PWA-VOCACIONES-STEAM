@@ -16,8 +16,8 @@ export class SettingsComponent {
   // --- MODELO DE CONFIGURACIÓN ---
   settings = {
     // General
-    appName: 'STEAM Vocations',
-    supportEmail: 'soporte@steamvocations.com',
+    appName: 'Vocaciones STEAM',
+    supportEmail: 'soporte@vocacionessteam.com',
     timezone: 'America/Mexico_City', // Zona horaria local (Córdoba, Veracruz)
 
     // IA Integration

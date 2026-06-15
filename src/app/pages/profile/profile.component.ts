@@ -227,7 +227,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   openSupportMailer() {
     this.showSuccessToast('Abriendo cliente de correo...');
     setTimeout(() => {
-      window.location.href = 'mailto:soporte@steamvocations.app';
+      window.location.href = 'mailto:soporte@vocacionessteam.app';
       this.closeModal();
     }, 1500);
   }

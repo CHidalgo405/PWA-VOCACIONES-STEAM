@@ -46,7 +46,7 @@ export class AppComponent implements OnInit {
       this.swUpdate.versionUpdates.pipe(
         filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY')
       ).subscribe(() => {
-        if (confirm('Hay una nueva versión de STEAM Vocations disponible. ¿Deseas actualizar ahora?')) {
+        if (confirm('Hay una nueva versión de Vocaciones STEAM disponible. ¿Deseas actualizar ahora?')) {
           window.location.reload();
         }
       });

@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
       <div class="report-header">
         <div class="header-left">
           <h1>Reporte Ejecutivo de Gestión</h1>
-          <p class="subtitle">Plataforma STEAM Vocations</p>
+          <p class="subtitle">Plataforma Vocaciones STEAM</p>
         </div>
         <div class="header-right">
           <div class="report-date">{{ currentDate | date:'MMMM yyyy' | uppercase }}</div>
@@ -102,7 +102,7 @@ import { CommonModule } from '@angular/common';
       <div class="report-footer">
         <div class="footer-line"></div>
         <div class="footer-content">
-          <span>© {{ currentDate | date:'yyyy' }} STEAM Vocations Admin Panel</span>
+          <span>© {{ currentDate | date:'yyyy' }} Vocaciones STEAM Admin Panel</span>
           <span>Generado confidencialmente</span>
           <span>Página 1 de 1</span>
         </div>
