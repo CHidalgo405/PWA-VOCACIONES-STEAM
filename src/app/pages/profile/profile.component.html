@@ -163,39 +163,43 @@
   <div class="modal-overlay" *ngIf="activeModal !== null" (click)="closeModal()">
     <div class="modal-box" (click)="$event.stopPropagation()">
 
-      <!-- 1. MODAL: EDITAR PERFIL -->
+      <!-- 1. MODAL: EDITAR PERFIL PREMIUM -->
       <ng-container *ngIf="activeModal === 'editProfile'">
-        <div class="modal-header">
-          <h2>Editar Perfil</h2>
-          <button class="btn-close-modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
+        <div class="modal-header premium-center-header pb-0">
+          <h2>Administrar Perfil</h2>
+          <p class="header-subtitle">Actualiza tu información personal y foto.</p>
+          <button class="btn-close-modal absolute-close" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body premium-modal-body pt-0">
           <form (ngSubmit)="saveProfile()" #editForm="ngForm">
-            <div class="avatar-edit-section">
-              <div class="avatar-edit-preview-wrap">
-                <img [src]="profileForm.avatar" alt="Avatar" class="avatar-edit-preview">
-                <button type="button" class="avatar-preview-btn" (click)="fileInput.click()">
-                  <app-lucide-icon name="pencil" [size]="14" color="white"></app-lucide-icon>
-                </button>
+            
+            <div class="avatar-edit-premium">
+              <div class="avatar-preview-container" (click)="fileInput.click()">
+                <img [src]="profileForm.avatar" alt="Avatar" class="avatar-preview-image">
+                <div class="avatar-edit-overlay">
+                  <app-lucide-icon name="camera" [size]="20" color="white"></app-lucide-icon>
+                </div>
               </div>
+              <span class="avatar-edit-text" (click)="fileInput.click()">Cambiar foto</span>
               <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
-              <small *ngIf="avatarError" class="avatar-error-text">{{ avatarError }}</small>
+              <small *ngIf="avatarError" class="error-text fade-in text-center mt-2">{{ avatarError }}</small>
             </div>
-            <div class="form-grid">
-              <div class="input-group">
-                <label>Nombre</label>
-                <input type="text" name="firstName" [(ngModel)]="profileForm.firstName" required>
+
+            <div class="ios-form-group mt-3">
+              <div class="ios-input-row border-bottom">
+                <div class="row-icon"><app-lucide-icon name="user" [size]="18"></app-lucide-icon></div>
+                <input type="text" name="firstName" [(ngModel)]="profileForm.firstName" required placeholder="Nombre(s)">
               </div>
-              <div class="input-group">
-                <label>Apellidos</label>
-                <input type="text" name="lastName" [(ngModel)]="profileForm.lastName" required>
+              <div class="ios-input-row">
+                <div class="row-icon"><app-lucide-icon name="users" [size]="18"></app-lucide-icon></div>
+                <input type="text" name="lastName" [(ngModel)]="profileForm.lastName" required placeholder="Apellidos">
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn-secondary" (click)="closeModal()" [disabled]="isSubmitting">Cancelar</button>
-              <button type="submit" class="btn-primary" [disabled]="!editForm.form.valid || isSubmitting">
-                <span *ngIf="isSubmitting">⏳ Guardando...</span>
-                <span *ngIf="!isSubmitting"><app-lucide-icon name="save" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Guardar Cambios</span>
+
+            <div class="modal-footer premium-footer mt-4">
+              <button type="submit" class="btn-primary-block" [disabled]="!editForm.form.valid || isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-mini"></span>
+                <span *ngIf="!isSubmitting">Guardar Cambios</span>
               </button>
             </div>
           </form>
