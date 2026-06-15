@@ -11,8 +11,8 @@ import { UniversityRecommendation } from '../../core/services/test.service';
   template: `
     <div id="pdf-report-template" class="pdf-container">
         <div class="pdf-header">
-            <div class="pdf-logo-wrap">
-                <app-lucide-icon name="sparkles" [size]="28" color="#FFFFFF"></app-lucide-icon>
+            <div class="pdf-logo-wrap" style="background: transparent; padding: 0;">
+                <img src="logo.svg" alt="STEAM Logo" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
             <div class="pdf-title-block">
                 <h1>Reporte de Orientación STEAM</h1>

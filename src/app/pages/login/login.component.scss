@@ -126,15 +126,10 @@
   gap: 10px;
   margin-bottom: 24px;
   
-  .logo-symbol-wrap {
-    background: linear-gradient(135deg, var(--steam-blue) 0%, #0E9AA7 100%);
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(7, 177, 201, 0.2);
+  .app-brand-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
   }
   
   .logo-brand-title {
