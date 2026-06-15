@@ -1530,3 +1530,16 @@ body.dark-theme {
     }
   }
 }
+
+.premium-footer .btn-primary-block.bg-orange {
+  background: var(--steam-orange);
+  
+  &:not(:disabled):hover {
+    background: #e67a10;
+    box-shadow: 0 8px 20px rgba(248, 135, 24, 0.3);
+  }
+}
+
+.ios-form-group textarea::placeholder {
+  color: var(--text-muted);
+}

@@ -136,7 +136,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ];
 
   // --- ESTADO Y VARIABLES DE LOS MODALES ---
-  activeModal: 'editProfile' | 'security' | 'notifications' | 'help' | 'logout' | 'badge' | null = null;
+  activeModal: 'editProfile' | 'security' | 'notifications' | 'help' | 'contact' | 'logout' | 'badge' | null = null;
   isSubmitting: boolean = false;
   showToast: boolean = false;
   toastMessage: string = '';
@@ -170,7 +170,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if (action === 'manage') this.openModal('editProfile');
     else if (action === 'security') this.openModal('security');
     else if (action === 'notifications') this.openModal('notifications');
-    else if (action === 'help' || action === 'contact') this.openModal('help');
+    else if (action === 'help') this.openModal('help');
+    else if (action === 'contact') this.openModal('contact');
     else console.log(`Función no soportada por el momento: ${action}`);
   }
 
@@ -204,7 +205,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   // --- LÓGICA DE LOS MODALES ---
-  openModal(type: 'editProfile' | 'security' | 'notifications' | 'help' | 'logout') {
+  openModal(type: 'editProfile' | 'security' | 'notifications' | 'help' | 'contact' | 'logout') {
     this.activeModal = type;
     if (type === 'editProfile') {
       // Cargar datos actuales en el formulario
