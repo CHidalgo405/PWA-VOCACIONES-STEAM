@@ -1,26 +1,26 @@
 :host {
   display: block;
-  min-height: 100vh;
+  min-height: 100svh;
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
   background-color: var(--bg-canvas);
   
-  // Custom Properties para colores STEAM dinámicos
-  --steam-ciencia: #3b82f6; // Blue 500
-  --steam-tecnologia: #8b5cf6; // Violet 500
-  --steam-ingenieria: #f97316; // Orange 500
-  --steam-artes: #ec4899; // Pink 500
-  --steam-matematicas: #10b981; // Emerald 500
+  // Custom properties alineadas con los tokens globales STEAM.
+  --steam-ciencia: var(--area-ciencia);
+  --steam-tecnologia: var(--area-tecnologia);
+  --steam-ingenieria: var(--area-ingenieria);
+  --steam-artes: var(--area-arte);
+  --steam-matematicas: var(--area-matematicas);
   
   // Color por defecto fallback
-  --area-color: #64748b; 
+  --area-color: var(--text-secondary);
 }
 
 .simulator-shell {
-  max-width: 800px;
+  max-width: min(1120px, 100%);
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: clamp(1.25rem, 3vw, 2.5rem) var(--app-page-padding-x, 1rem) calc(2rem + env(safe-area-inset-bottom));
   
   // Asignación de variable según clase activada por el componente
   &.steam-ciencia { --area-color: var(--steam-ciencia); }
@@ -64,13 +64,13 @@
 .timer-display {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 0.75rem 1.25rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-secondary);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-xs);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -93,8 +93,8 @@
     background-color: var(--bg-surface);
     border: 1px solid var(--border-color);
     padding: 1.25rem 2rem;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
   }
   
   .step-icon {
@@ -141,30 +141,30 @@
 }
 
 .bias-banner {
-  background-color: #fffbeb;
-  border-left: 4px solid #fbbf24;
+  background-color: var(--color-warning-soft);
+  border: 1px solid rgba(217, 119, 6, 0.24);
   padding: 1rem 1.25rem;
   margin-bottom: 2rem;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1.5rem;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-sm);
   
   p {
     margin: 0;
-    color: #92400e;
+    color: var(--color-warning-contrast);
     font-weight: 500;
     line-height: 1.4;
   }
   
   button {
-    background-color: white;
-    border: 1px solid #fcd34d;
-    color: #92400e;
+    background-color: var(--bg-surface);
+    border: 1px solid rgba(217, 119, 6, 0.32);
+    color: var(--color-warning-contrast);
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-weight: 600;
     font-size: 0.875rem;
@@ -172,36 +172,68 @@
     transition: all 0.2s;
     
     &:hover {
-      background-color: #fef3c7;
-      border-color: #fbbf24;
+      background-color: var(--bg-elevated);
+      border-color: var(--color-warning);
     }
   }
 }
 
+.simulator-state-card {
+  max-width: 760px;
+  margin: 2rem 0;
+
+  .app-state-skeleton-row {
+    width: 100%;
+    max-width: 520px;
+  }
+}
+
 .simulator-content {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 2rem;
   position: relative;
-  overflow: hidden; 
+  overflow: visible;
   padding-bottom: 2rem;
   
   .step-wrapper {
     background-color: var(--bg-surface);
     border: 1px solid var(--border-color);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     padding: 2.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025);
+    box-shadow: var(--shadow-md);
     min-height: 400px;
     display: flex;
     flex-direction: column;
   }
 }
 
+@media (min-width: 1024px) {
+  .simulator-header,
+  .progress-container {
+    max-width: 900px;
+  }
+
+  .simulator-content {
+    grid-template-columns: minmax(0, 1fr) 180px;
+    align-items: start;
+  }
+
+  .simulator-content .step-wrapper {
+    min-height: 460px;
+  }
+
+  .timer-display.desktop-timer {
+    position: sticky;
+    top: 96px;
+    justify-content: center;
+  }
+}
+
 // Mobile-first responsive
 @media (max-width: 768px) {
   .simulator-shell {
-    padding: 1rem;
+    padding: 1rem 1rem calc(1.5rem + env(safe-area-inset-bottom));
   }
 
   .simulator-header {
@@ -240,20 +272,12 @@
   .simulator-content .step-wrapper {
     padding: 1rem;
     min-height: 300px;
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
   }
 }
 
 /* ── DARK MODE OVERRIDES ── */
 :host-context(body.dark-theme) {
-  --bg-canvas: #020617; // Slate 950
-  --bg-surface: #0f172a; // Slate 900
-  --bg-elevated: #1e293b; // Slate 800
-  --border-color: #334155; // Slate 700
-  --text-primary: #f8fafc; // Slate 50
-  --text-secondary: #cbd5e1; // Slate 300
-  --text-muted: #64748b; // Slate 500
-
   background-color: var(--bg-canvas);
 
   .simulator-header .career-info h1 {
@@ -264,13 +288,13 @@
     background-color: var(--bg-surface);
     border-color: var(--border-color);
     color: var(--text-secondary);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    box-shadow: var(--shadow-xs);
   }
 
   .progress-container .progress-bar {
     background-color: var(--bg-surface);
     border-color: var(--border-color);
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+    box-shadow: var(--shadow-sm);
   }
 
   .progress-container .step-icon {
@@ -288,18 +312,18 @@
   }
 
   .bias-banner {
-    background-color: rgba(245, 158, 11, 0.1);
-    border-left-color: #f59e0b;
+    background-color: var(--color-warning-soft);
+    border-color: rgba(217, 119, 6, 0.34);
     
-    p { color: #fcd34d; }
+    p { color: var(--color-warning-contrast); }
     
     button {
-      background-color: transparent;
-      border-color: #f59e0b;
-      color: #fcd34d;
+      background-color: var(--bg-surface);
+      border-color: rgba(217, 119, 6, 0.42);
+      color: var(--color-warning-contrast);
       
       &:hover {
-        background-color: rgba(245, 158, 11, 0.2);
+        background-color: var(--bg-elevated);
       }
     }
   }
@@ -307,6 +331,6 @@
   .simulator-content .step-wrapper {
     background-color: var(--bg-surface);
     border-color: var(--border-color);
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+    box-shadow: var(--shadow-md);
   }
 }

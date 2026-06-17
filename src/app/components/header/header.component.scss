@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;
+  padding: calc(1.25rem + env(safe-area-inset-top)) clamp(1rem, 3vw, 1.5rem) 1.25rem;
   background-color: var(--bg-glass);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -48,6 +48,13 @@
     text-align: center;
     flex-grow: 1;
     letter-spacing: -0.01em;
+    min-width: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-header {
+    padding-inline: clamp(1.5rem, 3vw, 2.5rem);
   }
 }
 

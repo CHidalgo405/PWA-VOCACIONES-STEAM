@@ -25,6 +25,8 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
   
   public completedSimulators = signal<string[]>([]);
   public userSteamProfile = signal<any>(null);
+  public isLoadingSimulators = signal<boolean>(true);
+  public simulatorLoadError = signal<string | null>(null);
 
   // Lista base dinámica
   public allSimulators = signal<CareerSimulatorData[]>([]);
@@ -72,20 +74,7 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.completedSimulators.set(this.simulatorService.getCompletedSimulators());
-
-    // Carga exclusiva desde la API (JSONB)
-    this.simulatorService.getSimulators().subscribe({
-      next: (sims) => {
-        if (sims && sims.length > 0) {
-          this.allSimulators.set(sims);
-        } else {
-          console.warn('La API no devolvió simuladores activos.');
-        }
-      },
-      error: (err) => {
-        console.error('Failed to load simulators from API:', err);
-      }
-    });
+    this.loadSimulators();
 
     try {
       const stored = localStorage.getItem('steam_profile');
@@ -95,6 +84,30 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
     } catch (e) {
       console.error('Error parseando steam_profile del localStorage', e);
     }
+  }
+
+  public loadSimulators() {
+    this.isLoadingSimulators.set(true);
+    this.simulatorLoadError.set(null);
+
+    // El servicio mantiene fallback local si la API no responde.
+    this.simulatorService.getSimulators().subscribe({
+      next: (sims) => {
+        if (sims && sims.length > 0) {
+          this.allSimulators.set(sims);
+        } else {
+          console.warn('La API no devolvió simuladores activos.');
+          this.allSimulators.set([]);
+        }
+        this.isLoadingSimulators.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load simulators from API:', err);
+        this.allSimulators.set([]);
+        this.simulatorLoadError.set('No pudimos cargar simuladores. Si existe fallback local, intenta recargar en unos segundos.');
+        this.isLoadingSimulators.set(false);
+      }
+    });
   }
 
   ngAfterViewInit() {

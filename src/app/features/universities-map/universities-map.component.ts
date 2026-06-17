@@ -26,6 +26,10 @@ export class UniversitiesMapComponent implements OnInit {
   isApiLoaded = false;
   isLocating = false;
   isSearching = false;
+  mapError = '';
+  locationError = '';
+  searchError = '';
+  hasSearched = false;
   
   universities: University[] = [];
   selectedUniversity: University | null = null;
@@ -45,6 +49,11 @@ export class UniversitiesMapComponent implements OnInit {
   };
 
   ngOnInit() {
+    this.loadMap();
+  }
+
+  loadMap() {
+    this.mapError = '';
     this.loaderService.loadMapScript()
       .then(() => {
         this.isApiLoaded = true;
@@ -63,12 +72,16 @@ export class UniversitiesMapComponent implements OnInit {
       })
       .catch(err => {
         console.error('No se pudo cargar Google Maps:', err);
+        this.isApiLoaded = false;
+        this.mapError = 'No pudimos cargar Google Maps. Revisa tu conexión e intenta de nuevo.';
       });
   }
 
   getUserLocation() {
     if (navigator.geolocation) {
       this.isLocating = true;
+      this.locationError = '';
+      this.searchError = '';
       navigator.geolocation.getCurrentPosition(
         (position) => {
           this.ngZone.run(() => {
@@ -96,12 +109,14 @@ export class UniversitiesMapComponent implements OnInit {
               }
             }
             this.isLocating = false;
+            this.locationError = '';
           });
         },
         (error) => {
           this.ngZone.run(() => {
             console.warn('Error obteniendo ubicación o permiso denegado:', error);
             this.isLocating = false;
+            this.locationError = 'No pudimos acceder a tu ubicación. Activa el permiso del navegador y pulsa Reintentar ubicación.';
           });
         },
         // Aumentamos el timeout y bajamos la precisión para que Safari no falle al pedir permisos
@@ -109,11 +124,14 @@ export class UniversitiesMapComponent implements OnInit {
       );
     } else {
       console.warn('Geolocalización no soportada por el navegador.');
+      this.locationError = 'Este navegador no permite geolocalización. Puedes volver a la pantalla de explorar para usar búsqueda manual.';
     }
   }
 
   searchUniversities(mapInstance: google.maps.Map, location: google.maps.LatLngLiteral) {
     this.isSearching = true;
+    this.searchError = '';
+    this.hasSearched = true;
     this.universityService.searchNearbyUniversities(mapInstance, location, 20000).subscribe({
       next: (results) => {
         this.universities = results;
@@ -121,9 +139,18 @@ export class UniversitiesMapComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error buscando universidades:', err);
+        this.searchError = 'No pudimos consultar universidades cercanas. Intenta de nuevo en unos segundos.';
         this.isSearching = false;
       }
     });
+  }
+
+  retrySearchUniversities() {
+    if (!this.userPosition || !this.googleMap?.googleMap) {
+      this.getUserLocation();
+      return;
+    }
+    this.searchUniversities(this.googleMap.googleMap, this.userPosition);
   }
 
   openInfoWindow(marker: MapMarker, university: University) {
@@ -138,5 +165,3 @@ export class UniversitiesMapComponent implements OnInit {
     };
   }
 }
-
-

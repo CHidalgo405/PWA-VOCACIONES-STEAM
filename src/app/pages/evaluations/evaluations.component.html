@@ -3,6 +3,52 @@
      ============================================= -->
 <div class="vt-wrapper" *ngIf="viewState === 'questionnaire'">
 
+  <div class="test-state-shell" *ngIf="isLoadingQuestions">
+    <div class="app-state-panel is-loading" role="status" aria-live="polite" aria-busy="true">
+      <div class="app-state-icon">
+        <app-lucide-icon name="clipboard-list" [size]="28"></app-lucide-icon>
+      </div>
+      <span class="app-state-kicker">Cargando test</span>
+      <h2>Preparando tus preguntas STEAM</h2>
+      <p>Estamos cargando el test vocacional. Si la API tarda, mantendremos esta pantalla para que no pierdas contexto.</p>
+      <div class="app-state-skeleton-row" aria-hidden="true">
+        <div class="app-state-skeleton"></div>
+        <div class="app-state-skeleton"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="test-state-shell" *ngIf="!isLoadingQuestions && loadingError">
+    <div class="app-state-panel is-error" role="alert">
+      <div class="app-state-icon">
+        <app-lucide-icon name="wifi-off" [size]="28"></app-lucide-icon>
+      </div>
+      <span class="app-state-kicker">Error de API</span>
+      <h2>No se cargó el test</h2>
+      <p>{{ loadingError }}</p>
+      <div class="app-state-actions">
+        <button type="button" class="btn-primary" (click)="retryLoadQuestions()">Reintentar</button>
+        <button type="button" class="btn-secondary" (click)="confirmExit()">Volver al dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="test-state-shell" *ngIf="!isLoadingQuestions && !loadingError && questions.length === 0">
+    <div class="app-state-panel is-empty" role="status" aria-live="polite">
+      <div class="app-state-icon">
+        <app-lucide-icon name="file-question" [size]="28"></app-lucide-icon>
+      </div>
+      <span class="app-state-kicker">Test sin preguntas</span>
+      <h2>Aún no hay preguntas disponibles</h2>
+      <p>No encontramos preguntas activas para este test. Puedes intentar de nuevo o volver más tarde.</p>
+      <div class="app-state-actions">
+        <button type="button" class="btn-primary" (click)="retryLoadQuestions()">Reintentar</button>
+        <button type="button" class="btn-secondary" (click)="confirmExit()">Volver al dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!isLoadingQuestions && !loadingError && questions.length > 0">
   <!-- ── STICKY HEADER ── -->
   <header class="vt-header slide-down">
     <div class="header-top-row">
@@ -25,7 +71,12 @@
     </div>
 
     <!-- Thin elegant progress bar -->
-    <div class="progress-track">
+    <div class="progress-track"
+         role="progressbar"
+         aria-label="Progreso del test vocacional"
+         aria-valuemin="0"
+         aria-valuemax="100"
+         [attr.aria-valuenow]="progressPercentage | number:'1.0-0'">
       <div class="progress-fill"
            [style.width]="progressPercentage + '%'"
            [class.progress-complete]="progressPercentage >= 100">
@@ -41,6 +92,11 @@
   <!-- ── QUESTION CONTENT AREA ── -->
   <div class="vt-content" [class.slide-in]="isAnimating" [class.transitioning]="isTransitioningQuestion">
 
+    <div class="responsible-note responsible-note--subtle">
+      <app-lucide-icon name="shield-check" [size]="18"></app-lucide-icon>
+      <p><strong>Orientación responsable:</strong> tus respuestas ayudan a crear una guía, no una sentencia definitiva. Si no has probado algo, elegir una opción neutral también es válido.</p>
+    </div>
+
     <!-- STEAM area badge -->
     <div class="steam-area-badge">
       <app-lucide-icon name="zap" [size]="14" color="#07B1C9" style="margin-right:4px;"></app-lucide-icon>
@@ -49,11 +105,11 @@
 
     <!-- Question card -->
     <div class="question-card">
-      <p class="question-text">{{ currentQuestion?.text }}</p>
+      <p class="question-text" id="current-question-text">{{ currentQuestion?.text }}</p>
     </div>
 
     <!-- Options -->
-    <div class="options-list">
+    <div class="options-list" role="radiogroup" aria-labelledby="current-question-text">
       <button
         class="option-btn"
         *ngFor="let option of currentQuestion?.options; let i = index"
@@ -63,7 +119,9 @@
         [class.option-c]="i === 2"
         [class.option-d]="i === 3"
         (click)="selectOption(option.id)"
-        type="button">
+        type="button"
+        role="radio"
+        [attr.aria-checked]="selectedOptionId === option.id">
 
         <!-- Letter chip -->
         <span class="option-letter">{{ option.letter || ('ABCD'[i]) }}</span>
@@ -87,7 +145,7 @@
   </div>
 
   <!-- ── VALIDATION ALERT ── -->
-  <div class="inline-alert" [class.show]="showAlert">
+  <div class="inline-alert" [class.show]="showAlert" role="alert" [attr.aria-live]="showAlert ? 'assertive' : 'off'">
     <app-lucide-icon name="alert-circle" [size]="16" color="white" style="margin-right:6px;"></app-lucide-icon>
     Elige una opción para continuar.
   </div>
@@ -104,7 +162,9 @@
 
       <!-- Next / Finish button -->
       <button class="btn-next"
+        type="button"
         [class.btn-next--inactive]="!selectedOptionId"
+        [attr.aria-disabled]="!selectedOptionId"
         (click)="nextQuestion()">
         <span>{{ currentQuestionIndex === questions.length - 1 ? 'Finalizar' : 'Siguiente' }}</span>
         <app-lucide-icon
@@ -116,6 +176,7 @@
       </button>
     </div>
   </footer>
+  </ng-container>
 
 </div>
 
@@ -137,15 +198,15 @@
      EXIT CONFIRMATION MODAL
      ============================================= -->
 <div class="modal-overlay" *ngIf="showExitModal" (click)="cancelExit()">
-  <div class="modal-card scale-in" (click)="$event.stopPropagation()">
+  <div class="modal-card scale-in" role="dialog" aria-modal="true" aria-labelledby="exit-modal-title" aria-describedby="exit-modal-description" (click)="$event.stopPropagation()">
     <div class="modal-icon-wrap">
       <app-lucide-icon name="alert-triangle" [size]="36" color="#F59E0B"></app-lucide-icon>
     </div>
-    <h3 class="modal-title">¿Salir del test?</h3>
-    <p class="modal-body-text">Tu progreso no se guardará y tendrás que comenzar de nuevo.</p>
+    <h3 class="modal-title" id="exit-modal-title">¿Salir del test?</h3>
+    <p class="modal-body-text" id="exit-modal-description">Tu progreso no se guardará y tendrás que comenzar de nuevo.</p>
     <div class="modal-actions">
-      <button class="btn-modal-cancel" (click)="cancelExit()">Continuar test</button>
-      <button class="btn-modal-danger" (click)="confirmExit()">Sí, salir</button>
+      <button class="btn-modal-cancel" type="button" (click)="cancelExit()">Continuar test</button>
+      <button class="btn-modal-danger" type="button" (click)="confirmExit()">Sí, salir</button>
     </div>
   </div>
 </div>

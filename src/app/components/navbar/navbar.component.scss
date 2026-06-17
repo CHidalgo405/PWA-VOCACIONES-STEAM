@@ -8,11 +8,14 @@
   pointer-events: none; /* Permite hacer clic en cosas a los lados del dock en PC */
   display: flex;
   justify-content: center;
-  padding-bottom: 0; /* En móvil va pegado */
+  padding-bottom: env(safe-area-inset-bottom); /* Safe-area para móviles con gestos */
 
-  /* TRANSICIÓN A PC (Escritorio) */
   @media (min-width: 1024px) {
-    padding-bottom: 30px; /* Lo elevamos del suelo en PC */
+    inset: 0 auto 0 0;
+    width: var(--app-desktop-nav-width, 220px);
+    padding: 24px 0;
+    align-items: center;
+    justify-content: center;
   }
 }
 
@@ -27,23 +30,26 @@
   
   /* DISEÑO MÓVIL (Por defecto) */
   width: 100%;
-  height: 70px;
+  height: var(--app-mobile-nav-height, 78px);
   display: flex;
   justify-content: space-around; /* Distribuir uniformemente */
   align-items: center;
   border-radius: 20px 20px 0 0; /* Curvas solo arriba */
   padding: 0 10px;
 
-  /* DISEÑO PC (Floating Dock) */
+  /* DISEÑO PC (Sidebar compacto) */
   @media (min-width: 1024px) {
-    width: auto;
-    min-width: 400px;
-    height: 75px;
-    border-radius: 40px; /* Cápsula completa */
-    padding: 0 20px;
-    gap: 20px;
+    width: 176px;
+    min-width: 0;
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    border-radius: 28px;
+    padding: 14px;
+    gap: 8px;
     border: 1px solid var(--border-light, rgba(255,255,255,0.4));
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
   }
 }
 
@@ -60,6 +66,7 @@
   border-radius: 30px; /* Forma de píldora */
   overflow: hidden;
   height: 48px; /* Altura fija para que la píldora se vea uniforme */
+  min-width: 48px;
 
   /* Icono */
   .icon-box {
@@ -98,6 +105,24 @@
       max-width: 120px; /* Expande para mostrar el texto */
       opacity: 1;
       margin-left: 10px; /* Espacio entre icono y texto */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    width: 100%;
+    justify-content: flex-start;
+    border-radius: 16px;
+    padding: 12px 14px;
+
+    .label {
+      max-width: 120px;
+      opacity: 1;
+      margin-left: 12px;
+      font-size: 0.9rem;
+    }
+
+    &.active {
+      padding: 12px 14px;
     }
   }
 }

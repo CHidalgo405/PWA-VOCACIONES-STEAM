@@ -17,7 +17,19 @@
       <p class="loader-subtitle">Preparando tu historial vocacional STEAM</p>
     </div>
 
-    <div *ngIf="!isLoading && testHistory.length === 0" class="empty-state fade-in" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1.5rem; text-align: center; margin-top: 2rem;">
+    <div *ngIf="!isLoading && historyError" class="app-state-panel is-error">
+      <div class="app-state-icon">
+        <app-lucide-icon name="wifi-off" [size]="28"></app-lucide-icon>
+      </div>
+      <span class="app-state-kicker">Error de API</span>
+      <h2>No pudimos cargar todo tu historial</h2>
+      <p>{{ historyError }}</p>
+      <div class="app-state-actions">
+        <button type="button" class="btn-primary" (click)="loadHistory()">Reintentar</button>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && !historyError && testHistory.length === 0 && !hasLocalEvolutionData && timelineEvents.length === 0" class="empty-state fade-in" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1.5rem; text-align: center; margin-top: 2rem;">
       <div class="empty-icon-wrap" style="background: rgba(7, 177, 201, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
         <app-lucide-icon name="folder-open" [size]="40" color="#07B1C9"></app-lucide-icon>
       </div>
@@ -30,7 +42,7 @@
       </button>
     </div>
 
-    <ng-container *ngIf="!isLoading && testHistory.length > 0">
+    <ng-container *ngIf="!isLoading && (testHistory.length > 0 || hasLocalEvolutionData || timelineEvents.length > 0)">
       
       <!-- STATS GRID -->
       <div class="stats-grid">
@@ -39,10 +51,158 @@
           <span class="stat-label">Tests realizados</span>
         </div>
         <div class="stat-card dark-bg">
-          <span class="stat-value white-text">{{ currentProfile | slice:0:15 }}{{ currentProfile.length > 15 ? '...' : '' }}</span>
+          <span class="stat-value white-text">{{ currentProfile }}</span>
           <span class="stat-label">Perfil actual</span>
         </div>
       </div>
+
+      <!-- EVOLUCIÓN VOCACIONAL -->
+      <section class="evolution-panel" aria-labelledby="evolution-title">
+        <div class="section-title space-between">
+          <h3 id="evolution-title">
+            <app-lucide-icon name="trending-up" [size]="18"></app-lucide-icon>
+            Evolución vocacional
+          </h3>
+          <span class="source-pill">API + local</span>
+        </div>
+
+        <p class="evolution-note">{{ localEvolutionNotice }}</p>
+
+        <div class="insufficient-card" *ngIf="hasInsufficientEvolutionData">
+          <app-lucide-icon name="info" [size]="20" color="#07B1C9"></app-lucide-icon>
+          <div>
+            <strong>Aún no hay historial suficiente para detectar evolución.</strong>
+            <p>Completa otro test, una calibración o un simulador para comparar cómo cambia tu perfil.</p>
+          </div>
+        </div>
+
+        <div class="snapshot-grid">
+          <article class="snapshot-card" *ngFor="let snapshot of evolutionSnapshots" [class.is-pending]="snapshot.status === 'pending'">
+            <div class="snapshot-icon">
+              <app-lucide-icon [name]="snapshot.icon" [size]="18"></app-lucide-icon>
+            </div>
+            <div class="snapshot-content">
+              <span class="snapshot-kicker">{{ getConfidenceLabel(snapshot.confidence) }}</span>
+              <h4>{{ snapshot.title }}</h4>
+              <p>{{ snapshot.description }}</p>
+              <strong>{{ snapshot.combination }}</strong>
+              <small>{{ getConfidenceExplanation(snapshot.confidence) }}</small>
+            </div>
+          </article>
+        </div>
+
+        <div class="evolution-grid">
+          <article class="evolution-card">
+            <div class="card-heading">
+              <h4>Cambios en áreas STEAM</h4>
+              <span>Inicial vs actual</span>
+            </div>
+            <div class="area-change-list">
+              <div class="area-change-row" *ngFor="let area of areaEvolution">
+                <div class="area-change-meta">
+                  <span class="area-dot" [style.backgroundColor]="area.color"></span>
+                  <strong>{{ area.label }}</strong>
+                  <small [class.positive]="area.delta > 0" [class.negative]="area.delta < 0">{{ getDeltaText(area.delta) }} pts</small>
+                </div>
+                <div class="dual-bars">
+                  <div class="bar-line initial">
+                    <span [style.width]="area.initialScore + '%'"></span>
+                  </div>
+                  <div class="bar-line current">
+                    <span [style.width]="area.currentScore + '%'" [style.backgroundColor]="area.color"></span>
+                  </div>
+                </div>
+                <span class="area-current">{{ area.currentScore }}%</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="evolution-card">
+            <div class="card-heading">
+              <h4>Carreras recomendadas</h4>
+              <span>Top actual local</span>
+            </div>
+            <div class="career-change-list" *ngIf="careerEvolution.length > 0; else noCareerEvolution">
+              <div class="career-change-row" *ngFor="let career of careerEvolution">
+                <div>
+                  <strong>{{ career.name }}</strong>
+                  <p>{{ career.note }}</p>
+                </div>
+                <span>{{ career.compatibility }}%</span>
+              </div>
+            </div>
+            <ng-template #noCareerEvolution>
+              <div class="compact-empty">
+                <app-lucide-icon name="briefcase-business" [size]="18"></app-lucide-icon>
+                <span>Completa o vuelve a abrir resultados para generar recomendaciones locales comparables.</span>
+              </div>
+            </ng-template>
+          </article>
+
+          <article class="evolution-card confidence-card">
+            <div class="card-heading">
+              <h4>Confianza en el tiempo</h4>
+              <span>Señales acumuladas</span>
+            </div>
+            <div class="confidence-list" *ngIf="confidenceTimeline.length > 0; else noConfidenceTimeline">
+              <div class="confidence-row" *ngFor="let point of confidenceTimeline">
+                <div>
+                  <strong>{{ point.label }}</strong>
+                  <small>{{ getConfidenceLabel(point.confidence) }}</small>
+                </div>
+                <div class="confidence-meter">
+                  <span [style.width]="point.percentage + '%'"></span>
+                </div>
+              </div>
+            </div>
+            <ng-template #noConfidenceTimeline>
+              <div class="compact-empty">
+                <app-lucide-icon name="activity" [size]="18"></app-lucide-icon>
+                <span>La confianza aparecerá cuando exista al menos un resultado vocacional.</span>
+              </div>
+            </ng-template>
+          </article>
+        </div>
+      </section>
+
+      <!-- TIMELINE -->
+      <section class="timeline-panel" aria-labelledby="timeline-title">
+        <div class="section-title space-between">
+          <h3 id="timeline-title">
+            <app-lucide-icon name="history" [size]="18"></app-lucide-icon>
+            Timeline de actividad
+          </h3>
+          <span class="timeline-count">{{ timelineEvents.length }} eventos</span>
+        </div>
+
+        <div class="timeline-list" *ngIf="timelineEvents.length > 0; else noTimeline">
+          <article class="timeline-item" *ngFor="let event of timelineEvents; trackBy: trackByEventId">
+            <div class="timeline-icon" [style.backgroundColor]="event.color + '20'" [style.color]="event.color">
+              <app-lucide-icon [name]="event.icon" [size]="18"></app-lucide-icon>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-topline">
+                <span>{{ event.label }}</span>
+                <time *ngIf="event.dateIso; else noEventDate">{{ event.dateIso | date:'d MMM yyyy' }}</time>
+                <ng-template #noEventDate><time>Fecha no disponible</time></ng-template>
+              </div>
+              <h4>{{ event.title }}</h4>
+              <p>{{ event.description }}</p>
+              <div class="timeline-actions">
+                <a *ngIf="event.route" [routerLink]="event.route">Ver detalle</a>
+                <span class="data-source">{{ event.dataSource }}</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <ng-template #noTimeline>
+          <div class="compact-empty timeline-empty">
+            <app-lucide-icon name="calendar-clock" [size]="18"></app-lucide-icon>
+            <span>No hay eventos suficientes para armar tu timeline vocacional.</span>
+          </div>
+        </ng-template>
+      </section>
 
       <!-- ÚLTIMO TEST (Dark Card) -->
       <div class="section-title" *ngIf="latestTest">
@@ -75,7 +235,7 @@
           
           <div class="chips-row">
             <span class="chip-outline" *ngFor="let area of getTopAreas(latestTest.profileScores)" [style.color]="area.color" [style.borderColor]="area.color + '40'">
-              {{ area.name | uppercase }}
+              {{ area.name }}
             </span>
           </div>
         </div>
@@ -101,7 +261,9 @@
       <!-- TESTS ANTERIORES -->
       <div class="section-title space-between" *ngIf="previousTests.length > 0">
         <h3>Tests anteriores</h3>
-        <a href="#" class="link-cyan">Comparar todos</a>
+        <button type="button" class="link-cyan link-cyan-button" disabled title="Comparación múltiple pendiente de conectar">
+          Comparar todos · próximamente
+        </button>
       </div>
 
       <div class="previous-tests-list" *ngIf="previousTests.length > 0">
@@ -135,7 +297,7 @@
             
             <div class="chips-row">
                <span class="chip-light" [style.color]="getSteamColor(test.dominantTraits)" [style.backgroundColor]="getSteamColor(test.dominantTraits) + '20'">
-                {{ test.dominantTraits | uppercase }}
+                {{ formatProfileLabel(test.dominantTraits) }}
                </span>
             </div>
             

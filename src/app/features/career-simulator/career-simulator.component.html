@@ -43,6 +43,50 @@
     </div>
   }
 
+  @if (loadState() === 'loading' && !careerData()) {
+    <section class="simulator-state-card app-state-panel is-loading">
+      <div class="app-state-icon">
+        <app-lucide-icon name="gamepad-2" [size]="28"></app-lucide-icon>
+      </div>
+      <span class="app-state-kicker">Cargando simulador</span>
+      <h2>Preparando tu misión profesional</h2>
+      <p>Estamos buscando la experiencia en API. Si no está disponible, el servicio intentará usar un fallback local.</p>
+      <div class="app-state-skeleton-row">
+        <div class="app-state-skeleton"></div>
+        <div class="app-state-skeleton"></div>
+      </div>
+    </section>
+  }
+
+  @if (loadState() === 'error' && !careerData()) {
+    <section class="simulator-state-card app-state-panel is-error">
+      <div class="app-state-icon">
+        <app-lucide-icon name="alert-circle" [size]="28"></app-lucide-icon>
+      </div>
+      <span class="app-state-kicker">Simulador no disponible</span>
+      <h2>No se pudo abrir esta simulación</h2>
+      <p>{{ loadErrorMessage() }}</p>
+      <div class="app-state-actions">
+        <button type="button" class="btn-primary" (click)="retryLoadSimulator()">Reintentar</button>
+        <button type="button" class="btn-secondary" (click)="goToCatalog()">Volver al catálogo</button>
+      </div>
+    </section>
+  }
+
+  @if (careerData() && !currentStepData() && !isCompleted()) {
+    <section class="simulator-state-card app-state-panel is-empty">
+      <div class="app-state-icon">
+        <app-lucide-icon name="list-x" [size]="28"></app-lucide-icon>
+      </div>
+      <span class="app-state-kicker">Simulador incompleto</span>
+      <h2>Esta experiencia aún no tiene pasos</h2>
+      <p>La carrera existe, pero no recibimos decisiones o misiones suficientes para iniciar una simulación vocacional.</p>
+      <div class="app-state-actions">
+        <button type="button" class="btn-secondary" (click)="goToCatalog()">Ver otros simuladores</button>
+      </div>
+    </section>
+  }
+
   <main class="simulator-content" *ngIf="careerData() && !isCompleted()">
     <!-- Wrapper para contener la animación direccional -->
     <div class="step-wrapper" [@stepTransition]="currentStepIndex()">

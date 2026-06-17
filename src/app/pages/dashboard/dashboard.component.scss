@@ -1,10 +1,10 @@
 /* --- Base Dashboard Styles --- */
 .dashboard-wrap {
-  padding: 20px;
-  max-width: 1200px;
+  padding: clamp(16px, 3vw, 32px);
+  max-width: var(--app-page-max, 1180px);
   margin: 0 auto;
-  padding-bottom: 80px;
-  min-height: 100vh;
+  padding-bottom: var(--app-bottom-nav-space, 96px);
+  min-height: 100svh;
   background-color: var(--bg-canvas);
   color: var(--text-primary);
   font-family: 'Poppins', 'Segoe UI', Interstate, sans-serif;
@@ -188,7 +188,7 @@
   gap: 20px;
 
   @media (min-width: 1024px) {
-    grid-template-columns: 1.5fr 1fr; /* Main area taking more space */
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.95fr); /* Main area taking more space */
     gap: 30px;
   }
 }
@@ -196,7 +196,7 @@
 /* --- Post-test Grid (Reversed layout for desktop) --- */
 .post-test-grid {
   @media (min-width: 1024px) {
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.95fr);
   }
 }
 
@@ -1136,14 +1136,15 @@
 /* Modal Bienvenida */
 .welcome-modal-overlay {
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
+  inset: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  box-sizing: border-box;
 
   .welcome-modal-content {
     background: var(--bg-surface);
@@ -1151,7 +1152,7 @@
     padding: 40px;
     max-width: 500px;
     width: 100%;
-    max-height: 90vh;
+    max-height: calc(100svh - 32px);
     overflow-y: auto;
     text-align: center;
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
@@ -1317,7 +1318,14 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-secondary);
-      margin: 0 0 12px 0;
+      margin: 0 0 8px 0;
+    }
+
+    .modules-helper {
+      margin: 0 0 14px;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      line-height: 1.5;
     }
     
     .modules-grid {
@@ -1327,7 +1335,7 @@
       
       .module-slot {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         gap: 12px;
         padding: 12px 16px;
         background: rgba(255, 255, 255, 0.03);
@@ -1351,12 +1359,23 @@
           z-index: 10;
         }
         
-        .slot-name {
-          font-weight: 600;
-          font-size: 0.9rem;
-          color: var(--text-primary);
+        .slot-copy {
+          display: grid;
+          gap: 4px;
           position: relative;
           z-index: 10;
+
+          .slot-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+          }
+
+          small {
+            color: var(--text-secondary);
+            font-size: 0.72rem;
+            line-height: 1.35;
+          }
         }
         
         &.available {
@@ -1381,7 +1400,8 @@
             background: var(--bg-canvas);
             color: var(--text-muted);
           }
-          .slot-name {
+          .slot-name,
+          small {
             color: var(--text-muted);
           }
         }

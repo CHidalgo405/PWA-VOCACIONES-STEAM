@@ -62,12 +62,12 @@
           <div class="cta-bg-shapes"></div>
           <span class="step-badge">PASO 2 • PENDIENTE</span>
           <h2>Descubre tu vocación STEAM ahora</h2>
-          <p>Responde 20 preguntas y nuestra IA analizará tu perfil para recomendarte las mejores carreras.</p>
+          <p>Responde 20 preguntas para generar una guía vocacional inicial. La IA ayuda a explicar patrones, no decide por ti.</p>
           
           <ul class="cta-features">
             <li><span class="dot"></span> 10 min aprox.</li>
             <li><span class="dot"></span> 20 preguntas</li>
-            <li><span class="dot"></span> Resultado al instante</li>
+            <li><span class="dot"></span> Resultado orientativo</li>
           </ul>
 
           <button class="btn-start-test" (click)="startTest()">
@@ -93,9 +93,9 @@
             </div>
             <div class="why-card">
               <div class="icon-box dark-light">
-                <app-lucide-icon name="sparkles" [size]="24" color="#1A1A1A"></app-lucide-icon>
+                <app-lucide-icon name="shield-check" [size]="24" color="#1A1A1A"></app-lucide-icon>
               </div>
-              <span>IA personalizada para ti</span>
+              <span>IA como apoyo, no reemplazo</span>
             </div>
           </div>
         </div>
@@ -157,7 +157,7 @@
           </svg>
           <div class="ring-text">
             <span class="ring-val">{{ aiConfidence }}%</span>
-            <span class="ring-lbl">Confianza IA</span>
+            <span class="ring-lbl">Confianza perfil</span>
           </div>
         </div>
         <div class="summary-details">
@@ -223,6 +223,9 @@
       
       <div class="calibration-modules-container">
         <h4 class="modules-title">Módulos de Calibración</h4>
+        <p class="modules-helper">
+          La calibración ajusta tu perfil con experiencias reales. Los módulos bloqueados se activan conforme completas experiencias previas.
+        </p>
         <div class="modules-grid">
           @for (modConfig of calibrationModulesConfig; track modConfig.id) {
             <div class="module-slot" 
@@ -239,7 +242,10 @@
                   <app-lucide-icon [name]="modConfig.icon" [size]="16"></app-lucide-icon>
                 }
               </div>
-              <span class="slot-name">{{ modConfig.title }}</span>
+              <div class="slot-copy">
+                <span class="slot-name">{{ modConfig.title }}</span>
+                <small>{{ getModuleSupportText(modConfig.id) }}</small>
+              </div>
             </div>
           }
         </div>
@@ -312,7 +318,7 @@
           <li><app-lucide-icon name="flask-conical" [size]="14" color="var(--steam-blue)"></app-lucide-icon> Realizar el test vocacional para conocer tu perfil</li>
           <li><app-lucide-icon name="calendar-days" [size]="14" color="var(--steam-blue)"></app-lucide-icon> Encontrar universidades y cursos sugeridos para ti</li>
         </ul>
-        <p><strong>¿Listo para empezar?</strong> Te sugerimos hacer el test primero para recibir sugerencias personalizadas.</p>
+        <p><strong>¿Listo para empezar?</strong> Las sugerencias son una guía para explorar. Puedes mejorarlas con calibraciones, simuladores y apoyo de un orientador si lo necesitas.</p>
       </div>
       <button class="btn-primary-large" (click)="closeWelcomeModal()">Comenzar mi aventura</button>
     </div>

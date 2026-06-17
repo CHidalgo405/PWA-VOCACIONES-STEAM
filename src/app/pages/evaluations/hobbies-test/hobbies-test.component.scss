@@ -4,15 +4,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 40px 20px calc(40px + env(safe-area-inset-bottom));
   max-width: 600px;
   margin: 0 auto;
   width: 100%;
+  min-height: 100svh;
+  box-sizing: border-box;
 }
 
 .mission-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 18px;
   
   .badge {
     background: rgba(7, 177, 201, 0.1);
@@ -35,6 +37,43 @@
   p {
     color: var(--text-secondary);
     font-size: 14px;
+  }
+}
+
+.calibration-explainer {
+  width: 100%;
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+
+  app-lucide-icon {
+    color: #07B1C9;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  strong {
+    display: block;
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  small {
+    display: block;
+    line-height: 1.45;
   }
 }
 
@@ -80,10 +119,20 @@
   }
 }
 
+.card-kicker {
+  display: inline-flex;
+  margin-bottom: 16px;
+  color: #07B1C9;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .controls {
   display: flex;
-  gap: 24px;
-  margin-bottom: 40px;
+  gap: 18px;
+  margin-bottom: 10px;
 }
 
 .btn-swipe {
@@ -106,6 +155,24 @@
   &:active {
     transform: scale(0.95);
   }
+
+  &.btn-neutral {
+    width: 62px;
+    height: 62px;
+  }
+}
+
+.control-labels {
+  width: 100%;
+  max-width: 360px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 28px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
 }
 
 .progress-bar {
@@ -129,4 +196,79 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@media (min-width: 900px) {
+  .hobbies-wrapper {
+    max-width: 1040px;
+    display: grid;
+    grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.1fr);
+    gap: 24px 56px;
+    align-items: center;
+    justify-content: center;
+    padding-inline: clamp(32px, 6vw, 72px);
+  }
+
+  .mission-header,
+  .calibration-explainer {
+    grid-column: 1;
+    width: 100%;
+  }
+
+  .mission-header {
+    text-align: left;
+    margin-bottom: 0;
+
+    h2 {
+      font-size: clamp(28px, 3vw, 40px);
+      line-height: 1.12;
+    }
+  }
+
+  .calibration-explainer {
+    margin-bottom: 0;
+  }
+
+  .card-stack-container,
+  .controls,
+  .control-labels,
+  .progress-bar {
+    grid-column: 2;
+    justify-self: center;
+  }
+
+  .card-stack-container {
+    max-width: 360px;
+    height: 440px;
+    margin-bottom: 8px;
+  }
+
+  .controls {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .hobbies-wrapper {
+    padding-inline: 16px;
+  }
+
+  .card-stack-container {
+    max-width: min(320px, calc(100vw - 36px));
+    height: min(400px, 58vh);
+  }
+
+  .tinder-card {
+    padding: 24px;
+  }
+
+  .btn-swipe {
+    width: 62px;
+    height: 62px;
+
+    &.btn-neutral {
+      width: 56px;
+      height: 56px;
+    }
+  }
 }

@@ -22,7 +22,7 @@
   }
   
   &.expanded {
-    border-color: var(--area-color, #3b82f6);
+    border-color: var(--area-color, var(--accent-primary));
     box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
     transform: none;
     
@@ -31,7 +31,7 @@
       border-bottom: 1px solid var(--border-color);
       
       .option-title {
-        color: var(--area-color, #3b82f6);
+        color: var(--area-color, var(--accent-primary));
       }
     }
   }
@@ -67,7 +67,7 @@
       
       &.rotated {
         transform: rotate(-180deg);
-        color: var(--area-color, #3b82f6);
+        color: var(--area-color, var(--accent-primary));
       }
     }
   }
@@ -119,7 +119,7 @@
           margin-top: -2px;
           flex-shrink: 0;
           
-          &.check { color: #10b981; } // Green
+          &.check { color: var(--color-success); }
           &.cross { color: #ef4444; } // Red
         }
       }
@@ -135,7 +135,7 @@
     padding-top: 1.25rem;
     
     .select-btn {
-      background-color: var(--area-color, #3b82f6);
+      background-color: var(--area-color, var(--accent-primary));
       color: white;
       border: none;
       padding: 0.75rem 1.5rem;
@@ -152,7 +152,7 @@
     }
     
     .success-message {
-      color: #10b981;
+      color: var(--color-success);
       font-weight: 600;
       display: flex;
       align-items: center;

@@ -5,24 +5,48 @@
     <p>{{ moduleSubtitle }}</p>
   </div>
 
+  <section class="calibration-explainer">
+    <app-lucide-icon name="sliders-horizontal" [size]="20"></app-lucide-icon>
+    <div>
+      <strong>¿Qué es la calibración?</strong>
+      <p>
+        La calibración ayuda a ajustar tu perfil con base en experiencias que ya has vivido, para evitar que cosas que no has probado afecten negativamente tu resultado.
+      </p>
+      <p>
+        Si no has vivido una experiencia, responde “No lo he probado”. Eso reduce la certeza de esa señal, no tu potencial.
+      </p>
+      <small>{{ moduleDescription }}</small>
+    </div>
+  </section>
+
   <div class="card-stack-container" *ngIf="currentCard">
     <div class="tinder-card" [ngClass]="{'swipe-left': animatingOut === 'left', 'swipe-right': animatingOut === 'right'}">
       <div class="card-content">
+        <span class="card-kicker">Experiencia {{ currentIndex + 1 }} de {{ cards.length }}</span>
         <h3>{{ currentCard.text }}</h3>
       </div>
     </div>
   </div>
 
   <div class="controls" *ngIf="currentCard">
-    <button class="btn-swipe btn-nope" (click)="swipe('left')">
+    <button class="btn-swipe btn-nope" type="button" (click)="swipe('left')" aria-label="No me representa">
       <app-lucide-icon name="x" [size]="28" color="#EF4444"></app-lucide-icon>
     </button>
-    <button class="btn-swipe btn-like" (click)="swipe('right')">
+    <button class="btn-swipe btn-neutral" type="button" (click)="swipe('neutral')" aria-label="No lo he probado">
+      <app-lucide-icon name="circle-help" [size]="26" color="#64748B"></app-lucide-icon>
+    </button>
+    <button class="btn-swipe btn-like" type="button" (click)="swipe('right')" aria-label="Me representa">
       <app-lucide-icon name="heart" [size]="28" color="#10B981"></app-lucide-icon>
     </button>
   </div>
+
+  <div class="control-labels" *ngIf="currentCard">
+    <span>No me representa</span>
+    <span>No lo he probado</span>
+    <span>Me representa</span>
+  </div>
   
   <div class="progress-bar" *ngIf="currentCard">
-    <div class="fill" [style.width]="(currentIndex / cards.length) * 100 + '%'"></div>
+    <div class="fill" [style.width]="progressPct + '%'"></div>
   </div>
 </div>

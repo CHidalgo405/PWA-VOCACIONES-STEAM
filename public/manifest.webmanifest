@@ -1,9 +1,21 @@
 {
-  "name": "steam-vocation-pwa",
-  "short_name": "steam-vocation-pwa",
+  "id": "/",
+  "name": "Vocaciones STEAM",
+  "short_name": "STEAM",
+  "description": "PWA de orientación vocacional STEAM para explorar perfiles, carreras, simuladores y universidades cercanas.",
+  "lang": "es-MX",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "scope": "./",
-  "start_url": "./",
+  "orientation": "portrait-primary",
+  "theme_color": "#07B1C9",
+  "background_color": "#F7FAFC",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "icons/icon-72x72.png",
@@ -52,6 +64,47 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Hacer test vocacional",
+      "short_name": "Test",
+      "description": "Abrir el test vocacional STEAM.",
+      "url": "/evaluations",
+      "icons": [
+        {
+          "src": "icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Ver universidades",
+      "short_name": "Universidades",
+      "description": "Explorar universidades cercanas y recomendaciones.",
+      "url": "/explore",
+      "icons": [
+        {
+          "src": "icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Mi perfil STEAM",
+      "short_name": "Perfil",
+      "description": "Abrir el perfil vocacional y progreso.",
+      "url": "/profile",
+      "icons": [
+        {
+          "src": "icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

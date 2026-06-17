@@ -21,6 +21,7 @@ import { StepContextComponent } from './steps/step-context/step-context.componen
 import { StepSurpriseRevealComponent } from './steps/step-surprise-reveal/step-surprise-reveal.component';
 import { StepAIFeedbackComponent } from './steps/step-ai-feedback/step-ai-feedback.component';
 import { StepEmotionalReflectionComponent } from './steps/step-emotional-reflection/step-emotional-reflection.component';
+import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-career-simulator',
@@ -32,7 +33,8 @@ import { StepEmotionalReflectionComponent } from './steps/step-emotional-reflect
     StepTradeoffDecisionComponent,
     StepSurpriseRevealComponent,
     StepAIFeedbackComponent,
-    StepEmotionalReflectionComponent
+    StepEmotionalReflectionComponent,
+    LucideIconComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
@@ -67,9 +69,13 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
   // Timer gestionado con signals localmente en el componente
   public timerSeconds = signal<number>(0);
   private timerInterval: any;
+  private loadWatchdog: any;
 
   // Signal para ocultar el banner localmente sin afectar el estado interno del servicio
   public userDismissedBanner = signal<boolean>(false);
+  public requestedSlug = signal<string | null>(null);
+  public loadState = signal<'loading' | 'ready' | 'error'>('loading');
+  public loadErrorMessage = signal<string>('');
 
   // Computed properties extraídas del estado de la sesión
   public currentStepType = computed(() => {
@@ -113,6 +119,14 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    effect(() => {
+      if (this.careerData()) {
+        this.loadState.set('ready');
+        this.loadErrorMessage.set('');
+        this.clearLoadWatchdog();
+      }
+    });
   }
 
   ngOnInit() {
@@ -120,14 +134,19 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
     this.route.paramMap.subscribe(params => {
       const slug = params.get('slug');
       if (slug) {
+        this.requestedSlug.set(slug);
+        this.loadState.set('loading');
+        this.loadErrorMessage.set('');
         this.simulatorService.startSession(slug);
         this.startTimer();
+        this.startLoadWatchdog(slug);
       }
     });
   }
 
   ngOnDestroy() {
     this.stopTimer();
+    this.clearLoadWatchdog();
     // No reseteamos la sesión aquí porque la página de resultados la necesita
   }
 
@@ -150,5 +169,40 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
 
   public onStepCompleted(decision: any) {
     this.simulatorService.advanceStep(decision);
+  }
+
+  public retryLoadSimulator() {
+    const slug = this.requestedSlug();
+    if (!slug) {
+      this.goToCatalog();
+      return;
+    }
+    this.loadState.set('loading');
+    this.loadErrorMessage.set('');
+    this.simulatorService.startSession(slug);
+    this.startTimer();
+    this.startLoadWatchdog(slug);
+  }
+
+  public goToCatalog() {
+    this.router.navigate(['/career-simulator']);
+  }
+
+  private startLoadWatchdog(slug: string) {
+    this.clearLoadWatchdog();
+    this.loadWatchdog = setTimeout(() => {
+      if (!this.careerData()) {
+        this.stopTimer();
+        this.loadState.set('error');
+        this.loadErrorMessage.set(`No encontramos un simulador disponible para "${slug}". Puede que la API no responda o que aún no exista fallback local para esta carrera.`);
+      }
+    }, 10000);
+  }
+
+  private clearLoadWatchdog() {
+    if (this.loadWatchdog) {
+      clearTimeout(this.loadWatchdog);
+      this.loadWatchdog = null;
+    }
   }
 }

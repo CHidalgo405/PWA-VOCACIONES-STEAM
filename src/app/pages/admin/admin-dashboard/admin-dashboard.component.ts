@@ -62,11 +62,21 @@ export class AdminDashboardComponent {
 
   // Data for individual student PDF
   selectedStudentPdf: any = {
+    userName: '',
     dominantTraits: '',
+    secondaryArea: '',
+    confidenceLabel: '',
+    confidenceExplanation: '',
     description: '',
     greeting: '',
     steamAreas: [] as SteamArea[],
-    recommendations: [] as UniversityRecommendation[]
+    recommendations: [] as UniversityRecommendation[],
+    careerRecommendations: [],
+    universityRecommendations: [],
+    simulatorSummaries: [],
+    calibrationSummaries: [],
+    nextSteps: [],
+    dataSourceNote: ''
   };
 
   async exportDashboardPdf() {
@@ -124,9 +134,13 @@ export class AdminDashboardComponent {
 
     // 1. Mockup data for the student (In real app, fetch from API)
     this.selectedStudentPdf = {
+      userName: user.name,
       dominantTraits: user.profile,
+      secondaryArea: 'Tecnología',
+      confidenceLabel: 'Confianza media',
+      confidenceExplanation: 'Reporte de ejemplo generado desde administración con datos disponibles en la tabla.',
       greeting: `Hola, ${user.name}`,
-      description: `Basado en el análisis de IA para ${user.name}, se ha detectado un fuerte perfil orientado a ${user.profile}. Posee habilidades analíticas y de resolución de problemas que se alinean perfectamente con las demandas del área STEAM actual.`,
+      description: `Basado en los datos disponibles para ${user.name}, se observa un perfil orientado a ${user.profile}. Esta lectura debe validarse con historial, calibraciones y acompañamiento vocacional.`,
       steamAreas: [
         { label: user.profile, percentage: 95, icon: 'star', gradientStart: '#07B1C9' },
         { label: 'Tecnología', percentage: 80, icon: 'cpu', gradientStart: '#6366F1' },
@@ -134,7 +148,33 @@ export class AdminDashboardComponent {
       ] as any[],
       recommendations: [
         { suggestedMajor: `Ingeniería en ${user.profile}`, name: 'Universidad Politécnica', location: 'Ciudad de México', matchReason: 'Alta afinidad con el perfil analítico detectado.' }
-      ] as any[]
+      ] as any[],
+      careerRecommendations: [
+        {
+          name: `Ingeniería en ${user.profile}`,
+          compatibilityPercentage: 88,
+          reason: 'Coincide con el perfil registrado en administración.',
+          sourceLabel: 'Mock admin'
+        }
+      ],
+      universityRecommendations: [
+        {
+          name: 'Universidad Politécnica',
+          location: 'Ciudad de México',
+          suggestedMajor: `Ingeniería en ${user.profile}`,
+          matchReason: 'Ejemplo administrativo. Validar oferta académica real antes de compartir.',
+          dataSourceLabel: 'mock'
+        }
+      ],
+      simulatorSummaries: [],
+      calibrationSummaries: [],
+      nextSteps: [
+        {
+          title: 'Validar con resultados reales',
+          description: 'Conectar este reporte administrativo al historial del estudiante cuando el endpoint esté disponible.'
+        }
+      ],
+      dataSourceNote: 'Reporte de ejemplo administrativo con datos mock. No presentarlo como resultado definitivo.'
     };
 
     // 2. Wait for template to update

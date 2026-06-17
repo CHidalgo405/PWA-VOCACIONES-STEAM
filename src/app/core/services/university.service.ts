@@ -23,7 +23,7 @@ export class UniversityService {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': environment.googleMapsApiKey,
-      'X-Goog-FieldMask': 'places.displayName,places.location,places.photos,places.id,places.formattedAddress,places.rating,places.userRatingCount,places.regularOpeningHours'
+      'X-Goog-FieldMask': 'places.displayName,places.location,places.photos,places.id,places.formattedAddress,places.rating,places.userRatingCount,places.regularOpeningHours,places.websiteUri'
     });
 
     const body = {
@@ -56,6 +56,7 @@ export class UniversityService {
           address: place.formattedAddress,
           rating: place.rating,
           userRatingsTotal: place.userRatingCount,
+          contactUrl: place.websiteUri,
           logoUrl: place.photos && place.photos.length > 0 
             ? `https://places.googleapis.com/v1/${place.photos[0].name}/media?maxHeightPx=800&maxWidthPx=800&key=${environment.googleMapsApiKey}`
             : undefined,
