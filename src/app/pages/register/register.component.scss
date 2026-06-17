@@ -1,16 +1,15 @@
 /* --- PREMIUM AUTH DESIGN SYSTEM --- */
 .auth-wrapper {
   position: relative;
-  min-height: 100svh;
+  min-height: 100vh;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--bg-canvas);
-  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  padding: 20px;
   box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   transition: background-color 0.35s ease;
 }
 
@@ -58,7 +57,7 @@
   transition: background-color 0.35s ease, border-color 0.35s ease;
   
   @media (min-width: 900px) {
-    max-width: min(960px, calc(100vw - 48px));
+    max-width: 880px;
     flex-direction: row; /* Normal row so illustration is on left */
   }
 }
@@ -117,16 +116,6 @@
   
   @media (min-width: 900px) {
     padding: 48px 56px;
-  }
-}
-
-@media (max-width: 420px) {
-  .register-card {
-    border-radius: 16px;
-  }
-
-  .register-form-side {
-    padding: 28px 18px;
   }
 }
 
@@ -420,15 +409,6 @@
     &:hover {
       text-decoration: underline;
     }
-  }
-
-  .inline-link-button {
-    appearance: none;
-    background: transparent;
-    border: 0;
-    cursor: pointer;
-    font: inherit;
-    padding: 0;
   }
 }
 

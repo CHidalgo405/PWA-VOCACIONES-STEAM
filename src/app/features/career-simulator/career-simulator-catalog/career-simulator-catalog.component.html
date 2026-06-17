@@ -19,39 +19,14 @@
   </div>
 
   <main class="simulators-grid">
-    @if (isLoadingSimulators()) {
-      @for (item of [1, 2, 3, 4, 5, 6]; track item) {
-        <div class="sim-card-skeleton">
-          <div class="skeleton-top app-state-skeleton"></div>
-          <div class="skeleton-line app-state-skeleton"></div>
-          <div class="skeleton-line short app-state-skeleton"></div>
-          <div class="skeleton-button app-state-skeleton"></div>
-        </div>
-      }
-    }
-
-    @if (!isLoadingSimulators() && simulatorLoadError()) {
-      <div class="app-state-panel is-error simulator-state-panel">
-        <div class="app-state-icon">
-          <app-lucide-icon name="wifi-off" [size]="28"></app-lucide-icon>
-        </div>
-        <span class="app-state-kicker">Error de API</span>
-        <h2>No se cargaron simuladores</h2>
-        <p>{{ simulatorLoadError() }}</p>
-        <div class="app-state-actions">
-          <button type="button" class="btn-primary" (click)="loadSimulators()">Reintentar</button>
-        </div>
-      </div>
-    }
-
     @for (sim of filteredSimulators(); track sim.careerId) {
-      <div class="sim-card" [style.--card-color]="sim.colorToken || 'var(--color-ai)'">
+      <div class="sim-card" [style.--card-color]="sim.colorToken || '#8b5cf6'">
         <div class="card-header">
           <div class="area-icon">
-            <app-lucide-icon *ngIf="sim.icon" [name]="sim.icon" [size]="32" [color]="sim.colorToken || 'var(--color-ai)'"></app-lucide-icon>
+            <app-lucide-icon *ngIf="sim.icon" [name]="sim.icon" [size]="32" [color]="sim.colorToken || '#8b5cf6'"></app-lucide-icon>
             <span *ngIf="!sim.icon">{{ sim.areaEmoji }}</span>
           </div>
-          <span class="area-chip" [style.color]="sim.colorToken || 'var(--color-ai)'" [style.backgroundColor]="sim.colorToken ? sim.colorToken + '20' : 'var(--color-ai-soft)'">{{ getSteamArea(sim) }}</span>
+          <span class="area-chip" [style.color]="sim.colorToken || '#8b5cf6'" [style.backgroundColor]="(sim.colorToken || '#8b5cf6') + '20'">{{ getSteamArea(sim) }}</span>
         </div>
         
         <div class="card-body">
@@ -90,22 +65,11 @@
       </div>
     }
 
-    @if (!isLoadingSimulators() && !simulatorLoadError() && filteredSimulators().length === 0) {
-      <div class="app-state-panel is-empty simulator-state-panel">
-        <div class="app-state-icon">
-          <app-lucide-icon [name]="allSimulators().length === 0 ? 'gamepad-2' : 'filter-x'" [size]="28"></app-lucide-icon>
-        </div>
-        <span class="app-state-kicker">Simuladores no disponibles</span>
-        <h2>{{ allSimulators().length === 0 ? 'Aún no hay simuladores activos' : 'No hay simuladores para este filtro' }}</h2>
-        <p>
-          {{ allSimulators().length === 0
-            ? 'La API no devolvió simuladores y no hay experiencias locales listas para mostrar.'
-            : 'Prueba otra área STEAM o vuelve a Todas para ver las experiencias disponibles.' }}
-        </p>
-        <div class="app-state-actions">
-          <button type="button" class="btn-primary" (click)="loadSimulators()">Reintentar</button>
-          <button type="button" class="btn-secondary" *ngIf="allSimulators().length > 0" (click)="setFilter('Todas')">Ver todas</button>
-        </div>
+    @if (filteredSimulators().length === 0) {
+      <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <h3>Próximamente más simuladores</h3>
+        <p>Estamos trabajando para traer más experiencias para el área de {{ currentFilter() }}.</p>
       </div>
     }
   </main>

@@ -104,20 +104,10 @@
   <!-- Template oculto para PDF individual de alumnos (OFF-SCREEN) -->
   <div id="pdf-report-template-wrapper" style="position: absolute; left: -9999px; top: 0;">
     <app-pdf-report-template 
-      [userName]="selectedStudentPdf.userName"
       [dominantTraits]="selectedStudentPdf.dominantTraits"
-      [secondaryArea]="selectedStudentPdf.secondaryArea"
-      [confidenceLabel]="selectedStudentPdf.confidenceLabel"
-      [confidenceExplanation]="selectedStudentPdf.confidenceExplanation"
       [description]="selectedStudentPdf.description"
       [greeting]="selectedStudentPdf.greeting"
       [steamAreas]="selectedStudentPdf.steamAreas"
-      [careerRecommendations]="selectedStudentPdf.careerRecommendations"
-      [universityRecommendations]="selectedStudentPdf.universityRecommendations"
-      [simulatorSummaries]="selectedStudentPdf.simulatorSummaries"
-      [calibrationSummaries]="selectedStudentPdf.calibrationSummaries"
-      [nextSteps]="selectedStudentPdf.nextSteps"
-      [dataSourceNote]="selectedStudentPdf.dataSourceNote"
       [recommendations]="selectedStudentPdf.recommendations">
     </app-pdf-report-template>
   </div>

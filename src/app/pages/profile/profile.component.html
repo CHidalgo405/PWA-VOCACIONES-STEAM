@@ -1,141 +1,29 @@
 <div class="profile-container">
-  <app-header title="Mi camino STEAM" [showBack]="true" backRoute="/dashboard"></app-header>
-
-  <div class="app-state-panel app-state-panel--compact is-loading" *ngIf="isProfileLoading" role="status" aria-live="polite" aria-busy="true">
-    <div class="app-state-icon">
-      <app-lucide-icon name="user" [size]="22"></app-lucide-icon>
-    </div>
-    <span class="app-state-kicker">Cargando perfil</span>
-    <h3>Actualizando tus datos de cuenta</h3>
-    <p>Mientras tanto, mantenemos visible tu camino STEAM local si ya tienes resultados guardados.</p>
-  </div>
-
-  <div class="app-state-panel app-state-panel--compact is-error" *ngIf="!isProfileLoading && profileLoadError" role="alert">
-    <div class="app-state-icon">
-      <app-lucide-icon name="wifi-off" [size]="22"></app-lucide-icon>
-    </div>
-    <span class="app-state-kicker">Error de API</span>
-    <h3>No se cargaron tus datos de cuenta</h3>
-    <p>{{ profileLoadError }}</p>
-    <div class="app-state-actions">
-      <button type="button" class="btn-primary" (click)="retryProfileData()">Reintentar</button>
-    </div>
-  </div>
+  <app-header title="Mi Perfil" [showBack]="true" backRoute="/dashboard"></app-header>
   
   <div class="profile-layout">
     
     <!-- LEFT COLUMN: User Card & Stats Bento -->
     <div class="profile-left-col">
       
-      <!-- HERO VOCACIONAL -->
+      <!-- HERO PREMIUM CARD -->
       <div class="premium-hero-card">
         <div class="card-glow-effect"></div>
         <div class="hero-card-content">
           <div class="avatar-wrapper-premium">
-            <img [src]="user.avatar" [alt]="'Foto de perfil de ' + user.name" class="avatar-img">
-            <button class="avatar-edit-btn" type="button" (click)="fileInputHero.click()" title="Cambiar foto de perfil" aria-label="Cambiar foto de perfil">
+            <img [src]="user.avatar" alt="Avatar" class="avatar-img">
+            <button class="avatar-edit-btn" (click)="fileInputHero.click()" title="Cambiar foto de perfil">
               <app-lucide-icon name="pencil" [size]="14" color="white"></app-lucide-icon>
             </button>
-            <input type="file" #fileInputHero (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" aria-label="Subir foto de perfil" style="display: none;">
+            <input type="file" #fileInputHero (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
           </div>
           
           <h2 class="user-name-title">{{ user.name }}</h2>
           <p class="user-email-subtitle">{{ user.email }}</p>
           
           <div class="user-level-badge">
-            <app-lucide-icon name="route" [size]="14" color="#F88718"></app-lucide-icon>
-            <span>Perfil {{ profileLevelLabel }} · Nivel {{ user.level }}</span>
-          </div>
-
-          <div class="hero-profile-summary">
-            <span>{{ getConfidenceLabel() }}</span>
-            <strong>{{ profileCombination }}</strong>
-            <p>{{ profileLevelDescription }}</p>
-          </div>
-
-          <div class="hero-actions">
-            <button class="hero-action primary" type="button" (click)="goToNextStep()">
-              <app-lucide-icon [name]="nextStep.icon" [size]="16"></app-lucide-icon>
-              <span>{{ nextStep.title }}</span>
-            </button>
-            <button class="hero-action secondary" type="button" (click)="goToEditProfile()">
-              <app-lucide-icon name="pencil" [size]="16"></app-lucide-icon>
-              <span>Editar datos</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="app-state-panel app-state-panel--compact is-warning" *ngIf="profileHistoryWarning" role="status" aria-live="polite">
-        <div class="app-state-icon">
-          <app-lucide-icon name="history" [size]="22"></app-lucide-icon>
-        </div>
-        <span class="app-state-kicker">Historial parcial</span>
-        <h3>Tu evolución puede estar incompleta</h3>
-        <p>{{ profileHistoryWarning }}</p>
-      </div>
-
-      <div class="app-state-panel app-state-panel--compact is-empty" *ngIf="hasProfileDataWarning" role="status" aria-live="polite">
-        <div class="app-state-icon">
-          <app-lucide-icon name="activity" [size]="22"></app-lucide-icon>
-        </div>
-        <span class="app-state-kicker">Perfil sin suficientes datos</span>
-        <h3>Tu camino STEAM está en construcción</h3>
-        <p>Completar el test, calibraciones o simuladores aumenta la confianza sin convertir una respuesta neutral en penalización.</p>
-        <div class="app-state-actions">
-          <button type="button" class="btn-primary" (click)="goToNextStep()">{{ nextStep.title }}</button>
-        </div>
-      </div>
-
-      <!-- ADN STEAM COMPACTO -->
-      <div class="steam-path-card">
-        <div class="path-card-header">
-          <div>
-            <h3>ADN STEAM</h3>
-            <p>Áreas que hoy guían tus recomendaciones.</p>
-          </div>
-          <app-lucide-icon name="radar" [size]="22" color="var(--steam-blue)"></app-lucide-icon>
-        </div>
-
-        <div class="steam-path-content">
-          <div class="mini-radar-wrap" *ngIf="hasRadarData; else radarEmpty" role="img" aria-describedby="profile-radar-summary">
-            <canvas
-              aria-hidden="true"
-              baseChart
-              [data]="radarChartData"
-              [options]="radarChartOptions"
-              [type]="'radar'">
-            </canvas>
-          </div>
-          <p id="profile-radar-summary" class="sr-only">{{ profileRadarTextSummary }}</p>
-
-          <ng-template #radarEmpty>
-            <div class="mini-radar-empty" role="status" aria-live="polite">
-              <app-lucide-icon name="radar" [size]="24"></app-lucide-icon>
-              <span>Sin datos de ADN STEAM</span>
-            </div>
-          </ng-template>
-
-          <div class="profile-area-summary">
-            <div class="dominant-area">
-              <span>Área dominante</span>
-              <strong>{{ dominantArea }}</strong>
-            </div>
-            <div class="dominant-area secondary">
-              <span>Área secundaria</span>
-              <strong>{{ secondaryArea }}</strong>
-            </div>
-          </div>
-        </div>
-
-        <div class="area-score-list">
-          <div class="area-score-row" *ngFor="let area of steamAreaScores">
-            <span class="area-dot" [style.backgroundColor]="area.color"></span>
-            <span class="area-label">{{ area.label }}</span>
-            <div class="area-bar">
-              <span [style.width]="area.score + '%'" [style.backgroundColor]="area.color"></span>
-            </div>
-            <strong>{{ area.score }}%</strong>
+            <app-lucide-icon name="zap" [size]="14" color="#F88718"></app-lucide-icon>
+            <span>Nivel {{ user.level }} · Explorador STEAM</span>
           </div>
         </div>
       </div>
@@ -144,7 +32,7 @@
       <div class="stats-bento-grid">
         
         <!-- Tests Completed Bento Card -->
-        <div class="bento-card stat-completed-card" role="button" tabindex="0" aria-label="Ver historial de tests realizados" (click)="handleAction('viewHistory')" (keydown.enter)="handleAction('viewHistory')" (keydown.space)="handleAction('viewHistory'); $event.preventDefault()">
+        <div class="bento-card stat-completed-card" (click)="handleAction('viewHistory')">
           <div class="bento-bg-gradient"></div>
           <span class="stat-number">{{ testCount }}</span>
           <span class="stat-label">Tests Realizados</span>
@@ -155,7 +43,7 @@
         </div>
         
         <!-- Account Status Bento Card -->
-        <div class="bento-card account-shortcut-card" role="button" tabindex="0" aria-label="Administrar datos de mi cuenta" (click)="handleAction('manage')" (keydown.enter)="handleAction('manage')" (keydown.space)="handleAction('manage'); $event.preventDefault()">
+        <div class="bento-card account-shortcut-card" (click)="handleAction('manage')">
           <div class="bento-icon-wrap">
             <app-lucide-icon name="user" [size]="28" color="var(--steam-blue)"></app-lucide-icon>
           </div>
@@ -165,25 +53,13 @@
         
       </div>
 
-      <button class="next-step-card" type="button" (click)="goToNextStep()">
-        <div class="next-step-icon">
-          <app-lucide-icon [name]="nextStep.icon" [size]="22"></app-lucide-icon>
-        </div>
-        <div>
-          <span>Próximo paso recomendado</span>
-          <strong>{{ nextStep.title }}</strong>
-          <p>{{ nextStep.description }}</p>
-        </div>
-        <app-lucide-icon name="arrow-right" [size]="18" class="next-step-arrow"></app-lucide-icon>
-      </button>
-
       <!-- BADGES & ACHIEVEMENTS BENTO -->
       <div class="badges-bento-card">
         <h3 class="bento-section-title">
           <app-lucide-icon name="star" [size]="18" color="#F88718"></app-lucide-icon> Logros y Medallas
         </h3>
         <div class="badges-horizontal-list">
-          <div class="badge-item-mini" *ngFor="let badge of badges" role="button" tabindex="0" (click)="openBadgeModal(badge)" (keydown.enter)="openBadgeModal(badge)" (keydown.space)="openBadgeModal(badge); $event.preventDefault()" [class.locked]="!badge.unlocked" [title]="badge.name" [attr.aria-label]="badge.name + (badge.unlocked ? ', desbloqueada' : ', bloqueada')">
+          <div class="badge-item-mini" *ngFor="let badge of badges" (click)="openBadgeModal(badge)" [class.locked]="!badge.unlocked" [title]="badge.name">
             <div class="badge-mini-icon-circle">
               <app-lucide-icon [name]="badge.icon" [size]="20"></app-lucide-icon>
             </div>
@@ -199,60 +75,6 @@
     
     <!-- RIGHT COLUMN: Settings Groups -->
     <div class="profile-right-col">
-
-      <div class="vocational-collections-grid">
-        <section class="profile-collection-card">
-          <div class="collection-header">
-            <h3>Carreras compatibles</h3>
-            <a routerLink="/history">Ver evolución</a>
-          </div>
-
-          <div class="collection-list" *ngIf="recommendedCareers.length > 0; else noCareers">
-            <div class="collection-row" *ngFor="let career of recommendedCareers">
-              <div class="collection-icon career">
-                <app-lucide-icon name="briefcase-business" [size]="16"></app-lucide-icon>
-              </div>
-              <div>
-                <strong>{{ career.name }}</strong>
-                <span>{{ career.compatibility !== null ? (career.compatibility + '% de compatibilidad') : 'Favorita o sugerida' }}</span>
-              </div>
-            </div>
-          </div>
-
-          <ng-template #noCareers>
-            <div class="collection-empty">
-              <app-lucide-icon name="briefcase-business" [size]="18"></app-lucide-icon>
-              <span>Aún no hay carreras guardadas o recomendadas.</span>
-            </div>
-          </ng-template>
-        </section>
-
-        <section class="profile-collection-card">
-          <div class="collection-header">
-            <h3>Universidades guardadas</h3>
-            <a routerLink="/explore">Explorar</a>
-          </div>
-
-          <div class="collection-list" *ngIf="savedUniversities.length > 0; else noUniversities">
-            <div class="collection-row" *ngFor="let university of savedUniversities">
-              <div class="collection-icon university">
-                <app-lucide-icon name="map-pin" [size]="16"></app-lucide-icon>
-              </div>
-              <div>
-                <strong>{{ university.name }}</strong>
-                <span>{{ university.career }} · {{ university.location }}</span>
-              </div>
-            </div>
-          </div>
-
-          <ng-template #noUniversities>
-            <div class="collection-empty">
-              <app-lucide-icon name="map-pin" [size]="18"></app-lucide-icon>
-              <span>{{ savedUniversitiesWarning || 'Guarda universidades desde el mapa para compararlas aquí.' }}</span>
-            </div>
-          </ng-template>
-        </section>
-      </div>
       
       <div class="settings-sections-wrapper">
         
@@ -260,7 +82,7 @@
         <div class="settings-card-group group-cuenta">
           <h3 class="settings-group-header">Cuenta</h3>
           <div class="settings-list">
-            <div class="setting-row-item" *ngFor="let item of accountSettings" role="button" tabindex="0" [attr.aria-label]="item.title" (click)="handleAction(item.action)" (keydown.enter)="handleAction(item.action)" (keydown.space)="handleAction(item.action); $event.preventDefault()">
+            <div class="setting-row-item" *ngFor="let item of accountSettings" (click)="handleAction(item.action)">
               <div class="row-left">
                 <div class="row-icon-container">
                   <app-lucide-icon [name]="item.icon" [size]="18"></app-lucide-icon>
@@ -276,7 +98,7 @@
         <div class="settings-card-group group-preferencias">
           <h3 class="settings-group-header">Preferencias</h3>
           <div class="settings-list">
-            <div class="setting-row-item" *ngFor="let item of preferencesSettings" [attr.role]="item.isToggle ? null : 'button'" [attr.tabindex]="item.isToggle ? null : 0" [class.no-click]="item.isToggle" [attr.aria-label]="item.title" (click)="!item.isToggle && handleAction(item.action)" (keydown.enter)="!item.isToggle && handleAction(item.action)" (keydown.space)="!item.isToggle && handleAction(item.action); $event.preventDefault()">
+            <div class="setting-row-item" *ngFor="let item of preferencesSettings" [class.no-click]="item.isToggle" (click)="!item.isToggle && handleAction(item.action)">
               <div class="row-left">
                 <div class="row-icon-container">
                   <app-lucide-icon [name]="item.icon" [size]="18"></app-lucide-icon>
@@ -289,7 +111,7 @@
                 <app-lucide-icon *ngIf="!item.isToggle && !item.value" name="chevron-right" [size]="16" class="row-arrow"></app-lucide-icon>
                 
                 <label *ngIf="item.isToggle" class="apple-switch" (click)="$event.stopPropagation()">
-                  <input type="checkbox" [checked]="item.toggleState" [attr.aria-label]="item.title" (change)="togglePreference(item)">
+                  <input type="checkbox" [checked]="item.toggleState" (change)="togglePreference(item)">
                   <span class="apple-slider"></span>
                 </label>
               </div>
@@ -301,7 +123,7 @@
         <div class="settings-card-group group-soporte">
           <h3 class="settings-group-header">Soporte y Más</h3>
           <div class="settings-list">
-            <div class="setting-row-item" *ngFor="let item of supportSettings" role="button" tabindex="0" [attr.aria-label]="item.title" (click)="handleAction(item.action)" (keydown.enter)="handleAction(item.action)" (keydown.space)="handleAction(item.action); $event.preventDefault()">
+            <div class="setting-row-item" *ngFor="let item of supportSettings" (click)="handleAction(item.action)">
               <div class="row-left">
                 <div class="row-icon-container">
                   <app-lucide-icon [name]="item.icon" [size]="18"></app-lucide-icon>
@@ -318,7 +140,7 @@
         </div>
         
         <!-- LOGOUT BUTTON -->
-        <button class="premium-logout-button" type="button" (click)="logout()">
+        <button class="premium-logout-button" (click)="logout()">
           <app-lucide-icon name="log-out" [size]="18"></app-lucide-icon>
           <span>Cerrar Sesión</span>
         </button>
@@ -330,7 +152,7 @@
   </div>
   
   <!-- TOAST NOTIFICATIONS -->
-  <div class="toast-message-premium" [class.show]="showToast" role="status" aria-live="polite">
+  <div class="toast-message-premium" [class.show]="showToast">
     <div class="toast-content-wrapper">
       <app-lucide-icon name="info" [size]="16" color="#07B1C9"></app-lucide-icon>
       <span class="toast-text">{{ toastMessage }}</span>
@@ -338,41 +160,39 @@
   </div>
 
   <!-- OVERLAY PARA TODOS LOS MODALES -->
-  <div class="modal-overlay" *ngIf="activeModal !== null && activeModal !== 'logout'" (click)="closeModal()">
-    <div class="modal-box" role="dialog" aria-modal="true" [attr.aria-label]="getActiveModalTitle()" (click)="$event.stopPropagation()">
+  <div class="modal-overlay" *ngIf="activeModal !== null" (click)="closeModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
 
       <!-- 1. MODAL: EDITAR PERFIL PREMIUM -->
       <ng-container *ngIf="activeModal === 'editProfile'">
         <div class="modal-header premium-center-header pb-0">
           <h2>Administrar Perfil</h2>
           <p class="header-subtitle">Actualiza tu información personal y foto.</p>
-          <button class="btn-close-modal absolute-close" type="button" aria-label="Cerrar modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
+          <button class="btn-close-modal absolute-close" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
         </div>
         <div class="modal-body premium-modal-body pt-0">
           <form (ngSubmit)="saveProfile()" #editForm="ngForm">
             
             <div class="avatar-edit-premium">
               <div class="avatar-preview-container" (click)="fileInput.click()">
-                <img [src]="profileForm.avatar" alt="Vista previa de la foto de perfil" class="avatar-preview-image">
+                <img [src]="profileForm.avatar" alt="Avatar" class="avatar-preview-image">
                 <div class="avatar-edit-overlay">
                   <app-lucide-icon name="camera" [size]="20" color="white"></app-lucide-icon>
                 </div>
               </div>
-              <button type="button" class="avatar-edit-text" (click)="fileInput.click()">Cambiar foto</button>
-              <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" aria-label="Subir nueva foto de perfil" style="display: none;">
-              <small *ngIf="avatarError" class="error-text fade-in text-center mt-2" role="alert">{{ avatarError }}</small>
+              <span class="avatar-edit-text" (click)="fileInput.click()">Cambiar foto</span>
+              <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
+              <small *ngIf="avatarError" class="error-text fade-in text-center mt-2">{{ avatarError }}</small>
             </div>
 
             <div class="ios-form-group mt-3">
               <div class="ios-input-row border-bottom">
                 <div class="row-icon"><app-lucide-icon name="user" [size]="18"></app-lucide-icon></div>
-                <label class="sr-only" for="profile-first-name">Nombre(s)</label>
-                <input id="profile-first-name" type="text" name="firstName" [(ngModel)]="profileForm.firstName" required autocomplete="given-name" placeholder="Nombre(s)">
+                <input type="text" name="firstName" [(ngModel)]="profileForm.firstName" required placeholder="Nombre(s)">
               </div>
               <div class="ios-input-row">
                 <div class="row-icon"><app-lucide-icon name="users" [size]="18"></app-lucide-icon></div>
-                <label class="sr-only" for="profile-last-name">Apellidos</label>
-                <input id="profile-last-name" type="text" name="lastName" [(ngModel)]="profileForm.lastName" required autocomplete="family-name" placeholder="Apellidos">
+                <input type="text" name="lastName" [(ngModel)]="profileForm.lastName" required placeholder="Apellidos">
               </div>
             </div>
 
@@ -394,7 +214,7 @@
           </div>
           <h2>Contraseña y Seguridad</h2>
           <p class="header-subtitle">Actualiza tu contraseña para mantener tu progreso a salvo.</p>
-          <button class="btn-close-modal absolute-close" type="button" aria-label="Cerrar modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
+          <button class="btn-close-modal absolute-close" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
         </div>
         <div class="modal-body premium-modal-body">
           <form (ngSubmit)="savePassword()" #pwdForm="ngForm">
@@ -402,30 +222,27 @@
             <div class="ios-form-group">
               <div class="ios-input-row">
                 <div class="row-icon"><app-lucide-icon name="unlock" [size]="18"></app-lucide-icon></div>
-                <label class="sr-only" for="current-password">Contraseña actual</label>
-                <input id="current-password" type="password" name="currentPassword" [(ngModel)]="passwordForm.currentPassword" required autocomplete="current-password" placeholder="Contraseña actual">
+                <input type="password" name="currentPassword" [(ngModel)]="passwordForm.currentPassword" required placeholder="Contraseña actual">
               </div>
             </div>
 
             <div class="ios-form-group mt-3">
               <div class="ios-input-row border-bottom">
                 <div class="row-icon"><app-lucide-icon name="lock" [size]="18"></app-lucide-icon></div>
-                <label class="sr-only" for="new-password">Nueva contraseña</label>
-                <input id="new-password" type="password" name="newPassword" [(ngModel)]="passwordForm.newPassword" required minlength="8" autocomplete="new-password" placeholder="Nueva contraseña">
+                <input type="password" name="newPassword" [(ngModel)]="passwordForm.newPassword" required minlength="8" placeholder="Nueva contraseña">
               </div>
               <div class="ios-input-row">
                 <div class="row-icon" [class.success]="passwordForm.newPassword && passwordForm.newPassword === passwordForm.confirmPassword">
                   <app-lucide-icon name="check-circle" [size]="18"></app-lucide-icon>
                 </div>
-                <label class="sr-only" for="confirm-password">Confirmar contraseña</label>
-                <input id="confirm-password" type="password" name="confirmPassword" [(ngModel)]="passwordForm.confirmPassword" required minlength="8" autocomplete="new-password" placeholder="Confirmar contraseña">
+                <input type="password" name="confirmPassword" [(ngModel)]="passwordForm.confirmPassword" required minlength="8" placeholder="Confirmar contraseña">
               </div>
             </div>
             
             <div class="security-hints">
               <p class="hint-text"><app-lucide-icon name="info" [size]="14"></app-lucide-icon> Mínimo 8 caracteres. Mezcla letras y números.</p>
               <div class="error-container" *ngIf="passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword">
-                <small class="error-text fade-in" role="alert"><app-lucide-icon name="alert-circle" [size]="12"></app-lucide-icon> Las contraseñas no coinciden</small>
+                <small class="error-text fade-in"><app-lucide-icon name="alert-circle" [size]="12"></app-lucide-icon> Las contraseñas no coinciden</small>
               </div>
             </div>
 
@@ -447,7 +264,7 @@
           </div>
           <h2>Notificaciones</h2>
           <p class="header-subtitle">Elige cómo y cuándo quieres recibir actualizaciones.</p>
-          <button class="btn-close-modal absolute-close" type="button" aria-label="Cerrar modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
+          <button class="btn-close-modal absolute-close" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
         </div>
         <div class="modal-body premium-modal-body">
           
@@ -461,7 +278,7 @@
                 </div>
               </div>
               <label class="apple-switch" (click)="$event.stopPropagation()">
-                <input type="checkbox" [(ngModel)]="notificationSettings.pushEnabled" aria-label="Activar notificaciones push">
+                <input type="checkbox" [(ngModel)]="notificationSettings.pushEnabled">
                 <span class="apple-slider"></span>
               </label>
             </div>
@@ -475,7 +292,7 @@
                 </div>
               </div>
               <label class="apple-switch" (click)="$event.stopPropagation()">
-                <input type="checkbox" [(ngModel)]="notificationSettings.emailMarketing" aria-label="Activar correos promocionales">
+                <input type="checkbox" [(ngModel)]="notificationSettings.emailMarketing">
                 <span class="apple-slider"></span>
               </label>
             </div>
@@ -489,7 +306,7 @@
                 </div>
               </div>
               <label class="apple-switch" (click)="$event.stopPropagation()">
-                <input type="checkbox" [(ngModel)]="notificationSettings.weeklySummary" aria-label="Activar resumen semanal">
+                <input type="checkbox" [(ngModel)]="notificationSettings.weeklySummary">
                 <span class="apple-slider"></span>
               </label>
             </div>
@@ -512,7 +329,7 @@
           </div>
           <h2>Centro de Ayuda</h2>
           <p class="header-subtitle">¿Tienes dudas sobre Vocaciones STEAM? Estamos aquí para ayudarte a encontrar tu camino.</p>
-          <button class="btn-close-modal absolute-close" type="button" aria-label="Cerrar modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
+          <button class="btn-close-modal absolute-close" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
         </div>
         <div class="modal-body premium-modal-body mt-3">
           
@@ -541,7 +358,7 @@
           </div>
 
           <div class="modal-footer premium-footer mt-4">
-            <button class="btn-primary-block" type="button" (click)="openSupportMailer()">
+            <button class="btn-primary-block" (click)="openSupportMailer()">
               <app-lucide-icon name="send" [size]="18"></app-lucide-icon>
               <span>Enviar un mensaje ahora</span>
             </button>
@@ -557,7 +374,7 @@
           </div>
           <h2>Contactar Soporte</h2>
           <p class="header-subtitle">¿Tienes un problema técnico? Envíanos un mensaje y te ayudaremos.</p>
-          <button class="btn-close-modal absolute-close" type="button" aria-label="Cerrar modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
+          <button class="btn-close-modal absolute-close" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
         </div>
         <div class="modal-body premium-modal-body mt-3">
           
@@ -565,13 +382,11 @@
             <div class="ios-form-group">
               <div class="ios-input-row border-bottom" style="padding: 6px 16px;">
                 <div class="row-icon"><app-lucide-icon name="message-square" [size]="18"></app-lucide-icon></div>
-                <label class="sr-only" for="support-subject">Asunto</label>
-                <input id="support-subject" type="text" name="subject" ngModel required placeholder="Asunto (Ej: Problema con un test)">
+                <input type="text" name="subject" ngModel required placeholder="Asunto (Ej: Problema con un test)">
               </div>
               <div class="ios-input-row" style="align-items: flex-start; padding-top: 12px; padding-bottom: 12px;">
                 <div class="row-icon" style="margin-top: 2px;"><app-lucide-icon name="align-left" [size]="18"></app-lucide-icon></div>
-                <label class="sr-only" for="support-message">Describe tu problema</label>
-                <textarea id="support-message" name="message" ngModel required placeholder="Describe tu problema con detalle..." rows="4" style="flex: 1; border: none; background: transparent; resize: none; font-size: 0.95rem; outline: none; font-family: inherit; color: var(--text-primary);"></textarea>
+                <textarea name="message" ngModel required placeholder="Describe tu problema con detalle..." rows="4" style="flex: 1; border: none; background: transparent; resize: none; font-size: 0.95rem; outline: none; font-family: inherit; color: var(--text-primary);"></textarea>
               </div>
             </div>
 
@@ -586,62 +401,10 @@
         </div>
       </ng-container>
 
-      <!-- 5B. MODAL: PRIVACIDAD Y DATOS -->
-      <ng-container *ngIf="activeModal === 'privacy'">
-        <div class="modal-header premium-center-header">
-          <div class="header-icon-badge bg-blue-glow">
-            <app-lucide-icon name="shield" [size]="28" color="var(--steam-blue)"></app-lucide-icon>
-          </div>
-          <h2>Privacidad y Datos</h2>
-          <p class="header-subtitle">Tu perfil usa datos de cuenta, tests y señales locales para mostrar tu evolución vocacional con claridad.</p>
-          <button class="btn-close-modal absolute-close" type="button" aria-label="Cerrar modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
-        </div>
-        <div class="modal-body premium-modal-body">
-          <div class="privacy-guidance">
-            <strong>La app orienta, no decide por ti.</strong>
-            <p>Los resultados son una guía para explorar carreras, universidades y próximos pasos. No son una sentencia definitiva ni reemplazan a un orientador vocacional.</p>
-          </div>
-
-          <div class="privacy-summary">
-            <div class="privacy-row">
-              <app-lucide-icon name="database" [size]="18"></app-lucide-icon>
-              <span><strong>Datos de cuenta:</strong> nombre, foto, contraseña y preferencias siguen usando la API actual.</span>
-            </div>
-            <div class="privacy-row">
-              <app-lucide-icon name="activity" [size]="18"></app-lucide-icon>
-              <span><strong>Datos vocacionales:</strong> tests, calibraciones, simuladores y feedback local se usan para calcular confianza y evolución del perfil.</span>
-            </div>
-            <div class="privacy-row">
-              <app-lucide-icon name="map-pin" [size]="18"></app-lucide-icon>
-              <span><strong>Ubicación:</strong> se usa para buscar universidades cercanas y calcular distancia. No define tu perfil vocacional.</span>
-            </div>
-            <div class="privacy-row">
-              <app-lucide-icon name="bot" [size]="18"></app-lucide-icon>
-              <span><strong>IA:</strong> puede explicar recomendaciones, pero no calcula sola el match ni debe tomarse como decisión final.</span>
-            </div>
-            <div class="privacy-row">
-              <app-lucide-icon name="hard-drive" [size]="18"></app-lucide-icon>
-              <span><strong>Fallback local:</strong> el camino STEAM puede usar datos locales temporales mientras no exista endpoint dedicado.</span>
-            </div>
-            <div class="privacy-row">
-              <app-lucide-icon name="info" [size]="18"></app-lucide-icon>
-              <span><strong>Información insuficiente:</strong> cuando falten datos reales, la app debe mostrarlo como “datos insuficientes”, local o mock.</span>
-            </div>
-            <div class="privacy-row">
-              <app-lucide-icon name="shield-alert" [size]="18"></app-lucide-icon>
-              <span><strong>Control de datos:</strong> no hay flujo de eliminación definitiva de cuenta conectado en esta pantalla todavía.</span>
-            </div>
-          </div>
-          <div class="modal-footer premium-footer">
-            <button type="button" class="btn-primary-block" (click)="closeModal()">Entendido</button>
-          </div>
-        </div>
-      </ng-container>
-
       <!-- 6. MODAL: DETALLES DE INSIGNIA -->
       <ng-container *ngIf="activeModal === 'badge' && selectedBadge">
         <div class="modal-header" style="border-bottom: none; display: flex; justify-content: flex-end; padding-bottom: 0;">
-          <button class="btn-close-modal" type="button" aria-label="Cerrar modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
+          <button class="btn-close-modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
         </div>
         <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 0;">
           
@@ -669,17 +432,17 @@
 
   <!-- OVERLAY ESPECIAL CERRAR SESIÓN (ALERTA CRÍTICA) -->
   <div class="custom-alert-overlay" *ngIf="activeModal === 'logout'">
-    <div class="alert-box" role="dialog" aria-modal="true" aria-labelledby="logout-dialog-title" aria-describedby="logout-dialog-description">
+    <div class="alert-box">
       <div class="alert-icon-wrapper">
         <app-lucide-icon name="log-out" [size]="24" color="#E11D48"></app-lucide-icon>
       </div>
-      <h3 class="alert-title" id="logout-dialog-title">¿Cerrar Sesión?</h3>
-      <p class="alert-text" id="logout-dialog-description">
+      <h3 class="alert-title">¿Cerrar Sesión?</h3>
+      <p class="alert-text">
         Tendrás que volver a ingresar tus credenciales para acceder a tu perfil STEAM.
       </p>
       <div class="alert-actions">
-        <button class="btn-secondary" type="button" (click)="closeModal()">Cancelar</button>
-        <button class="btn-primary danger-action" type="button" (click)="confirmLogout()">Sí, cerrar sesión</button>
+        <button class="btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button class="btn-primary danger-action" (click)="confirmLogout()">Sí, cerrar sesión</button>
       </div>
     </div>
   </div>

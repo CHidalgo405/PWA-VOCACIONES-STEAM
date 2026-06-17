@@ -4,7 +4,6 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService, Usuario } from '../../core/services/auth.service';
 import { TestSubmissionResponse, VocationTestService, TestDetail } from '../../core/services/test.service';
-import { LOCAL_CALIBRATION_MODULES } from '../../core/data/vocational-calibration.mock';
 
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import gsap from 'gsap';
@@ -32,15 +31,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     progress: 50 
   };
 
-  calibrationModulesConfig = LOCAL_CALIBRATION_MODULES.map((module) => ({
-    id: module.id,
-    title: module.title,
-    icon: module.icon,
-    description: module.description,
-    unlockExplanation: module.unlockExplanation,
-    lockedReason: module.lockedReason,
-    defaultStatus: module.defaultStatus
-  }));
+  calibrationModulesConfig = [
+    { id: 'gaming_habits', title: 'Hábitos de Gaming', icon: 'gamepad-2' },
+    { id: 'physical_hobbies', title: 'Hobbies y Ecosistemas', icon: 'leaf' },
+    { id: 'digital_consumption', title: 'Consumo Digital', icon: 'monitor-smartphone' },
+    { id: 'everyday_mechanics', title: 'Resolución Doméstica', icon: 'wrench' }
+  ];
 
   // Modal State
   showWelcomeModal = false;
@@ -263,19 +259,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getModuleState(moduleId: string): 'locked' | 'available' | 'completed' {
-    const modules = this.authService.currentUserSig()?.calibrationModules || this.userProfile?.calibrationModules;
+    const modules = this.authService.currentUserSig()?.calibrationModules;
     const mod = modules?.find(m => m.id === moduleId);
-    const fallback = this.calibrationModulesConfig.find(module => module.id === moduleId)?.defaultStatus || 'locked';
-    return mod ? mod.status : fallback;
-  }
-
-  getModuleSupportText(moduleId: string): string {
-    const module = this.calibrationModulesConfig.find(item => item.id === moduleId);
-    const state = this.getModuleState(moduleId);
-    if (!module) return '';
-    if (state === 'completed') return 'Completado: ya aporta señales a tu perfil progresivo.';
-    if (state === 'available') return module.unlockExplanation;
-    return module.lockedReason;
+    return mod ? mod.status : 'locked';
   }
 
   goToMission(moduleId: string) {

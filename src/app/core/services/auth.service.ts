@@ -39,14 +39,6 @@ export interface Usuario {
 export class AuthService {
   private readonly USER_KEY = 'steam_pwa_user';
   private readonly TOKEN_KEY = 'steam_pwa_token';
-  private readonly DEFAULT_CALIBRATION_MODULES: CalibrationModule[] = [
-    { id: 'gaming_habits', status: 'available' },
-    { id: 'physical_hobbies', status: 'available' },
-    { id: 'digital_consumption', status: 'locked' },
-    { id: 'everyday_mechanics', status: 'locked' },
-    { id: 'school_projects', status: 'locked' },
-    { id: 'teamwork', status: 'locked' }
-  ];
 
   private http = inject(HttpClient);
   private router = inject(Router);
@@ -157,7 +149,12 @@ export class AuthService {
            darkMode: res.settings?.darkMode,
            baseResolution: res.baseResolution || 50,
            unlockedBadges: res.unlockedBadges || [],
-           calibrationModules: this.mergeCalibrationModules(res.calibrationModules),
+           calibrationModules: res.calibrationModules || [
+             { id: 'gaming_habits', status: 'available' },
+             { id: 'physical_hobbies', status: 'available' },
+             { id: 'digital_consumption', status: 'locked' },
+             { id: 'everyday_mechanics', status: 'locked' }
+           ],
            nicheCareers: res.nicheCareers || []
         };
         this.setCurrentUser(user);
@@ -183,7 +180,12 @@ export class AuthService {
       darkMode: user.settings?.darkMode,
       baseResolution: user.baseResolution || 50,
       unlockedBadges: user.unlockedBadges || [],
-      calibrationModules: this.mergeCalibrationModules(user.calibrationModules),
+      calibrationModules: user.calibrationModules || [
+        { id: 'gaming_habits', status: 'available' },
+        { id: 'physical_hobbies', status: 'available' },
+        { id: 'digital_consumption', status: 'locked' },
+        { id: 'everyday_mechanics', status: 'locked' }
+      ],
       nicheCareers: user.nicheCareers || []
     };
 
@@ -197,7 +199,6 @@ export class AuthService {
   }
 
   private setCurrentUser(usuario: Usuario) {
-    usuario.calibrationModules = this.mergeCalibrationModules(usuario.calibrationModules);
     localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
     this.currentUserSubject.next(usuario);
     this.currentUserSig.set(usuario); // Update signal
@@ -220,7 +221,6 @@ export class AuthService {
   completeCalibrationModule(moduleId: string) {
     const user = this.getCurrentUser();
     if (!user) return;
-    user.calibrationModules = this.mergeCalibrationModules(user.calibrationModules);
 
     // Simulate increasing base resolution by 15%
     user.baseResolution = Math.min((user.baseResolution || 50) + 15, 100);
@@ -271,8 +271,6 @@ export class AuthService {
       });
       if (!user.nicheCareers) user.nicheCareers = [];
       user.nicheCareers.push('Análisis de Datos', 'Marketing Digital Avanzado');
-      const nextMod = user.calibrationModules?.find(m => m.id === 'school_projects');
-      if (nextMod && nextMod.status === 'locked') nextMod.status = 'available';
 
     } else if (moduleId === 'everyday_mechanics') {
       user.unlockedBadges.push({
@@ -283,24 +281,6 @@ export class AuthService {
       });
       if (!user.nicheCareers) user.nicheCareers = [];
       user.nicheCareers.push('Ingeniería Mecatrónica', 'Diseño Industrial');
-      const nextMod = user.calibrationModules?.find(m => m.id === 'school_projects');
-      if (nextMod && nextMod.status === 'locked') nextMod.status = 'available';
-    } else if (moduleId === 'school_projects') {
-      user.unlockedBadges.push({
-        id: 'badge-projects',
-        name: 'Constructor de Evidencia',
-        description: 'Capacidad para convertir proyectos escolares en señales vocacionales reales.',
-        lucideIconName: 'notebook-tabs'
-      });
-      const nextMod = user.calibrationModules?.find(m => m.id === 'teamwork');
-      if (nextMod && nextMod.status === 'locked') nextMod.status = 'available';
-    } else if (moduleId === 'teamwork') {
-      user.unlockedBadges.push({
-        id: 'badge-teamwork',
-        name: 'Aliado de Equipo',
-        description: 'Habilidad para colaborar, comunicar y sostener acuerdos en grupo.',
-        lucideIconName: 'users'
-      });
     }
 
     // Persist new state
@@ -334,13 +314,5 @@ export class AuthService {
     } catch {
       return null;
     }
-  }
-
-  private mergeCalibrationModules(modules: CalibrationModule[] | undefined): CalibrationModule[] {
-    const incomingById = new Map((modules || []).map(module => [module.id, module.status]));
-    return this.DEFAULT_CALIBRATION_MODULES.map(module => ({
-      id: module.id,
-      status: incomingById.get(module.id) || module.status
-    }));
   }
 }

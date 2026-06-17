@@ -53,21 +53,9 @@ export class EvaluationsComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.loadQuestions();
-    }
-
-    loadQuestions(): void {
-        this.isLoadingQuestions = true;
-        this.loadingError = '';
-        this.questions = [];
-        this.currentQuestionIndex = 0;
-        this.selectedOptionId = null;
-        this.userAnswers = {};
-        this.resetScores();
-
         this.testService.getQuestions().pipe(
             catchError(err => {
-                this.loadingError = 'No pudimos cargar las preguntas del test. Revisa tu conexión o intenta de nuevo.';
+                this.loadingError = 'Error al cargar las preguntas del test.';
                 console.error(err);
                 return of([]);
             })
@@ -76,10 +64,6 @@ export class EvaluationsComponent implements OnInit {
             this.questions = this.shuffleArray([...data]);
             this.isLoadingQuestions = false;
         });
-    }
-
-    retryLoadQuestions(): void {
-        this.loadQuestions();
     }
 
     /** Algoritmo de Fisher-Yates para barajar el array de forma aleatoria y equitativa */
@@ -189,9 +173,6 @@ export class EvaluationsComponent implements OnInit {
         // Save answers so the results page can call the API
         const userId = user?.id || 'guest';
         localStorage.setItem(`test_answers_${userId}`, JSON.stringify(this.userAnswers));
-        localStorage.setItem(`test_questions_${userId}`, JSON.stringify(this.questions));
-        localStorage.setItem('latest_test_answers', JSON.stringify(this.userAnswers));
-        localStorage.setItem('latest_test_questions', JSON.stringify(this.questions));
 
         // Simulate a brief delay before navigating
         setTimeout(() => {

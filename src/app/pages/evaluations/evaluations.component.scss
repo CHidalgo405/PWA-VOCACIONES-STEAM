@@ -17,7 +17,7 @@ $warning-bg:   #F59E0B;
 :host {
   display: block;
   font-family: 'Poppins', sans-serif;
-  min-height: 100svh;
+  min-height: 100vh;
   background: var(--bg-canvas, #F8FAFC);
   color: var(--text-primary, #1E293B);
   transition: background-color 0.35s ease, color 0.35s ease;
@@ -27,7 +27,7 @@ $warning-bg:   #F59E0B;
    WRAPPER — full viewport flex column
    ============================================= */
 .vt-wrapper {
-  min-height: 100svh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -262,10 +262,10 @@ $warning-bg:   #F59E0B;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: clamp(28px, 5vw, 56px) var(--app-page-padding-x, 20px);
+  padding: 40px 20px;
   position: relative;
   overflow: hidden;
-  max-width: 1080px;
+  max-width: 960px;
   margin: 0 auto;
   width: 100%;
 }
@@ -376,7 +376,7 @@ $warning-bg:   #F59E0B;
   width: 100%;
 
   @media (min-width: 768px) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -472,7 +472,7 @@ $warning-bg:   #F59E0B;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-light, rgba(0,0,0,0.06));
-  padding: calc(16px + env(safe-area-inset-top)) 20px 14px;
+  padding: 16px 20px 14px;
   transition: background-color 0.35s ease;
 }
 
@@ -731,7 +731,6 @@ $warning-bg:   #F59E0B;
 /* ── OPTION TEXT ── */
 .option-body {
   flex: 1;
-  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -742,7 +741,6 @@ $warning-bg:   #F59E0B;
   font-weight: 500;
   color: var(--text-primary, #1E293B);
   line-height: 1.45;
-  overflow-wrap: anywhere;
   transition: color 0.2s, font-weight 0.2s;
 
   @media (min-width: 400px) {
@@ -788,7 +786,7 @@ $warning-bg:   #F59E0B;
    ============================================= */
 .inline-alert {
   position: fixed;
-  bottom: calc(90px + env(safe-area-inset-bottom));
+  bottom: 90px;
   left: 50%;
   transform: translateX(-50%) translateY(12px);
   background: $danger;
@@ -827,7 +825,6 @@ $warning-bg:   #F59E0B;
   -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border-light, rgba(0,0,0,0.06));
   transition: background-color 0.35s ease;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .footer-inner {
@@ -897,7 +894,7 @@ $warning-bg:   #F59E0B;
   align-items: center;
   justify-content: center;
   z-index: 100;
-  padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+  padding: 24px;
   animation: fadeIn 0.25s ease both;
 }
 
@@ -907,8 +904,6 @@ $warning-bg:   #F59E0B;
   padding: 36px 28px 32px;
   max-width: 380px;
   width: 100%;
-  max-height: calc(100svh - 36px);
-  overflow: auto;
   text-align: center;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
   border: 1px solid var(--border-light, #F1F5F9);
@@ -1212,37 +1207,6 @@ $warning-bg:   #F59E0B;
 
   .feature-item {
     flex: 0 0 auto;
-  }
-}
-
-@media (min-width: 1024px) {
-  .vt-content {
-    max-width: 1060px;
-    display: grid;
-    grid-template-columns: minmax(280px, 0.8fr) minmax(360px, 1.2fr);
-    gap: 20px 28px;
-    align-items: start;
-    padding: 36px 40px 140px;
-  }
-
-  .steam-area-badge {
-    grid-column: 1 / -1;
-    margin-bottom: 0;
-    width: fit-content;
-  }
-
-  .question-card {
-    position: sticky;
-    top: 112px;
-    margin-bottom: 0;
-  }
-
-  .options-list {
-    min-width: 0;
-  }
-
-  .footer-inner {
-    max-width: 1060px;
   }
 }
 

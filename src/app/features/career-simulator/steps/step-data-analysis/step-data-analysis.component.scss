@@ -31,7 +31,7 @@
       
       .bar-fill {
         height: 100%;
-        background-color: var(--area-color, var(--accent-primary));
+        background-color: var(--area-color, #3b82f6);
         display: flex;
         align-items: center;
         justify-content: flex-end;
@@ -107,7 +107,7 @@
   }
   
   &.selected {
-    border-color: var(--area-color, var(--accent-primary));
+    border-color: var(--area-color, #3b82f6);
     background-color: rgba(var(--area-color-rgb, 59, 130, 246), 0.04);
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   }
@@ -140,12 +140,12 @@
     .inner-circle {
       width: 12px;
       height: 12px;
-      background-color: var(--area-color, var(--accent-primary));
+      background-color: var(--area-color, #3b82f6);
       border-radius: 50%;
     }
   }
   
   &.selected .radio-indicator {
-    border-color: var(--area-color, var(--accent-primary));
+    border-color: var(--area-color, #3b82f6);
   }
 }

@@ -1,38 +1,28 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, DestroyRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
 import { catchError, tap, map, delay } from 'rxjs/operators';
 import { 
   SimulatorSessionState, 
   UserStepDecision,
-  CareerSimulatorData,
-  SimulatorCompetencyId,
-  SimulatorVocationalSignalResult
+  CareerSimulatorData
 } from '../models/career-simulator.models';
-import type {
-  ComplementarySkillId,
-  LocalVocationalTestResult,
-  SteamAreaId,
-  VocationalProfileConfidenceEs
-} from '../models/vocational-steam.models';
 import { environment } from '../../../environments/environment';
 import { 
   SimulatorFeedbackRequest, 
   SimulatorFeedbackResponse, 
   SimulatorFeedbackDecision 
 } from '../models/career-simulator.models';
-import { LOCAL_CAREER_SIMULATORS } from '../data/local-career-simulators.mock';
-import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CareerSimulatorService {
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
 
   private readonly STORAGE_KEY = 'steam_completed_simulators';
-  private readonly VOCATIONAL_SIGNAL_STORAGE_PREFIX = 'steam_simulator_vocational_signals';
 
   private initialState: SimulatorSessionState = {
     currentCareerData: null,
@@ -77,9 +67,7 @@ export class CareerSimulatorService {
 
   public getSimulators(): Observable<CareerSimulatorData[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/career-simulators`).pipe(
-      map(sims => {
-        if (!sims?.length) return LOCAL_CAREER_SIMULATORS;
-        return sims.map(sim => ({
+      map(sims => sims.map(sim => ({
         careerId: sim.slug || sim.id,
         careerName: sim.careerName,
         description: sim.shortDescription || sim.description,
@@ -91,12 +79,7 @@ export class CareerSimulatorService {
         colorToken: sim.colorToken,
         icon: sim.icon,
         steps: sim.steps || []
-        }));
-      }),
-      catchError((error) => {
-        console.warn('No se pudieron cargar simuladores desde API. Usando fallback local.', error);
-        return of(LOCAL_CAREER_SIMULATORS);
-      })
+      })))
     );
   }
 
@@ -110,15 +93,7 @@ export class CareerSimulatorService {
         areaClass: sim.colorToken ? `bg-[${sim.colorToken}]` : this.inferAreaClass(sim.steamArea || sim.steamAreaName),
         areaEmoji: sim.icon || this.inferAreaEmoji(sim.steamArea || sim.steamAreaName),
         steps: sim.steps
-      })),
-      catchError((error) => {
-        const localSimulator = LOCAL_CAREER_SIMULATORS.find((sim) => sim.careerId === slug);
-        if (localSimulator) {
-          console.warn(`Usando simulador local para ${slug}.`, error);
-          return of(localSimulator);
-        }
-        return throwError(() => error);
-      })
+      }))
     );
   }
 
@@ -182,7 +157,7 @@ export class CareerSimulatorService {
 
     const newDecisions = [...state.userDecisions, decision];
     
-    const isLastStep = state.currentStepIndex >= state.currentCareerData.steps.length - 1;
+    const isLastStep = state.currentStepIndex >= 5; // Hay 6 pasos (0 a 5)
 
     this.sessionSubject.next({
       ...state,
@@ -324,10 +299,6 @@ export class CareerSimulatorService {
           isLoadingAIFeedback: false,
           aiFeedbackData: response
         });
-        const signal = this.buildVocationalSignal(currentState, response);
-        if (signal) {
-          this.saveVocationalSignal(this.authService.getCurrentUser()?.id || 'guest', signal);
-        }
       })
     );
   }
@@ -353,15 +324,6 @@ export class CareerSimulatorService {
     }
   }
 
-  public getStoredVocationalSignals(userId: string = this.authService.getCurrentUser()?.id || 'guest'): SimulatorVocationalSignalResult[] {
-    try {
-      const rawValue = localStorage.getItem(this.getVocationalSignalStorageKey(userId));
-      return rawValue ? JSON.parse(rawValue) : [];
-    } catch {
-      return [];
-    }
-  }
-
   /**
    * Agrega un identificador al array de simuladores completados y lo persiste.
    * @param careerSlug Slug de la carrera completada.
@@ -375,213 +337,6 @@ export class CareerSimulatorService {
       } catch (e) {
         console.error('No se pudo persistir el progreso en LocalStorage.', e);
       }
-    }
-  }
-
-  private buildVocationalSignal(
-    state: SimulatorSessionState,
-    feedback: SimulatorFeedbackResponse
-  ): SimulatorVocationalSignalResult | null {
-    if (!state.currentCareerData) return null;
-
-    const areaTotals = this.emptyAreaScores();
-    const skillTotals = this.emptySkillScores();
-    const competencyTotals = this.emptyCompetencyScores();
-    const selectedConsequences: string[] = [];
-    const strengthsShown: string[] = [];
-
-    for (const decision of state.userDecisions) {
-      if (!decision.selectedOptionId) continue;
-      const step = state.currentCareerData.steps.find((item: any) => item.id === decision.stepId);
-      const option = step?.options?.find((item: any) => item.id === decision.selectedOptionId);
-      const impact = option?.vocationalImpact;
-      if (!impact) continue;
-
-      this.addWeights(areaTotals, impact.areaWeights || {});
-      this.addWeights(skillTotals, impact.skillWeights || {});
-      this.addWeights(competencyTotals, impact.competencyWeights || {});
-      if (impact.consequence) selectedConsequences.push(impact.consequence);
-      if (impact.feedback) strengthsShown.push(impact.feedback);
-    }
-
-    const areaAdjustments = this.normalizeScores(areaTotals);
-    const skillAdjustments = this.normalizeScores(skillTotals);
-    const competencyScores = this.normalizeScores(competencyTotals);
-    const dominantArea = this.pickTopKey(areaAdjustments);
-    const alignment = this.resolveProfileAlignment(dominantArea);
-    const confidence = this.mapConfidence(feedback.confidence_level);
-
-    return {
-      id: `simulator-signal-${state.currentCareerData.careerId}-${Date.now()}`,
-      careerId: state.currentCareerData.careerId,
-      careerName: state.currentCareerData.careerName,
-      role: state.currentCareerData.steps[0]?.metadata?.role || 'Participante de simulación',
-      areaAdjustments,
-      skillAdjustments,
-      competencyScores,
-      selectedConsequences,
-      strengthsShown,
-      profileAlignment: alignment,
-      explanation: this.buildSimulatorExplanation(alignment, dominantArea, competencyScores),
-      confidence,
-      affinityScore: feedback.affinity_score,
-      dataSource: 'local',
-      generatedAtIso: new Date().toISOString()
-    };
-  }
-
-  private saveVocationalSignal(userId: string, signal: SimulatorVocationalSignalResult): void {
-    const storageKey = this.getVocationalSignalStorageKey(userId);
-    const currentSignals = this.getStoredVocationalSignals(userId)
-      .filter((item) => item.careerId !== signal.careerId);
-    try {
-      localStorage.setItem(storageKey, JSON.stringify([...currentSignals, signal]));
-    } catch (error) {
-      console.error('No se pudo persistir la señal vocacional del simulador.', error);
-    }
-  }
-
-  private getVocationalSignalStorageKey(userId: string): string {
-    return `${this.VOCATIONAL_SIGNAL_STORAGE_PREFIX}_${userId}`;
-  }
-
-  private resolveProfileAlignment(dominantSimulatorArea: SteamAreaId | null): SimulatorVocationalSignalResult['profileAlignment'] {
-    if (!dominantSimulatorArea) return 'insufficient';
-    const userId = this.authService.getCurrentUser()?.id || 'guest';
-    const localResult = this.readJson<LocalVocationalTestResult | null>(
-      localStorage.getItem(`test_local_result_${userId}`),
-      null
-    );
-    const dominantTestArea = localResult?.strengthProfile.dominantArea?.area || null;
-    const secondaryTestArea = localResult?.strengthProfile.secondaryArea?.area || null;
-
-    if (!dominantTestArea) return 'new_signal';
-    if (dominantSimulatorArea === dominantTestArea || dominantSimulatorArea === secondaryTestArea) {
-      return 'reinforces';
-    }
-    return 'partially_contradicts';
-  }
-
-  private buildSimulatorExplanation(
-    alignment: SimulatorVocationalSignalResult['profileAlignment'],
-    dominantSimulatorArea: SteamAreaId | null,
-    competencyScores: Record<SimulatorCompetencyId, number>
-  ): string {
-    const areaLabel = dominantSimulatorArea ? this.getAreaLabel(dominantSimulatorArea) : 'STEAM';
-    const topCompetencies = this.getTopCompetencyLabels(competencyScores);
-    if (alignment === 'reinforces') {
-      return `Tus decisiones en el simulador reforzaron tu afinidad con ${areaLabel}${topCompetencies ? ` y mostraron ${topCompetencies}` : ''}.`;
-    }
-    if (alignment === 'partially_contradicts') {
-      const userId = this.authService.getCurrentUser()?.id || 'guest';
-      const localResult = this.readJson<LocalVocationalTestResult | null>(
-        localStorage.getItem(`test_local_result_${userId}`),
-        null
-      );
-      const testArea = localResult?.strengthProfile.dominantArea?.label || 'otra área';
-      return `Aunque tu test indicó ${testArea}, en el simulador mostraste mayor afinidad con ${areaLabel}${topCompetencies ? ` y ${topCompetencies}` : ''}. Esto no reemplaza tu resultado; lo complementa.`;
-    }
-    if (alignment === 'new_signal') {
-      return `Este simulador agregó una señal nueva hacia ${areaLabel}. Conviene compararla con tu test y futuras calibraciones.`;
-    }
-    return 'El simulador no reunió suficientes señales para ajustar el perfil; intenta repetirlo con calma.';
-  }
-
-  private getTopCompetencyLabels(scores: Record<SimulatorCompetencyId, number>): string {
-    return (Object.entries(scores) as [SimulatorCompetencyId, number][])
-      .filter(([, score]) => score > 0)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 2)
-      .map(([competency]) => this.getCompetencyLabel(competency))
-      .join(' y ');
-  }
-
-  private addWeights<T extends string>(target: Record<T, number>, weights: Partial<Record<T, number>>): void {
-    for (const [key, weight] of Object.entries(weights) as [T, number][]) {
-      target[key] = (target[key] || 0) + weight;
-    }
-  }
-
-  private normalizeScores<T extends string>(scores: Record<T, number>): Record<T, number> {
-    const maxScore = Math.max(...Object.values(scores).map(Number), 0);
-    return (Object.entries(scores) as [T, number][])
-      .reduce((normalized, [key, value]) => {
-        normalized[key] = maxScore > 0 ? Math.round((value / maxScore) * 100) : 0;
-        return normalized;
-      }, {} as Record<T, number>);
-  }
-
-  private pickTopKey<T extends string>(scores: Record<T, number>): T | null {
-    const [topKey, topScore] = (Object.entries(scores) as [T, number][])
-      .sort((a, b) => b[1] - a[1])[0] || [null, 0];
-    return topScore > 0 ? topKey : null;
-  }
-
-  private emptyAreaScores(): Record<SteamAreaId, number> {
-    return { ciencia: 0, tecnologia: 0, ingenieria: 0, arte: 0, matematicas: 0 };
-  }
-
-  private emptySkillScores(): Record<ComplementarySkillId, number> {
-    return {
-      pensamiento_logico: 0,
-      creatividad: 0,
-      comunicacion: 0,
-      resolucion_de_problemas: 0,
-      trabajo_en_equipo: 0,
-      liderazgo: 0,
-      analisis_de_datos: 0,
-      pensamiento_critico: 0
-    };
-  }
-
-  private emptyCompetencyScores(): Record<SimulatorCompetencyId, number> {
-    return {
-      pensamiento_logico: 0,
-      creatividad: 0,
-      comunicacion: 0,
-      etica: 0,
-      analisis: 0,
-      toma_de_decisiones: 0,
-      manejo_de_incertidumbre: 0
-    };
-  }
-
-  private mapConfidence(confidence: SimulatorFeedbackResponse['confidence_level']): VocationalProfileConfidenceEs {
-    if (confidence === 'high') return 'alta';
-    if (confidence === 'medium') return 'media';
-    return 'baja';
-  }
-
-  private getAreaLabel(area: SteamAreaId): string {
-    const labels: Record<SteamAreaId, string> = {
-      ciencia: 'Ciencia',
-      tecnologia: 'Tecnología',
-      ingenieria: 'Ingeniería',
-      arte: 'Arte',
-      matematicas: 'Matemáticas'
-    };
-    return labels[area];
-  }
-
-  private getCompetencyLabel(competency: SimulatorCompetencyId): string {
-    const labels: Record<SimulatorCompetencyId, string> = {
-      pensamiento_logico: 'pensamiento lógico',
-      creatividad: 'creatividad',
-      comunicacion: 'comunicación',
-      etica: 'ética',
-      analisis: 'análisis',
-      toma_de_decisiones: 'toma de decisiones',
-      manejo_de_incertidumbre: 'manejo de incertidumbre'
-    };
-    return labels[competency];
-  }
-
-  private readJson<T>(rawValue: string | null, fallback: T): T {
-    if (!rawValue) return fallback;
-    try {
-      return JSON.parse(rawValue) as T;
-    } catch {
-      return fallback;
     }
   }
 }

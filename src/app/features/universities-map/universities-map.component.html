@@ -7,34 +7,8 @@
       <p>Encuentra las instituciones que ofrecen carreras STEAM cerca de ti.</p>
     </div>
 
-  <div class="app-state-panel is-error" *ngIf="mapError">
-    <div class="app-state-icon">
-      <app-lucide-icon name="map-off" [size]="28"></app-lucide-icon>
-    </div>
-    <span class="app-state-kicker">Error de mapa</span>
-    <h2>El mapa no está disponible</h2>
-    <p>{{ mapError }}</p>
-    <div class="app-state-actions">
-      <button type="button" class="btn-primary" (click)="loadMap()">Reintentar</button>
-    </div>
-  </div>
-
-  <ng-container *ngIf="isApiLoaded && !mapError; else loading">
+  <ng-container *ngIf="isApiLoaded; else loading">
     <div class="map-view-area">
-      <div class="app-state-panel app-state-panel--inline is-error map-inline-state" *ngIf="locationError">
-        <div class="app-state-icon">
-          <app-lucide-icon name="map-pin-off" [size]="22"></app-lucide-icon>
-        </div>
-        <div>
-          <span class="app-state-kicker">Permiso de ubicación</span>
-          <h3>No pudimos ubicarte</h3>
-          <p>{{ locationError }}</p>
-          <div class="app-state-actions">
-            <button type="button" class="btn-primary" (click)="getUserLocation()">Reintentar ubicación</button>
-          </div>
-        </div>
-      </div>
-
       <google-map #googleMap [options]="mapOptions" [center]="center" [zoom]="zoom" height="70vh" width="100%">
         
         <!-- Marcador de la ubicación del usuario (punto azul) -->
@@ -75,33 +49,7 @@
       <!-- Indicador de carga cuando busca universidades -->
       <div *ngIf="isSearching" class="searching-overlay">
         <div class="spinner"></div>
-        <p>Buscando universidades cercanas en tu zona...</p>
-      </div>
-
-      <div *ngIf="isLocating" class="searching-overlay location-overlay">
-        <div class="spinner"></div>
-        <p>Buscando tu ubicación...</p>
-      </div>
-
-      <div class="app-state-panel app-state-panel--compact is-error map-bottom-state" *ngIf="searchError && !isSearching">
-        <div class="app-state-icon">
-          <app-lucide-icon name="wifi-off" [size]="22"></app-lucide-icon>
-        </div>
-        <span class="app-state-kicker">Error de API</span>
-        <h3>No se cargaron universidades</h3>
-        <p>{{ searchError }}</p>
-        <div class="app-state-actions">
-          <button type="button" class="btn-primary" (click)="retrySearchUniversities()">Reintentar</button>
-        </div>
-      </div>
-
-      <div class="app-state-panel app-state-panel--compact is-empty map-bottom-state" *ngIf="hasSearched && !isSearching && !searchError && universities.length === 0">
-        <div class="app-state-icon">
-          <app-lucide-icon name="school" [size]="22"></app-lucide-icon>
-        </div>
-        <span class="app-state-kicker">Sin universidades cercanas</span>
-        <h3>No encontramos resultados en este radio</h3>
-        <p>Prueba desde la pantalla Explorar para ampliar el radio a 50 km o 100 km.</p>
+        <p>Buscando universidades cercanas...</p>
       </div>
 
       <!-- Botón flotante para mi ubicación -->
@@ -112,16 +60,10 @@
   </ng-container>
 
   <ng-template #loading>
-    <div class="loading-state" *ngIf="!mapError">
-      <div class="app-state-panel is-loading">
-        <div class="app-state-icon">
-          <app-lucide-icon name="map" [size]="28"></app-lucide-icon>
-        </div>
-        <span class="app-state-kicker">Cargando mapa</span>
-        <h2>Preparando universidades cercanas</h2>
-        <p>Estamos conectando con Google Maps antes de pedir tu ubicación.</p>
-      </div>
+    <div class="loading-state">
+      <p>Cargando el mapa...</p>
     </div>
   </ng-template>
   </div>
 </div>
+

@@ -5,12 +5,12 @@
   <header class="premium-header">
     <div class="header-content">
 
-      <nav class="navigation-tabs" aria-label="Vista de universidades">
-        <div class="tabs-pill" role="group" aria-label="Cambiar entre recomendaciones y guardadas">
-          <button class="tab-item" type="button" [attr.aria-pressed]="viewMode === 'explore'" (click)="switchViewMode('explore')">
+      <nav class="navigation-tabs">
+        <div class="tabs-pill">
+          <button class="tab-item" (click)="switchViewMode('explore')">
             Recomendadas
           </button>
-          <button class="tab-item" type="button" [attr.aria-pressed]="viewMode === 'saved'" (click)="switchViewMode('saved')">
+          <button class="tab-item" (click)="switchViewMode('saved')">
             Guardadas
           </button>
           <div class="pill-slider" [class.to-right]="viewMode === 'saved'">
@@ -25,43 +25,10 @@
       <div class="search-section">
         <div class="search-bar-premium">
           <app-lucide-icon name="search" [size]="20" class="search-icon"></app-lucide-icon>
-          <label class="sr-only" for="explore-search-input">Buscar universidades o programas</label>
-          <input id="explore-search-input" type="text" placeholder="Buscar universidades o programas..." [(ngModel)]="searchQuery" autocomplete="off">
-          <button class="filter-trigger" type="button" *ngIf="searchQuery" aria-label="Limpiar búsqueda" (click)="searchQuery = ''">
+          <input type="text" placeholder="Buscar universidades o programas..." [(ngModel)]="searchQuery">
+          <button class="filter-trigger" *ngIf="searchQuery" (click)="searchQuery = ''">
             <app-lucide-icon name="x" [size]="16"></app-lucide-icon>
           </button>
-        </div>
-        <p class="location-helper">{{ locationHint }} La ubicación se usa para buscar universidades cercanas y calcular distancia, no para definir tu vocación.</p>
-        <div class="radius-selector" role="group" aria-label="Radio de búsqueda">
-          <span>Radio</span>
-          <button
-            type="button"
-            *ngFor="let radius of radiusOptionsKm"
-            [class.active]="selectedRadiusKm === radius"
-            [attr.aria-pressed]="selectedRadiusKm === radius"
-            (click)="onRadiusChange(radius)">
-            {{ radius }} km
-          </button>
-        </div>
-        <div class="match-filters">
-          <label class="sr-only" for="career-filter-input">Filtrar por carrera</label>
-          <input id="career-filter-input" type="text" placeholder="Filtrar por carrera" [(ngModel)]="careerFilter" autocomplete="off">
-          <label class="sr-only" for="area-filter-select">Filtrar por área STEAM</label>
-          <select id="area-filter-select" [(ngModel)]="areaFilter">
-            <option value="todas">Todas las áreas</option>
-            <option value="ciencia">Ciencia</option>
-            <option value="tecnologia">Tecnología</option>
-            <option value="ingenieria">Ingeniería</option>
-            <option value="arte">Arte</option>
-            <option value="matematicas">Matemáticas</option>
-          </select>
-          <label class="sr-only" for="match-filter-select">Filtrar por porcentaje mínimo de match</label>
-          <select id="match-filter-select" [(ngModel)]="minMatchFilter">
-            <option [ngValue]="0">Cualquier match</option>
-            <option [ngValue]="50">50%+</option>
-            <option [ngValue]="70">70%+</option>
-            <option [ngValue]="85">85%+</option>
-          </select>
         </div>
       </div>
     </div>
@@ -73,12 +40,11 @@
     <div class="explore-list-column">
       <!-- BANNER VERDE -->
       <section class="banner-section" *ngIf="viewMode === 'explore' && hasTakenTest">
-          <div class="green-banner">
+        <div class="green-banner">
           <div class="banner-text">
             <span class="badge-text">Basado en tu perfil STEAM</span>
             <h3>Universidades recomendadas para ti</h3>
             <p>Ordenadas por compatibilidad con tu perfil dominante</p>
-            <small>El match combina carreras recomendadas, áreas STEAM fuertes, distancia, variedad académica y confianza del perfil. Si faltan datos reales, lo indicamos claramente.</small>
           </div>
           <div class="banner-stats">
             <div class="stat-box">
@@ -95,14 +61,6 @@
 
       <!-- SKELETONS (LOADING) -->
       <ng-container *ngIf="isLoading">
-        <div class="app-state-panel app-state-panel--compact is-loading" role="status" aria-live="polite" aria-busy="true">
-          <div class="app-state-icon">
-            <app-lucide-icon name="school" [size]="22"></app-lucide-icon>
-          </div>
-          <span class="app-state-kicker">Cargando universidades</span>
-          <h3>Buscando coincidencias cercanas</h3>
-          <p>Estamos combinando ubicación, perfil vocacional y datos disponibles. Si la API falla, se mantendrá el fallback local cuando exista.</p>
-        </div>
         <div class="grid-layout compact" style="margin-top: 2rem;">
           <div class="uni-card-skeleton" *ngFor="let i of skeletonArray">
             <div class="skele-img shimmer"></div>
@@ -116,39 +74,9 @@
       </ng-container>
 
       <ng-container *ngIf="!isLoading">
-        <div class="app-state-panel app-state-panel--compact is-warning" *ngIf="profileLoadWarning" role="status" aria-live="polite">
-          <div class="app-state-icon">
-            <app-lucide-icon name="database" [size]="22"></app-lucide-icon>
-          </div>
-          <span class="app-state-kicker">Fallback local</span>
-          <h3>Perfil cargado parcialmente</h3>
-          <p>{{ profileLoadWarning }}</p>
-        </div>
-
-        <div class="app-state-panel app-state-panel--compact is-error" *ngIf="locationError && hasTakenTest" role="alert">
-          <div class="app-state-icon">
-            <app-lucide-icon name="map-pin-off" [size]="22"></app-lucide-icon>
-          </div>
-          <span class="app-state-kicker">Permiso de ubicación</span>
-          <h3>No pudimos ubicarte</h3>
-          <p>{{ locationError }}</p>
-          <div class="app-state-actions">
-            <button type="button" class="btn-primary" (click)="retryLocation()">Reintentar ubicación</button>
-            <button type="button" class="btn-secondary" (click)="expandRadiusAndRetry(100)" [disabled]="!userPosition">Buscar a 100 km</button>
-          </div>
-        </div>
-
-        <div class="premium-empty-state compact" *ngIf="searchError" role="alert">
-          <div class="empty-visual">
-            <app-lucide-icon name="wifi-off" [size]="42"></app-lucide-icon>
-          </div>
-          <h3>Error al buscar universidades</h3>
-          <p>{{ searchError }}</p>
-          <button class="btn-reset" type="button" (click)="triggerPlacesSearch()">Reintentar</button>
-        </div>
         
         <!-- EMPTY STATE NO TEST -->
-        <div class="empty-state fade-in" *ngIf="!hasTakenTest" role="status" aria-live="polite" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1.5rem; text-align: center; margin-top: 2rem;">
+        <div class="empty-state fade-in" *ngIf="!hasTakenTest" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1.5rem; text-align: center; margin-top: 2rem;">
           <div class="empty-icon-wrap" style="background: rgba(7, 177, 201, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
             <app-lucide-icon name="compass" [size]="40" color="#07B1C9"></app-lucide-icon>
           </div>
@@ -156,26 +84,13 @@
           <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 300px; line-height: 1.5; margin: 0 0 2rem 0;">
             Aún no tenemos recomendaciones. Realiza tu primer test vocacional para descubrir qué universidades hacen match con tu perfil STEAM.
           </p>
-          <button class="btn-primary" type="button" routerLink="/evaluations" style="background-color: #07B1C9; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(7, 177, 201, 0.3);">
+          <button class="btn-primary" routerLink="/evaluations" style="background-color: #07B1C9; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(7, 177, 201, 0.3);">
             Hacer test ahora
           </button>
         </div>
 
         <!-- MAIN CONTENT (Only if Test was taken) -->
         <ng-container *ngIf="hasTakenTest">
-          <div class="app-state-panel app-state-panel--compact is-empty" *ngIf="viewMode === 'explore' && !searchError && !locationError && hasAttemptedUniversitySearch && universities.length === 0" role="status" aria-live="polite">
-            <div class="app-state-icon">
-              <app-lucide-icon name="school" [size]="22"></app-lucide-icon>
-            </div>
-            <span class="app-state-kicker">Sin universidades cercanas</span>
-            <h3>No encontramos universidades en {{ selectedRadiusKm }} km</h3>
-            <p>Puede que no haya resultados dentro del radio actual o que Google Places no haya devuelto instituciones educativas cercanas.</p>
-            <div class="app-state-actions">
-              <button type="button" class="btn-primary" (click)="expandRadiusAndRetry(50)">Probar 50 km</button>
-              <button type="button" class="btn-secondary" (click)="expandRadiusAndRetry(100)">Probar 100 km</button>
-            </div>
-          </div>
-
           <!-- MEJOR COINCIDENCIA (DARK CARD) -->
           <section class="best-match-section" *ngIf="showBestMatch && bestMatchUniversity">
             <div class="section-header">
@@ -185,14 +100,7 @@
               </h3>
             </div>
 
-            <div class="best-match-card animate-on-scroll"
-                 role="button"
-                 tabindex="0"
-                 [attr.aria-label]="'Ver detalle de ' + bestMatchUniversity.name + ', match ' + bestMatchUniversity.matchPercentage + ' por ciento'"
-                 (click)="openUniversityDetail(bestMatchUniversity)"
-                 (keydown.enter)="openUniversityDetail(bestMatchUniversity)"
-                 (keydown.space)="openUniversityDetail(bestMatchUniversity); $event.preventDefault()"
-                 appScrollReveal>
+            <div class="best-match-card animate-on-scroll" (click)="openUniversityDetail(bestMatchUniversity)" appScrollReveal>
               <div class="card-icon-area">
                 <div class="icon-circle">
                   <app-lucide-icon [name]="bestMatchUniversity.logo || 'building'" [size]="32" color="#D4D4D8"></app-lucide-icon>
@@ -202,7 +110,7 @@
               <div class="card-content-area">
                 <div class="card-top-row">
                   <span class="rank-badge">#1 · TU MEJOR MATCH</span>
-                  <button class="btn-fav-invisible" type="button" [attr.aria-label]="'Guardar ' + bestMatchUniversity.name" (click)="saveUniversity(bestMatchUniversity); $event.stopPropagation()">
+                  <button class="btn-fav-invisible" (click)="saveUniversity(bestMatchUniversity); $event.stopPropagation()">
                     <app-lucide-icon name="heart" [size]="18" color="#64748B"></app-lucide-icon>
                   </button>
                 </div>
@@ -218,25 +126,6 @@
                   <span class="match-text">Match {{ bestMatchUniversity.matchPercentage }}% <app-lucide-icon name="sparkles" [size]="12" fill="currentColor"></app-lucide-icon></span>
                   <span class="link-text">Ver oferta educativa &rarr;</span>
                 </div>
-                <div class="match-breakdown">
-                  <span>Vocacional {{ bestMatchUniversity.matchVocational }}%</span>
-                  <span>Académico {{ bestMatchUniversity.matchAcademic }}%</span>
-                  <span>Geográfico {{ bestMatchUniversity.matchGeographic }}%</span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="comparison-panel" *ngIf="comparisonList.length > 0">
-            <div class="section-header space-between">
-              <h3>Comparador</h3>
-              <span>{{ comparisonList.length }}/3 universidades</span>
-            </div>
-            <div class="comparison-grid">
-              <div class="comparison-card" *ngFor="let uni of comparisonList">
-                <strong>{{ uni.name }}</strong>
-                <span>Match {{ uni.matchPercentage }}%</span>
-                <small>{{ uni.compatibleCareers?.join(', ') || 'Datos académicos por validar' }}</small>
               </div>
             </div>
           </section>
@@ -248,15 +137,7 @@
             </div>
 
             <div class="recommendations-list">
-              <div class="recommended-list-card animate-on-scroll"
-                   *ngFor="let uni of filteredOtherUniversities"
-                   role="button"
-                   tabindex="0"
-                   [attr.aria-label]="'Ver detalle de ' + uni.name + ', match ' + uni.matchPercentage + ' por ciento'"
-                   (click)="openUniversityDetail(uni)"
-                   (keydown.enter)="openUniversityDetail(uni)"
-                   (keydown.space)="openUniversityDetail(uni); $event.preventDefault()"
-                   appScrollReveal>
+              <div class="recommended-list-card animate-on-scroll" *ngFor="let uni of filteredOtherUniversities" (click)="openUniversityDetail(uni)" appScrollReveal>
                 
                 <div class="list-card-icon">
                   <div class="square-icon-bg">
@@ -267,7 +148,7 @@
                 <div class="list-card-content">
                   <div class="list-top-row">
                     <h4 class="list-uni-name">{{ uni.name }}</h4>
-                    <button class="btn-fav-invisible" type="button" [attr.aria-label]="viewMode === 'saved' ? 'Quitar ' + uni.name + ' de guardadas' : 'Guardar ' + uni.name" (click)="toggleFavoriteStatus(uni, $event)">
+                    <button class="btn-fav-invisible" (click)="toggleFavoriteStatus(uni, $event)">
                       <app-lucide-icon [name]="viewMode === 'saved' ? 'x' : 'heart'" [size]="18" [color]="viewMode === 'saved' ? '#EF4444' : '#94A3B8'"></app-lucide-icon>
                     </button>
                   </div>
@@ -280,24 +161,13 @@
                   <div class="chips-row">
                     <span class="mini-chip" *ngFor="let tag of uni.tags">{{ tag }}</span>
                   </div>
-                  <div class="match-breakdown">
-                    <span>Total {{ uni.matchPercentage }}%</span>
-                    <span>Vocacional {{ uni.matchVocational }}%</span>
-                    <span>Académico {{ uni.matchAcademic }}%</span>
-                    <span>Geográfico {{ uni.matchGeographic }}%</span>
-                  </div>
-                  <p class="warning-text" *ngIf="uni.warnings?.length">{{ uni.warnings[0] }}</p>
                   
                   <div class="list-bottom-row">
                     <div class="left-stats">
                       <span class="rating-text"><app-lucide-icon name="star" [size]="14" color="#F97316" fill="#F97316" style="margin-bottom: -2px; margin-right: 2px;"></app-lucide-icon> {{ uni.rating }}</span>
                       <span class="match-badge">Match: {{ uni.matchPercentage }}%</span>
                     </div>
-                    <div class="card-actions-row">
-                      <button type="button" [attr.aria-label]="viewMode === 'saved' ? 'Quitar ' + uni.name + ' de guardadas' : 'Guardar ' + uni.name" (click)="toggleFavoriteStatus(uni, $event)">Guardar</button>
-                      <button type="button" (click)="openUniversityDetail(uni); $event.stopPropagation()">Ver detalle</button>
-                      <button type="button" [class.active]="isInComparison(uni)" [attr.aria-pressed]="isInComparison(uni)" (click)="toggleCompare(uni, $event)">Comparar</button>
-                    </div>
+                    <span class="link-text">Explorar oferta &rarr;</span>
                   </div>
                 </div>
 
@@ -306,19 +176,18 @@
           </section>
 
           <!-- EMPTY STATE BÚSQUEDA / GUARDADAS -->
-          <div class="premium-empty-state" *ngIf="filteredOtherUniversities.length === 0 && !showBestMatch && !(viewMode === 'explore' && hasAttemptedUniversitySearch && universities.length === 0)" role="status" aria-live="polite">
+          <div class="premium-empty-state" *ngIf="filteredOtherUniversities.length === 0 && !showBestMatch">
             <div class="empty-visual">
               <app-lucide-icon [name]="viewMode === 'saved' ? 'heart-off' : 'search'" [size]="64"></app-lucide-icon>
             </div>
             <h3 *ngIf="viewMode === 'explore'">Sin resultados</h3>
             <p *ngIf="viewMode === 'explore'">No encontramos universidades que coincidan con "{{ searchQuery }}".</p>
-            <p *ngIf="viewMode === 'explore' && !searchQuery">Prueba ampliar el radio a 50 km o 100 km.</p>
             
             <h3 *ngIf="viewMode === 'saved'">No hay guardadas</h3>
             <p *ngIf="viewMode === 'saved'">Aún no has guardado ninguna universidad. Explora recomendaciones y añádelas a tus favoritos.</p>
 
-            <button class="btn-reset" type="button" *ngIf="viewMode === 'explore' && searchQuery" (click)="searchQuery = ''">Limpiar búsqueda</button>
-            <button class="btn-reset" type="button" *ngIf="viewMode === 'saved'" (click)="switchViewMode('explore')">Volver a explorar</button>
+            <button class="btn-reset" *ngIf="viewMode === 'explore' && searchQuery" (click)="searchQuery = ''">Limpiar búsqueda</button>
+            <button class="btn-reset" *ngIf="viewMode === 'saved'" (click)="switchViewMode('explore')">Volver a explorar</button>
           </div>
 
         </ng-container>
@@ -326,33 +195,8 @@
     </div>
 
     <!-- Right Column: Interactive Google Map -->
-    <div class="explore-map-column" *ngIf="hasTakenTest">
-      <div class="map-sticky-wrapper map-state-wrapper" *ngIf="mapLoadError">
-        <div class="app-state-panel app-state-panel--compact is-error map-state-panel" role="alert">
-          <div class="app-state-icon">
-            <app-lucide-icon name="map-off" [size]="22"></app-lucide-icon>
-          </div>
-          <span class="app-state-kicker">Error de mapa</span>
-          <h3>El mapa no se cargó</h3>
-          <p>{{ mapLoadError }}</p>
-          <div class="app-state-actions">
-            <button type="button" class="btn-primary" (click)="retryMapLoad()">Reintentar</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="map-sticky-wrapper map-state-wrapper" *ngIf="!mapLoadError && !isApiLoaded">
-        <div class="app-state-panel app-state-panel--compact is-loading map-state-panel" role="status" aria-live="polite" aria-busy="true">
-          <div class="app-state-icon">
-            <app-lucide-icon name="map" [size]="22"></app-lucide-icon>
-          </div>
-          <span class="app-state-kicker">Cargando mapa</span>
-          <h3>Preparando universidades cercanas</h3>
-          <p>Estamos cargando Google Maps antes de marcar instituciones en tu zona.</p>
-        </div>
-      </div>
-
-      <div class="map-sticky-wrapper" *ngIf="!mapLoadError && isApiLoaded" role="region" aria-label="Mapa de universidades cercanas">
+    <div class="explore-map-column" *ngIf="hasTakenTest && isApiLoaded">
+      <div class="map-sticky-wrapper">
         <google-map #googleMap [options]="mapOptions" [center]="center" [zoom]="zoom" height="100%" width="100%">
           
           <!-- User Marker -->
@@ -374,13 +218,8 @@
 
         </google-map>
 
-        <div class="map-overlay-note" *ngIf="isLocating" role="status" aria-live="polite">
-          <app-lucide-icon name="locate-fixed" [size]="18"></app-lucide-icon>
-          <span>Buscando tu ubicación...</span>
-        </div>
-
         <!-- Floating Location FAB -->
-        <button class="location-fab" type="button" (click)="getUserLocation()" [class.locating]="isLocating" title="Mi ubicación" aria-label="Buscar mi ubicación">
+        <button class="location-fab" (click)="getUserLocation()" [class.locating]="isLocating" title="Mi ubicación">
           <app-lucide-icon name="target" [size]="22" color="#07B1C9"></app-lucide-icon>
         </button>
       </div>
@@ -395,11 +234,11 @@
 
 <!-- DETALLES DE UNIVERSIDAD MODAL -->
 <div class="premium-modal-overlay" *ngIf="isUniversityModalOpen" [class.is-closing]="isUniversityModalClosing" (click)="closeUniversityModal()">
-  <div class="premium-modal-card" role="dialog" aria-modal="true" aria-labelledby="explore-university-modal-title" (click)="$event.stopPropagation()" [class.is-active]="isUniversityModalOpen" [class.is-closing]="isUniversityModalClosing">
+  <div class="premium-modal-card" (click)="$event.stopPropagation()" [class.is-active]="isUniversityModalOpen" [class.is-closing]="isUniversityModalClosing">
     
     <header class="modal-banner" [style.backgroundImage]="'url(' + selectedUniversity?.image + ')'">
       <div class="modal-close-wrapper">
-        <button class="btn-modal-close" type="button" aria-label="Cerrar detalle de universidad" (click)="closeUniversityModal()">
+        <button class="btn-modal-close" (click)="closeUniversityModal()">
           <app-lucide-icon name="x" [size]="20"></app-lucide-icon>
         </button>
       </div>
@@ -414,7 +253,7 @@
          </div>
          <div class="uni-titles">
              <span class="uni-tags">{{ selectedUniversity?.tags[0] }}</span>
-             <h2 id="explore-university-modal-title">{{ selectedUniversity?.name }}</h2>
+             <h2>{{ selectedUniversity?.name }}</h2>
              <p class="uni-location"><app-lucide-icon name="map-pin" [size]="14"></app-lucide-icon> {{ selectedUniversity?.location }}</p>
          </div>
       </div>
@@ -430,14 +269,13 @@
           </div>
           <div class="stat-pill">
             <app-lucide-icon name="info" [size]="16"></app-lucide-icon> 
-            <span>Datos: {{ selectedUniversity?.dataSourceLabel || 'por validar' }}</span>
+            <span>{{ selectedUniversity?.description }}</span>
           </div>
       </div>
 
       <div class="modal-section-box">
         <h4>Resumen</h4>
         <p>Esta institución se destaca como una excelente opción para tu perfil en <strong>{{ selectedUniversity?.career }}</strong>. Explora sus programas y descubre si es tu lugar ideal para desarrollarte profesionalmente.</p>
-        <p class="warning-text" *ngIf="selectedUniversity?.warnings?.length">{{ selectedUniversity?.warnings[0] }}</p>
       </div>
 
       <div class="bento-grid-modal">
@@ -460,11 +298,11 @@
     </div>
 
     <footer class="modal-footer-glass">
-      <button class="btn-fav-large" type="button" [attr.aria-label]="'Guardar ' + (selectedUniversity?.name || 'universidad')" (click)="saveUniversity()">
+      <button class="btn-fav-large" (click)="saveUniversity()">
         <app-lucide-icon name="heart" [size]="24" color="#64748B"></app-lucide-icon>
       </button>
-      <button class="btn-action-primary" type="button" (click)="openSelectedUniversityWebsite($event)">
-        {{ hasSelectedUniversityWebsite() ? 'Visitar sitio web' : 'Sitio por validar' }}
+      <button class="btn-action-primary" (click)="closeUniversityModal()">
+        Visitar Sitio Web
         <app-lucide-icon name="external-link" [size]="18" style="margin-left: 8px; margin-bottom: -4px;"></app-lucide-icon>
       </button>
     </footer>

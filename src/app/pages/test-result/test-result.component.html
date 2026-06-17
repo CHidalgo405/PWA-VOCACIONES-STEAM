@@ -6,198 +6,188 @@
     <div class="view-profile" *ngIf="viewState === 'result'">
         <app-header title="Tus Resultados" [showBack]="true" backRoute="/dashboard"></app-header>
 
-        <div class="app-state-panel is-error" *ngIf="!isLoading && resultError" role="alert">
-            <div class="app-state-icon">
-                <app-lucide-icon [name]="resultError.type === 'missing' ? 'file-question' : 'wifi-off'" [size]="28"></app-lucide-icon>
-            </div>
-            <span class="app-state-kicker">{{ resultError.type === 'ia' ? 'Error de IA' : 'Error de API' }}</span>
-            <h2>{{ resultError.title }}</h2>
-            <p>{{ resultError.message }}</p>
-            <div class="app-state-actions">
-                <button type="button" class="btn-primary" *ngIf="resultError.type !== 'missing'" (click)="retryResultLoad()">
-                    {{ resultError.actionLabel || 'Reintentar' }}
-                </button>
-                <button type="button" class="btn-primary" *ngIf="resultError.type === 'missing'" (click)="goToTest()">
-                    {{ resultError.actionLabel || 'Hacer test' }}
-                </button>
-                <button type="button" class="btn-secondary" routerLink="/history">Ver historial</button>
-            </div>
-        </div>
+        <!-- ══════════════════════════════════════════════
+             BENTO HERO SECTION
+             ══════════════════════════════════════════════ -->
+        <section class="bento-hero-section fade-in-up">
+            <!-- Decorative background orbs -->
+            <div class="hero-orb orb-tl"></div>
+            <div class="hero-orb orb-br"></div>
 
-        <section class="vocational-result-shell fade-in-up" *ngIf="!resultError">
-            <div class="result-hero-panel">
-                <div class="result-hero-copy">
-                    <span class="result-source-badge">
-                        <app-lucide-icon name="sparkles" [size]="14"></app-lucide-icon>
-                        Resultado vocacional
-                    </span>
-                    <p class="result-greeting">{{ userProfile.greeting }}</p>
-                    <h1>{{ dominantProfileLabel }}</h1>
-                    <p class="result-hero-text">
-                        {{ userProfile.description || 'Esta lectura resume tus respuestas y las convierte en una guía para explorar áreas, carreras y próximos pasos.' }}
+            <div class="bento-grid">
+                <!-- 1. Main Dominant Profile Card -->
+                <div class="bento-card bento-main glass-panel scale-in">
+                    <div class="greeting-chip">
+                        <app-lucide-icon name="sparkles" [size]="14" color="#07B1C9" style="margin-right:5px;margin-bottom:-2px;"></app-lucide-icon>
+                        {{ userProfile.greeting }}
+                    </div>
+                    
+                    <h1 class="hero-verdict">
+                        ¡Perfil
+                        <span class="verdict-gradient text-gradient" [style.background-image]="'linear-gradient(135deg, ' + areaGradientStart(0) + ', ' + areaGradientEnd(0) + ')'">
+                            {{ userProfile.dominantTraits || 'STEAM' }}
+                        </span>!
+                    </h1>
+                    <p class="hero-subtitle">
+                        Descubrimos las áreas donde tu potencial brilla más.
                     </p>
                 </div>
 
-                <aside class="confidence-summary" [class.confidence-low]="confidenceValue === 'baja'" [class.confidence-high]="confidenceValue === 'alta'">
-                    <span>Nivel de confianza</span>
-                    <strong>{{ confidenceLabel }}</strong>
-                    <p>{{ confidenceExplanation }}</p>
-                </aside>
-            </div>
-
-            <div class="responsible-note">
-                <app-lucide-icon name="shield-check" [size]="18"></app-lucide-icon>
-                <p><strong>Lee esto como una guía:</strong> la app orienta y la IA ayuda a explicar tus señales, pero no reemplaza a un orientador vocacional ni decide por ti.</p>
-            </div>
-
-            <div class="app-state-panel app-state-panel--inline is-warning" *ngIf="resultSourceNotice" role="status" aria-live="polite">
-                <div class="app-state-icon">
-                    <app-lucide-icon name="info" [size]="22"></app-lucide-icon>
-                </div>
-                <div>
-                    <span class="app-state-kicker">Fallback seguro</span>
-                    <h3>Resultado local disponible</h3>
-                    <p>{{ resultSourceNotice }}</p>
-                </div>
-            </div>
-
-            <div class="app-state-panel app-state-panel--inline is-empty" *ngIf="hasInsufficientProfileData" role="status" aria-live="polite">
-                <div class="app-state-icon">
-                    <app-lucide-icon name="activity" [size]="22"></app-lucide-icon>
-                </div>
-                <div>
-                    <span class="app-state-kicker">Perfil sin suficientes datos</span>
-                    <h3>Tu perfil aún está en construcción</h3>
-                    <p>El test ya ofrece una base, pero calibraciones y simuladores ayudan a subir la confianza sin penalizar experiencias que todavía no has probado.</p>
-                </div>
-            </div>
-
-            <div class="result-analysis-grid">
-                <article class="analysis-panel radar-analysis-panel">
-                    <div class="panel-heading">
-                        <div>
-                            <h2>ADN STEAM</h2>
-                            <p>Intensidad por área de tu perfil vocacional.</p>
-                        </div>
-                        <span class="affinity-chip">{{ globalAffinityPct }}% afinidad global</span>
+                <!-- 2. Global Affinity Card -->
+                <div class="bento-card bento-affinity glass-panel fade-in-up" style="animation-delay: 0.1s;">
+                    <div class="affinity-header">
+                        <app-lucide-icon name="target" [size]="18" color="#9CA3AF"></app-lucide-icon>
+                        <span>Afinidad Global</span>
                     </div>
-
-                    <div class="steam-radar-panel">
-                        <div class="steam-radar-chart" *ngIf="hasRadarData; else radarFallback" role="img" aria-describedby="steam-radar-summary">
-                            <canvas
-                                aria-hidden="true"
-                                baseChart
-                                [data]="radarChartData"
-                                [options]="radarChartOptions"
-                                [type]="'radar'">
-                            </canvas>
+                    <div class="affinity-content">
+                        <div class="affinity-pct-bento">
+                            {{ globalAffinityPct }}<span class="pct-symbol">%</span>
                         </div>
-                        <p id="steam-radar-summary" class="sr-only">{{ radarTextSummary }}</p>
+                    </div>
+                    <div class="affinity-footer">
+                        Nivel STEAM
+                    </div>
+                </div>
 
-                        <ng-template #radarFallback>
-                            <div class="steam-radar-empty" role="status" aria-live="polite">
-                                <app-lucide-icon name="radar" [size]="26" color="#94A3B8"></app-lucide-icon>
-                                <span>La gráfica aparecerá cuando existan puntajes STEAM disponibles.</span>
+                <!-- 3. Top Areas Mini-cards -->
+                <div class="bento-subgrid">
+                    <div class="bento-card bento-mini glass-panel fade-in-up" 
+                         *ngFor="let area of topThree | slice:1:3; let i = index" 
+                         [style.animation-delay]="(0.2 + i * 0.1) + 's'">
+                        <div class="mini-icon-wrap" [style.background]="'linear-gradient(135deg,' + area.gradientStart + ',' + area.gradientEnd + ')'">
+                            <app-lucide-icon [name]="area.icon" [size]="18" color="white"></app-lucide-icon>
+                        </div>
+                        <div class="mini-info">
+                            <span class="mini-rank">{{ i === 0 ? 'Secundaria' : 'Terciaria' }}</span>
+                            <span class="mini-name">{{ area.label }}</span>
+                        </div>
+                        <div class="mini-pct" [style.color]="area.gradientStart">{{ area.percentage }}%</div>
+                    </div>
+                </div>
+
+                <!-- 4. STEAM Metrics Progress Bars -->
+                <div class="bento-card bento-metrics glass-panel fade-in-up" style="animation-delay: 0.4s;">
+                    <div class="section-label">
+                        <app-lucide-icon name="bar-chart-2" [size]="16" color="#9CA3AF" style="margin-right:6px;margin-bottom:-2px;"></app-lucide-icon>
+                        Desglose de tu perfil STEAM
+                    </div>
+                    
+                    <div class="premium-metrics-list">
+                        <div class="premium-metric-row" *ngFor="let area of steamAreas">
+                            <!-- Icon -->
+                            <div class="premium-metric-icon" [style.background]="'linear-gradient(135deg,' + area.gradientStart + ' 0%,' + area.gradientEnd + ' 100%)'">
+                                <app-lucide-icon [name]="area.icon" [size]="18" color="white"></app-lucide-icon>
                             </div>
-                        </ng-template>
-
-                        <p class="steam-radar-copy">
-                            Esta gráfica muestra la intensidad de cada área en tu perfil vocacional. No limita tus opciones; sirve como guía para explorar carreras compatibles.
-                        </p>
-                    </div>
-
-                    <div class="area-score-list">
-                        <div class="area-score-row" *ngFor="let area of steamAreas">
-                            <div class="area-score-label">
-                                <span class="area-color-dot" [style.background]="area.gradientStart"></span>
-                                <span>{{ area.label }}</span>
+                            
+                            <!-- Track & Label -->
+                            <div class="premium-track-wrap">
+                                <div class="metric-header-row">
+                                    <span class="metric-label">{{ area.label }}</span>
+                                    <span class="metric-pct" [style.color]="area.gradientStart">{{ area.percentage }}%</span>
+                                </div>
+                                <div class="premium-bar-bg">
+                                    <div class="premium-bar-fill"
+                                         [style.width]="area.percentage + '%'"
+                                         [style.background]="'linear-gradient(90deg,' + area.gradientStart + ',' + area.gradientEnd + ')'"
+                                         [class.is-dominant]="steamAreas[0] === area">
+                                         <div class="premium-bar-thumb"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="area-score-track">
-                                <div class="area-score-fill" [style.width]="area.percentage + '%'" [style.background]="'linear-gradient(90deg,' + area.gradientStart + ',' + area.gradientEnd + ')'"></div>
-                            </div>
-                            <strong>{{ area.percentage }}%</strong>
                         </div>
                     </div>
-                </article>
-
-                <aside class="analysis-panel next-step-panel">
-                    <div class="panel-heading compact">
-                        <h2>Próximo paso recomendado</h2>
-                    </div>
-                    <div class="next-step-icon">
-                        <app-lucide-icon [name]="nextStepRecommendation.icon" [size]="24"></app-lucide-icon>
-                    </div>
-                    <h3>{{ nextStepRecommendation.title }}</h3>
-                    <p>{{ nextStepRecommendation.description }}</p>
-                    <button type="button" class="btn-primary-solid btn-inline" (click)="goToRecommendedNextStep()">
-                        {{ nextStepRecommendation.actionLabel }}
-                    </button>
-
-                    <div class="feedback-panel">
-                        <span>¿Este resultado te representa?</span>
-                        <div class="feedback-actions">
-                            <button type="button" [class.is-selected]="localProfileFeedback === 'represents'" (click)="saveLocalProfileFeedback('represents')">
-                                Me representa
-                            </button>
-                            <button type="button" [class.is-selected]="localProfileFeedback === 'not_represents'" (click)="saveLocalProfileFeedback('not_represents')">
-                                No me representa
-                            </button>
-                        </div>
-                    </div>
-                </aside>
-            </div>
-
-            <section class="career-recommendation-section">
-                <div class="section-header-row">
-                    <div>
-                        <h2>Top carreras recomendadas</h2>
-                        <p>Priorizadas por compatibilidad con tus áreas y habilidades.</p>
-                    </div>
-                    <button type="button" class="btn-secondary-outline btn-compact" [disabled]="!hasMoreCareerRecommendations" (click)="toggleCareerRecommendationList()">
-                        {{ showAllCareerRecommendations ? 'Ver top 3' : 'Ver más carreras' }}
-                    </button>
                 </div>
-
-                <div class="career-card-grid" *ngIf="displayedCareerRecommendations.length > 0; else noCareerRecommendations">
-                    <article class="career-match-card" *ngFor="let career of displayedCareerRecommendations; let i = index">
-                        <div class="career-match-topline">
-                            <span class="career-rank">#{{ i + 1 }}</span>
-                            <strong>{{ career.compatibilityPercentage }}%</strong>
-                        </div>
-                        <h3>{{ career.name }}</h3>
-                        <p>{{ career.description }}</p>
-                        <small>{{ career.mainReason }}</small>
-                        <div class="career-match-tags">
-                            <span *ngFor="let area of career.matchingAreas">{{ getSteamAreaLabel(area) }}</span>
-                            <span *ngFor="let area of career.areasToStrengthen" class="needs-work">Fortalecer {{ getSteamAreaLabel(area) }}</span>
-                            <span class="source-tag">{{ career.sourceLabel }}</span>
-                        </div>
-                    </article>
-                </div>
-
-                <ng-template #noCareerRecommendations>
-                    <div class="empty-career-state">
-                        <app-lucide-icon name="graduation-cap" [size]="28"></app-lucide-icon>
-                        <p>Las carreras recomendadas aparecerán cuando exista un resultado local o una respuesta compatible de API.</p>
-                    </div>
-                </ng-template>
-            </section>
-
-            <div class="result-action-panel">
-                <button type="button" class="btn-primary-solid" (click)="navigateToUniversities()">
-                    <app-lucide-icon name="map-pin" [size]="18" color="white"></app-lucide-icon>
-                    Ver universidades recomendadas cerca de mí
-                </button>
-                <button type="button" class="btn-secondary-outline" (click)="downloadPDF()">
-                    <app-lucide-icon name="download" [size]="18"></app-lucide-icon>
-                    Descargar reporte
-                </button>
-                <button type="button" class="btn-secondary-outline" (click)="openAnswersModal()">
-                    <app-lucide-icon name="list" [size]="18"></app-lucide-icon>
-                    Ver respuestas
-                </button>
             </div>
         </section>
+        <!-- /bento hero section -->
+
+
+        <!-- ══════════════════════════════════════════════
+             BODY BLOCK 2 — ADN INSIGHTS & CALIBRATION
+             ══════════════════════════════════════════════ -->
+        <section class="insights-calibration-grid fade-in-up">
+            
+            <!-- 1. ADN STEAM AI Card -->
+            <div class="dna-premium-card">
+                <div class="dna-card-header">
+                    <div class="dna-icon-ring">
+                        <app-lucide-icon name="bot" [size]="22" color="#07B1C9"></app-lucide-icon>
+                    </div>
+                    <div class="dna-title-block">
+                        <div class="ai-badge">
+                            <app-lucide-icon name="sparkles" [size]="12" class="pulse-icon"></app-lucide-icon>
+                            Generado por IA en tiempo real
+                        </div>
+                        <h2 class="dna-title">Análisis de tu ADN STEAM</h2>
+                    </div>
+                </div>
+
+                <div class="dna-divider"></div>
+
+                <p class="dna-body-text">{{ userProfile.description }}</p>
+
+                <div class="dna-traits-row">
+                    <div class="dna-trait-chip"
+                         *ngFor="let area of topThree"
+                         [style.border-color]="area.gradientStart + '55'"
+                         [style.color]="area.gradientStart">
+                        <app-lucide-icon [name]="area.icon" [size]="13"
+                            [color]="area.gradientStart"
+                            style="margin-right:4px;margin-bottom:-1px;">
+                        </app-lucide-icon>
+                        {{ area.label }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Calibration Modules CTA -->
+            <div class="calibration-cta-card">
+                <div class="calibration-content">
+                    <div class="calib-icon-wrapper"></div>
+                    <h3 class="calib-title">Módulos de Calibración</h3>
+                    <p class="calib-desc">
+                        Este es un análisis basado en tu perfil base. Tienes talentos ocultos por mapear. Completa los Módulos de Calibración para alcanzar el <strong>100% de precisión</strong>.
+                    </p>
+                    <a routerLink="/dashboard" class="btn-calib-pulse">
+                        Calibrar mi perfil
+                        <app-lucide-icon name="arrow-right" [size]="16" style="margin-left:6px;margin-bottom:-2px;"></app-lucide-icon>
+                    </a>
+                </div>
+            </div>
+
+        </section>
+        <!-- /insights-calibration-grid -->
+
+
+
+
+
+
+        <!-- ══════════════════════════════════════════════
+             BODY BLOCK 5 — CTA BUTTONS REDESIGN
+             ══════════════════════════════════════════════ -->
+        <div class="cta-actions-grid">
+            <!-- Primary Solid Button -->
+            <button class="btn-primary-solid" (click)="downloadPDF()">
+                <app-lucide-icon name="download" [size]="18" color="white" style="margin-right:8px; margin-bottom:-2px;"></app-lucide-icon>
+                Descargar Reporte Completo
+            </button>
+
+            <div class="cta-secondary-row">
+                <!-- Secondary Ghost/Outline -->
+                <button class="btn-secondary-outline" (click)="navigateToUniversities()">
+                    <app-lucide-icon name="search" [size]="18" color="#475569" style="margin-right:8px; margin-bottom:-2px;"></app-lucide-icon>
+                    Explorar Universidades
+                </button>
+
+                <!-- Secondary Ghost/Outline -->
+                <button class="btn-secondary-outline" (click)="openAnswersModal()">
+                    <app-lucide-icon name="list" [size]="18" color="#475569" style="margin-right:8px; margin-bottom:-2px;"></app-lucide-icon>
+                    Ver Respuestas
+                </button>
+            </div>
+        </div>
+        <!-- /cta-actions-grid -->
 
 
 
@@ -222,14 +212,14 @@
 
         <!-- Header -->
         <div class="universities-header">
-            <button class="btn-back" type="button" (click)="goBackToResult()">
+            <button class="btn-back" (click)="goBackToResult()">
                 <app-lucide-icon name="chevron-left" [size]="18" color="#07B1C9"
                     style="margin-right:4px;margin-bottom:-3px;">
                 </app-lucide-icon>
                 Volver al Perfil
             </button>
             <h2>Top Recomendaciones para ti</h2>
-            <p>Basado en tu perfil de {{ userProfile.dominantTraits }} en {{ locationInput }}. La ubicación solo se usa para buscar opciones cercanas y ordenar resultados por distancia.</p>
+            <p>Basado en tu perfil de {{ userProfile.dominantTraits }} en {{ locationInput }}</p>
         </div>
 
         <!-- Split-View container -->
@@ -237,27 +227,9 @@
 
             <!-- LEFT COLUMN: Card list (scrollable) -->
             <div class="uni-card-list">
-                <div class="app-state-panel app-state-panel--compact is-empty" *ngIf="recommendedUniversities.length === 0" role="status" aria-live="polite">
-                    <div class="app-state-icon">
-                        <app-lucide-icon name="map-pin-off" [size]="22"></app-lucide-icon>
-                    </div>
-                    <span class="app-state-kicker">Sin universidades cercanas</span>
-                    <h3>No hay recomendaciones universitarias todavía</h3>
-                    <p>Prueba cambiar la ubicación o vuelve a la vista de exploración para usar el mapa con radio de búsqueda.</p>
-                    <div class="app-state-actions">
-                        <button type="button" class="btn-primary" (click)="startAISearch()">Reintentar</button>
-                        <button type="button" class="btn-secondary" routerLink="/explore">Abrir mapa</button>
-                    </div>
-                </div>
-
                 <div class="uni-card"
                      *ngFor="let uni of recommendedUniversities; let i = index"
                      [class.uni-card--selected]="selectedUniversity === uni"
-                     role="button"
-                     tabindex="0"
-                     [attr.aria-label]="'Ver detalles de ' + uni.name + ', match ' + getMatchScore(i) + ' por ciento'"
-                     (keydown.enter)="openDetails(uni)"
-                     (keydown.space)="openDetails(uni); $event.preventDefault()"
                      (click)="openDetails(uni)">
 
                     <!-- AI Match badge -->
@@ -360,7 +332,7 @@
                 </div>
 
                 <div class="detail-inline-actions">
-                    <button class="btn-save-fav" type="button" (click)="saveToFavorites()">
+                    <button class="btn-save-fav" (click)="saveToFavorites()">
                         <app-lucide-icon name="bookmark" [size]="16" color="#07B1C9"
                             style="margin-right:6px;margin-bottom:-2px;">
                         </app-lucide-icon>
@@ -392,7 +364,7 @@
          MOBILE BOTTOM-SHEET / DESKTOP OFF-CANVAS DETAILS PANEL
          ============================================================ -->
     <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()"></div>
-    <div class="details-panel" [class.open]="isModalOpen" role="dialog" aria-modal="true" aria-labelledby="university-panel-title" [attr.aria-hidden]="!isModalOpen">
+    <div class="details-panel" [class.open]="isModalOpen">
 
         <ng-container *ngIf="selectedUniversity">
 
@@ -419,7 +391,7 @@
                         </app-lucide-icon>
                         {{ selectedUniversity.suggestedMajor }}
                     </span>
-                    <h2 class="panel-uni-name" id="university-panel-title">{{ selectedUniversity.name }}</h2>
+                    <h2 class="panel-uni-name">{{ selectedUniversity.name }}</h2>
                     <p class="panel-location">
                         <app-lucide-icon name="map-pin" [size]="14" color="rgba(255,255,255,0.85)"
                             style="margin-right:5px;margin-bottom:-2px;">
@@ -482,7 +454,7 @@
             <!-- ── FOOTER: unified CTA buttons ── -->
             <div class="panel-footer">
                 <!-- Secondary: outline bookmark -->
-                <button class="panel-btn-secondary" type="button" (click)="saveToFavorites()">
+                <button class="panel-btn-secondary" (click)="saveToFavorites()">
                     <app-lucide-icon name="bookmark" [size]="16"
                         style="margin-right:7px;margin-bottom:-2px;">
                     </app-lucide-icon>
@@ -504,19 +476,19 @@
 
     <!-- ── MODAL: RESPUESTAS DEL TEST ── -->
     <div class="side-panel-overlay" *ngIf="showAnswersModal" (click)="closeAnswersModal()">
-        <div class="side-panel-content" role="dialog" aria-modal="true" aria-labelledby="answers-panel-title" (click)="$event.stopPropagation()">
+        <div class="side-panel-content" (click)="$event.stopPropagation()">
             <div class="panel-cover" style="padding-bottom: 20px;">
                 <button class="btn-close" (click)="closeAnswersModal()" aria-label="Cerrar">
                     <app-lucide-icon name="x" [size]="18"></app-lucide-icon>
                 </button>
                 <div class="panel-cover-content" style="padding-top: 40px;">
-                    <h2 class="panel-uni-name" id="answers-panel-title">Tus Respuestas</h2>
+                    <h2 class="panel-uni-name">Tus Respuestas</h2>
                     <p class="panel-location" style="margin-top: 5px;">Revisa lo que contestaste en este test.</p>
                 </div>
             </div>
             <div class="panel-body" style="padding: 20px;">
                 <!-- PREMIUM LOADING STATE -->
-                <div *ngIf="isLoadingAnswers && allQuestions.length === 0 && !answersError" class="premium-loader-container fade-in" style="padding: 2rem 1rem;" role="status" aria-live="polite" aria-busy="true">
+                <div *ngIf="allQuestions.length === 0" class="premium-loader-container fade-in" style="padding: 2rem 1rem;">
                   <div class="loader-pulse-ring" style="width: 80px; height: 80px; margin-bottom: 15px;">
                     <div class="pulse-circle pulse-1"></div>
                     <div class="pulse-circle pulse-2"></div>
@@ -527,19 +499,8 @@
                   <h3 class="loader-title" style="font-size: 1.1rem;">Recopilando tus respuestas...</h3>
                   <p class="loader-subtitle" style="font-size: 0.85rem;">Por favor, espera un momento</p>
                 </div>
-
-                <div *ngIf="answersError" class="app-state-panel app-state-panel--compact is-error" role="alert">
-                    <div class="app-state-icon">
-                        <app-lucide-icon name="alert-circle" [size]="20"></app-lucide-icon>
-                    </div>
-                    <h3>No pudimos cargar el detalle</h3>
-                    <p>{{ answersError }}</p>
-                    <div class="app-state-actions">
-                        <button type="button" class="btn-primary" (click)="openAnswersModal()">Reintentar</button>
-                    </div>
-                </div>
                 
-                <div class="qa-timeline-container" *ngIf="allQuestions.length > 0 && !answersError">
+                <div class="qa-timeline-container" *ngIf="allQuestions.length > 0">
                     <div class="qa-timeline-item fade-in-up" *ngFor="let q of allQuestions; let i = index" [style.animation-delay]="(i * 0.05) + 's'">
                         <div class="qa-timeline-marker">
                             <span class="qa-number">{{ i + 1 }}</span>
@@ -564,22 +525,11 @@
          ============================================================ -->
     <div id="pdf-report-template-wrapper" style="position: absolute; left: -9999px; top: 0;">
         <app-pdf-report-template 
-            [userName]="reportUserName"
             [dominantTraits]="userProfile.dominantTraits"
-            [secondaryArea]="reportSecondaryArea"
-            [confidenceLabel]="confidenceLabel"
-            [confidenceExplanation]="confidenceExplanation"
             [description]="userProfile.description"
             [greeting]="userProfile.greeting"
             [steamAreas]="steamAreas"
-            [careerRecommendations]="reportCareerRecommendations"
-            [universityRecommendations]="reportUniversityRecommendations"
-            [simulatorSummaries]="reportSimulatorSummaries"
-            [calibrationSummaries]="reportCalibrationSummaries"
-            [nextSteps]="reportNextSteps"
-            [dataSourceNote]="reportDataSourceNote"
-            [recommendations]="recommendedUniversities"
-            [currentDate]="currentDate">
+            [recommendations]="recommendedUniversities">
         </app-pdf-report-template>
     </div>
 

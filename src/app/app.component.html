@@ -1,35 +1,7 @@
 <app-toast></app-toast>
 <app-splash-screen></app-splash-screen>
 
-<div class="pwa-banner-stack" *ngIf="!isOnline || updateAvailable || (showInstallBanner && isOnline)">
-  <section class="pwa-banner pwa-banner--offline" *ngIf="!isOnline" role="status" aria-live="polite">
-    <div>
-      <strong>Estás sin conexión</strong>
-      <span>La app puede abrir pantallas ya cargadas, pero login, IA, mapa y datos nuevos necesitan internet.</span>
-    </div>
-  </section>
-
-  <section class="pwa-banner pwa-banner--update" *ngIf="updateAvailable" role="status" aria-live="polite">
-    <div>
-      <strong>Nueva versión disponible</strong>
-      <span>Actualiza para recibir mejoras sin perder tus datos guardados.</span>
-    </div>
-    <button type="button" (click)="reloadForUpdate()">Actualizar</button>
-  </section>
-
-  <section class="pwa-banner pwa-banner--install" *ngIf="showInstallBanner && isOnline" role="status" aria-live="polite">
-    <div>
-      <strong>Instala Vocaciones STEAM</strong>
-      <span>Abre la app más rápido y conserva el acceso al shell básico cuando no tengas conexión.</span>
-    </div>
-    <div class="pwa-banner__actions">
-      <button type="button" class="pwa-banner__primary" (click)="installApp()">Instalar</button>
-      <button type="button" class="pwa-banner__ghost" (click)="dismissInstallBanner()">Ahora no</button>
-    </div>
-  </section>
-</div>
-
-<main class="route-animation-wrapper" [class.route-has-navbar]="showNavbar" [@routeAnimations]="prepareRoute()">
+<main class="route-animation-wrapper" [@routeAnimations]="prepareRoute()">
   <router-outlet></router-outlet>
 </main>
 <app-navbar *ngIf="showNavbar"></app-navbar>

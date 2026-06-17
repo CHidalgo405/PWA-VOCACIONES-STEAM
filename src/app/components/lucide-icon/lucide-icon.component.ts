@@ -7,7 +7,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <span [innerHTML]="sanitizedSvg" [style.color]="color" class="lucide-icon-wrapper" [style.width.px]="size" [style.height.px]="size" aria-hidden="true"></span>
+    <span [innerHTML]="sanitizedSvg" [style.color]="color" class="lucide-icon-wrapper" [style.width.px]="size" [style.height.px]="size"></span>
   `,
   styles: [`
     .lucide-icon-wrapper {
@@ -164,3 +164,4 @@ export class LucideIconComponent implements OnChanges {
     return icons[this.name] || '';
   }
 }
+

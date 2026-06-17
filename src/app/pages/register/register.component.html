@@ -50,7 +50,7 @@
               <app-lucide-icon name="lock" [size]="18" class="input-icon"></app-lucide-icon>
               <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password"
                 placeholder="Mínimo 8 caracteres" required>
-              <button type="button" class="btn-toggle-password" (click)="togglePasswordVisibility()" title="Mostrar/ocultar contraseña" aria-label="Mostrar u ocultar contraseña">
+              <button type="button" class="btn-toggle-password" (click)="togglePasswordVisibility()" title="Mostrar/ocultar contraseña">
                 <app-lucide-icon *ngIf="!showPassword" name="eye-off" [size]="18" class="eye-icon"></app-lucide-icon>
                 <app-lucide-icon *ngIf="showPassword" name="eye" [size]="18" class="eye-icon"></app-lucide-icon>
               </button>
@@ -100,22 +100,19 @@
           </p>
         </div>
 
-        <form (ngSubmit)="onVerifyOTP()">
-          <div class="otp-input-container">
-            <label class="sr-only" for="register-verification-code">Código de verificación</label>
-            <input type="text" id="register-verification-code" name="registerVerificationCode" [(ngModel)]="verificationCode" maxlength="6" class="otp-fields-input" placeholder="000000" style="text-transform: uppercase;" inputmode="numeric" autocomplete="one-time-code" />
-          </div>
+        <div class="otp-input-container">
+          <input type="text" [(ngModel)]="verificationCode" maxlength="6" class="otp-fields-input" placeholder="000000" style="text-transform: uppercase;" />
+        </div>
 
-          <button type="submit" class="premium-submit-button" style="margin-top: 10px;" [disabled]="isVerifying">
-            <span *ngIf="isVerifying" class="btn-spinner"></span>
-            <span *ngIf="!isVerifying">Verificar Código</span>
-          </button>
-        </form>
+        <button (click)="onVerifyOTP()" class="premium-submit-button" style="margin-top: 10px;" [disabled]="isVerifying">
+          <span *ngIf="isVerifying" class="btn-spinner"></span>
+          <span *ngIf="!isVerifying">Verificar Código</span>
+        </button>
 
         <div class="bottom-redirect-row" style="margin-top: 24px;">
           <p>
             ¿No recibiste el correo? Revisa Spam o
-            <button type="button" (click)="isVerificationStep = false; password = ''; verificationCode = ''" class="signup-redirect-link inline-link-button">intenta registrarte otra vez</button>.
+            <a href="javascript:void(0)" (click)="isVerificationStep = false; password = ''; verificationCode = ''" class="signup-redirect-link">intenta registrarte otra vez</a>.
           </p>
         </div>
       </ng-container>

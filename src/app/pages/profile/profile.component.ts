@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
+import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { ThemeService } from '../../core/services/theme.service';
@@ -9,49 +10,11 @@ import { VocationTestService } from '../../core/services/test.service';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { Subscription } from 'rxjs';
 import { HeaderComponent } from '../../components/header/header.component';
-import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartOptions } from 'chart.js';
-import { STEAM_AREA_DEFINITIONS } from '../../core/data/vocational-steam.mock';
-import type { SimulatorVocationalSignalResult } from '../../core/models/career-simulator.models';
-import type {
-  CalibrationModuleSignalResult,
-  LocalVocationalTestResult,
-  ProgressiveVocationalProfileLevel,
-  SteamAreaId,
-  VocationalProfileConfidenceEs
-} from '../../core/models/vocational-steam.models';
-
-interface ProfileAreaScore {
-  id: SteamAreaId;
-  label: string;
-  score: number;
-  color: string;
-}
-
-interface ProfileCareerSummary {
-  name: string;
-  compatibility: number | null;
-  source: 'api' | 'local' | 'mock';
-}
-
-interface SavedUniversitySummary {
-  name: string;
-  career: string;
-  location: string;
-  source: 'api' | 'local' | 'mock';
-}
-
-interface NextProfileStep {
-  title: string;
-  description: string;
-  route: string;
-  icon: string;
-}
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LucideIconComponent, HeaderComponent, BaseChartDirective],
+  imports: [CommonModule, FormsModule, LucideIconComponent, HeaderComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
@@ -74,54 +37,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     level: 5,
     avatar: 'https://ui-avatars.com/api/?name=C&background=07B1C9&color=fff&size=128'
   };
-  isProfileLoading = true;
-  profileLoadError = '';
-  profileHistoryWarning = '';
-  savedUniversitiesWarning = '';
   
   testCount: number = 0;
-  profileLevel: ProgressiveVocationalProfileLevel = 'perfil_inicial';
-  profileLevelLabel = 'Inicial';
-  profileLevelDescription = 'Completa el test para empezar a construir tu camino STEAM.';
-  profileConfidence: VocationalProfileConfidenceEs = 'baja';
-  dominantArea = 'Sin resultado';
-  secondaryArea = 'Por descubrir';
-  profileCombination = 'Perfil STEAM en construcción';
-  steamAreaScores: ProfileAreaScore[] = STEAM_AREA_DEFINITIONS.map(area => ({
-    id: area.id,
-    label: area.label,
-    score: 0,
-    color: area.color
-  }));
-  hasRadarData = false;
-  recommendedCareers: ProfileCareerSummary[] = [];
-  savedUniversities: SavedUniversitySummary[] = [];
-  nextStep: NextProfileStep = {
-    title: 'Completar test vocacional',
-    description: 'El test inicial desbloquea tu ADN STEAM y primeras recomendaciones.',
-    route: '/evaluations',
-    icon: 'clipboard-check'
-  };
-  radarChartData: ChartConfiguration<'radar'>['data'] = {
-    labels: STEAM_AREA_DEFINITIONS.map(area => area.label),
-    datasets: [
-      {
-        label: 'ADN STEAM',
-        data: [0, 0, 0, 0, 0],
-        borderColor: '#07B1C9',
-        backgroundColor: 'rgba(7, 177, 201, 0.16)',
-        pointBackgroundColor: STEAM_AREA_DEFINITIONS.map(area => area.color),
-        pointBorderColor: '#FFFFFF',
-        borderWidth: 2,
-        pointRadius: 3,
-        pointHoverRadius: 4
-      }
-    ]
-  };
-  radarChartOptions: ChartOptions<'radar'> = this.createRadarChartOptions();
-
-  private latestTestScores: Record<string, number> = {};
-  private latestDominantTraits = '';
 
   badges = [
     { id: 'first-step', name: 'Primer Paso', icon: 'star', unlocked: false, description: 'Completaste tu primer test vocacional STEAM.' },
@@ -161,83 +78,40 @@ export class ProfileComponent implements OnInit, OnDestroy {
       if (ts) ts.toggleState = isDark;
     });
 
-    this.loadUserProfile();
-    this.loadProfileHistory();
-    this.loadVocationalPath();
-    this.loadSavedUniversities();
+    this.authService.obtenerPerfil().subscribe(usuario => {
+      this.user.name = usuario.nombre;
+      this.user.email = usuario.email;
+      this.user.role = usuario.role;
+      this.user.level = usuario.level || 5;
+
+      if (usuario.fotoUrl) {
+        this.user.avatar = usuario.fotoUrl;
+      } else {
+        const initials = usuario.nombre.split(' ').map(n => n[0]).join('').substring(0, 2);
+        this.user.avatar = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&size=128`;
+      }
+
+      // Sync theme toggle with user preference from API
+      if (usuario.darkMode !== undefined) {
+        const themeSetting = this.preferencesSettings.find(s => s.action === 'theme');
+        if (themeSetting) {
+          themeSetting.toggleState = usuario.darkMode;
+        }
+        this.themeService.setTheme(usuario.darkMode);
+      }
+      this.updateBadges();
+    });
+
+    this.testService.getTestHistory().subscribe(history => {
+      this.testCount = history.length;
+      this.updateBadges();
+    });
   }
 
   ngOnDestroy() {
     if (this.themeSub) {
       this.themeSub.unsubscribe();
     }
-  }
-
-  private loadUserProfile() {
-    this.isProfileLoading = true;
-    this.profileLoadError = '';
-
-    this.authService.obtenerPerfil().subscribe({
-      next: (usuario) => {
-        this.user.name = usuario.nombre;
-        this.user.email = usuario.email;
-        this.user.role = usuario.role;
-        this.user.level = usuario.level || 5;
-
-        if (usuario.fotoUrl) {
-          this.user.avatar = usuario.fotoUrl;
-        } else {
-          const initials = usuario.nombre.split(' ').map(n => n[0]).join('').substring(0, 2);
-          this.user.avatar = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&size=128`;
-        }
-
-        // Sync theme toggle with user preference from API
-        if (usuario.darkMode !== undefined) {
-          const themeSetting = this.preferencesSettings.find(s => s.action === 'theme');
-          if (themeSetting) {
-            themeSetting.toggleState = usuario.darkMode;
-          }
-          this.themeService.setTheme(usuario.darkMode);
-        }
-        this.isProfileLoading = false;
-        this.updateBadges();
-        this.loadVocationalPath();
-      },
-      error: (err) => {
-        console.error('Error cargando perfil', err);
-        this.isProfileLoading = false;
-        this.profileLoadError = 'No pudimos cargar tus datos de cuenta desde la API. Tu camino STEAM local sigue disponible en este dispositivo.';
-        this.loadVocationalPath();
-      }
-    });
-  }
-
-  private loadProfileHistory() {
-    this.profileHistoryWarning = '';
-    this.testService.getTestHistory().subscribe({
-      next: (history) => {
-        this.testCount = history.length;
-        this.latestTestScores = history[0]?.profileScores || {};
-        this.latestDominantTraits = history[0]?.dominantTraits || '';
-        this.updateBadges();
-        this.loadVocationalPath();
-      },
-      error: (err) => {
-        console.error('Error cargando historial para perfil', err);
-        this.profileHistoryWarning = 'No pudimos consultar tu historial en API. El nivel y ADN usan datos locales disponibles.';
-        this.testCount = 0;
-        this.latestTestScores = {};
-        this.latestDominantTraits = '';
-        this.updateBadges();
-        this.loadVocationalPath();
-      }
-    });
-  }
-
-  retryProfileData() {
-    this.loadUserProfile();
-    this.loadProfileHistory();
-    this.loadSavedUniversities();
   }
 
 
@@ -247,8 +121,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     { icon: 'clock', title: 'Historial de Tests', action: 'viewHistory' },
     { icon: 'lock', title: 'Contraseña y Seguridad', action: 'security' },
     { icon: 'bell', title: 'Notificaciones', action: 'notifications' },
-    { icon: 'user', title: 'Administrar Perfil', action: 'manage' },
-    { icon: 'shield', title: 'Privacidad y Datos', action: 'privacy' }
+    { icon: 'user', title: 'Administrar Perfil', action: 'manage' }
   ];
 
   preferencesSettings = [
@@ -263,7 +136,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ];
 
   // --- ESTADO Y VARIABLES DE LOS MODALES ---
-  activeModal: 'editProfile' | 'security' | 'notifications' | 'help' | 'contact' | 'logout' | 'badge' | 'privacy' | null = null;
+  activeModal: 'editProfile' | 'security' | 'notifications' | 'help' | 'contact' | 'logout' | 'badge' | null = null;
   isSubmitting: boolean = false;
   showToast: boolean = false;
   toastMessage: string = '';
@@ -297,7 +170,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if (action === 'manage') this.openModal('editProfile');
     else if (action === 'security') this.openModal('security');
     else if (action === 'notifications') this.openModal('notifications');
-    else if (action === 'privacy') this.openModal('privacy');
     else if (action === 'help') this.openModal('help');
     else if (action === 'contact') this.openModal('contact');
     else console.log(`Función no soportada por el momento: ${action}`);
@@ -333,7 +205,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   // --- LÓGICA DE LOS MODALES ---
-  openModal(type: 'editProfile' | 'security' | 'notifications' | 'help' | 'contact' | 'logout' | 'privacy') {
+  openModal(type: 'editProfile' | 'security' | 'notifications' | 'help' | 'contact' | 'logout') {
     this.activeModal = type;
     if (type === 'editProfile') {
       // Cargar datos actuales en el formulario
@@ -345,301 +217,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     } else if (type === 'security') {
       this.passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
     }
-  }
-
-  goToNextStep() {
-    this.router.navigate([this.nextStep.route]);
-  }
-
-  goToEditProfile() {
-    this.openModal('editProfile');
-  }
-
-  getConfidenceLabel(): string {
-    if (this.profileConfidence === 'alta') return 'Confianza alta';
-    if (this.profileConfidence === 'media') return 'Confianza media';
-    return 'Confianza baja';
-  }
-
-  get profileRadarTextSummary(): string {
-    if (!this.hasRadarData) {
-      return 'ADN STEAM sin puntajes suficientes para graficar todavía.';
-    }
-
-    const scores = this.steamAreaScores
-      .map((area) => `${area.label}: ${area.score}%`)
-      .join(', ');
-    return `ADN STEAM de mi camino: área dominante ${this.dominantArea}; área secundaria ${this.secondaryArea}. Puntajes: ${scores}.`;
-  }
-
-  getActiveModalTitle(): string {
-    const titles: Record<string, string> = {
-      editProfile: 'Administrar perfil',
-      security: 'Contraseña y seguridad',
-      notifications: 'Notificaciones',
-      help: 'Centro de ayuda',
-      contact: 'Contactar soporte',
-      logout: 'Cerrar sesión',
-      badge: this.selectedBadge?.name || 'Detalle de insignia',
-      privacy: 'Privacidad y datos'
-    };
-    return this.activeModal ? titles[this.activeModal] : 'Modal';
-  }
-
-  get hasProfileDataWarning(): boolean {
-    return this.testCount === 0 || !this.hasRadarData || this.profileConfidence === 'baja';
-  }
-
-  private loadVocationalPath() {
-    const userId = this.getUserId();
-    const localResult = this.readLocalJson<LocalVocationalTestResult | null>(`test_local_result_${userId}`, null);
-    const calibrationSignals = this.readLocalJson<CalibrationModuleSignalResult[]>(`steam_calibration_signals_${userId}`, []);
-    const simulatorSignals = this.readLocalJson<SimulatorVocationalSignalResult[]>(`steam_simulator_vocational_signals_${userId}`, []);
-
-    this.profileLevel = this.resolveProfileLevel(localResult, calibrationSignals.length, simulatorSignals.length);
-    this.profileLevelLabel = this.getProfileLevelLabel(this.profileLevel);
-    this.profileLevelDescription = this.getProfileLevelDescription(this.profileLevel);
-    this.profileConfidence = localResult?.progressiveProfile?.confidence || localResult?.strengthProfile.confidence || (this.testCount > 0 ? 'media' : 'baja');
-
-    const strengthProfile = localResult?.progressiveProfile?.strengthProfile || localResult?.strengthProfile || null;
-    this.dominantArea = this.formatAreaName(strengthProfile?.dominantArea?.area || this.latestDominantTraits);
-    this.secondaryArea = this.formatAreaName(strengthProfile?.secondaryArea?.area || '');
-    this.profileCombination = this.formatProfileLabel(strengthProfile?.primaryCombination || this.latestDominantTraits || 'Perfil STEAM en construcción');
-
-    const areaScores = strengthProfile?.areaScores || this.latestTestScores || {};
-    this.steamAreaScores = STEAM_AREA_DEFINITIONS.map(area => ({
-      id: area.id,
-      label: area.label,
-      score: this.scoreToPercentage(this.getScoreForArea(areaScores, area.id)),
-      color: area.color
-    }));
-    this.updateRadarChart(this.steamAreaScores);
-    this.recommendedCareers = this.buildCareerSummaries(localResult);
-    this.nextStep = this.resolveNextStep(calibrationSignals.length, simulatorSignals.length);
-  }
-
-  private loadSavedUniversities() {
-    this.savedUniversitiesWarning = '';
-    this.userService.getSavedUniversities().subscribe({
-      next: (universities) => {
-        this.savedUniversities = (universities || []).slice(0, 3).map(university => ({
-          name: university?.universityName || university?.name || 'Universidad guardada',
-          career: university?.careerName || university?.suggestedMajor || 'Carrera por validar',
-          location: university?.location || university?.city || 'Ubicación por validar',
-          source: 'api'
-        }));
-      },
-      error: () => {
-        this.savedUniversities = [];
-        this.savedUniversitiesWarning = 'No pudimos cargar universidades guardadas desde la API. Puedes seguir explorando y guardarlas más tarde.';
-      }
-    });
-  }
-
-  private buildCareerSummaries(localResult: LocalVocationalTestResult | null): ProfileCareerSummary[] {
-    const recommendations = localResult?.progressiveProfile?.careerRecommendations.recommendations
-      || localResult?.careerRecommendations.recommendations
-      || [];
-
-    if (recommendations.length > 0) {
-      return recommendations.slice(0, 3).map(recommendation => ({
-        name: recommendation.career.name,
-        compatibility: recommendation.compatibilityPercentage,
-        source: recommendation.dataSource
-      }));
-    }
-
-    const nicheCareers = this.authService.getCurrentUser()?.nicheCareers || [];
-    return nicheCareers.slice(0, 3).map(career => ({
-      name: career,
-      compatibility: null,
-      source: 'api'
-    }));
-  }
-
-  private resolveProfileLevel(
-    localResult: LocalVocationalTestResult | null,
-    calibrationCount: number,
-    simulatorCount: number
-  ): ProgressiveVocationalProfileLevel {
-    if (localResult?.progressiveProfile?.level) return localResult.progressiveProfile.level;
-    if (this.testCount > 1 && calibrationCount > 1 && simulatorCount > 1) return 'perfil_avanzado';
-    if (simulatorCount > 0) return 'perfil_validado';
-    if (calibrationCount > 0) return 'perfil_calibrado';
-    return 'perfil_inicial';
-  }
-
-  private getProfileLevelLabel(level: ProgressiveVocationalProfileLevel): string {
-    const labels: Record<ProgressiveVocationalProfileLevel, string> = {
-      perfil_inicial: 'Inicial',
-      perfil_calibrado: 'Calibrado',
-      perfil_validado: 'Validado',
-      perfil_avanzado: 'Avanzado'
-    };
-    return labels[level];
-  }
-
-  private getProfileLevelDescription(level: ProgressiveVocationalProfileLevel): string {
-    const descriptions: Record<ProgressiveVocationalProfileLevel, string> = {
-      perfil_inicial: 'Tu perfil parte del test teórico. Puedes afinarlo con calibraciones y simuladores.',
-      perfil_calibrado: 'Tu perfil ya incorpora experiencias reales, no solo gustos generales.',
-      perfil_validado: 'Tus decisiones en simuladores ya contrastan el resultado del test.',
-      perfil_avanzado: 'Tu camino combina varios tests, calibraciones y simuladores.'
-    };
-    return descriptions[level];
-  }
-
-  private resolveNextStep(calibrationCount: number, simulatorCount: number): NextProfileStep {
-    if (this.testCount === 0) {
-      return {
-        title: 'Completar test vocacional',
-        description: 'Empieza con el test para generar tu primer ADN STEAM.',
-        route: '/evaluations',
-        icon: 'clipboard-check'
-      };
-    }
-
-    if (calibrationCount === 0) {
-      return {
-        title: 'Completar calibración',
-        description: 'Ajusta tu perfil con experiencias que ya has vivido.',
-        route: '/evaluations',
-        icon: 'sliders-horizontal'
-      };
-    }
-
-    if (simulatorCount === 0) {
-      return {
-        title: 'Probar simulador',
-        description: 'Valida tu perfil tomando decisiones en una mini experiencia profesional.',
-        route: '/career-simulator',
-        icon: 'gamepad-2'
-      };
-    }
-
-    return {
-      title: 'Explorar universidades',
-      description: 'Compara opciones cercanas compatibles con tu perfil vocacional.',
-      route: '/explore',
-      icon: 'map-pin'
-    };
-  }
-
-  private updateRadarChart(areaScores: ProfileAreaScore[]) {
-    const values = areaScores.map(area => area.score);
-    this.hasRadarData = values.some(value => value > 0);
-    this.radarChartData = {
-      labels: areaScores.map(area => area.label),
-      datasets: [
-        {
-          ...this.radarChartData.datasets[0],
-          data: values,
-          pointBackgroundColor: areaScores.map(area => area.color)
-        }
-      ]
-    };
-    this.radarChartOptions = this.createRadarChartOptions();
-  }
-
-  private createRadarChartOptions(): ChartOptions<'radar'> {
-    const isDarkTheme = typeof document !== 'undefined' && document.body.classList.contains('dark-theme');
-    const textColor = isDarkTheme ? '#E2E8F0' : '#334155';
-    const gridColor = isDarkTheme ? 'rgba(148, 163, 184, 0.24)' : 'rgba(100, 116, 139, 0.20)';
-
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        r: {
-          min: 0,
-          max: 100,
-          ticks: {
-            display: false,
-            stepSize: 25,
-            backdropColor: 'transparent'
-          },
-          angleLines: { color: gridColor },
-          grid: { color: gridColor },
-          pointLabels: {
-            color: textColor,
-            font: {
-              size: 10,
-              weight: 'bold'
-            }
-          }
-        }
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (context) => `${context.label}: ${context.formattedValue}%`
-          }
-        }
-      },
-      elements: {
-        line: { tension: 0.22 }
-      }
-    };
-  }
-
-  private getUserId(): string {
-    return this.authService.getCurrentUser()?.id || 'guest';
-  }
-
-  private readLocalJson<T>(key: string, fallback: T): T {
-    try {
-      const rawValue = localStorage.getItem(key);
-      return rawValue ? JSON.parse(rawValue) as T : fallback;
-    } catch {
-      return fallback;
-    }
-  }
-
-  private scoreToPercentage(score: number | null | undefined): number {
-    const value = Number(score || 0);
-    if (!Number.isFinite(value)) return 0;
-    const normalized = value <= 20 ? Math.round((value / 20) * 100) : Math.round(value);
-    return Math.max(0, Math.min(100, normalized));
-  }
-
-  private getScoreForArea(scores: Record<string, number>, areaId: SteamAreaId): number {
-    const definition = STEAM_AREA_DEFINITIONS.find(area => area.id === areaId);
-    const candidates = [areaId, definition?.apiKey, definition?.label, definition?.label.toLowerCase()].filter(Boolean) as string[];
-    const entry = Object.entries(scores || {}).find(([key]) => {
-      const normalizedKey = this.toSteamAreaId(key);
-      return normalizedKey === areaId || candidates.some(candidate => candidate.toLowerCase() === key.toLowerCase());
-    });
-    return entry?.[1] || 0;
-  }
-
-  private formatAreaName(value: string | null | undefined): string {
-    const normalized = this.toSteamAreaId(value);
-    if (normalized) {
-      return STEAM_AREA_DEFINITIONS.find(area => area.id === normalized)?.label || 'Por descubrir';
-    }
-    return value || 'Por descubrir';
-  }
-
-  private formatProfileLabel(value: string): string {
-    return value
-      .split('+')
-      .map(part => this.formatAreaName(part.trim()))
-      .join(' + ');
-  }
-
-  private toSteamAreaId(value: string | null | undefined): SteamAreaId | null {
-    const normalized = (value || '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
-    if (normalized.includes('ciencia')) return 'ciencia';
-    if (normalized.includes('tecnolog')) return 'tecnologia';
-    if (normalized.includes('ingenier')) return 'ingenieria';
-    if (normalized.includes('arte')) return 'arte';
-    if (normalized.includes('matem')) return 'matematicas';
-    return null;
   }
 
   openBadgeModal(badge: any) {

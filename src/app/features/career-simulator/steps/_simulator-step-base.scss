@@ -67,7 +67,7 @@
       transition: border-color 0.2s;
       
       &:focus {
-        border-color: var(--area-color, var(--accent-primary));
+        border-color: var(--area-color, #3b82f6);
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
       }
     }
@@ -84,7 +84,7 @@
   }
   
   button.confirm-btn {
-    background-color: var(--area-color, var(--accent-primary));
+    background-color: var(--area-color, #3b82f6);
     color: white;
     border: none;
     padding: 0.875rem 1.5rem;

@@ -11,18 +11,18 @@
       
       <!-- Mobile Next Button -->
       <div class="mobile-actions">
-        <a class="progress-ring-container" routerLink="/login" aria-label="Ir a iniciar sesión">
+        <div class="progress-ring-container" routerLink="/login">
           <div class="progress-ring"></div>
-          <span class="btn-icon" aria-hidden="true">
+          <button class="btn-icon">
             <app-lucide-icon name="arrow-right" [size]="24" color="white"></app-lucide-icon>
-          </span>
-        </a>
+          </button>
+        </div>
       </div>
 
       <!-- Desktop Buttons -->
       <div class="desktop-actions">
-        <button class="btn-outline" type="button" routerLink="/login">Iniciar Sesión</button>
-        <button class="btn-primary" type="button" routerLink="/register">Registrarse</button>
+        <button class="btn-outline" routerLink="/login">Iniciar Sesión</button>
+        <button class="btn-primary" routerLink="/register">Registrarse</button>
       </div>
     </div>
   </div>

@@ -16,13 +16,9 @@
   @if (status() === 'ERROR') {
     <div class="error-container">
       <div class="error-icon">⚠️</div>
-      <h2>No pudimos generar la explicación IA</h2>
-      <p>Tus decisiones del simulador siguen siendo válidas. El análisis algorítmico local no cambia; solo falló la explicación extendida.</p>
-      <div class="error-actions">
-        <button class="primary-btn retry-btn" (click)="fetchFeedback()">Reintentar</button>
-        <button class="secondary-btn" (click)="goToProfile()">Ver mi perfil</button>
-        <button class="secondary-btn" (click)="goToCatalog()">Volver al catálogo</button>
-      </div>
+      <h2>No pudimos obtener tu evaluación</h2>
+      <p>Hubo un problema de conexión o la IA tardó demasiado en responder.</p>
+      <button class="primary-btn retry-btn" (click)="fetchFeedback()">Reintentar</button>
     </div>
   }
 
@@ -56,7 +52,7 @@
       <div class="confidence-chip-container stagger-item-3">
         <div class="confidence-chip" [ngClass]="feedback()!.confidence_level">
           <span class="indicator-dot"></span>
-          <span>{{ confidenceLabel(feedback()!.confidence_level) }}</span>
+          <span>Confianza: {{ feedback()!.confidence_level | uppercase }}</span>
           
           @if (feedback()!.confidence_level === 'low') {
             <div class="tooltip">
@@ -66,23 +62,10 @@
         </div>
       </div>
 
-      @if (vocationalImpact(); as impact) {
-        <section class="result-section stagger-item-4">
-          <h3><span class="icon">🧩</span> Impacto en tu perfil vocacional</h3>
-          <p class="body-text">{{ impact.explanation }}</p>
-          <div class="strengths-chips">
-            @for (competency of getCompetencyEntries(impact); track competency.label) {
-              <span class="strength-chip">{{ competency.label }} {{ competency.score }}%</span>
-            }
-          </div>
-        </section>
-      }
-
       <!-- Cómo piensas -->
       <section class="result-section stagger-item-4">
         <h3><span class="icon">🧠</span> Cómo piensas</h3>
         <p class="body-text">{{ feedback()!.reasoning_style }}</p>
-        <p class="body-text responsible-copy">Este resultado describe señales observadas en esta simulación. Úsalo para explorar, no como una decisión definitiva sobre tu futuro.</p>
       </section>
 
       <!-- Tu afinidad con esta área -->

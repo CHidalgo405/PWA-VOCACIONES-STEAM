@@ -1,32 +1,14 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
-import {
-  PdfCareerRecommendation,
-  PdfNextStep,
-  PdfProgressItem,
-  PdfReportTemplateComponent,
-  PdfUniversityRecommendation
-} from '../../components/pdf-report-template/pdf-report-template.component';
+import { PdfReportTemplateComponent } from '../../components/pdf-report-template/pdf-report-template.component';
 import { UniversityRecommendation, TestSubmissionResponse, VocationTestService, Question } from '../../core/services/test.service';
-import { LocalVocationalResultService } from '../../core/services/local-vocational-result.service';
-import { LocalVocationalCalibrationService } from '../../core/services/local-vocational-calibration.service';
-import { CareerSimulatorService } from '../../core/services/career-simulator.service';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
-import { ThemeService } from '../../core/services/theme.service';
 import { ToastService } from '../../core/services/toast.service';
-import type {
-  ComplementarySkillId,
-  LocalVocationalTestResult,
-  SteamCareerRecommendationMatch,
-  SteamAreaId
-} from '../../core/models/vocational-steam.models';
 import { inject } from '@angular/core';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -35,7 +17,6 @@ import { timer } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { Subscription } from 'rxjs';
 
 // Metadata for each STEAM area
 export interface SteamArea {
@@ -49,48 +30,19 @@ export interface SteamArea {
   percentage: number;
 }
 
-interface CareerRecommendationViewModel {
-  name: string;
-  description: string;
-  compatibilityPercentage: number;
-  mainReason: string;
-  sourceLabel: string;
-  matchingAreas: SteamAreaId[];
-  areasToStrengthen: SteamAreaId[];
-}
-
-interface NextStepViewModel {
-  title: string;
-  description: string;
-  actionLabel: string;
-  icon: string;
-  route: string;
-}
-
-interface ResultStateNotice {
-  title: string;
-  message: string;
-  type: 'api' | 'ia' | 'missing' | 'empty';
-  actionLabel?: string;
-}
-
 @Component({
   selector: 'app-test-result',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BaseChartDirective, SplashScreenComponent, LucideIconComponent, PdfReportTemplateComponent, HeaderComponent, LocationFilterComponent],
+  imports: [CommonModule, FormsModule, SplashScreenComponent, LucideIconComponent, PdfReportTemplateComponent, HeaderComponent, LocationFilterComponent],
   templateUrl: './test-result.component.html',
   styleUrls: ['./test-result.component.scss']
 })
-export class TestResultComponent implements OnInit, OnDestroy {
+export class TestResultComponent implements OnInit {
   // UI States
   viewState: 'result' | 'universities' = 'result';
   isLoading: boolean = false;
   splashText: string = '';
   locationInput: string = '';
-  resultError: ResultStateNotice | null = null;
-  resultSourceNotice = '';
-  isLoadingAnswers = false;
-  answersError = '';
 
   // Modal State
   selectedUniversity: UniversityRecommendation | null = null;
@@ -107,26 +59,6 @@ export class TestResultComponent implements OnInit, OnDestroy {
   steamAreas: SteamArea[] = [];
   topThree: SteamArea[] = [];
   globalAffinityPct: number = 0;
-  hasRadarData = false;
-  radarChartData: ChartConfiguration<'radar'>['data'] = {
-    labels: ['Ciencia', 'Tecnología', 'Ingeniería', 'Arte', 'Matemáticas'],
-    datasets: [
-      {
-        label: 'Perfil STEAM',
-        data: [0, 0, 0, 0, 0],
-        borderColor: '#07B1C9',
-        backgroundColor: 'rgba(7, 177, 201, 0.18)',
-        pointBackgroundColor: ['#07B1C9', '#6366F1', '#F88718', '#EC4899', '#4DB046'],
-        pointBorderColor: '#FFFFFF',
-        pointHoverBackgroundColor: '#FFFFFF',
-        pointHoverBorderColor: '#07B1C9',
-        borderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 5
-      }
-    ]
-  };
-  radarChartOptions: ChartOptions<'radar'> = this.createRadarChartOptions();
 
   // ── Aptitude Thermometer ──
   aptitudeLevel: 'explorador' | 'intermedio' | 'preparado' = 'explorador';
@@ -152,50 +84,21 @@ export class TestResultComponent implements OnInit, OnDestroy {
   ringFilled = false;
 
   recommendedUniversities: UniversityRecommendation[] = [];
-  // Resultado local/experimental: se calcula en frontend y no cambia contratos ni envios a API.
-  localVocationalResult: LocalVocationalTestResult | null = null;
-  localProfileFeedback: 'represents' | 'not_represents' | null = null;
-  showAllCareerRecommendations = false;
 
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private testService = inject(VocationTestService);
-  private localVocationalResultService = inject(LocalVocationalResultService);
-  private localVocationalCalibrationService = inject(LocalVocationalCalibrationService);
-  private careerSimulatorService = inject(CareerSimulatorService);
-  private themeService = inject(ThemeService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private themeSubscription?: Subscription;
 
   // STEAM area metadata palette
   private readonly STEAM_META: Record<string, { label: string; gradientStart: string; gradientEnd: string; icon: string }> = {
     ciencia:      { label: 'Ciencia',      gradientStart: '#07B1C9', gradientEnd: '#0E9AA7', icon: 'flask-conical' },
     tecnologia:   { label: 'Tecnología',   gradientStart: '#6366F1', gradientEnd: '#07B1C9', icon: 'cpu'           },
     ingenieria:   { label: 'Ingeniería',   gradientStart: '#F88718', gradientEnd: '#FBBF24', icon: 'wrench'        },
-    arte:         { label: 'Arte',         gradientStart: '#EC4899', gradientEnd: '#A855F7', icon: 'palette'       },
     artes:        { label: 'Artes',        gradientStart: '#EC4899', gradientEnd: '#A855F7', icon: 'palette'       },
     matematicas:  { label: 'Matemáticas',  gradientStart: '#4DB046', gradientEnd: '#22D3EE', icon: 'sigma'         },
-  };
-
-  private readonly RADAR_AREAS: Array<{ key: string; scoreKeys: string[]; label: string }> = [
-    { key: 'ciencia', scoreKeys: ['ciencia'], label: 'Ciencia' },
-    { key: 'tecnologia', scoreKeys: ['tecnologia', 'tecnología'], label: 'Tecnología' },
-    { key: 'ingenieria', scoreKeys: ['ingenieria', 'ingeniería'], label: 'Ingeniería' },
-    { key: 'arte', scoreKeys: ['arte', 'artes'], label: 'Arte' },
-    { key: 'matematicas', scoreKeys: ['matematicas', 'matemáticas'], label: 'Matemáticas' }
-  ];
-
-  private readonly SKILL_LABELS: Record<ComplementarySkillId, string> = {
-    pensamiento_logico: 'Pensamiento lógico',
-    creatividad: 'Creatividad',
-    comunicacion: 'Comunicación',
-    resolucion_de_problemas: 'Resolución de problemas',
-    trabajo_en_equipo: 'Trabajo en equipo',
-    liderazgo: 'Liderazgo',
-    analisis_de_datos: 'Análisis de datos',
-    pensamiento_critico: 'Pensamiento crítico'
   };
 
   // Properties for Answers Modal
@@ -207,10 +110,6 @@ export class TestResultComponent implements OnInit, OnDestroy {
   currentDate: Date = new Date();
 
   ngOnInit(): void {
-    this.themeSubscription = this.themeService.isDarkMode$.subscribe(() => {
-      this.radarChartOptions = this.createRadarChartOptions();
-    });
-
     const testId = this.route.snapshot.paramMap.get('id');
     if (testId) {
       this.loadHistoricalResult(testId);
@@ -219,33 +118,19 @@ export class TestResultComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.themeSubscription?.unsubscribe();
-  }
-
   loadHistoricalResult(testId: string) {
     this.isLoading = true;
     this.splashText = 'Cargando análisis histórico...';
-    this.resultError = null;
-    this.resultSourceNotice = '';
     
     this.testService.getTestDetails(testId).subscribe({
       next: (result) => {
         this.processResult(result);
         this.testAnswers = result.answers || {};
-        this.attachLocalResultFromCache(this.testAnswers, 'Resultado local calculado desde el historial disponible.');
-        this.loadLocalFeedbackState();
         this.isLoading = false;
       },
       error: (err) => {
         console.error('Failed to load historical result:', err);
         this.isLoading = false;
-        this.resultError = {
-          title: 'No pudimos abrir este resultado',
-          message: 'El historial no respondió en este momento. Puedes reintentar o volver al historial sin perder tus datos.',
-          type: 'api',
-          actionLabel: 'Reintentar'
-        };
         this.toastService.showToast('No se pudo cargar este test.', 'error');
       }
     });
@@ -253,8 +138,6 @@ export class TestResultComponent implements OnInit, OnDestroy {
 
   loadResults() {
     if (this.isLoading) return;
-    this.resultError = null;
-    this.resultSourceNotice = '';
 
     const user = this.authService.getCurrentUser();
     const userId = user?.id || 'guest';
@@ -262,22 +145,10 @@ export class TestResultComponent implements OnInit, OnDestroy {
     const answersStr = localStorage.getItem(`test_answers_${userId}`) || localStorage.getItem('latest_test_answers');
     if (!answersStr) {
       console.warn('No test answers found.');
-      this.resultError = {
-        title: 'No encontramos respuestas guardadas',
-        message: 'Para calcular tu perfil necesitamos que termines el test. Si ya lo hiciste, intenta abrir el resultado desde el historial.',
-        type: 'missing',
-        actionLabel: 'Hacer test'
-      };
       this.toastService.showToast('No se encontraron las respuestas del test.', 'error');
       return;
     }
     const answers = JSON.parse(answersStr);
-    const savedQuestions = this.getCachedQuestions(userId);
-    const localResult = this.buildLocalVocationalResult(
-      answers,
-      savedQuestions,
-      'Resultado experimental calculado localmente al terminar el test.'
-    );
 
     const savedLocation = localStorage.getItem(`test_location_${userId}`) || localStorage.getItem('latest_test_location') || '';
     if (savedLocation) {
@@ -303,511 +174,28 @@ export class TestResultComponent implements OnInit, OnDestroy {
         // Apply weighted calculation using calibration modules
         result.scores = this.testService.calculateWeightedScores(result.scores, userId);
 
-        const combinedResult = this.withLocalExperimentalResult(result, localResult);
-        localStorage.setItem(`test_result_${userId}`, JSON.stringify(combinedResult));
-        this.cacheLocalVocationalResult(userId, localResult);
-        this.processResult(combinedResult);
+        localStorage.setItem(`test_result_${userId}`, JSON.stringify(result));
+        this.processResult(result);
         this.testAnswers = answers; // Guardamos las respuestas actuales
-        this.loadLocalFeedbackState();
         this.isLoading = false;
       },
       error: (err) => {
         console.error('Failed to load results:', err);
         this.isLoading = false;
-        if (localResult) {
-          const fallbackResult = this.toLocalFallbackResponse(localResult);
-          localStorage.setItem(`test_result_${userId}`, JSON.stringify(fallbackResult));
-          this.cacheLocalVocationalResult(userId, localResult);
-          this.processResult(fallbackResult);
-          this.testAnswers = answers;
-          this.loadLocalFeedbackState();
-          this.resultSourceNotice = 'La API o IA no respondió a tiempo. Mostramos un resultado algorítmico local para que puedas avanzar sin perder orientación.';
-          this.toastService.showToast(
-            'No se pudo completar el análisis de API. Mostramos un resultado experimental local.',
-            'info',
-            'Resultado local'
-          );
-          return;
-        }
-
-        const cachedResult = this.getCachedResult(userId);
-        if (cachedResult) {
-          this.processResult(cachedResult);
-          this.testAnswers = answers;
-          this.loadLocalFeedbackState();
-          this.resultSourceNotice = 'No se pudo actualizar el análisis. Se mantiene el último resultado guardado mientras la API vuelve a estar disponible.';
-          this.toastService.showToast(
-            'No se pudo actualizar el análisis. Se mantiene el último resultado guardado.',
-            'info',
-            'Resultado anterior'
-          );
-          return;
-        }
-
-        this.resultError = {
-          title: 'No pudimos procesar el resultado',
-          message: 'Falló el análisis de API y no encontramos un resultado local suficiente. Reintenta o vuelve al test para generar nuevas respuestas.',
-          type: 'ia',
-          actionLabel: 'Reintentar'
-        };
         this.toastService.showToast('Error al procesar el test con la IA. Por favor intenta de nuevo.', 'error', 'Error del Servidor');
       }
     });
   }
 
   private processResult(result: TestSubmissionResponse | any) {
-    this.localVocationalResult = result.localExperimentalResult || result.localVocationalResult || this.localVocationalResult;
-    this.userProfile.dominantTraits = result.dominantTraits || this.localVocationalResult?.strengthProfile.primaryCombination || '';
-    this.userProfile.description = result.aiProfileDescription || this.localVocationalResult?.strengthProfile.explanation || '';
+    this.userProfile.dominantTraits = result.dominantTraits || '';
+    this.userProfile.description = result.aiProfileDescription || '';
     this.recommendedUniversities = result.recommendations || [];
 
-    const scores = this.resolveDisplayScores(result);
+    const scores = result.scores || result.profileScores || {};
     this.buildSteamChart(scores);
     this.buildGreeting();
     this.buildCareerCards(this.recommendedUniversities);
-  }
-
-  get localTopSkills() {
-    return this.localVocationalResult?.strengthProfile.rankedSkills
-      .filter((skill) => skill.normalizedScore > 0)
-      .slice(0, 5) || [];
-  }
-
-  get localTopAreas() {
-    return this.localVocationalResult?.strengthProfile.rankedAreas
-      .filter((area) => area.normalizedScore > 0)
-      .slice(0, 5) || [];
-  }
-
-  get localCareerRecommendations() {
-    return this.localVocationalResult?.careerRecommendations.recommendations || [];
-  }
-
-  get dominantProfileLabel(): string {
-    return this.localVocationalResult?.strengthProfile.primaryCombination
-      || this.userProfile.dominantTraits
-      || 'Perfil STEAM';
-  }
-
-  get confidenceValue(): 'baja' | 'media' | 'alta' {
-    return this.localVocationalResult?.strengthProfile.confidence || 'media';
-  }
-
-  get confidenceLabel(): string {
-    const labelByConfidence = {
-      baja: 'Confianza baja',
-      media: 'Confianza media',
-      alta: 'Confianza alta'
-    };
-    return labelByConfidence[this.confidenceValue];
-  }
-
-  get confidenceExplanation(): string {
-    const missingSignals = this.localVocationalResult?.strengthProfile.missingSignals || [];
-    if (this.confidenceValue === 'baja') {
-      const reasons = missingSignals.length > 0 ? `: ${missingSignals.join(', ').toLowerCase()}` : ' porque faltan señales complementarias';
-      return `Confianza baja${reasons}. Completa calibraciones o simuladores para afinar el perfil.`;
-    }
-    if (this.confidenceValue === 'alta') {
-      return 'Confianza alta porque hay test, calibración y simuladores suficientes para sostener una lectura más completa.';
-    }
-    return 'Confianza media porque el test ya aporta una base clara, aunque aún puede mejorar con calibraciones o simuladores.';
-  }
-
-  get radarTextSummary(): string {
-    if (!this.hasRadarData) {
-      return 'ADN STEAM sin puntajes suficientes para graficar todavía.';
-    }
-
-    const areaSummary = this.steamAreas
-      .map((area) => `${area.label}: ${area.percentage}%`)
-      .join(', ');
-    const dominantArea = this.topThree[0]?.label || this.dominantProfileLabel;
-    const secondaryArea = this.topThree[1]?.label || 'sin área secundaria clara';
-    return `ADN STEAM del resultado: área dominante ${dominantArea}; área secundaria ${secondaryArea}. Puntajes: ${areaSummary}.`;
-  }
-
-  get reportUserName(): string {
-    return this.authService.getCurrentUser()?.nombre || '';
-  }
-
-  get reportSecondaryArea(): string {
-    return this.localVocationalResult?.strengthProfile.secondaryArea?.label
-      || this.topThree[1]?.label
-      || '';
-  }
-
-  get reportCareerRecommendations(): PdfCareerRecommendation[] {
-    if (this.localCareerRecommendations.length > 0) {
-      return this.localCareerRecommendations.slice(0, 5).map((match) => ({
-        name: match.career.name,
-        compatibilityPercentage: match.compatibilityPercentage,
-        reason: match.mainReasons.join(' ') || match.career.profileMatchReasons[0],
-        sourceLabel: match.dataSource === 'mock' ? 'Local/mock temporal' : match.dataSource.toUpperCase(),
-        areas: match.matchingAreas.map((area) => this.getSteamAreaLabel(area))
-      }));
-    }
-
-    return this.recommendedUniversities.slice(0, 5).map((recommendation, index) => ({
-      name: recommendation.suggestedMajor,
-      compatibilityPercentage: this.getMatchScore(index),
-      reason: recommendation.matchReason,
-      sourceLabel: 'API'
-    }));
-  }
-
-  get reportUniversityRecommendations(): PdfUniversityRecommendation[] {
-    return this.recommendedUniversities
-      .filter((recommendation) => recommendation.name && recommendation.name !== 'Resultado local')
-      .slice(0, 5)
-      .map((recommendation, index) => ({
-        name: recommendation.name,
-        location: recommendation.location,
-        suggestedMajor: recommendation.suggestedMajor,
-        matchReason: recommendation.matchReason,
-        matchPercentage: this.getMatchScore(index),
-        dataSourceLabel: recommendation.websiteUrl === '#' ? 'local' : 'API',
-        warnings: recommendation.studyPlan?.includes('Datos insuficientes')
-          ? ['Falta validar oferta académica real de esta universidad.']
-          : []
-      }));
-  }
-
-  get reportCalibrationSummaries(): PdfProgressItem[] {
-    const userId = this.authService.getCurrentUser()?.id || 'guest';
-    const storedSignals = this.localVocationalCalibrationService.getStoredSignalResults(userId);
-    if (storedSignals.length > 0) {
-      return storedSignals.map((signal) => ({
-        title: signal.moduleTitle,
-        description: signal.explanation,
-        meta: `${signal.positiveSignals} señal(es) positiva(s), ${signal.noExperienceAnswers} respuesta(s) sin experiencia`,
-        dataSourceLabel: signal.dataSource
-      }));
-    }
-
-    return (this.authService.getCurrentUser()?.calibrationModules || [])
-      .filter((module) => module.status === 'completed')
-      .map((module) => {
-        const localModule = this.localVocationalCalibrationService.getModuleById(module.id);
-        return {
-          title: localModule?.title || this.humanizeSlug(module.id),
-          description: 'Completada. El detalle local estará disponible cuando se guarde la señal de calibración.',
-          dataSourceLabel: 'api'
-        };
-      });
-  }
-
-  get reportSimulatorSummaries(): PdfProgressItem[] {
-    const userId = this.authService.getCurrentUser()?.id || 'guest';
-    const simulatorSignals = this.careerSimulatorService.getStoredVocationalSignals(userId);
-    const signalIds = new Set(simulatorSignals.map((signal) => signal.careerId));
-    const fromSignals = simulatorSignals.map((signal) => ({
-      title: signal.careerName,
-      description: signal.explanation,
-      meta: `Afinidad ${signal.affinityScore}% · confianza ${signal.confidence}`,
-      dataSourceLabel: signal.dataSource
-    }));
-
-    const fromCompletedSlugs = this.careerSimulatorService.getCompletedSimulators()
-      .filter((slug) => !signalIds.has(slug))
-      .map((slug) => ({
-        title: this.humanizeSlug(slug),
-        description: 'Completado. Falta una señal vocacional detallada para este simulador.',
-        dataSourceLabel: 'local'
-      }));
-
-    return [...fromSignals, ...fromCompletedSlugs];
-  }
-
-  get reportNextSteps(): PdfNextStep[] {
-    const primaryStep = {
-      title: this.nextStepRecommendation.title,
-      description: this.nextStepRecommendation.description
-    };
-    const baselineSteps: PdfNextStep[] = [
-      primaryStep,
-      {
-        title: 'Conversar el resultado',
-        description: 'Comparte este reporte con un orientador, tutor o docente para contrastarlo con tus intereses reales.'
-      },
-      {
-        title: 'Validar oferta académica',
-        description: 'Antes de decidir, revisa planes de estudio, costos, becas, convocatoria y requisitos oficiales.'
-      }
-    ];
-
-    return baselineSteps.filter((step, index, list) =>
-      list.findIndex((item) => item.title === step.title) === index
-    );
-  }
-
-  get reportDataSourceNote(): string {
-    if (this.localVocationalResult?.isExperimental) {
-      return 'Este reporte combina datos de la API con cálculos locales experimentales cuando están disponibles. Los datos mock o locales no deben leerse como definitivos.';
-    }
-    if (this.resultSourceNotice) {
-      return this.resultSourceNotice;
-    }
-    return 'Las recomendaciones deben validarse con fuentes oficiales antes de tomar decisiones académicas.';
-  }
-
-  get hasInsufficientProfileData(): boolean {
-    return this.confidenceValue === 'baja' || !this.hasRadarData || this.displayedCareerRecommendations.length === 0;
-  }
-
-  get displayedCareerRecommendations(): CareerRecommendationViewModel[] {
-    const localMatches = this.localCareerRecommendations.map((match) => this.toCareerViewModel(match));
-    const apiFallback = this.recommendedUniversities.map((recommendation, index) => ({
-      name: recommendation.suggestedMajor,
-      description: recommendation.matchReason || 'Recomendacion generada desde el resultado actual.',
-      compatibilityPercentage: this.getMatchScore(index),
-      mainReason: recommendation.matchReason || 'Coincide con el perfil vocacional detectado.',
-      sourceLabel: 'API',
-      matchingAreas: [],
-      areasToStrengthen: []
-    }));
-    const recommendations = localMatches.length > 0 ? localMatches : apiFallback;
-    return (this.showAllCareerRecommendations ? recommendations : recommendations.slice(0, 3));
-  }
-
-  get hasMoreCareerRecommendations(): boolean {
-    const total = this.localCareerRecommendations.length || this.recommendedUniversities.length;
-    return total > 3;
-  }
-
-  get nextStepRecommendation(): NextStepViewModel {
-    const missingSignals = this.localVocationalResult?.strengthProfile.missingSignals || [];
-    if (missingSignals.some((signal) => signal.toLowerCase().includes('calibracion') || signal.toLowerCase().includes('calibración'))) {
-      return {
-        title: 'Completar calibración',
-        description: 'Mejora la confianza del perfil con módulos que revelan intereses y habilidades ocultas.',
-        actionLabel: 'Ir a calibración',
-        icon: 'target',
-        route: '/dashboard'
-      };
-    }
-    if (missingSignals.some((signal) => signal.toLowerCase().includes('simulador'))) {
-      return {
-        title: 'Probar un simulador',
-        description: 'Pon a prueba una carrera en una situación práctica para confirmar si te representa.',
-        actionLabel: 'Ver simuladores',
-        icon: 'rocket',
-        route: '/career-simulator'
-      };
-    }
-    return {
-      title: 'Explorar universidades',
-      description: 'Ya tienes una lectura consistente. El siguiente paso es comparar opciones cercanas.',
-      actionLabel: 'Ver universidades',
-      icon: 'map-pin',
-      route: '/explore'
-    };
-  }
-
-  toggleCareerRecommendationList(): void {
-    this.showAllCareerRecommendations = !this.showAllCareerRecommendations;
-  }
-
-  saveLocalProfileFeedback(feedback: 'represents' | 'not_represents'): void {
-    this.localProfileFeedback = feedback;
-    const userId = this.authService.getCurrentUser()?.id || 'guest';
-    localStorage.setItem(`test_feedback_${userId}`, JSON.stringify({
-      feedback,
-      localResultId: this.localVocationalResult?.id || null,
-      createdAtIso: new Date().toISOString()
-    }));
-    this.toastService.showToast('Gracias. Guardamos tu feedback en este dispositivo.', 'success', 'Feedback local');
-  }
-
-  goToRecommendedNextStep(): void {
-    this.router.navigate([this.nextStepRecommendation.route]);
-  }
-
-  retryResultLoad(): void {
-    const testId = this.route.snapshot.paramMap.get('id');
-    if (testId) {
-      this.loadHistoricalResult(testId);
-    } else {
-      this.loadResults();
-    }
-  }
-
-  goToTest(): void {
-    this.router.navigate(['/evaluations']);
-  }
-
-  getSteamAreaLabel(area: SteamAreaId): string {
-    return this.STEAM_META[area]?.label || area;
-  }
-
-  getSkillLabel(skill: ComplementarySkillId): string {
-    return this.SKILL_LABELS[skill] || skill;
-  }
-
-  private toCareerViewModel(match: SteamCareerRecommendationMatch): CareerRecommendationViewModel {
-    return {
-      name: match.career.name,
-      description: match.career.shortDescription,
-      compatibilityPercentage: match.compatibilityPercentage,
-      mainReason: match.mainReasons[0] || 'Coincide con tus áreas y habilidades principales.',
-      sourceLabel: match.dataSource === 'mock' ? 'Local' : match.dataSource.toUpperCase(),
-      matchingAreas: match.matchingAreas,
-      areasToStrengthen: match.areasToStrengthen
-    };
-  }
-
-  private loadLocalFeedbackState(): void {
-    const userId = this.authService.getCurrentUser()?.id || 'guest';
-    const feedbackState = this.parseJson<{ feedback?: 'represents' | 'not_represents' } | null>(
-      localStorage.getItem(`test_feedback_${userId}`),
-      null
-    );
-    this.localProfileFeedback = feedbackState?.feedback || null;
-  }
-
-  private attachLocalResultFromCache(answers: Record<string, string>, fallbackReason: string): void {
-    const user = this.authService.getCurrentUser();
-    const userId = user?.id || 'guest';
-    const cachedLocalResult = this.getCachedLocalVocationalResult(userId);
-    if (cachedLocalResult) {
-      this.localVocationalResult = cachedLocalResult;
-      return;
-    }
-
-    const localResult = this.buildLocalVocationalResult(answers, this.getCachedQuestions(userId), fallbackReason);
-    if (localResult) {
-      this.localVocationalResult = localResult;
-      this.cacheLocalVocationalResult(userId, localResult);
-    }
-  }
-
-  private buildLocalVocationalResult(
-    answers: Record<string, string>,
-    questions: Question[],
-    fallbackReason?: string
-  ): LocalVocationalTestResult | null {
-    try {
-      const user = this.authService.getCurrentUser();
-      const completedCalibrations = user?.calibrationModules?.filter((module) => module.status === 'completed').length || 0;
-      return this.localVocationalResultService.buildResult({
-        answers,
-        questions,
-        hasCompletedCalibrations: completedCalibrations > 0,
-        completedSimulatorCount: this.getCompletedSimulatorCount(),
-        calibrationSignals: this.localVocationalCalibrationService.getStoredSignalResults(user?.id || 'guest'),
-        simulatorSignals: this.careerSimulatorService.getStoredVocationalSignals(user?.id || 'guest'),
-        testResultCount: this.getStoredTestResultCount(user?.id || 'guest'),
-        dataSource: 'local',
-        fallbackReason
-      });
-    } catch (error) {
-      console.error('Failed to build local vocational result:', error);
-      return null;
-    }
-  }
-
-  private withLocalExperimentalResult(
-    result: TestSubmissionResponse,
-    localResult: LocalVocationalTestResult | null
-  ): TestSubmissionResponse & { localExperimentalResult?: LocalVocationalTestResult } {
-    return localResult ? { ...result, localExperimentalResult: localResult } : result;
-  }
-
-  private toLocalFallbackResponse(localResult: LocalVocationalTestResult): TestSubmissionResponse & {
-    localExperimentalResult: LocalVocationalTestResult;
-  } {
-    const topCareers = localResult.careerRecommendations.recommendations.slice(0, 3);
-
-    return {
-      testId: localResult.id,
-      scores: this.toDisplayAreaScores(localResult),
-      dominantTraits: localResult.strengthProfile.primaryCombination,
-      aiProfileDescription: localResult.strengthProfile.explanation,
-      recommendations: topCareers.map((match, index) => ({
-        id: index,
-        name: 'Resultado local',
-        location: 'Disponible para conectar con universidades cercanas',
-        suggestedMajor: match.career.name,
-        matchReason: match.mainReasons.join(' '),
-        keyDates: 'Consulta la convocatoria de la universidad de tu interés.',
-        studyPlan: match.career.relatedSubjects,
-        websiteUrl: '#'
-      })),
-      localExperimentalResult: localResult
-    };
-  }
-
-  private toDisplayAreaScores(localResult: LocalVocationalTestResult | null): Record<string, number> {
-    if (!localResult) return {};
-    return {
-      ciencia: localResult.strengthProfile.areaScores.ciencia,
-      tecnologia: localResult.strengthProfile.areaScores.tecnologia,
-      ingenieria: localResult.strengthProfile.areaScores.ingenieria,
-      artes: localResult.strengthProfile.areaScores.arte,
-      matematicas: localResult.strengthProfile.areaScores.matematicas
-    };
-  }
-
-  private resolveDisplayScores(result: TestSubmissionResponse | any): Record<string, number> {
-    const scores = result.scores || result.profileScores || {};
-    if (scores && Object.keys(scores).length > 0) {
-      return scores;
-    }
-    return this.toDisplayAreaScores(this.localVocationalResult);
-  }
-
-  private getCachedQuestions(userId: string): Question[] {
-    return this.parseJson<Question[]>(
-      localStorage.getItem(`test_questions_${userId}`) || localStorage.getItem('latest_test_questions'),
-      []
-    );
-  }
-
-  private getCachedResult(userId: string): (TestSubmissionResponse & { localExperimentalResult?: LocalVocationalTestResult }) | null {
-    return this.parseJson<(TestSubmissionResponse & { localExperimentalResult?: LocalVocationalTestResult }) | null>(
-      localStorage.getItem(`test_result_${userId}`),
-      null
-    );
-  }
-
-  private getCachedLocalVocationalResult(userId: string): LocalVocationalTestResult | null {
-    return this.parseJson<LocalVocationalTestResult | null>(
-      localStorage.getItem(`test_local_result_${userId}`),
-      null
-    );
-  }
-
-  private cacheLocalVocationalResult(userId: string, localResult: LocalVocationalTestResult | null): void {
-    if (!localResult) return;
-    localStorage.setItem(`test_local_result_${userId}`, JSON.stringify(localResult));
-  }
-
-  private getCompletedSimulatorCount(): number {
-    const completed = this.parseJson<string[]>(localStorage.getItem('steam_completed_simulators'), []);
-    return completed.length;
-  }
-
-  private getStoredTestResultCount(userId: string): number {
-    const historicalResults = this.parseJson<unknown[]>(localStorage.getItem(`test_history_${userId}`), []);
-    return Math.max(1, historicalResults.length || 1);
-  }
-
-  private humanizeSlug(value: string): string {
-    return value
-      .replace(/[_-]+/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .replace(/\b\w/g, (letter) => letter.toUpperCase());
-  }
-
-  private parseJson<T>(rawValue: string | null, fallback: T): T {
-    if (!rawValue) return fallback;
-    try {
-      return JSON.parse(rawValue) as T;
-    } catch (error) {
-      console.warn('Failed to parse cached test data', error);
-      return fallback;
-    }
   }
 
   private buildSteamChart(scores: Record<string, number>) {
@@ -820,7 +208,6 @@ export class TestResultComponent implements OnInit, OnDestroy {
       this.steamAreas = [];
       this.globalAffinityPct = 0;
       this.topThree = [];
-      this.updateRadarChart(scores);
       return;
     }
 
@@ -850,7 +237,6 @@ export class TestResultComponent implements OnInit, OnDestroy {
 
     const top3Sum = this.topThree.reduce((s, a) => s + a.percentage, 0);
     this.globalAffinityPct = Math.min(Math.round(top3Sum / Math.max(this.topThree.length, 1)), 100);
-    this.updateRadarChart(scores);
 
     // ── Derive aptitude level from globalAffinityPct ──
     if (this.globalAffinityPct >= 67) {
@@ -873,78 +259,6 @@ export class TestResultComponent implements OnInit, OnDestroy {
         return this.circumference(cfg.radius) * (1 - pct);
       });
     }, 300);
-  }
-
-  private updateRadarChart(scores: Record<string, number>): void {
-    const values = this.RADAR_AREAS.map((area) => this.getRadarAreaScore(scores, area.scoreKeys));
-    this.hasRadarData = values.some((value) => value > 0);
-    this.radarChartData = {
-      labels: this.RADAR_AREAS.map((area) => area.label),
-      datasets: [
-        {
-          ...this.radarChartData.datasets[0],
-          data: values
-        }
-      ]
-    };
-    this.radarChartOptions = this.createRadarChartOptions();
-  }
-
-  private getRadarAreaScore(scores: Record<string, number>, scoreKeys: string[]): number {
-    for (const key of scoreKeys) {
-      const value = scores[key];
-      if (Number.isFinite(value)) {
-        return Math.min(Math.max(Math.round(value), 0), 100);
-      }
-    }
-    return 0;
-  }
-
-  private createRadarChartOptions(): ChartOptions<'radar'> {
-    const isDarkTheme = typeof document !== 'undefined' && document.body.classList.contains('dark-theme');
-    const textColor = isDarkTheme ? '#E2E8F0' : '#334155';
-    const mutedTextColor = isDarkTheme ? '#94A3B8' : '#64748B';
-    const gridColor = isDarkTheme ? 'rgba(148, 163, 184, 0.24)' : 'rgba(100, 116, 139, 0.20)';
-
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        r: {
-          min: 0,
-          max: 100,
-          ticks: {
-            stepSize: 25,
-            backdropColor: 'transparent',
-            color: mutedTextColor,
-            showLabelBackdrop: false
-          },
-          angleLines: {
-            color: gridColor
-          },
-          grid: {
-            color: gridColor
-          },
-          pointLabels: {
-            color: textColor,
-            font: {
-              size: 12,
-              weight: 'bold'
-            }
-          }
-        }
-      },
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          callbacks: {
-            label: (context) => `${context.label}: ${context.formattedValue}%`
-          }
-        }
-      }
-    };
   }
 
   private buildGreeting() {
@@ -1103,7 +417,6 @@ export class TestResultComponent implements OnInit, OnDestroy {
     }
     this.splashText = `Analizando opciones en ${this.locationInput}...`;
     this.isLoading = true;
-    this.resultSourceNotice = '';
 
     const user = this.authService.getCurrentUser();
     const userId = user?.id || 'guest';
@@ -1130,7 +443,6 @@ export class TestResultComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Error during AI Search:', err);
         this.isLoading = false;
-        this.resultSourceNotice = 'No pudimos generar una nueva explicación con IA. Mantendremos el resultado algorítmico local y las recomendaciones disponibles.';
         this.toastService.showToast('Error al buscar universidades en la zona solicitada.', 'error');
       }
     });
@@ -1199,21 +511,8 @@ export class TestResultComponent implements OnInit, OnDestroy {
   openAnswersModal() {
     this.showAnswersModal = true;
     if (this.allQuestions.length === 0) {
-      this.isLoadingAnswers = true;
-      this.answersError = '';
-      this.testService.getQuestions().subscribe({
-        next: (q) => {
-          if (q && q.length > 0) this.allQuestions = q;
-          this.isLoadingAnswers = false;
-          if (!q || q.length === 0) {
-            this.answersError = 'No encontramos las preguntas para cruzarlas con tus respuestas.';
-          }
-        },
-        error: (err) => {
-          console.error('Failed to load questions for answers modal:', err);
-          this.isLoadingAnswers = false;
-          this.answersError = 'No pudimos cargar las preguntas del test. Tus respuestas siguen guardadas, pero no podemos mostrarlas completas ahora.';
-        }
+      this.testService.getQuestions().subscribe(q => {
+        if (q && q.length > 0) this.allQuestions = q;
       });
     }
   }

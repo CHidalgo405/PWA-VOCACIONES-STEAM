@@ -3,7 +3,7 @@
 }
 
 .onboarding-container {
-  min-height: 100svh;
+  min-height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -27,7 +27,7 @@
   z-index: 1;
 
   @media (min-width: 1024px) {
-    height: 100svh;
+    height: 100vh;
     flex: 1.2;
   }
 
@@ -51,7 +51,7 @@
 
   @media (min-width: 1024px) {
     flex: 1;
-    padding: 0 clamp(48px, 7vw, 96px);
+    padding: 0 80px;
     justify-content: flex-start;
   }
 }
@@ -63,7 +63,7 @@
 
   @media (min-width: 1024px) {
     text-align: left;
-    max-width: min(520px, 42vw);
+    max-width: 500px;
   }
 }
 
@@ -127,7 +127,6 @@
     cursor: pointer;
     border-radius: 50%;
     background: conic-gradient(#07B1C9 0% 30%, #e0e0e0 30% 100%);
-    text-decoration: none;
     
     &::before {
       content: "";

@@ -1,8 +1,8 @@
 /* --- PREMIUM PROFILE DESIGN SYSTEM --- */
 .profile-container {
-  min-height: 100svh;
+  min-height: 100vh;
   background-color: var(--bg-canvas);
-  padding: clamp(16px, 3vw, 28px) clamp(16px, 3vw, 28px) var(--app-bottom-nav-space, 100px);
+  padding: 20px 20px 100px 20px;
   box-sizing: border-box;
   transition: background-color 0.35s ease;
 }
@@ -12,14 +12,14 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: min(940px, 100%);
+  max-width: 900px;
   margin: 0 auto;
   padding-top: 16px;
   box-sizing: border-box;
   
   @media (min-width: 1024px) {
     display: grid;
-    grid-template-columns: minmax(300px, 340px) minmax(0, 1fr);
+    grid-template-columns: 340px 1fr;
     gap: 32px;
     align-items: start;
   }
@@ -153,233 +153,6 @@
     font-weight: 600;
     border: 1px solid rgba(255,255,255,0.1);
   }
-
-  .hero-profile-summary {
-    width: 100%;
-    margin-top: 18px;
-    padding-top: 18px;
-    border-top: 1px solid rgba(255,255,255,0.18);
-
-    span {
-      color: rgba(255,255,255,0.78);
-      font-size: 0.76rem;
-      font-weight: 700;
-    }
-
-    strong {
-      display: block;
-      color: #FFFFFF;
-      font-size: 1.15rem;
-      font-weight: 800;
-      line-height: 1.25;
-      margin-top: 4px;
-      text-wrap: balance;
-    }
-
-    p {
-      color: rgba(255,255,255,0.86);
-      font-size: 0.82rem;
-      line-height: 1.45;
-      margin: 8px 0 0;
-    }
-  }
-
-  .hero-actions {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    margin-top: 18px;
-
-    @media (min-width: 420px) {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  .hero-action {
-    border: 1px solid rgba(255,255,255,0.28);
-    border-radius: 10px;
-    min-height: 42px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-family: inherit;
-    font-size: 0.82rem;
-    font-weight: 800;
-    cursor: pointer;
-    transition: transform var(--duration-hover) var(--ease-out), background var(--duration-hover) var(--ease-out);
-
-    &.primary {
-      background: #FFFFFF;
-      color: #075B6A;
-    }
-
-    &.secondary {
-      background: rgba(255,255,255,0.12);
-      color: #FFFFFF;
-    }
-
-    &:active {
-      transform: scale(0.98);
-    }
-  }
-}
-
-/* --- STEAM PATH CARD --- */
-.steam-path-card,
-.profile-collection-card,
-.next-step-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: var(--shadow-sm);
-  box-sizing: border-box;
-}
-
-.steam-path-card {
-  padding: 20px;
-  animation: staggerSlideUp 0.8s var(--ease-out) both;
-  animation-delay: 80ms;
-}
-
-.path-card-header,
-.collection-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: flex-start;
-
-  h3 {
-    color: var(--text-primary);
-    font-size: 1rem;
-    font-weight: 800;
-    margin: 0;
-  }
-
-  p {
-    color: var(--text-secondary);
-    font-size: 0.82rem;
-    line-height: 1.45;
-    margin: 4px 0 0;
-  }
-
-  a {
-    color: var(--steam-blue);
-    font-size: 0.78rem;
-    font-weight: 800;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-}
-
-.steam-path-content {
-  display: grid;
-  grid-template-columns: 150px minmax(0, 1fr);
-  gap: 16px;
-  align-items: center;
-  margin-top: 16px;
-
-  @media (max-width: 420px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.mini-radar-wrap {
-  height: 150px;
-  min-width: 0;
-
-  canvas {
-    max-width: 100%;
-  }
-}
-
-.mini-radar-empty {
-  height: 150px;
-  border: 1px dashed var(--border-color);
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 8px;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  text-align: center;
-}
-
-.profile-area-summary {
-  display: grid;
-  gap: 10px;
-}
-
-.dominant-area {
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(7, 177, 201, 0.08);
-
-  &.secondary {
-    background: rgba(99, 102, 241, 0.08);
-  }
-
-  span {
-    display: block;
-    color: var(--text-secondary);
-    font-size: 0.72rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-
-  strong {
-    color: var(--text-primary);
-    font-size: 0.98rem;
-    font-weight: 800;
-    overflow-wrap: anywhere;
-  }
-}
-
-.area-score-list {
-  display: grid;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.area-score-row {
-  display: grid;
-  grid-template-columns: 10px minmax(74px, 96px) minmax(80px, 1fr) 38px;
-  gap: 8px;
-  align-items: center;
-
-  .area-dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-  }
-
-  .area-label {
-    color: var(--text-primary);
-    font-size: 0.78rem;
-    font-weight: 700;
-  }
-
-  .area-bar {
-    height: 7px;
-    border-radius: 999px;
-    background: var(--bg-elevated);
-    overflow: hidden;
-
-    span {
-      display: block;
-      height: 100%;
-      min-width: 4px;
-      border-radius: inherit;
-    }
-  }
-
-  strong {
-    color: var(--text-secondary);
-    font-size: 0.75rem;
-    text-align: right;
-  }
 }
 
 /* --- STATS BENTO SECTION --- */
@@ -495,143 +268,6 @@
   }
 }
 
-.next-step-card {
-  width: 100%;
-  border: 1px solid rgba(7, 177, 201, 0.24);
-  padding: 16px;
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 20px;
-  gap: 12px;
-  align-items: center;
-  text-align: left;
-  font-family: inherit;
-  cursor: pointer;
-  animation: staggerSlideUp 0.8s var(--ease-out) both;
-  animation-delay: 180ms;
-  transition: transform var(--duration-hover) var(--ease-out), border-color var(--duration-hover) var(--ease-out);
-
-  .next-step-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: grid;
-    place-items: center;
-    color: var(--steam-blue);
-    background: rgba(7, 177, 201, 0.1);
-  }
-
-  span {
-    display: block;
-    color: var(--text-secondary);
-    font-size: 0.74rem;
-    font-weight: 800;
-  }
-
-  strong {
-    display: block;
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    font-weight: 800;
-    margin-top: 2px;
-  }
-
-  p {
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-    line-height: 1.4;
-    margin: 4px 0 0;
-  }
-
-  .next-step-arrow {
-    color: var(--steam-blue);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      transform: translateY(-2px);
-      border-color: var(--steam-blue);
-    }
-  }
-}
-
-.vocational-collections-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  animation: staggerSlideUp 0.8s var(--ease-out) both;
-  animation-delay: 220ms;
-}
-
-.profile-collection-card {
-  padding: 18px;
-}
-
-.collection-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.collection-row {
-  display: grid;
-  grid-template-columns: 36px minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
-  padding: 10px;
-  border-radius: 12px;
-  background: var(--bg-elevated);
-
-  strong {
-    display: block;
-    color: var(--text-primary);
-    font-size: 0.9rem;
-    font-weight: 800;
-    line-height: 1.3;
-    overflow-wrap: anywhere;
-  }
-
-  span {
-    display: block;
-    color: var(--text-secondary);
-    font-size: 0.76rem;
-    line-height: 1.35;
-    margin-top: 2px;
-    overflow-wrap: anywhere;
-  }
-}
-
-.collection-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-
-  &.career {
-    color: var(--steam-orange);
-    background: rgba(248, 135, 24, 0.1);
-  }
-
-  &.university {
-    color: var(--steam-green);
-    background: rgba(77, 176, 70, 0.1);
-  }
-}
-
-.collection-empty {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px dashed var(--border-color);
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  line-height: 1.4;
-}
-
 /* --- BADGES BENTO CARD --- */
 .badges-bento-card {
   background: var(--bg-surface);
@@ -702,9 +338,10 @@
     font-size: 0.68rem;
     font-weight: 600;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     width: 100%;
-    line-height: 1.2;
-    overflow-wrap: anywhere;
   }
   
   .badge-lock-overlay {
@@ -1014,15 +651,16 @@
 /* --- MODAL LAYOUT & HIGH-FIDELITY DESIGN --- */
 .modal-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(12px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  box-sizing: border-box;
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -1030,7 +668,6 @@
   background: var(--bg-surface);
   width: 92%;
   max-width: 430px;
-  max-height: calc(100svh - 32px);
   border-radius: 16px;
   box-shadow: var(--shadow-lg);
   display: flex;
@@ -1079,7 +716,7 @@
   padding: 20px 24px;
   background: var(--bg-surface);
   overflow-y: auto;
-  max-height: min(70svh, 680px);
+  max-height: 70vh;
   box-sizing: border-box;
   transition: background-color 0.35s ease;
 }
@@ -1402,15 +1039,16 @@
 /* --- LOGOUT CONFIRMATION ALERTS --- */
 .custom-alert-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(15, 23, 42, 0.5);
   backdrop-filter: blur(12px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10000;
-  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  box-sizing: border-box;
   animation: fadeIn 0.25s ease-out;
   
   .alert-box {
@@ -1823,10 +1461,6 @@ body.dark-theme {
   }
 
   .avatar-edit-text {
-    appearance: none;
-    border: 0;
-    background: transparent;
-    padding: 0;
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--steam-blue);
@@ -1908,118 +1542,4 @@ body.dark-theme {
 
 .ios-form-group textarea::placeholder {
   color: var(--text-muted);
-}
-
-.privacy-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.privacy-guidance {
-  margin-bottom: 14px;
-  padding: 14px;
-  border-radius: 14px;
-  background: var(--color-info-soft);
-  border: 1px solid rgba(7, 177, 201, 0.18);
-  color: var(--text-secondary);
-
-  strong {
-    display: block;
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    margin-bottom: 6px;
-  }
-
-  p {
-    margin: 0;
-    font-size: 0.86rem;
-    line-height: 1.55;
-  }
-}
-
-.privacy-row {
-  display: grid;
-  grid-template-columns: 36px minmax(0, 1fr);
-  gap: 10px;
-  align-items: flex-start;
-  padding: 12px;
-  border-radius: 12px;
-  background: var(--bg-canvas);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  font-size: 0.86rem;
-  line-height: 1.45;
-
-  app-lucide-icon {
-    color: var(--steam-blue);
-  }
-
-  span {
-    overflow-wrap: anywhere;
-
-    strong {
-      color: var(--text-primary);
-      font-weight: 800;
-    }
-  }
-}
-
-@media (min-width: 1180px) {
-  .profile-layout {
-    max-width: 1240px;
-    grid-template-columns: minmax(340px, 390px) minmax(0, 1fr);
-  }
-
-  .vocational-collections-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 520px) {
-  .profile-container {
-    padding-left: 14px;
-    padding-right: 14px;
-  }
-
-  .stats-bento-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .area-score-row {
-    grid-template-columns: 10px 88px minmax(64px, 1fr) 36px;
-  }
-
-  .next-step-card {
-    grid-template-columns: 40px minmax(0, 1fr);
-
-    .next-step-arrow {
-      display: none;
-    }
-  }
-
-  .modal-overlay {
-    align-items: flex-end;
-    padding-inline: 10px;
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
-  }
-
-  .modal-box {
-    width: 100%;
-    max-width: none;
-    border-radius: 18px 18px 12px 12px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .premium-hero-card,
-  .steam-path-card,
-  .stats-bento-grid,
-  .next-step-card,
-  .badges-bento-card,
-  .vocational-collections-grid,
-  .settings-card-group,
-  .premium-logout-button {
-    animation: none !important;
-  }
 }

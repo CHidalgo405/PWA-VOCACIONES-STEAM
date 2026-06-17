@@ -1,27 +1,3 @@
-import type {
-  ComplementarySkillId,
-  SteamAreaId,
-  VocationalDataSource,
-  VocationalProfileConfidenceEs
-} from './vocational-steam.models';
-
-export type SimulatorCompetencyId =
-  | 'pensamiento_logico'
-  | 'creatividad'
-  | 'comunicacion'
-  | 'etica'
-  | 'analisis'
-  | 'toma_de_decisiones'
-  | 'manejo_de_incertidumbre';
-
-export interface SimulatorVocationalImpact {
-  areaWeights?: Partial<Record<SteamAreaId, number>>;
-  skillWeights?: Partial<Record<ComplementarySkillId, number>>;
-  competencyWeights?: Partial<Record<SimulatorCompetencyId, number>>;
-  consequence?: string;
-  feedback?: string;
-}
-
 /**
  * Tipos de mecánicas disponibles en los pasos del simulador de carrera.
  * 
@@ -56,8 +32,6 @@ export interface SimulatorStepOption {
   steamTraitWeight?: Record<'ciencia' | 'tecnologia' | 'ingenieria' | 'artes' | 'matematicas', number>;
   /** Datos adicionales específicos de la opción (ej. consecuencias_positivas, consecuencias_negativas) */
   metadata?: Record<string, any>;
-  /** Impacto vocacional local usado como señal determinística; no cambia contratos de API. */
-  vocationalImpact?: SimulatorVocationalImpact;
 }
 
 /**
@@ -259,22 +233,4 @@ export interface SimulatorResult {
   confidenceFlag: SimulatorConfidenceLevel;
   /** Fecha y hora exacta de la culminación de la simulación */
   completedAt: Date;
-}
-
-export interface SimulatorVocationalSignalResult {
-  id: string;
-  careerId: string;
-  careerName: string;
-  role: string;
-  areaAdjustments: Record<SteamAreaId, number>;
-  skillAdjustments: Record<ComplementarySkillId, number>;
-  competencyScores: Record<SimulatorCompetencyId, number>;
-  selectedConsequences: string[];
-  strengthsShown: string[];
-  profileAlignment: 'reinforces' | 'partially_contradicts' | 'new_signal' | 'insufficient';
-  explanation: string;
-  confidence: VocationalProfileConfidenceEs;
-  affinityScore: number;
-  dataSource: VocationalDataSource;
-  generatedAtIso: string;
 }

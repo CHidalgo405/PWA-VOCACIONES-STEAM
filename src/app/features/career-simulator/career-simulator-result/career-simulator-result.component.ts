@@ -3,10 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CareerSimulatorService } from '../../../core/services/career-simulator.service';
-import {
-  SimulatorFeedbackResponse,
-  SimulatorVocationalSignalResult
-} from '../../../core/models/career-simulator.models';
+import { SimulatorFeedbackResponse } from '../../../core/models/career-simulator.models';
 
 @Component({
   selector: 'app-career-simulator-result',
@@ -25,7 +22,6 @@ export class CareerSimulatorResultComponent implements OnInit {
   public slug = signal<string | null>(null);
   public status = signal<'LOADING' | 'SUCCESS' | 'ERROR'>('LOADING');
   public feedback = signal<SimulatorFeedbackResponse | null>(null);
-  public vocationalImpact = signal<SimulatorVocationalSignalResult | null>(null);
   
   public animatedScore = signal<number>(0);
   public discrepancyMessage = signal<string | null>(null);
@@ -68,7 +64,6 @@ export class CareerSimulatorResultComponent implements OnInit {
     this.simulatorService.submitForAIFeedback().subscribe({
       next: (response) => {
         this.feedback.set(response);
-        this.vocationalImpact.set(this.findStoredVocationalImpact());
         this.status.set('SUCCESS');
         
         // Guardar score para el catálogo
@@ -163,39 +158,5 @@ export class CareerSimulatorResultComponent implements OnInit {
   public retrySimulator() {
     this.simulatorService.resetSession();
     this.router.navigate(['/career-simulator', this.slug()]);
-  }
-
-  public confidenceLabel(confidence: SimulatorFeedbackResponse['confidence_level']): string {
-    const labels = {
-      high: 'Confianza alta',
-      medium: 'Confianza media',
-      low: 'Confianza baja'
-    };
-    return labels[confidence];
-  }
-
-  public getCompetencyEntries(signal: SimulatorVocationalSignalResult): Array<{ label: string; score: number }> {
-    const labels: Record<string, string> = {
-      pensamiento_logico: 'Pensamiento lógico',
-      creatividad: 'Creatividad',
-      comunicacion: 'Comunicación',
-      etica: 'Ética',
-      analisis: 'Análisis',
-      toma_de_decisiones: 'Toma de decisiones',
-      manejo_de_incertidumbre: 'Manejo de incertidumbre'
-    };
-
-    return Object.entries(signal.competencyScores)
-      .filter(([, score]) => score > 0)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 4)
-      .map(([key, score]) => ({ label: labels[key] || key, score }));
-  }
-
-  private findStoredVocationalImpact(): SimulatorVocationalSignalResult | null {
-    const slug = this.slug();
-    if (!slug) return null;
-    return this.simulatorService.getStoredVocationalSignals()
-      .find((signal) => signal.careerId === slug) || null;
   }
 }

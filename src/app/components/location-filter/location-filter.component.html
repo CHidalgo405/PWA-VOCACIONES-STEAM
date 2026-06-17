@@ -5,17 +5,14 @@
   </div>
   <p class="filter-desc">Añade tu ciudad o estado para encontrar universidades recomendadas cerca de ti.</p>
   <div class="input-group">
-    <label class="sr-only" for="location-filter-input">Ciudad, estado o código postal</label>
     <input 
-      id="location-filter-input"
       type="text" 
       [ngModel]="location()" 
       (ngModelChange)="location.set($event)"
       (keydown)="handleKeydown($event)"
-      autocomplete="address-level2"
       placeholder="Ej. Córdoba, Veracruz o C.P. 94500" 
       class="location-input" />
-    <button class="btn-apply" type="button" (click)="applyLocation()" [disabled]="!location().trim()">
+    <button class="btn-apply" (click)="applyLocation()" [disabled]="!location().trim()">
       Actualizar
     </button>
   </div>
