@@ -9,7 +9,7 @@
   --shadow-sm: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04));
   --shadow-md: var(--shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05));
   
-  --dark-card-bg: #0B1120;
+  --dark-card-bg: var(--bg-surface);
 }
 
 .history-container {

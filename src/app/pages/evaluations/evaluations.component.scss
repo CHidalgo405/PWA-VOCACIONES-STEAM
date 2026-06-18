@@ -1228,12 +1228,12 @@ $warning-bg:   #F59E0B;
   }
 
   .feature-item {
-    border-color: var(--border-color, #374151);
+    border-color: var(--border-color, var(--border-color));
   }
 
   /* ── Header ── */
   .vt-header {
-    border-bottom-color: var(--border-color, #374151);
+    border-bottom-color: var(--border-color, var(--border-color));
   }
 
   /* ── Progress bar ── */
@@ -1242,7 +1242,7 @@ $warning-bg:   #F59E0B;
   }
 
   .progress-dot {
-    border-color: var(--bg-surface, #1F2937);
+    border-color: var(--bg-surface, var(--bg-surface));
   }
 
   /* ── Question card ── */
@@ -1252,7 +1252,7 @@ $warning-bg:   #F59E0B;
 
   /* ── Option buttons ── */
   .option-btn {
-    border-color: #374151;
+    border-color: var(--border-color);
 
     &:hover:not(.is-selected) {
       background: rgba(7, 177, 201, 0.05);
@@ -1272,16 +1272,16 @@ $warning-bg:   #F59E0B;
 
   .option-letter {
     background: rgba(55, 65, 81, 0.8);
-    border-color: #374151;
+    border-color: var(--border-color);
   }
 
   /* ── Footer ── */
   .vt-footer {
-    border-top-color: var(--border-color, #374151);
+    border-top-color: var(--border-color, var(--border-color));
   }
 
   .btn-next--inactive {
-    background: #374151 !important;
+    background: var(--border-color) !important;
     color: #6B7280 !important;
   }
 
@@ -1291,9 +1291,9 @@ $warning-bg:   #F59E0B;
   }
 
   .btn-modal-cancel {
-    border-color: #374151;
+    border-color: var(--border-color);
     &:hover {
-      background: #374151;
+      background: var(--border-color);
     }
   }
 }

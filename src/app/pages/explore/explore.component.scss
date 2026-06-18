@@ -13,7 +13,7 @@
   
   // Nuevos colores del mockup
   --banner-bg: #22C55E; // Verde brillante
-  --dark-card-bg: #0B1120; // Azul muy oscuro para mejor coincidencia
+  --dark-card-bg: var(--bg-surface); // Azul muy oscuro para mejor coincidencia
 }
 
 .explore-container {

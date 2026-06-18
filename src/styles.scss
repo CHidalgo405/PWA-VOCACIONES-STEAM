@@ -65,12 +65,12 @@
    ========================================= */
 body.dark-theme {
   --bg-canvas: #0A0A0A;
-  --bg-surface: #1F2937;
-  --bg-elevated: #374151;
-  --bg-glass: rgba(31, 41, 55, 0.85);
+  --bg-surface: #0B1120;
+  --bg-elevated: #111827;
+  --bg-glass: rgba(11, 17, 32, 0.85);
 
   /* Glassmorphism Tokens (Dark) */
-  --glass-bg: rgba(20, 20, 20, 0.4);
+  --glass-bg: rgba(11, 17, 32, 0.4);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
   --glass-shadow-hover: 0 12px 40px 0 rgba(7, 177, 201, 0.15); /* Neon glow hover */
@@ -83,9 +83,9 @@ body.dark-theme {
   --text-secondary: #9CA3AF;
   --text-muted: #6B7280;
 
-  --border-color: #374151;
-  --border-light: #374151;
-  --divider: #374151;
+  --border-color: #1E293B;
+  --border-light: #1E293B;
+  --divider: #1E293B;
 
   --accent-primary: #07B1C9;
   --accent-secondary: #3BC9DF;
@@ -98,12 +98,12 @@ body.dark-theme {
   --dark-btn: #F9FAFB;
   --text-main: #F9FAFB;
   --text-light: #9CA3AF;
-  --white: #1F2937;
-  --bg-app: #111827;
+  --white: #0B1120;
+  --bg-app: #0A0A0A;
   --text-dark: #F9FAFB;
-  --bg-light: #1F2937;
+  --bg-light: #111827;
   --primary-color: #07B1C9;
-  --card-bg: #1F2937;
+  --card-bg: #0B1120;
 }
 
 /* =========================================
