@@ -145,6 +145,11 @@
         cursor: pointer;
         transition: color var(--duration-hover) var(--ease-out);
         text-align: center;
+
+        &.active {
+          color: var(--primary);
+          font-weight: 800;
+        }
       }
 
       .pill-slider {
@@ -157,36 +162,11 @@
         border-radius: 0.85rem;
         box-shadow: var(--shadow-sm);
         z-index: 1;
-        overflow: hidden;
         transition: transform var(--duration-panel) var(--ease-drawer);
         pointer-events: none; /* Clicks pass through to buttons */
 
         &.to-right {
           transform: translateX(100%);
-        }
-
-        .pill-slider-content {
-          display: flex;
-          width: calc(200% + 8px); /* Matches exact width of parent container .tabs-pill */
-          height: 100%;
-          transform: translateX(0);
-          transition: transform var(--duration-panel) var(--ease-drawer);
-
-          &.to-right {
-            transform: translateX(-50%); /* Counter-shift to stay stationary relative to tabs-pill */
-          }
-
-          .tab-item-active {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 0.9rem;
-            color: var(--primary);
-            text-align: center;
-            white-space: nowrap;
-          }
         }
       }
     }
