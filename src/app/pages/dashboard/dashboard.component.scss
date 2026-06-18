@@ -1136,7 +1136,7 @@
 /* Modal Bienvenida */
 .welcome-modal-overlay {
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
   z-index: 1000;
@@ -1144,6 +1144,7 @@
   justify-content: center;
   align-items: center;
   padding: 20px;
+  box-sizing: border-box;
 
   .welcome-modal-content {
     background: var(--bg-surface);
@@ -1155,6 +1156,7 @@
     overflow-y: auto;
     text-align: center;
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    box-sizing: border-box;
 
     @media (max-width: 600px) {
       padding: 24px;
@@ -1187,19 +1189,37 @@
       margin-bottom: 30px;
       @media (max-width: 600px) { margin-bottom: 20px; }
       
-      p { 
-        font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; 
-        @media (max-width: 600px) { font-size: 0.85rem; }
-      }
-      
-      ul {
-        list-style: none; padding: 0; margin: 20px 0;
-        @media (max-width: 600px) { margin: 15px 0; }
-        li {
-          display: flex; align-items: center; gap: 10px;
-          margin-bottom: 12px; font-size: 0.95rem; color: var(--text-primary);
-          @media (max-width: 600px) { font-size: 0.85rem; margin-bottom: 10px; }
+      .beta-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        background: rgba(244, 162, 97, 0.1);
+        border-left: 4px solid var(--steam-orange, #F4A261);
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+
+        p {
+          margin: 0;
+          font-size: 0.9rem;
+          color: var(--text-primary);
+          line-height: 1.4;
         }
+        
+        strong {
+          color: var(--steam-orange, #F4A261);
+        }
+
+        @media (max-width: 600px) {
+          padding: 12px;
+          gap: 10px;
+          p { font-size: 0.85rem; }
+        }
+      }
+
+      .suggestion-text { 
+        font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; text-align: center;
+        @media (max-width: 600px) { font-size: 0.85rem; }
       }
     }
 
