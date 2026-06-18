@@ -1209,6 +1209,19 @@ $warning-bg:   #F59E0B;
   }
 }
 
+.spinner-mini {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(7, 177, 201, 0.2);
+  border-top-color: #07B1C9;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* =============================================
    DARK MODE OVERRIDES
    ============================================= */

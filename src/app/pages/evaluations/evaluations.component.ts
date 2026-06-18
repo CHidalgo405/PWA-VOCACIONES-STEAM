@@ -18,8 +18,8 @@ import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.co
 })
 export class EvaluationsComponent implements OnInit {
 
-    // Test states: 'questionnaire' | 'analyzing'
-    viewState: 'questionnaire' | 'analyzing' = 'questionnaire';
+    // Test states: 'onboarding' | 'questionnaire' | 'analyzing'
+    viewState: 'onboarding' | 'questionnaire' | 'analyzing' = 'onboarding';
 
     // Questions Data
     questions: Question[] = [];
@@ -64,6 +64,14 @@ export class EvaluationsComponent implements OnInit {
             this.questions = this.shuffleArray([...data]);
             this.isLoadingQuestions = false;
         });
+    }
+
+    startTest() {
+        this.viewState = 'questionnaire';
+        this.currentQuestionIndex = 0;
+        this.selectedOptionId = null;
+        this.userAnswers = {};
+        this.resetScores();
     }
 
     /** Algoritmo de Fisher-Yates para barajar el array de forma aleatoria y equitativa */

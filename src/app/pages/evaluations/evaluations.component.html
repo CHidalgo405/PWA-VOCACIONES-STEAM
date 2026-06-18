@@ -1,4 +1,54 @@
 <!-- =============================================
+     VIEW 1: ONBOARDING / INTRO
+     ============================================= -->
+<div class="vt-wrapper" *ngIf="viewState === 'onboarding'">
+  <div class="vt-onboarding fade-in">
+    <!-- Decorative background orbs -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <div class="onboarding-card">
+      <div class="onboarding-icon">
+        <div class="icon-ring">
+          <app-lucide-icon name="rocket" [size]="48" color="#07B1C9"></app-lucide-icon>
+        </div>
+      </div>
+
+      <h1 class="onboarding-title">¡Descubre tu camino STEAM!</h1>
+      <p class="onboarding-desc">
+        Te presentaremos situaciones de la vida real. No hay respuestas correctas o incorrectas, solo elige la opción que mejor te describa.
+      </p>
+
+      <div class="onboarding-features" *ngIf="questions.length > 0">
+        <div class="feature-item">
+          <app-lucide-icon name="help-circle" [size]="18" color="#07B1C9"></app-lucide-icon>
+          <span>{{ questions.length }} preguntas de opción múltiple</span>
+        </div>
+        <div class="feature-item">
+          <app-lucide-icon name="clock" [size]="18" color="#07B1C9"></app-lucide-icon>
+          <span>Duración aproximada: ~5 minutos</span>
+        </div>
+      </div>
+
+      <!-- Spinner indicator if questions are still loading -->
+      <div class="onboarding-features" *ngIf="isLoadingQuestions">
+        <div class="feature-item" style="justify-content: center; border: none; background: transparent; gap: 8px;">
+          <span class="spinner-mini" style="display: inline-block;"></span>
+          <span>Cargando preguntas del test...</span>
+        </div>
+      </div>
+
+      <button class="btn-start pulse-anim" (click)="startTest()" [disabled]="isLoadingQuestions">
+        <span>¡Comenzar Test!</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- =============================================
      VIEW 2: QUESTIONNAIRE
      ============================================= -->
 <div class="vt-wrapper" *ngIf="viewState === 'questionnaire'">
