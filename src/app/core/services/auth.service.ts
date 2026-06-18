@@ -152,8 +152,8 @@ export class AuthService {
            calibrationModules: res.calibrationModules || [
              { id: 'gaming_habits', status: 'available' },
              { id: 'physical_hobbies', status: 'available' },
-             { id: 'digital_consumption', status: 'locked' },
-             { id: 'everyday_mechanics', status: 'locked' }
+             { id: 'digital_consumption', status: 'available' },
+             { id: 'everyday_mechanics', status: 'available' }
            ],
            nicheCareers: res.nicheCareers || []
         };
@@ -183,8 +183,8 @@ export class AuthService {
       calibrationModules: user.calibrationModules || [
         { id: 'gaming_habits', status: 'available' },
         { id: 'physical_hobbies', status: 'available' },
-        { id: 'digital_consumption', status: 'locked' },
-        { id: 'everyday_mechanics', status: 'locked' }
+        { id: 'digital_consumption', status: 'available' },
+        { id: 'everyday_mechanics', status: 'available' }
       ],
       nicheCareers: user.nicheCareers || []
     };

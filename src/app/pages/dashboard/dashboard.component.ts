@@ -261,7 +261,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   getModuleState(moduleId: string): 'locked' | 'available' | 'completed' {
     const modules = this.authService.currentUserSig()?.calibrationModules;
     const mod = modules?.find(m => m.id === moduleId);
-    return mod ? mod.status : 'locked';
+    // If it says 'locked', we override it to 'available' for now because we enabled all modules
+    if (mod && mod.status === 'completed') return 'completed';
+    return 'available';
   }
 
   goToMission(moduleId: string) {
