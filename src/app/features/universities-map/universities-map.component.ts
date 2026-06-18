@@ -67,18 +67,51 @@ export class UniversitiesMapComponent implements OnInit {
   }
 
   getUserLocation() {
-    if (navigator.geolocation) {
-      this.isLocating = true;
+    this.isLocating = true;
 
-      // Manual timeout fallback for Safari bug where callbacks are never fired
-      const safariTimeout = setTimeout(() => {
-        if (this.isLocating) {
+    // Función de respaldo robusta si falla la geolocalización nativa (Muy común en Safari)
+    const runIpFallback = async (reason: string) => {
+      console.warn(`Geolocation failed (${reason}). Intentando IP fallback...`);
+      try {
+        const response = await fetch('https://ipwho.is/');
+        const data = await response.json();
+        if (data.success && data.latitude && data.longitude) {
           this.ngZone.run(() => {
-            console.warn('Geolocation timeout (Manual fallback)');
+            const userLocation = { lat: data.latitude, lng: data.longitude };
+            this.center = userLocation;
+            this.userPosition = userLocation;
+            this.zoom = 13;
+            if (this.googleMap) {
+              this.googleMap.panTo(userLocation);
+              if (this.googleMap.googleMap) {
+                this.searchUniversities(this.googleMap.googleMap, userLocation);
+              }
+            }
             this.isLocating = false;
           });
+          return true;
         }
-      }, 12000);
+      } catch (err) {
+        console.error('IP Fallback falló:', err);
+      }
+      return false;
+    };
+
+    if (navigator.geolocation) {
+      // Manual timeout fallback for Safari bug where callbacks are never fired
+      const safariTimeout = setTimeout(async () => {
+        if (this.isLocating) {
+          const success = await runIpFallback('Timeout manual Safari');
+          if (!success) {
+            this.ngZone.run(() => {
+              this.isLocating = false;
+              if (this.googleMap && this.googleMap.googleMap) {
+                 this.searchUniversities(this.googleMap.googleMap, this.center);
+              }
+            });
+          }
+        }
+      }, 8000);
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -110,22 +143,32 @@ export class UniversitiesMapComponent implements OnInit {
             this.isLocating = false;
           });
         },
-        (error) => {
+        async (error) => {
           clearTimeout(safariTimeout);
+          const success = await runIpFallback(`Error nativo: ${error.message}`);
+          if (!success) {
+            this.ngZone.run(() => {
+              this.isLocating = false;
+              if (this.googleMap && this.googleMap.googleMap) {
+                 this.searchUniversities(this.googleMap.googleMap, this.center);
+              }
+            });
+          }
+        },
+        // Configuración crítica para Safari
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
+      );
+    } else {
+      runIpFallback('Sin soporte nativo').then(success => {
+        if (!success) {
           this.ngZone.run(() => {
-            console.warn('Error obteniendo ubicación o permiso denegado:', error);
             this.isLocating = false;
-            // Fallback a buscar universidades en la ubicacion por defecto
             if (this.googleMap && this.googleMap.googleMap) {
                this.searchUniversities(this.googleMap.googleMap, this.center);
             }
           });
-        },
-        // Configuración crítica para Safari: HighAccuracy true y maximumAge 0 para evitar que se quede colgado
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    } else {
-      console.warn('Geolocalización no soportada por el navegador.');
+        }
+      });
     }
   }
 

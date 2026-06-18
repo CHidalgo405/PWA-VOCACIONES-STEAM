@@ -102,19 +102,48 @@ export class ExploreComponent implements OnInit {
   }
 
   getUserLocation() {
-    if (navigator.geolocation) {
-      this.isLocating = true;
+    this.isLocating = true;
 
-      // Manual timeout fallback for Safari bug where callbacks are never fired
-      const safariTimeout = setTimeout(() => {
-        if (this.isLocating) {
+    // Función de respaldo robusta si falla la geolocalización nativa (Muy común en Safari)
+    const runIpFallback = async (reason: string) => {
+      console.warn(`Geolocation failed (${reason}). Intentando IP fallback...`);
+      try {
+        const response = await fetch('https://ipwho.is/');
+        const data = await response.json();
+        if (data.success && data.latitude && data.longitude) {
           this.ngZone.run(() => {
-            console.warn('Geolocation timeout (Manual fallback)');
+            const userLocation = { lat: data.latitude, lng: data.longitude };
+            this.center = userLocation;
+            this.userPosition = userLocation;
+            this.zoom = 13;
+            if (this.googleMap) {
+              this.googleMap.panTo(userLocation);
+            }
             this.isLocating = false;
+            this.toastService.showToast(`Ubicación aproximada: ${data.city || data.region}`, 'info');
             this.triggerPlacesSearch();
           });
+          return true;
         }
-      }, 12000);
+      } catch (err) {
+        console.error('IP Fallback falló:', err);
+      }
+      return false;
+    };
+
+    if (navigator.geolocation) {
+      // Manual timeout fallback for Safari bug where callbacks are never fired
+      const safariTimeout = setTimeout(async () => {
+        if (this.isLocating) {
+          const success = await runIpFallback('Timeout manual Safari');
+          if (!success) {
+            this.ngZone.run(() => {
+              this.isLocating = false;
+              this.triggerPlacesSearch();
+            });
+          }
+        }
+      }, 8000);
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -132,24 +161,30 @@ export class ExploreComponent implements OnInit {
               this.googleMap.panTo(userLocation);
             }
             this.isLocating = false;
-            
-            // Intentamos disparar la búsqueda de Places si ya tenemos el test cargado
             this.triggerPlacesSearch();
           });
         },
-        (error) => {
+        async (error) => {
           clearTimeout(safariTimeout);
-          this.ngZone.run(() => {
-            console.warn('Error obteniendo ubicación o permiso denegado:', error);
-            this.isLocating = false;
-            this.triggerPlacesSearch(); // Call fallback
-          });
+          const success = await runIpFallback(`Error nativo: ${error.message}`);
+          if (!success) {
+            this.ngZone.run(() => {
+              this.isLocating = false;
+              this.triggerPlacesSearch(); // Fallback a Guatemala
+            });
+          }
         },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
       );
     } else {
-      console.warn('Geolocalización no soportada por el navegador.');
-      this.triggerPlacesSearch(); // Fallback
+      runIpFallback('Sin soporte nativo').then(success => {
+        if (!success) {
+          this.ngZone.run(() => {
+            this.isLocating = false;
+            this.triggerPlacesSearch();
+          });
+        }
+      });
     }
   }
 
