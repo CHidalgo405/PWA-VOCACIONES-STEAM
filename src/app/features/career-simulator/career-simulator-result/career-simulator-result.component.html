@@ -25,8 +25,17 @@
   @if (status() === 'SUCCESS' && feedback()) {
     <div class="result-content">
       
+      <!-- Mensaje de Desarrollo -->
+      <div class="dev-warning-banner stagger-item-1">
+        <span class="icon">🧪</span>
+        <div class="text">
+          <strong>Etapa de Desarrollo</strong>
+          <p>Esta experiencia de simulación es solo una demostración conceptual y se encuentra en fase de pruebas.</p>
+        </div>
+      </div>
+
       <!-- Header -->
-      <header class="result-header stagger-item-1">
+      <header class="result-header stagger-item-2">
         <div class="career-meta">
           <span class="steam-badge">{{ steamAreaName() }}</span>
           <h1>{{ careerData()?.careerName }}</h1>
@@ -42,24 +51,25 @@
 
       <!-- Discrepancia del Test Vocacional -->
       @if (discrepancyMessage()) {
-        <div class="discrepancy-banner stagger-item-2">
+        <div class="discrepancy-banner stagger-item-3">
           <span class="icon">💡</span>
           <p>{{ discrepancyMessage() }}</p>
         </div>
       }
 
       <!-- Confidence Level Chip -->
-      <div class="confidence-chip-container stagger-item-3">
+      <div class="confidence-container stagger-item-4">
         <div class="confidence-chip" [ngClass]="feedback()!.confidence_level">
           <span class="indicator-dot"></span>
-          <span>Confianza: {{ feedback()!.confidence_level | uppercase }}</span>
-          
-          @if (feedback()!.confidence_level === 'low') {
-            <div class="tooltip">
-              Tus respuestas fueron muy rápidas o muy consistentes. Considera repetir el simulador con más calma.
-            </div>
-          }
+          <span>Confianza del Análisis: {{ feedback()!.confidence_level | uppercase }}</span>
         </div>
+        
+        @if (feedback()!.confidence_level === 'low') {
+          <div class="low-confidence-explanation">
+            <span class="icon">⚠️</span>
+            <p><strong>Nivel de confianza bajo:</strong> Hemos detectado un patrón de respuestas extremadamente rápido o automatizado. Esto nos indica una posible falta de sinceridad o análisis al tomar decisiones en el simulador. Te recomendamos repetirlo tomando el tiempo necesario para leer cada escenario.</p>
+          </div>
+        }
       </div>
 
       <!-- Cómo piensas -->

@@ -87,13 +87,18 @@
     background-color: var(--area-color, #3b82f6);
     color: white;
     border: none;
-    padding: 0.875rem 1.5rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
     align-self: stretch;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 200px;
     
     @media (min-width: 768px) {
       align-self: center;
@@ -101,7 +106,8 @@
     
     &:hover:not(:disabled) {
       filter: brightness(1.1);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     
     &:disabled {
@@ -109,6 +115,11 @@
       color: var(--text-muted);
       cursor: not-allowed;
       transform: none;
+      box-shadow: none;
     }
   }
+}
+
+.action-footer.centered {
+  justify-content: center;
 }

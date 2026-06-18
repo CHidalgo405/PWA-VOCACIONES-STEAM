@@ -158,6 +158,35 @@
   }
 }
 
+.dev-warning-banner {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-left: 6px solid #d97706;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+  
+  .icon { font-size: 1.75rem; margin-top: -4px; }
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  strong {
+    color: #92400e;
+    font-size: 1.1rem;
+  }
+  p {
+    margin: 0;
+    color: #b45309;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+}
+
 .discrepancy-banner {
   background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
   border-radius: 12px;
@@ -176,12 +205,14 @@
   }
 }
 
-.confidence-chip-container {
+.confidence-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
   
   @media (min-width: 768px) {
-    justify-content: flex-start;
+    align-items: flex-start;
     padding: 0 1rem;
   }
   
@@ -217,46 +248,25 @@
     &.low {
       background: #fef2f2; color: #b91c1c;
       .indicator-dot { background: #ef4444; }
-      cursor: help;
-      
-      &:hover .tooltip {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-      }
     }
+  }
+
+  .low-confidence-explanation {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
     
-    .tooltip {
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      margin-bottom: 0.75rem;
-      background: #1e293b;
-      color: white;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      width: 250px;
-      line-height: 1.4;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(5px) translateX(-50%);
-      transition: all 0.2s ease;
-      z-index: 10;
-      pointer-events: none;
-      text-transform: none;
-      
-      &::after {
-        content: '';
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #1e293b transparent transparent transparent;
-      }
+    .icon { font-size: 1.5rem; margin-top: -2px; }
+    p {
+      margin: 0;
+      color: #991b1b;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      strong { color: #7f1d1d; }
     }
   }
 }

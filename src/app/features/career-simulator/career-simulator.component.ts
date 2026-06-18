@@ -152,6 +152,7 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
 
   public onStepCompleted(decision: any) {
     this.simulatorService.advanceStep(decision);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   public closeSimulator() {

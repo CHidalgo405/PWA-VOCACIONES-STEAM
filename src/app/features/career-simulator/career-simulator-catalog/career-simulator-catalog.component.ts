@@ -20,6 +20,7 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
   private simulatorService = inject(CareerSimulatorService);
   private router = inject(Router);
 
+  public viewState = signal<'intro' | 'catalog'>('intro');
   public filters: SteamAreaFilter[] = ['Todas', 'Ciencia', 'Tecnología', 'Ingeniería', 'Artes', 'Matemáticas'];
   public currentFilter = signal<SteamAreaFilter>('Todas');
   
@@ -98,7 +99,20 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Animación de entrada inicial del header y filtros
+    if (this.viewState() === 'intro') {
+      gsap.from('.intro-container > *', {
+        y: 20,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power3.out'
+      });
+    } else {
+      this.playCatalogEntryAnimations();
+    }
+  }
+
+  private playCatalogEntryAnimations() {
     gsap.from('.catalog-header h1, .catalog-header p', {
       y: 30,
       opacity: 0,
@@ -114,6 +128,15 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
       delay: 0.3,
       ease: 'power3.out'
     });
+  }
+
+  public startCatalog() {
+    this.viewState.set('catalog');
+    // Pequeño retardo para que Angular renderice el contenedor antes de animarlo
+    setTimeout(() => {
+      this.playCatalogEntryAnimations();
+      this.animateCardsEntry();
+    }, 50);
   }
 
   private animateCardsEntry() {
