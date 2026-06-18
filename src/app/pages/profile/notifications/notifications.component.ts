@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HeaderComponent } from '../../../../components/header/header.component';
-import { LucideIconComponent } from '../../../../components/lucide-icon/lucide-icon.component';
-import { UserService } from '../../../../core/services/user.service';
+import { HeaderComponent } from '../../../components/header/header.component';
+import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-notifications',
@@ -49,7 +49,7 @@ export class NotificationsComponent {
         this.isSubmitting = false;
         this.showSuccessToast('Preferencias de notificación guardadas con éxito.');
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isSubmitting = false;
         console.error('Error guardando ajustes', err);
         this.showSuccessToast('Hubo un error al guardar las preferencias.');

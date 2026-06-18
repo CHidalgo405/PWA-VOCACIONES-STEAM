@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HeaderComponent } from '../../../../components/header/header.component';
-import { LucideIconComponent } from '../../../../components/lucide-icon/lucide-icon.component';
-import { UserService } from '../../../../core/services/user.service';
-import { AuthService } from '../../../../core/services/auth.service';
+import { HeaderComponent } from '../../../components/header/header.component';
+import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
+import { UserService } from '../../../core/services/user.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -61,7 +61,7 @@ export class SecurityComponent {
         this.passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
         this.showSuccessToast('Contraseña cambiada con éxito.');
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isSubmitting = false;
         console.error('Error al cambiar contraseña', err);
         const detail = typeof err.error?.message === 'string' ? err.error.message : 'Error al actualizar contraseña';

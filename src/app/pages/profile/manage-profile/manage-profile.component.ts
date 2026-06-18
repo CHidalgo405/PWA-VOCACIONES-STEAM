@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HeaderComponent } from '../../../../components/header/header.component';
-import { LucideIconComponent } from '../../../../components/lucide-icon/lucide-icon.component';
-import { UserService } from '../../../../core/services/user.service';
-import { AuthService } from '../../../../core/services/auth.service';
+import { HeaderComponent } from '../../../components/header/header.component';
+import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
+import { UserService } from '../../../core/services/user.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-manage-profile',
@@ -39,7 +39,7 @@ export class ManageProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.authService.obtenerPerfil().subscribe(usuario => {
+    this.authService.obtenerPerfil().subscribe((usuario: any) => {
       const names = usuario.nombre ? usuario.nombre.split(' ') : [''];
       this.profileForm.firstName = names[0] || '';
       this.profileForm.lastName = names.slice(1).join(' ') || '';
@@ -130,7 +130,7 @@ export class ManageProfileComponent implements OnInit {
               this.originalAvatar = this.profileForm.avatar;
               this.finalizeSaveProfile();
             },
-            error: (err) => {
+            error: (err: any) => {
               console.error('Error actualizando avatar', err);
               this.finalizeSaveProfile(true);
             }
@@ -139,7 +139,7 @@ export class ManageProfileComponent implements OnInit {
           this.finalizeSaveProfile();
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isSubmitting = false;
         console.error('Error actualizando perfil', err);
         this.showSuccessToast('Hubo un error al actualizar el perfil.');

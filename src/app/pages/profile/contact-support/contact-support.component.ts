@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HeaderComponent } from '../../../../components/header/header.component';
-import { LucideIconComponent } from '../../../../components/lucide-icon/lucide-icon.component';
+import { HeaderComponent } from '../../../components/header/header.component';
+import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-contact-support',
