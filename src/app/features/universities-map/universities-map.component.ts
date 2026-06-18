@@ -69,8 +69,20 @@ export class UniversitiesMapComponent implements OnInit {
   getUserLocation() {
     if (navigator.geolocation) {
       this.isLocating = true;
+
+      // Manual timeout fallback for Safari bug where callbacks are never fired
+      const safariTimeout = setTimeout(() => {
+        if (this.isLocating) {
+          this.ngZone.run(() => {
+            console.warn('Geolocation timeout (Manual fallback)');
+            this.isLocating = false;
+          });
+        }
+      }, 12000);
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          clearTimeout(safariTimeout);
           this.ngZone.run(() => {
             const userLocation = {
               lat: position.coords.latitude,
@@ -99,13 +111,18 @@ export class UniversitiesMapComponent implements OnInit {
           });
         },
         (error) => {
+          clearTimeout(safariTimeout);
           this.ngZone.run(() => {
             console.warn('Error obteniendo ubicación o permiso denegado:', error);
             this.isLocating = false;
+            // Fallback a buscar universidades en la ubicacion por defecto
+            if (this.googleMap && this.googleMap.googleMap) {
+               this.searchUniversities(this.googleMap.googleMap, this.center);
+            }
           });
         },
-        // Aumentamos el timeout y bajamos la precisión para que Safari no falle al pedir permisos
-        { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 }
+        // Configuración crítica para Safari: HighAccuracy true y maximumAge 0 para evitar que se quede colgado
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       console.warn('Geolocalización no soportada por el navegador.');

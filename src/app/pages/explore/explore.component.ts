@@ -104,8 +104,21 @@ export class ExploreComponent implements OnInit {
   getUserLocation() {
     if (navigator.geolocation) {
       this.isLocating = true;
+
+      // Manual timeout fallback for Safari bug where callbacks are never fired
+      const safariTimeout = setTimeout(() => {
+        if (this.isLocating) {
+          this.ngZone.run(() => {
+            console.warn('Geolocation timeout (Manual fallback)');
+            this.isLocating = false;
+            this.triggerPlacesSearch();
+          });
+        }
+      }, 12000);
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          clearTimeout(safariTimeout);
           this.ngZone.run(() => {
             const userLocation = {
               lat: position.coords.latitude,
@@ -125,15 +138,18 @@ export class ExploreComponent implements OnInit {
           });
         },
         (error) => {
+          clearTimeout(safariTimeout);
           this.ngZone.run(() => {
             console.warn('Error obteniendo ubicación o permiso denegado:', error);
             this.isLocating = false;
+            this.triggerPlacesSearch(); // Call fallback
           });
         },
-        { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       console.warn('Geolocalización no soportada por el navegador.');
+      this.triggerPlacesSearch(); // Fallback
     }
   }
 
@@ -186,8 +202,11 @@ export class ExploreComponent implements OnInit {
   }
 
   triggerPlacesSearch() {
-    // Solo procedemos si ya tomamos el test, y ya tenemos la ubicación
-    if (!this.hasTakenTest || !this.userPosition) return;
+    // Procedemos si ya tomamos el test
+    if (!this.hasTakenTest) return;
+    
+    // Fallback: usar el default (Guatemala) si no hay ubicación de usuario
+    const locationToUse = this.userPosition || this.center;
 
     // Si el mapa aún no está listo en la vista, lo intentamos en un breve timeout
     if (!this.googleMap || !this.googleMap.googleMap) {
@@ -199,7 +218,7 @@ export class ExploreComponent implements OnInit {
     // Combinarlo con 'Tecnología' o 'STEAM' hace que Google Places no devuelva resultados.
     const searchQuery = 'universidad';
 
-    this.universityService.searchNearbyUniversities(this.googleMap.googleMap, this.userPosition, 30000, searchQuery).subscribe({
+    this.universityService.searchNearbyUniversities(this.googleMap.googleMap, locationToUse, 30000, searchQuery).subscribe({
       next: (results) => {
         const defaultImages = [
           'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
