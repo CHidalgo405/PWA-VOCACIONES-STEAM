@@ -6,7 +6,7 @@
       
       <div class="form-section">
         <h3 class="section-title">Nuevo Ticket de Soporte</h3>
-        <form (ngSubmit)="submitTicket()" #contactForm="ngForm">
+        <form (ngSubmit)="submitTicket()" #supportForm="ngForm">
           
           <div class="ios-form-group">
             
@@ -46,7 +46,7 @@
           </div>
 
           <div class="footer-actions mt-4">
-            <button type="submit" class="btn-primary-block bg-orange" [disabled]="!contactForm.form.valid || isSubmitting">
+            <button type="submit" class="btn-primary-block bg-orange" [disabled]="!supportForm.form.valid || isSubmitting">
               <app-lucide-icon name="send" [size]="18" *ngIf="!isSubmitting"></app-lucide-icon>
               <span *ngIf="isSubmitting" class="spinner-mini"></span>
               <span style="margin-left: 8px;" *ngIf="!isSubmitting">Enviar Mensaje</span>
