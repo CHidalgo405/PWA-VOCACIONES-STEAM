@@ -13,24 +13,32 @@ export class ThemeService {
 
   /**
    * Initializes the theme. 
-   * Default is Light Mode.
+   * Reads from localStorage. Default is Light Mode.
    */
   initializeTheme(): void {
-    // We follow "Modo Claro" as default if no external signal is provided
-    this.applyTheme(false);
-  }
-
-  /**
-   * Directly sets and applies the theme without local persistence.
-   */
-  setTheme(isDark: boolean): void {
+    const savedTheme = localStorage.getItem('app-theme');
+    const isDark = savedTheme === 'dark';
     this.applyTheme(isDark);
   }
 
-  /** Toggles between light and dark mode. */
+  /**
+   * Directly sets and applies the theme.
+   */
+  setTheme(isDark: boolean): void {
+    localStorage.setItem('app-theme', isDark ? 'dark' : 'light');
+    this.applyTheme(isDark);
+  }
+
+  /** Toggles between light and dark mode and reloads the page. */
   toggleTheme(): void {
     const newValue = !this.isDarkMode$.value;
+    localStorage.setItem('app-theme', newValue ? 'dark' : 'light');
     this.applyTheme(newValue);
+    
+    // Recargar el navegador para forzar la actualización de componentes externos (ej. Mapas)
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   }
 
   /** Returns the current dark-mode state synchronously. */

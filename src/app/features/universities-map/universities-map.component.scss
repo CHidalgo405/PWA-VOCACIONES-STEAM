@@ -20,13 +20,13 @@
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 0.25rem;
-    color: var(--text-color, #1e293b);
+    color: var(--text-primary);
   }
 
   p {
     font-size: 0.95rem;
     margin-bottom: 0;
-    color: var(--text-muted, #64748b);
+    color: var(--text-secondary);
   }
 }
 
@@ -36,12 +36,12 @@
   justify-content: center;
   align-items: center;
   height: 70vh;
-  background-color: #f5f5f5;
+  background-color: var(--bg-surface);
   border-radius: 8px;
   
   p {
     font-size: 1.2rem;
-    color: #555;
+    color: var(--text-secondary);
     animation: pulse 1.5s infinite;
   }
 }
@@ -68,7 +68,7 @@ google-map {
   position: absolute;
   bottom: 24px;
   right: 24px;
-  background-color: white;
+  background-color: var(--bg-surface);
   border: none;
   border-radius: 50%;
   width: 48px;
@@ -102,7 +102,7 @@ google-map {
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-surface);
   padding: 10px 20px;
   border-radius: 30px;
   display: flex;
@@ -113,7 +113,7 @@ google-map {
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
 
   .spinner {
     width: 20px;

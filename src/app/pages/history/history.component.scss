@@ -104,8 +104,8 @@
 
     &.dark-bg {
       background: var(--dark-card-bg);
-      .white-text { color: white; font-size: 1.25rem; }
-      .stat-label { color: #94A3B8; }
+      .white-text { color: var(--text-main); font-size: 1.25rem; }
+      .stat-label { color: var(--text-secondary); }
     }
   }
 }
@@ -183,7 +183,7 @@
       cursor: pointer;
 
       h2 {
-        color: white;
+        color: var(--text-main);
         font-size: 1.5rem;
         font-weight: 800;
         margin: 0;
@@ -209,9 +209,9 @@
 
       input {
         flex: 1;
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: white;
+        background: transparent;
+        border: 1px solid var(--border-light);
+        color: var(--text-main);
         border-radius: 0.5rem;
         padding: 0.5rem 0.75rem;
         font-size: 1.25rem;
@@ -270,7 +270,7 @@
       .progress-bar-bg {
         flex: 1;
         height: 6px;
-        background: rgba(255,255,255,0.1);
+        background: var(--border-light);
         border-radius: 1rem;
         overflow: hidden;
 
@@ -295,7 +295,7 @@
     justify-content: space-between;
     align-items: center;
     padding-top: 1rem;
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid var(--border-light);
 
     .link-cyan {
       color: var(--primary);
@@ -505,7 +505,7 @@
     .stat-card.light-bg {
       background: #1E293B;
       border-color: #334155;
-      .dark-text { color: white; }
+      .dark-text { color: var(--text-main); }
     }
     .stat-card.cyan-bg {
       background: rgba(7, 177, 201, 0.2);
