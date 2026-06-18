@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FormsModule } from '@angular/forms'; // Para el buscador
@@ -24,7 +24,7 @@ import { ScrollRevealDirective } from './scroll-reveal.directive';
   templateUrl: './explore.component.html',
   styleUrls: ['./explore.component.scss']
 })
-export class ExploreComponent implements OnInit {
+export class ExploreComponent implements OnInit, OnDestroy {
   
   hasTakenTest = false;
   private userService = inject(UserService);
@@ -76,6 +76,10 @@ export class ExploreComponent implements OnInit {
   universities: any[] = [];
 
   private router = inject(Router);
+
+  ngOnDestroy(): void {
+    document.body.classList.remove('explore-modal-open');
+  }
 
   ngOnInit() {
     this.loaderService.loadMapScript()
@@ -424,6 +428,7 @@ export class ExploreComponent implements OnInit {
     this.selectedUniversity = uni;
     this.isUniversityModalClosing = false;
     this.isUniversityModalOpen = true;
+    document.body.classList.add('explore-modal-open');
     if (uni && uni.position && this.googleMap) {
       this.googleMap.panTo(uni.position);
       this.center = uni.position;
@@ -433,6 +438,7 @@ export class ExploreComponent implements OnInit {
 
   closeUniversityModal() {
     this.isUniversityModalClosing = true;
+    document.body.classList.remove('explore-modal-open');
     setTimeout(() => {
       this.isUniversityModalOpen = false;
       this.isUniversityModalClosing = false;

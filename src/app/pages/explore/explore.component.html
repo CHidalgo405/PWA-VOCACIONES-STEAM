@@ -98,7 +98,7 @@
             <div class="best-match-card animate-on-scroll" (click)="openUniversityDetail(bestMatchUniversity)" appScrollReveal>
               <div class="card-icon-area">
                 <div class="icon-circle">
-                  <app-lucide-icon [name]="bestMatchUniversity.logo || 'building'" [size]="32" color="#D4D4D8"></app-lucide-icon>
+                  <app-lucide-icon [name]="bestMatchUniversity.logo || 'building'" [size]="32"></app-lucide-icon>
                 </div>
               </div>
               
@@ -260,17 +260,17 @@
           </div>
           <div class="stat-pill">
             <app-lucide-icon name="star" [size]="16" color="#F59E0B" fill="#F59E0B"></app-lucide-icon> 
-            <span>{{ selectedUniversity?.rating }} Reseñas</span>
+            <span>{{ selectedUniversity?.rating }}</span>
           </div>
           <div class="stat-pill">
-            <app-lucide-icon name="info" [size]="16"></app-lucide-icon> 
-            <span>{{ selectedUniversity?.description }}</span>
+            <app-lucide-icon name="graduation-cap" [size]="16"></app-lucide-icon> 
+            <span>{{ selectedUniversity?.career }}</span>
           </div>
       </div>
 
       <div class="modal-section-box">
-        <h4>Resumen</h4>
-        <p>Esta institución se destaca como una excelente opción para tu perfil en <strong>{{ selectedUniversity?.career }}</strong>. Explora sus programas y descubre si es tu lugar ideal para desarrollarte profesionalmente.</p>
+        <h4>Sobre la Institución</h4>
+        <p>{{ selectedUniversity?.description }}</p>
       </div>
 
       <div class="bento-grid-modal">
