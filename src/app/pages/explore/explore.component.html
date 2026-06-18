@@ -244,45 +244,59 @@
       <!-- Profile section overlaying the banner -->
       <div class="profile-header-card">
          <div class="uni-logo-box">
-             <app-lucide-icon [name]="selectedUniversity?.logo || 'school'" [size]="28"></app-lucide-icon>
+             <app-lucide-icon [name]="selectedUniversity?.logo || 'school'" [size]="36"></app-lucide-icon>
          </div>
          <div class="uni-titles">
-             <span class="uni-tags">{{ selectedUniversity?.tags[0] }}</span>
+             <div class="uni-tags">
+               <span class="badge-tag">{{ selectedUniversity?.tags[0] }}</span>
+             </div>
              <h2>{{ selectedUniversity?.name }}</h2>
-             <p class="uni-location"><app-lucide-icon name="map-pin" [size]="14"></app-lucide-icon> {{ selectedUniversity?.location }}</p>
+             <p class="uni-location"><app-lucide-icon name="map-pin" [size]="16"></app-lucide-icon> {{ selectedUniversity?.location }}</p>
          </div>
       </div>
 
-      <div class="modal-stats-row">
-          <div class="stat-pill highlight">
-            <app-lucide-icon name="sparkles" [size]="16"></app-lucide-icon> 
-            <span>Match {{ selectedUniversity?.matchPercentage }}%</span>
+      <div class="modal-stats-grid">
+          <div class="stat-box highlight-match">
+            <app-lucide-icon name="sparkles" [size]="20"></app-lucide-icon> 
+            <div class="stat-info">
+              <span class="stat-label">Tu Match</span>
+              <span class="stat-value">{{ selectedUniversity?.matchPercentage }}%</span>
+            </div>
           </div>
-          <div class="stat-pill">
-            <app-lucide-icon name="star" [size]="16" color="#F59E0B" fill="#F59E0B"></app-lucide-icon> 
-            <span>{{ selectedUniversity?.rating }}</span>
+          <div class="stat-box">
+            <app-lucide-icon name="star" [size]="20" color="#F59E0B" fill="#F59E0B"></app-lucide-icon> 
+            <div class="stat-info">
+              <span class="stat-label">Rating</span>
+              <span class="stat-value">{{ selectedUniversity?.rating }}</span>
+            </div>
           </div>
-          <div class="stat-pill">
-            <app-lucide-icon name="graduation-cap" [size]="16"></app-lucide-icon> 
-            <span>{{ selectedUniversity?.career }}</span>
+          <div class="stat-box full-width">
+            <app-lucide-icon name="graduation-cap" [size]="20"></app-lucide-icon> 
+            <div class="stat-info">
+              <span class="stat-label">Carrera Recomendada</span>
+              <span class="stat-value">{{ selectedUniversity?.career }}</span>
+            </div>
           </div>
       </div>
 
       <div class="modal-section-box">
-        <h4>Sobre la Institución</h4>
+        <div class="section-title">
+          <app-lucide-icon name="info" [size]="18"></app-lucide-icon>
+          <h4>Sobre la Institución</h4>
+        </div>
         <p>{{ selectedUniversity?.description }}</p>
       </div>
 
       <div class="bento-grid-modal">
         <div class="bento-card">
-           <div class="b-icon"><app-lucide-icon name="calendar" [size]="20"></app-lucide-icon></div>
+           <div class="b-icon"><app-lucide-icon name="calendar" [size]="24"></app-lucide-icon></div>
            <div class="b-text">
              <h5>Ciclo Escolar</h5>
              <p>{{ selectedUniversity?.keyDates }}</p>
            </div>
         </div>
         <div class="bento-card">
-           <div class="b-icon"><app-lucide-icon name="book-open" [size]="20"></app-lucide-icon></div>
+           <div class="b-icon"><app-lucide-icon name="book-open" [size]="24"></app-lucide-icon></div>
            <div class="b-text">
              <h5>Programas de Estudio</h5>
              <p>{{ selectedUniversity?.studyPlan }}</p>
