@@ -40,6 +40,12 @@ export const routes: Routes = [
   { path: 'career-simulator/:slug/result', loadComponent: () => import('./features/career-simulator/career-simulator-result/career-simulator-result.component').then(m => m.CareerSimulatorResultComponent), canActivate: [authGuard] },
 
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'profile/manage', loadComponent: () => import('./pages/profile/manage-profile/manage-profile.component').then(m => m.ManageProfileComponent), canActivate: [authGuard] },
+  { path: 'profile/security', loadComponent: () => import('./pages/profile/security/security.component').then(m => m.SecurityComponent), canActivate: [authGuard] },
+  { path: 'profile/notifications', loadComponent: () => import('./pages/profile/notifications/notifications.component').then(m => m.NotificationsComponent), canActivate: [authGuard] },
+  { path: 'profile/help', loadComponent: () => import('./pages/profile/help-center/help-center.component').then(m => m.HelpCenterComponent), canActivate: [authGuard] },
+  { path: 'profile/contact', loadComponent: () => import('./pages/profile/contact-support/contact-support.component').then(m => m.ContactSupportComponent), canActivate: [authGuard] },
+  { path: 'profile/about', loadComponent: () => import('./pages/profile/about-app/about-app.component').then(m => m.AboutAppComponent), canActivate: [authGuard] },
   { path: 'mapa-universidades', loadComponent: () => import('./features/universities-map/universities-map.component').then(m => m.UniversitiesMapComponent), canActivate: [authGuard] },
   { path: 'oauth-callback', component: OAuthCallbackComponent },
   { path: 'admin', redirectTo: '/admin/dashboard', pathMatch: 'full' },

@@ -1,0 +1,233 @@
+.page-container {
+  min-height: 100vh;
+  background-color: var(--bg-canvas);
+  display: flex;
+  flex-direction: column;
+}
+
+.page-content {
+  flex: 1;
+  padding: 20px 16px 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.manage-profile-wrapper {
+  animation: fadeUp 0.4s ease forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.form-section {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 16px;
+}
+
+/* --- Avatar Edit --- */
+.avatar-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+  margin-top: 10px;
+}
+
+.avatar-edit-premium {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  .avatar-preview-container {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    border: 3px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+      .avatar-edit-overlay {
+        opacity: 1;
+      }
+    }
+
+    .avatar-preview-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-edit-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(2px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+  }
+
+  .avatar-edit-text {
+    font-size: 0.9rem;
+    color: var(--steam-blue);
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+/* --- Form Groups (iOS Style) --- */
+.ios-form-group {
+  background: var(--bg-surface);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  margin-bottom: 15px;
+}
+
+.ios-input-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  background: transparent;
+
+  &.border-bottom {
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .row-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    color: var(--text-muted);
+  }
+
+  input, select {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    color: var(--text-primary);
+    outline: none;
+    font-family: inherit;
+    width: 100%;
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+  }
+}
+
+.mt-4 { margin-top: 2rem; }
+.mt-2 { margin-top: 0.5rem; }
+
+.btn-primary-block {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--steam-blue);
+  color: white;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(7, 177, 201, 0.25);
+
+  &:hover:not(:disabled) {
+    background: #0b93a6;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(7, 177, 201, 0.35);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.spinner-mini {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-text {
+  color: var(--steam-red);
+  font-size: 0.85rem;
+}
+
+.text-center { text-align: center; }
+
+/* --- Toast --- */
+.toast-message-premium {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 14px 24px;
+  border-radius: 100px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  &.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .toast-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toast-text {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+}

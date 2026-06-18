@@ -118,10 +118,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   // --- SECCIONES PREMIUM DE AJUSTES ---
   accountSettings = [
-    { icon: 'clock', title: 'Historial de Tests', action: 'viewHistory' },
-    { icon: 'lock', title: 'Contraseña y Seguridad', action: 'security' },
-    { icon: 'bell', title: 'Notificaciones', action: 'notifications' },
-    { icon: 'user', title: 'Administrar Perfil', action: 'manage' }
+    { icon: 'clock', title: 'Historial de Tests', action: '/history' },
+    { icon: 'lock', title: 'Contraseña y Seguridad', action: '/profile/security' },
+    { icon: 'bell', title: 'Notificaciones', action: '/profile/notifications' },
+    { icon: 'user', title: 'Administrar Perfil', action: '/profile/manage' }
   ];
 
   preferencesSettings = [
@@ -130,49 +130,25 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ];
 
   supportSettings = [
-    { icon: 'help-circle', title: 'Centro de ayuda', action: 'help' },
-    { icon: 'headphones', title: 'Contactar soporte', action: 'contact' },
-    { icon: 'info', title: 'Acerca de la app', action: 'about', value: 'v1.0.0' }
+    { icon: 'help-circle', title: 'Centro de ayuda', action: '/profile/help' },
+    { icon: 'headphones', title: 'Contactar soporte', action: '/profile/contact' },
+    { icon: 'info', title: 'Acerca de la app', action: '/profile/about', value: 'v1.0.0' }
   ];
 
-  // --- ESTADO Y VARIABLES DE LOS MODALES ---
-  activeModal: 'editProfile' | 'security' | 'notifications' | 'help' | 'contact' | 'logout' | 'badge' | null = null;
-  isSubmitting: boolean = false;
+  // --- ESTADO ---
   showToast: boolean = false;
   toastMessage: string = '';
+  
+  // Aún mantenemos modales para insignias y logout porque son pequeñas interacciones
+  activeModal: 'logout' | 'badge' | null = null;
   selectedBadge: any = null;
-  avatarError: string | null = null;
-
-  // Modelos de Formularios Simulados
-  profileForm = {
-    firstName: '',
-    lastName: '',
-    avatar: ''
-  };
-
-  passwordForm = {
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  };
-
-  notificationSettings = {
-    pushEnabled: true,
-    emailMarketing: false,
-    weeklySummary: true
-  };
 
   handleAction(action: string) {
-    if (action === 'viewHistory') {
-      this.router.navigate(['/history']);
-      return;
+    if (action.startsWith('/')) {
+      this.router.navigate([action]);
+    } else {
+      console.log(`Función no soportada por el momento: ${action}`);
     }
-    if (action === 'manage') this.openModal('editProfile');
-    else if (action === 'security') this.openModal('security');
-    else if (action === 'notifications') this.openModal('notifications');
-    else if (action === 'help') this.openModal('help');
-    else if (action === 'contact') this.openModal('contact');
-    else console.log(`Función no soportada por el momento: ${action}`);
   }
 
   togglePreference(setting: any) {
@@ -204,19 +180,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.router.navigate(['/welcome']);
   }
 
-  // --- LÓGICA DE LOS MODALES ---
-  openModal(type: 'editProfile' | 'security' | 'notifications' | 'help' | 'contact' | 'logout') {
+  // --- LÓGICA DE LOS MODALES RESTANTES ---
+  openModal(type: 'logout') {
     this.activeModal = type;
-    if (type === 'editProfile') {
-      // Cargar datos actuales en el formulario
-      const names = this.user.name.split(' ');
-      this.profileForm.firstName = names[0] || '';
-      this.profileForm.lastName = names.slice(1).join(' ') || '';
-      this.profileForm.avatar = this.user.avatar;
-      this.avatarError = null;
-    } else if (type === 'security') {
-      this.passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
-    }
   }
 
   openBadgeModal(badge: any) {
@@ -224,45 +190,30 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.activeModal = 'badge';
   }
 
-  // Método para abrir el correo desde el modal de ayuda
-  openSupportMailer() {
-    this.showSuccessToast('Abriendo cliente de correo...');
-    setTimeout(() => {
-      window.location.href = 'mailto:soporte@vocacionessteam.app';
-      this.closeModal();
-    }, 1500);
-  }
-
   closeModal() {
     this.activeModal = null;
     this.selectedBadge = null;
-    this.avatarError = null;
   }
 
-  // --- LÓGICA DE SUBIDA DE IMAGEN ---
+  // --- LÓGICA DE SUBIDA DE IMAGEN HERO (DIRECTA) ---
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (!file) {
       return;
     }
 
-    // Validar tipo de archivo (solo imágenes)
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
     if (!allowedTypes.includes(file.type)) {
-      this.handleAvatarError('Solo se permiten imágenes PNG, JPG o JPEG.');
+      this.showSuccessToast('Solo se permiten imágenes PNG, JPG o JPEG.');
       return;
     }
 
-    // Validar tamaño inicial (máximo 5MB antes de comprimir)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      this.handleAvatarError('La imagen es demasiado grande. El límite inicial es 5MB.');
+      this.showSuccessToast('La imagen es demasiado grande. El límite inicial es 5MB.');
       return;
     }
 
-    this.avatarError = null;
-
-    // Leer el archivo para comprimirlo
     const reader = new FileReader();
     reader.onload = (e: any) => {
       const img = new Image();
@@ -291,25 +242,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
 
-        // Comprimir a JPEG con calidad 0.7 para asegurar un base64 muy ligero
         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-        this.profileForm.avatar = compressedBase64;
-
-        if (this.activeModal !== 'editProfile') {
-          // Si se seleccionó desde la vista principal, guardar directamente
-          this.quickSaveAvatar(compressedBase64);
-        }
+        this.quickSaveAvatar(compressedBase64);
       };
     };
     reader.onerror = () => {
-      this.handleAvatarError('Error al leer el archivo. Inténtalo de nuevo.');
+      this.showSuccessToast('Error al leer el archivo. Inténtalo de nuevo.');
     };
     reader.readAsDataURL(file);
-  }
-
-  handleAvatarError(msg: string) {
-    this.avatarError = msg;
-    this.showSuccessToast(msg);
   }
 
   quickSaveAvatar(base64: string) {
@@ -323,103 +263,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         const detail = typeof err.error?.message === 'string' ? err.error.message : 
                        (err.error?.message?.join(', ') || err.message || 'Error desconocido');
         this.showSuccessToast(`No se pudo actualizar la foto: ${detail}`);
-      }
-    });
-  }
-
-  // --- ACTUALIZACIÓN DE DATOS (Backend) ---
-  saveProfile() {
-    this.isSubmitting = true;
-    
-    // Preparar el nombre completo
-    const fullname = `${this.profileForm.firstName} ${this.profileForm.lastName}`.trim();
-
-    this.userService.updateProfile({ fullname }).subscribe({
-      next: () => {
-        // Actualizamos estado local
-        this.user.name = fullname;
-        
-        // Si hay una nueva imagen de avatar que se capturó pero no se guardó, la guardamos también
-        if (this.profileForm.avatar && this.profileForm.avatar !== this.user.avatar) {
-          this.userService.updateAvatar(this.profileForm.avatar).subscribe({
-            next: () => {
-              this.user.avatar = this.profileForm.avatar;
-              this.finalizeSaveProfile();
-            },
-            error: (err) => {
-              console.error('Error actualizando avatar al guardar el perfil', err);
-              this.finalizeSaveProfile(true);
-            }
-          });
-        } else {
-          this.finalizeSaveProfile();
-        }
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        console.error('Error actualizando perfil', err);
-        const detail = typeof err.error?.message === 'string' ? err.error.message : 
-                       (err.error?.message?.join(', ') || err.message || 'Error desconocido');
-        this.showSuccessToast(`Hubo un error al actualizar: ${detail}`);
-      }
-    });
-  }
-
-  private finalizeSaveProfile(withAvatarError: boolean = false) {
-    this.isSubmitting = false;
-    this.closeModal();
-    if (withAvatarError) {
-      this.showSuccessToast('Perfil actualizado, pero hubo un error con la foto.');
-    } else {
-      this.showSuccessToast('¡Perfil actualizado con éxito!');
-    }
-  }
-
-  savePassword() {
-    if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
-      alert("Las contraseñas no coinciden.");
-      return;
-    }
-    
-    if (!this.passwordForm.currentPassword || !this.passwordForm.newPassword) {
-      alert("Por favor completa los campos de contraseña.");
-      return;
-    }
-
-    this.isSubmitting = true;
-    
-    this.userService.updatePassword({
-      currentPassword: this.passwordForm.currentPassword,
-      newPassword: this.passwordForm.newPassword
-    }).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-        this.closeModal();
-        this.showSuccessToast('Contraseña cambiada con éxito.');
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        console.error('Error al cambiar contraseña', err);
-        const detail = typeof err.error?.message === 'string' ? err.error.message : 
-                       (err.message || 'Error desconocido al actualizar contraseña');
-        this.showSuccessToast(`Error: ${detail}`);
-      }
-    });
-  }
-
-  saveNotifications() {
-    this.isSubmitting = true;
-    
-    this.userService.updateSettings(this.notificationSettings).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-        this.closeModal();
-        this.showSuccessToast('Preferencias de notificación guardadas.');
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        console.error('Error guardando ajustes', err);
-        this.showSuccessToast('Hubo un error al guardar');
       }
     });
   }

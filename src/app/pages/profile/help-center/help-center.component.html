@@ -1,0 +1,58 @@
+<div class="page-container">
+  <app-header title="Centro de Ayuda" [showBack]="true" backRoute="/profile"></app-header>
+
+  <div class="page-content">
+    <div class="manage-profile-wrapper">
+      
+      <!-- HERO SEARCH -->
+      <div class="help-hero">
+        <h2>¿Cómo podemos ayudarte?</h2>
+        <div class="search-bar">
+          <app-lucide-icon name="search" [size]="18" color="var(--text-muted)"></app-lucide-icon>
+          <input type="text" [(ngModel)]="searchQuery" placeholder="Busca artículos, guías...">
+        </div>
+      </div>
+
+      <!-- CATEGORIES GRID -->
+      <div class="categories-grid">
+        <div class="category-card" *ngFor="let cat of categories">
+          <div class="cat-icon-wrap">
+            <app-lucide-icon [name]="cat.icon" [size]="24" color="var(--steam-blue)"></app-lucide-icon>
+          </div>
+          <h4>{{ cat.title }}</h4>
+          <p>{{ cat.desc }}</p>
+        </div>
+      </div>
+
+      <!-- FAQ SECTION -->
+      <div class="faq-section mt-4">
+        <h3 class="section-title">Preguntas Frecuentes</h3>
+        
+        <div class="faq-accordion">
+          <div class="faq-item" *ngFor="let faq of faqs; let i = index" [class.open]="faq.isOpen" (click)="toggleFaq(i)">
+            <div class="faq-question">
+              <span>{{ faq.question }}</span>
+              <app-lucide-icon [name]="faq.isOpen ? 'chevron-up' : 'chevron-down'" [size]="20" color="var(--text-muted)"></app-lucide-icon>
+            </div>
+            <div class="faq-answer" *ngIf="faq.isOpen">
+              <p>{{ faq.answer }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTACT CTA -->
+      <div class="contact-cta-card mt-4">
+        <div class="cta-content">
+          <h4>¿No encontraste lo que buscabas?</h4>
+          <p>Nuestro equipo de soporte técnico está listo para ayudarte con tu problema.</p>
+        </div>
+        <button class="btn-primary-block mt-2" (click)="goToContact()">
+          <app-lucide-icon name="headphones" [size]="18"></app-lucide-icon>
+          Contactar Soporte
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

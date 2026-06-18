@@ -1,0 +1,154 @@
+<div class="page-container">
+  <app-header title="Notificaciones" [showBack]="true" backRoute="/profile"></app-header>
+
+  <div class="page-content">
+    <div class="manage-profile-wrapper">
+      
+      <p class="page-description">
+        Elige cómo y cuándo quieres recibir actualizaciones para no perderte de nada importante.
+      </p>
+
+      <!-- SECCIÓN 1: CANALES PRINCIPALES -->
+      <div class="form-section">
+        <h3 class="section-title">Canales de Envío</h3>
+        <div class="ios-form-group">
+          <div class="ios-toggle-row border-bottom" (click)="toggleSetting('pushEnabled')">
+            <div class="row-left-content">
+              <div class="row-icon-box bg-blue-light"><app-lucide-icon name="smartphone" [size]="18" color="var(--steam-blue)"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Notificaciones Push</span>
+                <span class="row-desc">Alertas instantáneas en tu dispositivo</span>
+              </div>
+            </div>
+            <label class="apple-switch" (click)="$event.stopPropagation()">
+              <input type="checkbox" [(ngModel)]="notificationSettings.pushEnabled">
+              <span class="apple-slider"></span>
+            </label>
+          </div>
+
+          <div class="ios-toggle-row border-bottom" (click)="toggleSetting('emailEnabled')">
+            <div class="row-left-content">
+              <div class="row-icon-box bg-orange-light"><app-lucide-icon name="mail" [size]="18" color="var(--steam-orange)"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Correo Electrónico</span>
+                <span class="row-desc">Recibe correos detallados</span>
+              </div>
+            </div>
+            <label class="apple-switch" (click)="$event.stopPropagation()">
+              <input type="checkbox" [(ngModel)]="notificationSettings.emailEnabled">
+              <span class="apple-slider"></span>
+            </label>
+          </div>
+
+          <div class="ios-toggle-row" (click)="toggleSetting('smsEnabled')">
+            <div class="row-left-content">
+              <div class="row-icon-box bg-green-light"><app-lucide-icon name="message-square" [size]="18" color="var(--steam-green)"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Mensajes SMS</span>
+                <span class="row-desc">Alertas de texto a tu móvil</span>
+              </div>
+            </div>
+            <label class="apple-switch" (click)="$event.stopPropagation()">
+              <input type="checkbox" [(ngModel)]="notificationSettings.smsEnabled">
+              <span class="apple-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2: CATEGORÍAS -->
+      <div class="form-section">
+        <h3 class="section-title">Tipos de Alertas</h3>
+        <div class="ios-form-group">
+          
+          <div class="ios-toggle-row border-bottom" (click)="toggleSetting('newCareersAlerts')">
+            <div class="row-left-content">
+              <div class="row-icon-box" style="background: rgba(139, 92, 246, 0.1);"><app-lucide-icon name="briefcase" [size]="18" color="#8B5CF6"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Nuevas Carreras y Simuladores</span>
+                <span class="row-desc">Sé el primero en probarlos</span>
+              </div>
+            </div>
+            <label class="apple-switch" (click)="$event.stopPropagation()">
+              <input type="checkbox" [(ngModel)]="notificationSettings.newCareersAlerts">
+              <span class="apple-slider"></span>
+            </label>
+          </div>
+
+          <div class="ios-toggle-row border-bottom" (click)="toggleSetting('testReminders')">
+            <div class="row-left-content">
+              <div class="row-icon-box" style="background: rgba(244, 63, 94, 0.1);"><app-lucide-icon name="clock" [size]="18" color="#F43F5E"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Recordatorios de Test</span>
+                <span class="row-desc">No olvides continuar tus evaluaciones</span>
+              </div>
+            </div>
+            <label class="apple-switch" (click)="$event.stopPropagation()">
+              <input type="checkbox" [(ngModel)]="notificationSettings.testReminders">
+              <span class="apple-slider"></span>
+            </label>
+          </div>
+
+          <div class="ios-toggle-row border-bottom" (click)="toggleSetting('achievements')">
+            <div class="row-left-content">
+              <div class="row-icon-box" style="background: rgba(245, 158, 11, 0.1);"><app-lucide-icon name="award" [size]="18" color="#F59E0B"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Logros Desbloqueados</span>
+                <span class="row-desc">Avisos al ganar nuevas medallas</span>
+              </div>
+            </div>
+            <label class="apple-switch" (click)="$event.stopPropagation()">
+              <input type="checkbox" [(ngModel)]="notificationSettings.achievements">
+              <span class="apple-slider"></span>
+            </label>
+          </div>
+          
+          <div class="ios-toggle-row border-bottom" (click)="toggleSetting('weeklySummary')">
+            <div class="row-left-content">
+              <div class="row-icon-box bg-blue-light"><app-lucide-icon name="bar-chart-3" [size]="18" color="var(--steam-blue)"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Resumen Semanal</span>
+                <span class="row-desc">Estadísticas de tu avance general</span>
+              </div>
+            </div>
+            <label class="apple-switch" (click)="$event.stopPropagation()">
+              <input type="checkbox" [(ngModel)]="notificationSettings.weeklySummary">
+              <span class="apple-slider"></span>
+            </label>
+          </div>
+
+          <div class="ios-toggle-row" (click)="toggleSetting('emailMarketing')">
+            <div class="row-left-content">
+              <div class="row-icon-box" style="background: rgba(107, 114, 128, 0.1);"><app-lucide-icon name="tag" [size]="18" color="#6B7280"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Promociones y Marketing</span>
+                <span class="row-desc">Ofertas en cursos o becas externas</span>
+              </div>
+            </div>
+            <label class="apple-switch" (click)="$event.stopPropagation()">
+              <input type="checkbox" [(ngModel)]="notificationSettings.emailMarketing">
+              <span class="apple-slider"></span>
+            </label>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="footer-actions mt-4">
+        <button type="button" class="btn-primary-block" (click)="saveNotifications()" [disabled]="isSubmitting">
+          <span *ngIf="isSubmitting" class="spinner-mini"></span>
+          <span *ngIf="!isSubmitting">Guardar Preferencias</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-message-premium" [class.show]="showToast">
+    <div class="toast-content-wrapper">
+      <app-lucide-icon name="info" [size]="16" color="#07B1C9"></app-lucide-icon>
+      <span class="toast-text">{{ toastMessage }}</span>
+    </div>
+  </div>
+</div>

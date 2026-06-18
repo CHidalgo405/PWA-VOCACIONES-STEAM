@@ -1,0 +1,94 @@
+<div class="page-container">
+  <app-header title="Administrar Perfil" [showBack]="true" backRoute="/profile"></app-header>
+
+  <div class="page-content">
+    <div class="manage-profile-wrapper">
+      <form (ngSubmit)="saveProfile()" #editForm="ngForm">
+        
+        <!-- SECCIÓN 1: FOTO DE PERFIL -->
+        <div class="form-section avatar-section">
+          <div class="avatar-edit-premium">
+            <div class="avatar-preview-container" (click)="fileInput.click()">
+              <img [src]="profileForm.avatar" alt="Avatar" class="avatar-preview-image">
+              <div class="avatar-edit-overlay">
+                <app-lucide-icon name="camera" [size]="20" color="white"></app-lucide-icon>
+              </div>
+            </div>
+            <span class="avatar-edit-text" (click)="fileInput.click()">Cambiar foto de perfil</span>
+            <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
+            <small *ngIf="avatarError" class="error-text fade-in text-center mt-2">{{ avatarError }}</small>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2: DATOS PERSONALES -->
+        <div class="form-section">
+          <h3 class="section-title">Datos Personales</h3>
+          <div class="ios-form-group">
+            <div class="ios-input-row border-bottom">
+              <div class="row-icon"><app-lucide-icon name="user" [size]="18"></app-lucide-icon></div>
+              <input type="text" name="firstName" [(ngModel)]="profileForm.firstName" required placeholder="Nombre(s)">
+            </div>
+            <div class="ios-input-row border-bottom">
+              <div class="row-icon"><app-lucide-icon name="users" [size]="18"></app-lucide-icon></div>
+              <input type="text" name="lastName" [(ngModel)]="profileForm.lastName" required placeholder="Apellidos">
+            </div>
+            <div class="ios-input-row">
+              <div class="row-icon"><app-lucide-icon name="calendar" [size]="18"></app-lucide-icon></div>
+              <input type="date" name="birthDate" [(ngModel)]="profileForm.birthDate" placeholder="Fecha de Nacimiento">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3: DETALLES -->
+        <div class="form-section">
+          <h3 class="section-title">Detalles de la Cuenta</h3>
+          <div class="ios-form-group">
+            <div class="ios-input-row border-bottom" style="align-items: flex-start; padding-top: 12px; padding-bottom: 12px;">
+              <div class="row-icon" style="margin-top: 2px;"><app-lucide-icon name="file-text" [size]="18"></app-lucide-icon></div>
+              <textarea name="bio" [(ngModel)]="profileForm.bio" placeholder="Cuentanos un poco sobre ti..." rows="3" style="flex: 1; border: none; background: transparent; resize: none; font-size: 0.95rem; outline: none; font-family: inherit; color: var(--text-primary);"></textarea>
+            </div>
+            <div class="ios-input-row border-bottom">
+              <div class="row-icon"><app-lucide-icon name="phone" [size]="18"></app-lucide-icon></div>
+              <input type="tel" name="phone" [(ngModel)]="profileForm.phone" placeholder="Teléfono (Opcional)">
+            </div>
+            <div class="ios-input-row">
+              <div class="row-icon"><app-lucide-icon name="map-pin" [size]="18"></app-lucide-icon></div>
+              <input type="text" name="location" [(ngModel)]="profileForm.location" placeholder="Ciudad, País">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 4: REDES SOCIALES -->
+        <div class="form-section">
+          <h3 class="section-title">Redes Profesionales</h3>
+          <div class="ios-form-group">
+            <div class="ios-input-row border-bottom">
+              <div class="row-icon"><app-lucide-icon name="github" [size]="18"></app-lucide-icon></div>
+              <input type="url" name="github" [(ngModel)]="profileForm.github" placeholder="Usuario de GitHub">
+            </div>
+            <div class="ios-input-row">
+              <div class="row-icon"><app-lucide-icon name="linkedin" [size]="18"></app-lucide-icon></div>
+              <input type="url" name="linkedin" [(ngModel)]="profileForm.linkedin" placeholder="Enlace a LinkedIn">
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-actions mt-4">
+          <button type="submit" class="btn-primary-block" [disabled]="!editForm.form.valid || isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner-mini"></span>
+            <span *ngIf="!isSubmitting">Guardar Cambios</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-message-premium" [class.show]="showToast">
+    <div class="toast-content-wrapper">
+      <app-lucide-icon name="info" [size]="16" color="#07B1C9"></app-lucide-icon>
+      <span class="toast-text">{{ toastMessage }}</span>
+    </div>
+  </div>
+</div>

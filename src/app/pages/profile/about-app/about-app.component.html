@@ -1,0 +1,83 @@
+<div class="page-container">
+  <app-header title="Acerca de la App" [showBack]="true" backRoute="/profile"></app-header>
+
+  <div class="page-content">
+    <div class="manage-profile-wrapper">
+      
+      <!-- HERO -->
+      <div class="about-hero">
+        <div class="app-icon-wrapper">
+          <app-lucide-icon name="rocket" [size]="40" color="white"></app-lucide-icon>
+        </div>
+        <h2>Vocaciones STEAM</h2>
+        <p class="app-version">{{ version }}</p>
+      </div>
+
+      <!-- ENLACES -->
+      <div class="form-section mt-4">
+        <div class="ios-form-group">
+          <div class="ios-toggle-row border-bottom" (click)="openLink('#')">
+            <div class="row-left-content">
+              <div class="row-icon-box bg-blue-light"><app-lucide-icon name="globe" [size]="18" color="var(--steam-blue)"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Sitio Web Oficial</span>
+              </div>
+            </div>
+            <app-lucide-icon name="external-link" [size]="16" color="var(--text-muted)"></app-lucide-icon>
+          </div>
+          <div class="ios-toggle-row border-bottom" (click)="openLink('#')">
+            <div class="row-left-content">
+              <div class="row-icon-box bg-orange-light"><app-lucide-icon name="file-text" [size]="18" color="var(--steam-orange)"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Términos y Condiciones</span>
+              </div>
+            </div>
+            <app-lucide-icon name="chevron-right" [size]="16" color="var(--text-muted)"></app-lucide-icon>
+          </div>
+          <div class="ios-toggle-row border-bottom" (click)="openLink('#')">
+            <div class="row-left-content">
+              <div class="row-icon-box" style="background: rgba(139, 92, 246, 0.15)"><app-lucide-icon name="shield" [size]="18" color="#8B5CF6"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Política de Privacidad</span>
+              </div>
+            </div>
+            <app-lucide-icon name="chevron-right" [size]="16" color="var(--text-muted)"></app-lucide-icon>
+          </div>
+          <div class="ios-toggle-row" (click)="openLink('https://github.com/CHidalgo405/PWA-VOCACIONES-STEAM')">
+            <div class="row-left-content">
+              <div class="row-icon-box" style="background: rgba(107, 114, 128, 0.15)"><app-lucide-icon name="github" [size]="18" color="#6B7280"></app-lucide-icon></div>
+              <div class="row-text">
+                <span class="row-title">Código Abierto (GitHub)</span>
+              </div>
+            </div>
+            <app-lucide-icon name="external-link" [size]="16" color="var(--text-muted)"></app-lucide-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHANGELOG -->
+      <div class="form-section mt-4">
+        <h3 class="section-title">Historial de Versiones</h3>
+        <div class="changelog-container">
+          <div class="changelog-item" *ngFor="let item of changelog; let first = first">
+            <div class="timeline-dot" [class.latest]="first"></div>
+            <div class="changelog-content">
+              <div class="changelog-header">
+                <span class="version-badge">v{{ item.version }}</span>
+                <span class="changelog-date">{{ item.date }}</span>
+              </div>
+              <p class="changelog-desc">{{ item.desc }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER CREDITS -->
+      <div class="app-credits">
+        <p>© 2026 Vocaciones STEAM.</p>
+        <p>Hecho con ❤️ en México.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
