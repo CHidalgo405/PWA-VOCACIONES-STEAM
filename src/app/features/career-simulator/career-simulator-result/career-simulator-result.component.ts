@@ -159,4 +159,8 @@ export class CareerSimulatorResultComponent implements OnInit {
     this.simulatorService.resetSession();
     this.router.navigate(['/career-simulator', this.slug()]);
   }
+
+  public goToHome() {
+    this.router.navigate(['/dashboard']);
+  }
 }

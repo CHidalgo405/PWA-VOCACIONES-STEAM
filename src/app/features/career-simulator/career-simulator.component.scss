@@ -32,11 +32,36 @@
 
 .simulator-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 1rem;
   margin-bottom: 2rem;
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    margin-top: 0.2rem;
+  }
+
+  .exit-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+  }
   
   .career-info {
+    flex: 1;
     h1 {
       margin: 0;
       font-size: 1.75rem;

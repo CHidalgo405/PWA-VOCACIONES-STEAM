@@ -30,9 +30,11 @@ export class AppComponent implements OnInit {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      // Rutas donde la barra de navegación debe estar visible
-      const navRoutes = ['/dashboard', '/explore', '/history', '/profile', '/test-result'];
-      const isNavRoute = navRoutes.some(route => event.urlAfterRedirects.includes(route));
+      // Obtenemos la ruta limpia (sin query params)
+      const urlWithoutQuery = event.urlAfterRedirects.split('?')[0];
+      // Rutas exactas donde la barra de navegación debe estar visible
+      const navRoutes = ['/dashboard', '/explore', '/history', '/profile', '/career-simulator'];
+      const isNavRoute = navRoutes.includes(urlWithoutQuery);
       const isAdminRoute = event.urlAfterRedirects.includes('/admin');
       this.showNavbar = isNavRoute && !isAdminRoute;
     });

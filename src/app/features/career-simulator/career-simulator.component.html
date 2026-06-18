@@ -1,6 +1,11 @@
 <div class="simulator-shell" [ngClass]="steamAreaClass()">
   
   <header class="simulator-header">
+    <div class="header-actions">
+      <button class="exit-btn" (click)="closeSimulator()" aria-label="Abandonar simulador">
+        <app-lucide-icon name="x" [size]="24"></app-lucide-icon>
+      </button>
+    </div>
     <div class="career-info">
       <h1>{{ careerData()?.careerName || 'Cargando Simulador...' }}</h1>
       @if (careerData()) {

@@ -527,4 +527,8 @@ export class TestResultComponent implements OnInit {
     const opt = q.options.find(o => o.letter === letter);
     return opt ? opt.text : letter;
   }
+
+  goToHome() {
+    this.router.navigate(['/dashboard']);
+  }
 }

@@ -21,6 +21,7 @@ import { StepContextComponent } from './steps/step-context/step-context.componen
 import { StepSurpriseRevealComponent } from './steps/step-surprise-reveal/step-surprise-reveal.component';
 import { StepAIFeedbackComponent } from './steps/step-ai-feedback/step-ai-feedback.component';
 import { StepEmotionalReflectionComponent } from './steps/step-emotional-reflection/step-emotional-reflection.component';
+import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-career-simulator',
@@ -32,7 +33,8 @@ import { StepEmotionalReflectionComponent } from './steps/step-emotional-reflect
     StepTradeoffDecisionComponent,
     StepSurpriseRevealComponent,
     StepAIFeedbackComponent,
-    StepEmotionalReflectionComponent
+    StepEmotionalReflectionComponent,
+    LucideIconComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
@@ -150,5 +152,9 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
 
   public onStepCompleted(decision: any) {
     this.simulatorService.advanceStep(decision);
+  }
+
+  public closeSimulator() {
+    this.router.navigate(['/career-simulator']);
   }
 }
