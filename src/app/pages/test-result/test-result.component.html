@@ -26,9 +26,23 @@
             <!-- Main Dashboard Grid -->
             <div class="dashboard-grid fade-in-up">
                 
-                <!-- Left Column: Metrics & DNA -->
+                <!-- Left Column: Affinity & Metrics -->
                 <div class="grid-col-left">
                     
+                    <!-- Affinity Card -->
+                    <div class="premium-card affinity-card">
+                        <div class="affinity-content">
+                            <span class="affinity-label">Afinidad Global STEAM</span>
+                            <div class="affinity-score-box">
+                                <span class="affinity-number">{{ globalAffinityPct }}</span>
+                                <span class="affinity-percent">%</span>
+                            </div>
+                        </div>
+                        <div class="affinity-icon">
+                            <app-lucide-icon name="target" [size]="48" color="rgba(7, 177, 201, 0.2)"></app-lucide-icon>
+                        </div>
+                    </div>
+
                     <!-- Metrics Card -->
                     <div class="premium-card metrics-card">
                         <div class="card-header">
@@ -61,23 +75,9 @@
 
                 </div>
 
-                <!-- Right Column: Affinity, DNA Analysis & Calibration -->
+                <!-- Right Column: DNA Analysis & Calibration -->
                 <div class="grid-col-right">
                     
-                    <!-- Affinity Card -->
-                    <div class="premium-card affinity-card">
-                        <div class="affinity-content">
-                            <span class="affinity-label">Afinidad Global STEAM</span>
-                            <div class="affinity-score-box">
-                                <span class="affinity-number">{{ globalAffinityPct }}</span>
-                                <span class="affinity-percent">%</span>
-                            </div>
-                        </div>
-                        <div class="affinity-icon">
-                            <app-lucide-icon name="target" [size]="48" color="rgba(7, 177, 201, 0.2)"></app-lucide-icon>
-                        </div>
-                    </div>
-
                     <!-- DNA Analysis Card -->
                     <div class="premium-card dna-card">
                         <div class="card-header">
@@ -106,10 +106,10 @@
                         <div class="calibration-info">
                             <h3>Módulos de Calibración</h3>
                             <p>Tienes talentos ocultos por mapear. Completa los Módulos de Calibración para alcanzar el <strong>100% de precisión</strong>.</p>
-                            <a routerLink="/dashboard" class="btn-calibrar">
+                            <button class="btn-calibrar" (click)="goToHome()">
                                 Calibrar mi perfil
                                 <app-lucide-icon name="arrow-right" [size]="16"></app-lucide-icon>
-                            </a>
+                            </button>
                         </div>
                         <div class="calibration-bg-icon">
                             <app-lucide-icon name="crosshair" [size]="120"></app-lucide-icon>

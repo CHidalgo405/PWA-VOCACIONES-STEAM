@@ -188,6 +188,7 @@
             font-size: 0.95rem;
             font-weight: 700;
             color: var(--text-main, #0F172A);
+            word-break: break-word;
         }
 
         .metric-score {
@@ -239,7 +240,7 @@
     }
 
     .affinity-number {
-        font-size: 3rem;
+        font-size: clamp(2.2rem, 8vw, 3.5rem);
         font-weight: 900;
         line-height: 1;
         color: var(--text-main, #0F172A);
@@ -365,6 +366,7 @@
     grid-template-columns: 1fr;
     gap: 1rem;
     margin-top: 1rem;
+    width: 100%;
 
     @media (min-width: 600px) {
         grid-template-columns: 1fr 1fr;
@@ -379,14 +381,16 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        padding: 14px 20px;
+        padding: 14px 16px;
         border-radius: 14px;
         font-weight: 700;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.2s ease;
         border: none;
         font-family: inherit;
+        text-align: center;
+        white-space: normal;
 
         &.primary {
             background: var(--primary, #07B1C9);
