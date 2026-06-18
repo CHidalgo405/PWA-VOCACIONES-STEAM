@@ -27,6 +27,7 @@
   --bg-glass: rgba(255, 255, 255, 0.85);
 
   /* Glassmorphism Tokens (Light) */
+  --bg-main: var(--bg-surface);
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
@@ -57,6 +58,7 @@
   --text-dark: #1E293B;
   --bg-light: #F4F6F8;
   --primary-color: #07B1C9;
+  --primary: var(--primary-color);
   --card-bg: #FFFFFF;
 }
 
@@ -70,6 +72,7 @@ body.dark-theme {
   --bg-glass: rgba(11, 17, 32, 0.85);
 
   /* Glassmorphism Tokens (Dark) */
+  --bg-main: var(--bg-surface);
   --glass-bg: rgba(11, 17, 32, 0.4);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
@@ -103,6 +106,7 @@ body.dark-theme {
   --text-dark: #F9FAFB;
   --bg-light: #111827;
   --primary-color: #07B1C9;
+  --primary: var(--primary-color);
   --card-bg: #0B1120;
 }
 
