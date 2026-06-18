@@ -25,6 +25,8 @@ export class HobbiesTestComponent implements OnInit {
   currentIndex = 0;
   answers: Record<string, 'liked' | 'disliked'> = {};
   animatingOut: 'left' | 'right' | null = null;
+  viewState: 'intro' | 'swiping' | 'outro' = 'intro';
+  isSubmitting = false;
 
   allDecks: Record<string, { title: string; subtitle: string; cards: HobbyCard[] }> = {
     gaming_habits: {
@@ -93,11 +95,16 @@ export class HobbiesTestComponent implements OnInit {
       this.cards = deck.cards;
       this.currentIndex = 0;
       this.answers = {};
+      this.viewState = 'intro';
     });
   }
 
   get currentCard(): HobbyCard | undefined {
     return this.cards[this.currentIndex];
+  }
+
+  startModule() {
+    this.viewState = 'swiping';
   }
 
   swipe(direction: 'left' | 'right') {
@@ -117,17 +124,21 @@ export class HobbiesTestComponent implements OnInit {
   }
 
   finish() {
+    this.viewState = 'outro';
+    this.isSubmitting = true;
     // Save to the backend database via AuthService
     this.authService.submitCalibration(this.moduleId, this.answers).subscribe({
       next: () => {
-        // Navigate back to Dashboard
-        this.router.navigate(['/dashboard']);
+        this.isSubmitting = false;
       },
       error: (err) => {
         console.error('Error saving calibration to backend:', err);
-        // Fallback to navigate to Dashboard anyway so user does not get stuck
-        this.router.navigate(['/dashboard']);
+        this.isSubmitting = false;
       }
     });
+  }
+
+  exitModule() {
+    this.router.navigate(['/dashboard']);
   }
 }

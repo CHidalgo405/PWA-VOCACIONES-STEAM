@@ -8,8 +8,108 @@
   max-width: 600px;
   margin: 0 auto;
   width: 100%;
+  min-height: 80vh;
 }
 
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+/* =========================================
+   INTRO & OUTRO
+   ========================================= */
+.icon-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(7, 177, 201, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  
+  &.success {
+    background: rgba(16, 185, 129, 0.1);
+  }
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-bottom: 32px;
+}
+
+.explanation-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: left;
+  margin-bottom: 40px;
+  box-shadow: var(--shadow-sm, 0 4px 15px rgba(0,0,0,0.05));
+  
+  p {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  strong {
+    color: var(--text-primary);
+  }
+
+  .highlight {
+    color: var(--primary);
+    font-weight: 600;
+  }
+}
+
+.start-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 300px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(7, 177, 201, 0.3);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+/* =========================================
+   SWIPING (TINDER MODE)
+   ========================================= */
 .mission-header {
   text-align: center;
   margin-bottom: 40px;
@@ -17,34 +117,36 @@
   .badge {
     background: rgba(7, 177, 201, 0.1);
     color: #07B1C9;
-    padding: 6px 12px;
+    padding: 6px 16px;
     border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 800;
     text-transform: uppercase;
     display: inline-block;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
   }
   
   h2 {
-    font-size: 24px;
+    font-size: 26px;
+    font-weight: 800;
     margin: 0 0 8px;
     color: var(--text-primary);
   }
   
   p {
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: 15px;
   }
 }
 
 .card-stack-container {
   position: relative;
   width: 100%;
-  max-width: 320px;
-  height: 400px;
+  max-width: 340px;
+  height: 420px;
   perspective: 1000px;
-  margin-bottom: 40px;
+  margin-bottom: 48px;
 }
 
 .tinder-card {
@@ -53,20 +155,21 @@
   height: 100%;
   background: var(--bg-surface);
   border-radius: 24px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08), 0 5px 15px rgba(0,0,0,0.03);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px;
+  padding: 40px 32px;
   text-align: center;
   border: 1px solid var(--border-light);
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
   transform-origin: center bottom;
   
   h3 {
-    font-size: 22px;
+    font-size: 24px;
+    font-weight: 700;
     color: var(--text-primary);
-    line-height: 1.4;
+    line-height: 1.5;
   }
   
   &.swipe-left {
@@ -82,27 +185,36 @@
 
 .controls {
   display: flex;
-  gap: 24px;
+  gap: 32px;
   margin-bottom: 40px;
 }
 
 .btn-swipe {
-  width: 70px;
-  height: 70px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
   background: var(--bg-surface);
-  border: none;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, border-color 0.2s;
   
   &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    transform: scale(1.15);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.1);
   }
+
+  &.btn-nope:hover {
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  &.btn-like:hover {
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
   &:active {
     transform: scale(0.95);
   }
@@ -110,6 +222,7 @@
 
 .progress-bar {
   width: 100%;
+  max-width: 340px;
   height: 6px;
   background: var(--border-light);
   border-radius: 4px;
@@ -118,15 +231,18 @@
   .fill {
     height: 100%;
     background: #07B1C9;
-    transition: width 0.3s ease;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
+/* =========================================
+   ANIMATIONS
+   ========================================= */
 .fade-in {
-  animation: fadeIn 0.4s ease-out both;
+  animation: fadeIn 0.5s ease-out both;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
