@@ -63,7 +63,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           color: '#64748B',
           font: { size: 12, family: 'Poppins', weight: '600' }
         },
-        ticks: { display: false, max: 100, min: 0, stepSize: 20 }
+        ticks: { display: false, stepSize: 20 },
+        min: 0,
+        max: 100
       }
     },
     plugins: {
