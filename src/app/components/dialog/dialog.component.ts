@@ -2,12 +2,12 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogService, DialogRequest } from '../../core/services/dialog.service';
 import { Subscription } from 'rxjs';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideIconComponent } from '../lucide-icon/lucide-icon.component';
 
 @Component({
   selector: 'app-dialog',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideIconComponent],
   templateUrl: './dialog.component.html',
   styleUrls: ['./dialog.component.scss']
 })
