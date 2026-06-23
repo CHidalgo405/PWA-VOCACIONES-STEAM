@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
+import { DialogService } from '../../../core/services/dialog.service';
+import { inject } from '@angular/core';
 
 @Component({
   selector: 'app-settings',
@@ -12,6 +14,7 @@ import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon
   styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent {
+  private dialogService = inject(DialogService);
 
   // --- MODELO DE CONFIGURACIÓN ---
   settings = {
@@ -57,10 +60,16 @@ export class SettingsComponent {
     setTimeout(() => this.showSuccessToast = false, 3000);
   }
 
-  clearCache() {
-    if (confirm('¿Estás seguro de limpiar la caché del sistema? Esto puede cerrar la sesión de algunos usuarios.')) {
+  async clearCache() {
+    const confirmed = await this.dialogService.confirm(
+      'Limpiar Caché',
+      '¿Estás seguro de limpiar la caché del sistema? Esto puede cerrar la sesión de algunos usuarios.',
+      { confirmText: 'Sí, limpiar caché', isDanger: true }
+    );
+    
+    if (confirmed) {
       console.log('Caché limpiada.');
-      alert('Caché del sistema liberada con éxito.');
+      await this.dialogService.alert('Caché Liberada', 'Caché del sistema liberada con éxito.');
     }
   }
 }

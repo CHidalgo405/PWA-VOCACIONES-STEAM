@@ -8,6 +8,7 @@ import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-s
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 import { CareerSimulatorData, SimulatorStep, SimulatorStepOption } from '../../../core/models/career-simulator.models';
 import { forkJoin } from 'rxjs';
+import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-manage-simulators',
@@ -20,6 +21,7 @@ export class ManageSimulatorsComponent implements OnInit {
   private adminService = inject(AdminService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+  private dialogService = inject(DialogService);
 
   // State Signals
   public simulators = signal<any[]>([]);
@@ -255,8 +257,14 @@ export class ManageSimulatorsComponent implements OnInit {
     }
   }
 
-  public deleteSimulator(sim: any) {
-    if (confirm(`¿Estás seguro de que deseas eliminar el simulador "${sim.careerName}"?`)) {
+  public async deleteSimulator(sim: any) {
+    const confirmed = await this.dialogService.confirm(
+      'Eliminar Simulador',
+      `¿Estás seguro de que deseas eliminar el simulador "${sim.careerName}"?`,
+      { confirmText: 'Sí, eliminar', isDanger: true }
+    );
+    
+    if (confirmed) {
       this.isLoading.set(true);
       this.adminService.deleteSimulator(sim.id).subscribe({
         next: () => {

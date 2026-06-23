@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { VocationTestService, TestHistorySummary } from '../../core/services/test.service';
 import { ToastService } from '../../core/services/toast.service';
+import { DialogService } from '../../core/services/dialog.service';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +19,7 @@ import { HeaderComponent } from '../../components/header/header.component';
 export class HistoryComponent implements OnInit {
   private testService = inject(VocationTestService);
   private toastService = inject(ToastService);
+  private dialogService = inject(DialogService);
 
   testHistory: TestHistorySummary[] = [];
   latestTest: TestHistorySummary | null = null;
@@ -107,9 +109,15 @@ export class HistoryComponent implements OnInit {
     this.isRenaming = null;
   }
 
-  deleteTest(testId: string, event: Event) {
+  async deleteTest(testId: string, event: Event) {
     event.stopPropagation();
-    if (!confirm('¿Estás seguro de que deseas eliminar este test permanentemente?')) {
+    const confirmed = await this.dialogService.confirm(
+      'Eliminar Test',
+      '¿Estás seguro de que deseas eliminar este test permanentemente?',
+      { confirmText: 'Sí, eliminar', isDanger: true }
+    );
+    
+    if (!confirmed) {
       return;
     }
 

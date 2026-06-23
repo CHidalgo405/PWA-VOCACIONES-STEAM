@@ -6,6 +6,7 @@ import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
+import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-security',
@@ -36,7 +37,8 @@ export class SecurityComponent {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private dialogService: DialogService
   ) {}
 
   savePassword() {
@@ -75,8 +77,14 @@ export class SecurityComponent {
     this.showSuccessToast(this.twoFactorEnabled ? '2FA Activado simulado' : '2FA Desactivado');
   }
 
-  logoutAllSessions() {
-    if (confirm('¿Estás seguro de cerrar sesión en todos los demás dispositivos?')) {
+  async logoutAllSessions() {
+    const confirmed = await this.dialogService.confirm(
+      'Cerrar Sesiones',
+      '¿Estás seguro de cerrar sesión en todos los demás dispositivos?',
+      { confirmText: 'Sí, cerrar sesiones', isDanger: true }
+    );
+    
+    if (confirmed) {
       this.showSuccessToast('Sesiones cerradas correctamente.');
       this.activeSessions = [this.activeSessions[0]]; // Solo mantener la actual
     }

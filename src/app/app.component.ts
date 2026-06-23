@@ -4,14 +4,16 @@ import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter } from 'rxjs/operators';
 import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
 import { ToastComponent } from './components/toast/toast.component';
+import { DialogComponent } from './components/dialog/dialog.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { ThemeService } from './core/services/theme.service';
+import { DialogService } from './core/services/dialog.service';
 import { NgIf } from '@angular/common';
 import { fadeSlideAnimation } from './route-animations';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, SplashScreenComponent, ToastComponent, NavbarComponent, NgIf],
+  imports: [RouterOutlet, SplashScreenComponent, ToastComponent, DialogComponent, NavbarComponent, NgIf],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   animations: [fadeSlideAnimation]
@@ -22,6 +24,7 @@ export class AppComponent implements OnInit {
   private themeService = inject(ThemeService);
   private router = inject(Router);
   private contexts = inject(ChildrenOutletContexts);
+  private dialogService = inject(DialogService);
 
   showNavbar = false;
 
@@ -47,8 +50,13 @@ export class AppComponent implements OnInit {
     if (this.swUpdate.isEnabled) {
       this.swUpdate.versionUpdates.pipe(
         filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY')
-      ).subscribe(() => {
-        if (confirm('Hay una nueva versión de Vocaciones STEAM disponible. ¿Deseas actualizar ahora?')) {
+      ).subscribe(async () => {
+        const confirmed = await this.dialogService.confirm(
+          'Actualización Disponible',
+          'Hay una nueva versión de Vocaciones STEAM disponible. ¿Deseas actualizar ahora?',
+          { confirmText: 'Actualizar', cancelText: 'Más tarde' }
+        );
+        if (confirmed) {
           window.location.reload();
         }
       });

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms'; // Necesario para ngModel
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { AdminService, AdminUser } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { catchError } from 'rxjs/operators';
 import { of, forkJoin } from 'rxjs';
@@ -41,7 +42,12 @@ export class ManageUsersComponent implements OnInit {
   isLoading = true;
   skeletonArray = Array(5).fill(0); // 5 filas de skeleton
 
-  constructor(private adminService: AdminService, private toastService: ToastService, private authService: AuthService) {}
+  constructor(
+    private adminService: AdminService, 
+    private toastService: ToastService, 
+    private authService: AuthService,
+    private dialogService: DialogService
+  ) {}
 
   ngOnInit() {
     this.loadUsers();
@@ -325,7 +331,7 @@ export class ManageUsersComponent implements OnInit {
     }
   }
 
-  deleteSelectedUsers() {
+  async deleteSelectedUsers() {
     if (this.selectedUsers.length === 0) return;
 
     const count = this.selectedUsers.length;
@@ -333,7 +339,13 @@ export class ManageUsersComponent implements OnInit {
       ? `¿Estás seguro de eliminar a los ${count} usuarios seleccionados?`
       : `¿Estás seguro de eliminar a ${this.selectedUsers[0].nombre}?`;
 
-    if (confirm(msg)) {
+    const confirmed = await this.dialogService.confirm(
+      'Eliminar Usuarios',
+      msg,
+      { confirmText: 'Sí, eliminar', isDanger: true }
+    );
+
+    if (confirmed) {
       this.isSubmitting = true;
       const deleteObservables = this.selectedUsers.map(su => this.adminService.deleteUser(su.id));
 
@@ -353,9 +365,16 @@ export class ManageUsersComponent implements OnInit {
     }
   }
 
-  deleteUserFromModal() {
+  async deleteUserFromModal() {
     const user = this.filteredUsersList[this.viewedUserIndex];
-    if (confirm(`¿Estás seguro de eliminar a ${user.fullname}?`)) {
+    
+    const confirmed = await this.dialogService.confirm(
+      'Eliminar Usuario',
+      `¿Estás seguro de eliminar a ${user.fullname}?`,
+      { confirmText: 'Sí, eliminar', isDanger: true }
+    );
+
+    if (confirmed) {
       this.isSubmitting = true;
       this.adminService.deleteUser(user.id).subscribe({
         next: () => {

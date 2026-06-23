@@ -1,0 +1,36 @@
+<div class="dialog-overlay" [class.show]="isVisible" *ngIf="request || isVisible">
+  <div class="dialog-backdrop" (click)="request?.type === 'alert' ? onConfirm() : onCancel()"></div>
+  
+  <div class="dialog-panel" [class.show]="isVisible" *ngIf="request">
+    <!-- Icon header -->
+    <div class="dialog-icon" [ngClass]="{'danger': request.isDanger, 'info': !request.isDanger}">
+      <app-lucide-icon 
+        [name]="request.isDanger ? 'alert-triangle' : 'info'" 
+        [size]="32" 
+        [color]="request.isDanger ? '#EF4444' : '#07B1C9'">
+      </app-lucide-icon>
+    </div>
+
+    <!-- Content -->
+    <div class="dialog-content">
+      <h3 class="dialog-title">{{ request.title }}</h3>
+      <p class="dialog-message">{{ request.message }}</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="dialog-actions" [ngClass]="{'single-action': request.type === 'alert'}">
+      <button 
+        *ngIf="request.type === 'confirm'" 
+        class="btn-dialog-cancel" 
+        (click)="onCancel()">
+        {{ request.cancelText }}
+      </button>
+      <button 
+        class="btn-dialog-confirm" 
+        [ngClass]="{'btn-danger': request.isDanger, 'btn-primary': !request.isDanger}"
+        (click)="onConfirm()">
+        {{ request.confirmText }}
+      </button>
+    </div>
+  </div>
+</div>

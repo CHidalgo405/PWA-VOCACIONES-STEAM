@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { AdminService, AdminTestQuestion } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { catchError } from 'rxjs/operators';
 import { of, forkJoin } from 'rxjs';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
@@ -50,7 +51,11 @@ export class ManageTestComponent implements OnInit {
   isLoading = true;
   skeletonArray = Array(5).fill(0);
 
-  constructor(private adminService: AdminService, private toastService: ToastService) {}
+  constructor(
+    private adminService: AdminService, 
+    private toastService: ToastService,
+    private dialogService: DialogService
+  ) {}
 
   ngOnInit() {
     this.loadQuestions();
@@ -349,7 +354,7 @@ export class ManageTestComponent implements OnInit {
     }
   }
 
-  deleteSelected() {
+  async deleteSelected() {
     if (this.selectedQuestions.length === 0) return;
     const count = this.selectedQuestions.length;
 
@@ -357,7 +362,13 @@ export class ManageTestComponent implements OnInit {
       ? `¿Estás seguro de eliminar a las ${count} preguntas seleccionadas?`
       : '¿Eliminar esta pregunta definitivamente?';
 
-    if (confirm(msg)) {
+    const confirmed = await this.dialogService.confirm(
+      'Eliminar Pregunta(s)',
+      msg,
+      { confirmText: 'Sí, eliminar', isDanger: true }
+    );
+
+    if (confirmed) {
       this.isSubmitting = true;
       const deleteObservables = this.selectedQuestions.map(sq => this.adminService.deleteQuestion(sq.id));
 
@@ -377,9 +388,16 @@ export class ManageTestComponent implements OnInit {
     }
   }
 
-  deleteQuestionFromModal() {
+  async deleteQuestionFromModal() {
     const q = this.filteredQuestionsList[this.viewedQuestionIndex];
-    if (confirm(`¿Eliminar la pregunta #${q.id} definitivamente?`)) {
+    
+    const confirmed = await this.dialogService.confirm(
+      'Eliminar Pregunta',
+      `¿Eliminar la pregunta #${q.id} definitivamente?`,
+      { confirmText: 'Sí, eliminar', isDanger: true }
+    );
+
+    if (confirmed) {
       this.isSubmitting = true;
       this.adminService.deleteQuestion(q.id).subscribe({
         next: () => {
