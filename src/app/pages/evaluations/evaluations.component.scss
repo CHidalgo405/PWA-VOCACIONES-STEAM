@@ -1309,3 +1309,93 @@ $warning-bg:   #F59E0B;
     }
   }
 }
+
+/* =========================================
+   MOBILE RESPONSIVENESS
+   ========================================= */
+@media (max-width: 480px) {
+  /* Onboarding screen */
+  .onboarding-card {
+    padding: 32px 20px 24px;
+    border-radius: 20px;
+  }
+  .onboarding-title {
+    font-size: 22px;
+  }
+  .vt-onboarding {
+    padding: 16px;
+  }
+  .onboarding-features {
+    margin-bottom: 24px;
+  }
+  .btn-start {
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+
+  /* Questionnaire screen */
+  .vt-header {
+    padding: 12px 16px 10px;
+  }
+  .vt-content {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+  .question-card {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  .question-text {
+    font-size: 16px;
+  }
+  .option-btn {
+    padding: 12px 14px;
+    gap: 12px;
+    border-radius: 14px;
+  }
+  .option-letter {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  .option-main-text {
+    font-size: 13.5px;
+  }
+  .vt-footer {
+    padding: 12px 16px 20px;
+  }
+  .footer-inner {
+    padding: 0;
+  }
+  .btn-next {
+    padding: 12px 20px;
+  }
+
+  /* Modal */
+  .modal-card {
+    padding: 24px 20px;
+  }
+}
+
+@media (max-width: 360px) {
+  .onboarding-card {
+    padding: 24px 16px;
+  }
+  .onboarding-title {
+    font-size: 20px;
+  }
+  .question-card {
+    padding: 16px 12px;
+  }
+  .question-text {
+    font-size: 15px;
+  }
+  .option-btn {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .option-main-text {
+    font-size: 13px;
+  }
+}

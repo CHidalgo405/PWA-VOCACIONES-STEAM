@@ -248,3 +248,82 @@
   from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* =========================================
+   MOBILE RESPONSIVENESS
+   ========================================= */
+@media (max-width: 480px) {
+  .hobbies-wrapper {
+    padding: 20px 16px;
+    min-height: calc(100vh - 60px);
+  }
+
+  .mission-header {
+    margin-bottom: 24px;
+    h2 {
+      font-size: 22px;
+    }
+  }
+
+  .card-stack-container {
+    height: 380px;
+    margin-bottom: 32px;
+  }
+
+  .tinder-card {
+    padding: 24px 20px;
+    border-radius: 20px;
+    
+    h3 {
+      font-size: 20px;
+    }
+  }
+
+  .controls {
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .btn-swipe {
+    width: 64px;
+    height: 64px;
+  }
+
+  .explanation-card {
+    padding: 16px;
+    margin-bottom: 24px;
+    
+    p {
+      font-size: 14px;
+    }
+  }
+
+  .icon-wrap {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .hobbies-wrapper {
+    padding: 16px 12px;
+  }
+
+  .card-stack-container {
+    height: 340px;
+  }
+
+  .tinder-card h3 {
+    font-size: 18px;
+  }
+
+  .controls {
+    gap: 16px;
+  }
+
+  .btn-swipe {
+    width: 56px;
+    height: 56px;
+  }
+}
