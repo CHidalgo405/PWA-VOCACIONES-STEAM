@@ -564,86 +564,47 @@
     }
   }
 
-  .hero-progress-bars {
+  .hero-radar-chart {
     border-top: 1px solid var(--border-color);
     padding-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 280px;
 
     @media (min-width: 768px) {
       border-top: none;
       border-left: 1px solid var(--border-color);
       padding-top: 0;
       padding-left: 30px;
+      min-height: 320px;
     }
 
-    .progress-bars-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .radar-container {
+      position: relative;
+      width: 100%;
+      max-width: 320px;
+      height: 100%;
+      aspect-ratio: 1 / 1;
+      
+      /* Subtle glow behind the chart */
+      &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70%;
+        height: 70%;
+        background: radial-gradient(circle, rgba(7, 177, 201, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+      }
 
-      .progress-bar-item {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-
-        .area-name-col {
-          width: 100px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-
-          .color-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-          }
-
-          .area-name {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text-primary);
-          }
-        }
-
-        .bar-col {
-          flex: 1;
-          .track {
-            width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-            position: relative;
-
-            .fill {
-              height: 100%;
-              border-radius: 4px;
-              transition: width 1.5s ease-out;
-              position: relative;
-
-              &::after {
-                content: '';
-                position: absolute;
-                right: -4px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                background: #ffffff;
-                box-shadow: 0 0 12px 3px #07B1C9;
-              }
-            }
-          }
-        }
-
-        .percent-col {
-          width: 35px;
-          text-align: right;
-          .percentage {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-          }
-        }
+      canvas {
+        position: relative;
+        z-index: 1;
       }
     }
   }

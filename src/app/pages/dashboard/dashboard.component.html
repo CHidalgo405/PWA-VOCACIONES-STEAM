@@ -180,24 +180,13 @@
         </div>
       </div>
       
-      <div class="hero-progress-bars">
-        <div class="progress-bars-list">
-          @for (area of profileAreas; track area.name) {
-            <div class="progress-bar-item">
-              <div class="area-name-col">
-                <span class="color-dot" [style.background-color]="area.color"></span>
-                <span class="area-name">{{ area.name }}</span>
-              </div>
-              <div class="bar-col">
-                <div class="track">
-                  <div class="fill" [style.width]="area.percentage + '%'" [style.background-color]="area.color"></div>
-                </div>
-              </div>
-              <div class="percent-col">
-                <span class="percentage" *ngIf="area.percentage > 0">{{ area.percentage }}%</span>
-              </div>
-            </div>
-          }
+      <div class="hero-radar-chart">
+        <div class="radar-container">
+          <canvas baseChart
+            [data]="radarChartData"
+            [options]="radarChartOptions"
+            [type]="'radar'">
+          </canvas>
         </div>
       </div>
     </div>

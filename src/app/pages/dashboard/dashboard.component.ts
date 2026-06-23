@@ -5,13 +5,16 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService, Usuario } from '../../core/services/auth.service';
 import { TestSubmissionResponse, VocationTestService, TestDetail } from '../../core/services/test.service';
 
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import gsap from 'gsap';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideIconComponent],
+  imports: [CommonModule, RouterModule, LucideIconComponent, BaseChartDirective],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -47,6 +50,52 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   recommendedCareers: { title: string; category: string }[] = [];
   dominantArea: any = null;
   secondaryArea: any = null;
+
+  // Radar Chart
+  public radarChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        angleLines: { color: 'rgba(7, 177, 201, 0.2)' },
+        grid: { color: 'rgba(7, 177, 201, 0.15)' },
+        pointLabels: {
+          color: '#64748B',
+          font: { size: 12, family: 'Poppins', weight: '600' }
+        },
+        ticks: { display: false, max: 100, min: 0, stepSize: 20 }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+        titleFont: { family: 'Poppins', size: 14, weight: 'bold' },
+        bodyFont: { family: 'Poppins', size: 13 },
+        padding: 12,
+        cornerRadius: 8,
+        displayColors: false,
+        callbacks: {
+          label: (context) => `${context.parsed.r}% de Afinidad`
+        }
+      }
+    }
+  };
+
+  public radarChartData: ChartData<'radar'> = {
+    labels: [],
+    datasets: [{
+      data: [],
+      label: 'Afinidad',
+      backgroundColor: 'rgba(7, 177, 201, 0.15)',
+      borderColor: '#07B1C9',
+      pointBackgroundColor: '#07B1C9',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: '#07B1C9',
+      borderWidth: 2,
+    }]
+  };
 
   private ctx!: gsap.Context;
 
@@ -249,6 +298,28 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.profileAreas.length > 0) {
         this.dominantArea = this.profileAreas[0];
         this.secondaryArea = this.profileAreas[1] || null;
+        
+        // Populate Radar Chart Data
+        const radarLabels = this.profileAreas.map(a => a.name);
+        const radarData = this.profileAreas.map(a => a.percentage);
+        
+        this.radarChartData = {
+          labels: radarLabels,
+          datasets: [{
+            data: radarData,
+            label: 'Afinidad',
+            backgroundColor: 'rgba(7, 177, 201, 0.25)',
+            borderColor: '#07B1C9',
+            pointBackgroundColor: '#07B1C9',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#07B1C9',
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBorderWidth: 2
+          }]
+        };
     }
   }
 
