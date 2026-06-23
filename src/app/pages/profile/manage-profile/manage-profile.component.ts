@@ -39,23 +39,31 @@ export class ManageProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.authService.obtenerPerfil().subscribe((usuario: any) => {
-      const names = usuario.nombre ? usuario.nombre.split(' ') : [''];
-      this.profileForm.firstName = names[0] || '';
-      this.profileForm.lastName = names.slice(1).join(' ') || '';
-      
-      if (usuario.fotoUrl) {
-        this.profileForm.avatar = usuario.fotoUrl;
-        this.originalAvatar = usuario.fotoUrl;
-      } else {
-        const initials = usuario.nombre ? usuario.nombre.split(' ').map((n: string) => n[0]).join('').substring(0, 2) : 'U';
-        this.profileForm.avatar = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&size=128`;
-        this.originalAvatar = this.profileForm.avatar;
-      }
+    this.authService.obtenerPerfil().subscribe({
+      next: (usuario: any) => {
+        const names = usuario.nombre ? usuario.nombre.split(' ') : [''];
+        this.profileForm.firstName = names[0] || '';
+        this.profileForm.lastName = names.slice(1).join(' ') || '';
+        
+        if (usuario.fotoUrl) {
+          this.profileForm.avatar = usuario.fotoUrl;
+          this.originalAvatar = usuario.fotoUrl;
+        } else {
+          const initials = usuario.nombre ? usuario.nombre.split(' ').map((n: string) => n[0]).join('').substring(0, 2) : 'U';
+          this.profileForm.avatar = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&size=128`;
+          this.originalAvatar = this.profileForm.avatar;
+        }
 
-      // Simulando carga de datos adicionales
-      this.profileForm.bio = 'Apasionado por la tecnología y la ciencia.';
-      this.profileForm.location = 'México';
+        // Simulando carga de datos adicionales
+        this.profileForm.bio = 'Apasionado por la tecnología y la ciencia.';
+        this.profileForm.location = 'México';
+      },
+      error: (err: any) => {
+        console.error('Error al cargar perfil:', err);
+        if (err.status === 401) {
+          this.profileForm.firstName = 'Sesión expirada';
+        }
+      }
     });
   }
 

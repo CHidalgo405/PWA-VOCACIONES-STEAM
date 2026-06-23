@@ -78,33 +78,48 @@ export class ProfileComponent implements OnInit, OnDestroy {
       if (ts) ts.toggleState = isDark;
     });
 
-    this.authService.obtenerPerfil().subscribe(usuario => {
-      this.user.name = usuario.nombre;
-      this.user.email = usuario.email;
-      this.user.role = usuario.role;
-      this.user.level = usuario.level || 5;
+    this.authService.obtenerPerfil().subscribe({
+      next: (usuario) => {
+        this.user.name = usuario.nombre;
+        this.user.email = usuario.email;
+        this.user.role = usuario.role;
+        this.user.level = usuario.level || 5;
 
-      if (usuario.fotoUrl) {
-        this.user.avatar = usuario.fotoUrl;
-      } else {
-        const initials = usuario.nombre.split(' ').map(n => n[0]).join('').substring(0, 2);
-        this.user.avatar = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&size=128`;
-      }
-
-      // Sync theme toggle with user preference from API
-      if (usuario.darkMode !== undefined) {
-        const themeSetting = this.preferencesSettings.find(s => s.action === 'theme');
-        if (themeSetting) {
-          themeSetting.toggleState = usuario.darkMode;
+        if (usuario.fotoUrl) {
+          this.user.avatar = usuario.fotoUrl;
+        } else {
+          const initials = usuario.nombre.split(' ').map(n => n[0]).join('').substring(0, 2);
+          this.user.avatar = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&size=128`;
         }
-        this.themeService.setTheme(usuario.darkMode);
+
+        // Sync theme toggle with user preference from API
+        if (usuario.darkMode !== undefined) {
+          const themeSetting = this.preferencesSettings.find(s => s.action === 'theme');
+          if (themeSetting) {
+            themeSetting.toggleState = usuario.darkMode;
+          }
+          this.themeService.setTheme(usuario.darkMode);
+        }
+        this.updateBadges();
+      },
+      error: (err) => {
+        console.error('Error al cargar perfil:', err);
+        if (err.status === 401) {
+          this.user.name = 'Sesión expirada';
+        } else {
+          this.user.name = 'Error de conexión';
+        }
       }
-      this.updateBadges();
     });
 
-    this.testService.getTestHistory().subscribe(history => {
-      this.testCount = history.length;
-      this.updateBadges();
+    this.testService.getTestHistory().subscribe({
+      next: (history) => {
+        this.testCount = history.length;
+        this.updateBadges();
+      },
+      error: (err) => {
+        console.error('Error al cargar historial:', err);
+      }
     });
   }
 

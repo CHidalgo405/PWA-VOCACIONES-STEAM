@@ -71,25 +71,35 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // 2. Suscripción Asíncrona (Carga desde el Servidor en segundo plano)
-    this.authService.obtenerPerfil().subscribe(usuario => {
-      this.userProfile = usuario;
-      this.userName = usuario.nombre || this.userName;
-      if (usuario.fotoUrl) {
-        this.avatarUrl = usuario.fotoUrl;
-      } else {
-        const initials = this.userName.split(' ').map(n => n[0]).join('').substring(0, 2);
-        this.avatarUrl = `https://ui-avatars.com/api/?name=${initials}&background=E53935&color=fff`; // Red avatar like mockup
-      }
-
-      if (usuario.id) {
-        const hasSeenWelcome = localStorage.getItem(`hasSeenWelcome_${usuario.id}`);
-        if (!hasSeenWelcome) {
-          this.showWelcomeModal = true;
-          document.body.style.overflow = 'hidden';
+    this.authService.obtenerPerfil().subscribe({
+      next: (usuario) => {
+        this.userProfile = usuario;
+        this.userName = usuario.nombre || this.userName;
+        if (usuario.fotoUrl) {
+          this.avatarUrl = usuario.fotoUrl;
+        } else {
+          const initials = this.userName.split(' ').map(n => n[0]).join('').substring(0, 2);
+          this.avatarUrl = `https://ui-avatars.com/api/?name=${initials}&background=E53935&color=fff`; // Red avatar like mockup
         }
 
-        // Carga/Actualiza desde la API
-        this.loadTestResult(usuario.id);
+        if (usuario.id) {
+          const hasSeenWelcome = localStorage.getItem(`hasSeenWelcome_${usuario.id}`);
+          if (!hasSeenWelcome) {
+            this.showWelcomeModal = true;
+            document.body.style.overflow = 'hidden';
+          }
+
+          // Carga/Actualiza desde la API
+          this.loadTestResult(usuario.id);
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar perfil en dashboard:', err);
+        if (err.status === 401) {
+          this.userName = 'Sesión expirada';
+        } else {
+          this.userName = 'Error de conexión';
+        }
       }
     });
   }
