@@ -3,14 +3,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; /* Changed from center to allow scrolling without top-cutoff */
   padding: 40px 20px;
   max-width: 600px;
   margin: 0 auto;
   width: 100%;
   min-height: 80vh;
+  overflow-y: auto; /* Allow scrolling if content is taller than screen */
 }
 
+/* Ensure state container takes up remaining space to center content vertically when it fits */
 .state-container {
   display: flex;
   flex-direction: column;
@@ -18,6 +20,8 @@
   justify-content: center;
   width: 100%;
   text-align: center;
+  flex: 1;
+  padding-bottom: 20px;
 }
 
 /* =========================================
@@ -147,6 +151,7 @@
   height: 420px;
   perspective: 1000px;
   margin-bottom: 48px;
+  flex-shrink: 0; /* Prevent overlapping by forcing parent to respect this height */
 }
 
 .tinder-card {
@@ -189,6 +194,7 @@
   margin-bottom: 40px;
   position: relative;
   z-index: 10;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .btn-swipe {
@@ -249,17 +255,16 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* =========================================
-   MOBILE RESPONSIVENESS
-   ========================================= */
 @media (max-width: 480px) {
   .hobbies-wrapper {
-    padding: 20px 16px;
-    min-height: calc(100vh - 60px);
+    padding: 24px 16px;
+    min-height: 100vh;
+    justify-content: flex-start; /* Important to stop top cutoff */
   }
 
   .mission-header {
     margin-bottom: 24px;
+    flex-shrink: 0;
     h2 {
       font-size: 22px;
     }
@@ -267,7 +272,7 @@
 
   .card-stack-container {
     height: 380px;
-    margin-bottom: 32px;
+    margin-bottom: 24px; /* Reduced to leave space for controls */
   }
 
   .tinder-card {
@@ -275,13 +280,14 @@
     border-radius: 20px;
     
     h3 {
-      font-size: 20px;
+      font-size: 19px; /* Reduced slightly more to fit 4 lines easily */
+      line-height: 1.4;
     }
   }
 
   .controls {
     gap: 20px;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
   }
 
   .btn-swipe {
@@ -290,8 +296,9 @@
   }
 
   .explanation-card {
-    padding: 16px;
+    padding: 20px 16px;
     margin-bottom: 24px;
+    width: 100%;
     
     p {
       font-size: 14px;
@@ -307,19 +314,24 @@
 
 @media (max-width: 360px) {
   .hobbies-wrapper {
-    padding: 16px 12px;
+    padding: 20px 12px;
   }
 
   .card-stack-container {
-    height: 340px;
+    height: 350px;
+    margin-bottom: 20px;
   }
 
-  .tinder-card h3 {
-    font-size: 18px;
+  .tinder-card {
+    padding: 20px 16px;
+    h3 {
+      font-size: 17px;
+    }
   }
 
   .controls {
     gap: 16px;
+    margin-bottom: 16px;
   }
 
   .btn-swipe {

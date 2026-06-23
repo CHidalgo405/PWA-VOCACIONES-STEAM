@@ -113,6 +113,10 @@ body.dark-theme {
 /* =========================================
    GLOBAL BASE STYLES
    ========================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: 'Poppins', 'Segoe UI', sans-serif;
