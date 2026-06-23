@@ -61,7 +61,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         grid: { color: 'rgba(7, 177, 201, 0.15)' },
         pointLabels: {
           color: '#64748B',
-          font: { size: 12, family: 'Poppins', weight: '600' }
+          font: { size: 12, family: 'Poppins', weight: 'bold' }
         },
         ticks: { display: false, stepSize: 20 },
         min: 0,
