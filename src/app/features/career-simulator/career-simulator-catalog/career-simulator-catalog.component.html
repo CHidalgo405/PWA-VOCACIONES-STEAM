@@ -1,21 +1,27 @@
 <!-- INTRO STATE -->
 <div class="intro-container" *ngIf="viewState() === 'intro'">
-  <div class="intro-content">
-    <div class="icon-wrap">
-      <app-lucide-icon name="compass" [size]="48" color="var(--primary)"></app-lucide-icon>
-    </div>
-    <div class="badge">Experiencias Inmersivas</div>
-    <h2>Simuladores de Carrera</h2>
-    
-    <div class="explanation-card">
-      <p>Los simuladores te brindan una <strong>pequeña muestra de la realidad</strong> de diversas carreras y profesiones.</p>
-      <p>Su propósito es darte mejor contexto sobre las decisiones y retos que enfrentarías en estas áreas. Además, tus respuestas finales nos ayudarán a obtener una <span class="highlight">mayor precisión</span> en la calibración de tu perfil vocacional STEAM.</p>
+  <div class="intro-grid">
+    <!-- Left Column: Content -->
+    <div class="intro-text">
+      <div class="badge-pill">EXPERIENCIAS INMERSIVAS</div>
+      <h2 class="hero-title">Simuladores<br>de Carrera</h2>
+      
+      <div class="explanation-text">
+        <p>Los simuladores te brindan una <strong>pequeña muestra de la realidad</strong> de diversas carreras y profesiones.</p>
+        <p>Su propósito es darte mejor contexto sobre las decisiones y retos que enfrentarías en estas áreas. Además, tus respuestas finales nos ayudarán a obtener una <span class="highlight">mayor precisión</span> en la calibración de tu perfil vocacional STEAM.</p>
+      </div>
+
+      <button class="btn-ver-simuladores" (click)="startCatalog()">
+        Ver Simuladores
+        <app-lucide-icon name="arrow-right" [size]="20"></app-lucide-icon>
+      </button>
     </div>
 
-    <button class="primary-btn-block" (click)="startCatalog()">
-      Ver Simuladores
-      <app-lucide-icon name="arrow-right" [size]="20"></app-lucide-icon>
-    </button>
+    <!-- Right Column: Illustration -->
+    <div class="intro-image">
+      <div class="image-blob-bg"></div>
+      <img src="assets/simulators-hero.png" alt="Estudiantes STEAM Simuladores">
+    </div>
   </div>
 </div>
 
