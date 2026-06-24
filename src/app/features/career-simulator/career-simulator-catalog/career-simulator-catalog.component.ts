@@ -198,4 +198,15 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
     if (area.includes('matematica') || area.includes('matemática')) return 'Matemáticas';
     return 'Tecnología';
   }
+
+  public getAreaIcon(area: SteamAreaFilter | string): string {
+    switch (area) {
+      case 'Ciencia': return 'microscope';
+      case 'Tecnología': return 'code-2';
+      case 'Ingeniería': return 'settings';
+      case 'Artes': return 'palette';
+      case 'Matemáticas': return 'sigma';
+      default: return '';
+    }
+  }
 }

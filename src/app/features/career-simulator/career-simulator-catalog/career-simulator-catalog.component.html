@@ -27,9 +27,15 @@
 
 <!-- CATALOG STATE -->
 <div class="catalog-container fade-in" *ngIf="viewState() === 'catalog'">
-  <header class="catalog-header">
-    <h1>Simuladores de carrera</h1>
-    <p>Descubre cómo piensas enfrentando problemas reales en distintas profesiones STEAM</p>
+  <header class="catalog-header-flex">
+    <div class="header-texts">
+      <h1>Simuladores de carrera</h1>
+      <p>Descubre cómo piensas enfrentando problemas reales en distintas profesiones STEAM.</p>
+    </div>
+    <button class="btn-mis-simulaciones">
+      <app-lucide-icon name="star" [size]="18"></app-lucide-icon>
+      Mis simulaciones
+    </button>
   </header>
 
   <div class="filters-container">
@@ -40,6 +46,7 @@
           [class.active]="currentFilter() === filter"
           (click)="setFilter(filter)"
         >
+          <app-lucide-icon *ngIf="getAreaIcon(filter)" [name]="getAreaIcon(filter)" [size]="16" class="filter-icon"></app-lucide-icon>
           {{ filter }}
         </button>
       }
@@ -48,23 +55,24 @@
 
   <main class="simulators-grid">
     @for (sim of filteredSimulators(); track sim.careerId) {
-      <div class="sim-card-modern" [style.--card-color]="sim.colorToken || '#8b5cf6'">
-        <div class="card-glow" [style.background-color]="sim.colorToken || '#8b5cf6'"></div>
+      <div class="sim-card-premium" [style.--card-color]="sim.colorToken || '#07B1C9'">
+        
+        <div class="card-hero-bg">
+          <div class="card-glass-blob"></div>
+          
+          <div class="hero-top-row">
+            <div class="icon-box-glass">
+              <app-lucide-icon *ngIf="getAreaIcon(getSteamArea(sim))" [name]="getAreaIcon(getSteamArea(sim))" [size]="28"></app-lucide-icon>
+              <span *ngIf="!getAreaIcon(getSteamArea(sim))">{{ sim.areaEmoji || '🧪' }}</span>
+            </div>
+            <span class="area-badge">{{ getSteamArea(sim) }}</span>
+          </div>
+        </div>
         
         <div class="card-content-wrapper">
-          <div class="card-top">
-            <div class="icon-box">
-              <app-lucide-icon *ngIf="sim.icon" [name]="sim.icon" [size]="28" [color]="sim.colorToken || '#8b5cf6'"></app-lucide-icon>
-              <span *ngIf="!sim.icon">{{ sim.areaEmoji }}</span>
-            </div>
-            <span class="area-badge" [style.color]="sim.colorToken || '#8b5cf6'">
-              {{ getSteamArea(sim) }}
-            </span>
-          </div>
-          
           <div class="card-mid">
             <h3>{{ sim.careerName }}</h3>
-            <p>{{ sim.description }}</p>
+            <p>{{ sim.description || 'Descubre si tu forma de pensar encaja con el trabajo real en esta área.' }}</p>
           </div>
           
           <div class="tags-container" *ngIf="sim.tags && sim.tags.length">
@@ -76,19 +84,33 @@
           <div class="card-bottom">
             @if (completedSimulators().includes(sim.careerId)) {
               <div class="status-row">
-                <span class="badge-completed"><app-lucide-icon name="check-circle" [size]="14"></app-lucide-icon> Completado</span>
-                @if (getAffinityScore(sim.careerId) !== null) {
-                  <span class="score-pill">Afinidad: {{ getAffinityScore(sim.careerId) }}%</span>
-                }
+                <div class="affinity-indicator">
+                  <div class="progress-ring-container">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                      <path class="circle-bg"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                      <path class="circle"
+                        [attr.stroke-dasharray]="(getAffinityScore(sim.careerId) || 0) + ', 100'"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <span class="percentage">{{ getAffinityScore(sim.careerId) || 0 }}%</span>
+                  </div>
+                  <span class="affinity-label">Afinidad</span>
+                </div>
+
+                <span class="badge-completed">
+                  <app-lucide-icon name="check-circle" [size]="16"></app-lucide-icon> 
+                  Completado
+                </span>
               </div>
               <button class="action-btn outline" (click)="goToSimulator(sim.careerId)">
-                <app-lucide-icon name="refresh-cw" [size]="16"></app-lucide-icon>
-                Repetir
+                <app-lucide-icon name="play" [size]="16"></app-lucide-icon>
+                Repetir simulación
               </button>
             } @else {
-              <button class="action-btn filled" (click)="goToSimulator(sim.careerId)">
+              <button class="action-btn outline" (click)="goToSimulator(sim.careerId)">
+                <app-lucide-icon name="play" [size]="16"></app-lucide-icon>
                 Iniciar simulación
-                <app-lucide-icon name="play-circle" [size]="18"></app-lucide-icon>
               </button>
             }
           </div>
