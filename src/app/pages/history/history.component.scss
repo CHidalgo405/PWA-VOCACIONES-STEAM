@@ -50,9 +50,7 @@
   padding: 1rem 1.25rem;
 
   @media (min-width: 1024px) {
-    padding: 2rem 24px;
-    max-width: 1400px;
-    margin: 0 auto;
+    padding: 1.5rem 15%;
   }
 }
 
@@ -480,24 +478,11 @@
 .premium-empty-state-card {
   display: flex;
   flex-direction: column;
-  background: var(--card-bg);
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-  margin-top: 20px;
-  padding: 25px 20px;
-  border: 1px solid var(--border-light);
-  overflow: hidden;
-  transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  margin-top: 10px;
+  padding: 20px 0;
 
   @media (min-width: 768px) {
-    padding: 40px;
-    border-radius: 24px;
-  }
-
-  :host-context(body.dark-theme) & {
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-    border-color: rgba(255, 255, 255, 0.05);
-    background: linear-gradient(145deg, #1A2235 0%, #111827 100%);
+    padding: 30px 0;
   }
 
   .empty-card-content {
@@ -676,6 +661,10 @@
     margin-top: 30px;
     padding-top: 25px;
     border-top: 1px solid var(--border-light);
+
+    :host-context(body.dark-theme) & {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
 
     @media (min-width: 480px) {
       grid-template-columns: 1fr 1fr;
