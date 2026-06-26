@@ -481,7 +481,9 @@
   background: var(--card-bg);
   border-radius: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-  margin-top: 20px;
+  margin: 2rem auto;
+  max-width: 900px;
+  width: 100%;
   padding: 25px 20px;
   border: 1px solid var(--border-light);
   overflow: hidden;
