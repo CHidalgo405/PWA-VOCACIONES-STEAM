@@ -275,12 +275,10 @@
   position: relative;
   height: 180px;
   padding: 24px;
-  overflow: hidden;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
   background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%);
   
-  [data-theme='dark'] & {
-    background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%);
+  :host-context(.dark-theme) & {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
   }
 }
 
@@ -322,7 +320,7 @@
     color: var(--card-color);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
 
-    [data-theme='dark'] & {
+    :host-context(.dark-theme) & {
       background: rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
