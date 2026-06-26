@@ -50,7 +50,9 @@
   padding: 1rem 1.25rem;
 
   @media (min-width: 1024px) {
-    padding: 1.5rem 15%;
+    padding: 2rem 24px;
+    max-width: 1400px;
+    margin: 0 auto;
   }
 }
 
@@ -481,9 +483,7 @@
   background: var(--card-bg);
   border-radius: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-  margin: 2rem auto;
-  max-width: 900px;
-  width: 100%;
+  margin-top: 20px;
   padding: 25px 20px;
   border: 1px solid var(--border-light);
   overflow: hidden;
