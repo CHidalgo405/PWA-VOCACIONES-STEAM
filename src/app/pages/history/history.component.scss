@@ -504,8 +504,10 @@
     gap: 30px;
     align-items: center;
 
-    &.reverse-on-mobile {
-      flex-direction: column-reverse;
+    @media (max-width: 767px) {
+      &.reverse-on-mobile {
+        flex-direction: column-reverse;
+      }
     }
     
     @media (min-width: 768px) {

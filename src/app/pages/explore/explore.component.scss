@@ -1237,6 +1237,12 @@
     gap: 30px;
     align-items: center;
     
+    @media (max-width: 767px) {
+      &.reverse-on-mobile {
+        flex-direction: column-reverse;
+      }
+    }
+
     @media (min-width: 768px) {
       flex-direction: row;
       justify-content: space-between;
