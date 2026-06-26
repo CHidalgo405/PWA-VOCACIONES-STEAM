@@ -17,17 +17,56 @@
       <p class="loader-subtitle">Preparando tu historial vocacional STEAM</p>
     </div>
 
-    <div *ngIf="!isLoading && testHistory.length === 0" class="empty-state fade-in" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1.5rem; text-align: center; margin-top: 2rem;">
-      <div class="empty-icon-wrap" style="background: rgba(7, 177, 201, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
-        <app-lucide-icon name="folder-open" [size]="40" color="#07B1C9"></app-lucide-icon>
+    <!-- PREMIUM EMPTY STATE NO TEST -->
+    <div class="premium-empty-state-card fade-in" *ngIf="!isLoading && testHistory.length === 0">
+      
+      <div class="empty-card-content reverse-on-mobile">
+        <div class="empty-card-text-area">
+          <h2 class="empty-card-title">Aún no tienes tests <span class="text-cyan">completados</span></h2>
+          <p class="empty-card-desc">
+            Tu historial está vacío. Realiza tu primer test vocacional para empezar a guardar tu progreso y descubrir tu perfil STEAM.
+          </p>
+          
+          <div class="empty-card-actions">
+            <button class="btn-primary-rocket" routerLink="/evaluations">
+              Hacer test ahora <app-lucide-icon name="rocket" [size]="16" class="rocket-icon"></app-lucide-icon>
+            </button>
+            <button class="btn-secondary-rocket" routerLink="/career-simulator">
+              Explorar simuladores <app-lucide-icon name="gamepad-2" [size]="16" class="rocket-icon"></app-lucide-icon>
+            </button>
+          </div>
+
+          <div class="empty-card-info">
+            <app-lucide-icon name="clock" [size]="14"></app-lucide-icon>
+            <span>Solo toma 8-10 minutos</span>
+          </div>
+        </div>
+
+        <div class="empty-card-image-area">
+          <img src="assets/login-illustration.png" alt="Aún no tienes tests completados" class="empty-illustration">
+        </div>
       </div>
-      <h3 style="color: var(--text-primary); font-size: 1.3rem; font-weight: 700; margin: 0 0 0.5rem 0;">Aún no hay registros</h3>
-      <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 300px; line-height: 1.5; margin: 0 0 2rem 0;">
-        Tu historial está vacío. Realiza tu primer test vocacional para empezar a guardar tu progreso y descubrir tu perfil STEAM.
-      </p>
-      <button class="btn-primary" routerLink="/evaluations" style="background-color: #07B1C9; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(7, 177, 201, 0.3);">
-        Hacer Test Ahora
-      </button>
+
+      <!-- Bottom Features Row -->
+      <div class="empty-features-row four-cols">
+        <div class="feature-item">
+          <div class="feature-icon"><app-lucide-icon name="trending-up" [size]="20"></app-lucide-icon></div>
+          <span class="feature-text">Tu progreso,<br>organizado</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><app-lucide-icon name="clock" [size]="20"></app-lucide-icon></div>
+          <span class="feature-text">Historial de resultados<br>al instante</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><app-lucide-icon name="star" [size]="20"></app-lucide-icon></div>
+          <span class="feature-text">Recomendaciones<br>personalizadas</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><app-lucide-icon name="user" [size]="20"></app-lucide-icon></div>
+          <span class="feature-text">Descubre tu perfil<br>STEAM</span>
+        </div>
+      </div>
+
     </div>
 
     <ng-container *ngIf="!isLoading && testHistory.length > 0">
