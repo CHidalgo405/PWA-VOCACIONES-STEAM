@@ -139,6 +139,12 @@
           </div>
         </div>
         
+        <!-- ADMIN SHORTCUT (Only for Admins) -->
+        <button *ngIf="user.role === 'admin'" class="premium-logout-button" style="margin-bottom: 12px; background: rgba(7, 177, 201, 0.1); color: var(--steam-blue); border-color: rgba(7, 177, 201, 0.3);" (click)="handleAction('/admin/dashboard')">
+          <app-lucide-icon name="shield" [size]="18"></app-lucide-icon>
+          <span>Ir al Panel Admin</span>
+        </button>
+
         <!-- LOGOUT BUTTON -->
         <button class="premium-logout-button" (click)="logout()">
           <app-lucide-icon name="log-out" [size]="18"></app-lucide-icon>

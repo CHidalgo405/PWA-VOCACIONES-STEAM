@@ -53,6 +53,10 @@
   </nav>
 
   <div class="sidebar-footer">
+    <a routerLink="/dashboard" class="nav-item" (click)="closeMenu()" style="cursor: pointer; margin-bottom: 5px;">
+      <span class="icon"><app-lucide-icon name="layout-dashboard" [size]="20"></app-lucide-icon></span>
+      <span class="label">Ir a la App</span>
+    </a>
     <a (click)="logout()" class="nav-item logout" style="cursor: pointer;">
       <span class="icon"><app-lucide-icon name="log-out" [size]="20"></app-lucide-icon></span>
       <span class="label">Cerrar Sesión</span>
