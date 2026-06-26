@@ -70,18 +70,53 @@
 
       <ng-container *ngIf="!isLoading">
         
-        <!-- EMPTY STATE NO TEST -->
-        <div class="empty-state fade-in" *ngIf="!hasTakenTest" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1.5rem; text-align: center; margin-top: 2rem;">
-          <div class="empty-icon-wrap" style="background: rgba(7, 177, 201, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
-            <app-lucide-icon name="compass" [size]="40" color="#07B1C9"></app-lucide-icon>
+        <!-- EMPTY STATE NO TEST (PREMIUM REDESIGN) -->
+        <div class="premium-empty-state-card fade-in" *ngIf="!hasTakenTest">
+          
+          <div class="empty-card-content">
+            <div class="empty-card-text-area">
+              <h2 class="empty-card-title">Descubre tu <span class="text-cyan">camino</span></h2>
+              <p class="empty-card-desc">
+                Aún no tenemos recomendaciones.<br>
+                Realiza tu primer test vocacional para descubrir qué universidades hacen match con tu perfil STEAM.
+              </p>
+              
+              <div class="empty-card-actions">
+                <button class="btn-primary-rocket" routerLink="/evaluations">
+                  Hacer test ahora <app-lucide-icon name="rocket" [size]="16" class="rocket-icon"></app-lucide-icon>
+                </button>
+                <button class="btn-secondary-rocket" routerLink="/career-simulator">
+                  Explorar carreras <app-lucide-icon name="rocket" [size]="16" class="rocket-icon"></app-lucide-icon>
+                </button>
+              </div>
+
+              <div class="empty-card-info">
+                <app-lucide-icon name="info" [size]="14"></app-lucide-icon>
+                <span>Solo toma 8-10 minutos</span>
+              </div>
+            </div>
+
+            <div class="empty-card-image-area">
+              <img src="assets/illustration-0.png" alt="Descubre tu camino" class="empty-illustration">
+            </div>
           </div>
-          <h3 style="color: var(--text-primary); font-size: 1.3rem; font-weight: 700; margin: 0 0 0.5rem 0;">Descubre tu camino</h3>
-          <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 300px; line-height: 1.5; margin: 0 0 2rem 0;">
-            Aún no tenemos recomendaciones. Realiza tu primer test vocacional para descubrir qué universidades hacen match con tu perfil STEAM.
-          </p>
-          <button class="btn-primary" routerLink="/evaluations" style="background-color: #07B1C9; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(7, 177, 201, 0.3);">
-            Hacer test ahora
-          </button>
+
+          <!-- Bottom Features Row -->
+          <div class="empty-features-row">
+            <div class="feature-item">
+              <div class="feature-icon"><app-lucide-icon name="star" [size]="20"></app-lucide-icon></div>
+              <span class="feature-text">Recomendaciones<br>100% personalizadas</span>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon"><app-lucide-icon name="building-2" [size]="20"></app-lucide-icon></div>
+              <span class="feature-text">Universidades que se<br>ajustan a ti</span>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon"><app-lucide-icon name="lightbulb" [size]="20"></app-lucide-icon></div>
+              <span class="feature-text">Explora tu futuro con<br>confianza</span>
+            </div>
+          </div>
+
         </div>
 
         <!-- MAIN CONTENT (Only if Test was taken) -->
