@@ -1212,12 +1212,24 @@
   display: flex;
   flex-direction: column;
   background: var(--card-bg);
-  border-radius: 24px;
+  border-radius: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
   margin-top: 20px;
-  padding: 40px;
+  padding: 25px 20px;
   border: 1px solid var(--border-light);
   overflow: hidden;
+  transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+
+  @media (min-width: 768px) {
+    padding: 40px;
+    border-radius: 24px;
+  }
+
+  :host-context(body.dark-theme) & {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.05);
+    background: linear-gradient(145deg, #1A2235 0%, #111827 100%);
+  }
 
   .empty-card-content {
     display: flex;
@@ -1234,13 +1246,27 @@
     .empty-card-text-area {
       flex: 1;
       max-width: 450px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+
+      @media (min-width: 768px) {
+        align-items: flex-start;
+        text-align: left;
+      }
 
       .empty-card-title {
-        font-size: 2.2rem;
+        font-size: 1.8rem;
         font-weight: 800;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         color: var(--text-primary);
         line-height: 1.2;
+
+        @media (min-width: 768px) {
+          font-size: 2.2rem;
+          margin-bottom: 15px;
+        }
 
         .text-cyan {
           color: var(--primary);
@@ -1248,20 +1274,29 @@
       }
 
       .empty-card-desc {
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: var(--text-secondary);
-        line-height: 1.6;
-        margin-bottom: 30px;
+        line-height: 1.5;
+        margin-bottom: 25px;
+
+        @media (min-width: 768px) {
+          font-size: 1rem;
+          line-height: 1.6;
+          margin-bottom: 30px;
+        }
       }
 
       .empty-card-actions {
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 12px;
         margin-bottom: 20px;
+        width: 100%;
 
         @media (min-width: 480px) {
           flex-direction: row;
+          width: auto;
+          gap: 15px;
         }
 
         button {
@@ -1269,12 +1304,18 @@
           align-items: center;
           justify-content: center;
           gap: 10px;
-          padding: 14px 24px;
+          padding: 14px 20px;
           border-radius: 14px;
           font-weight: 600;
           font-size: 1rem;
           cursor: pointer;
-          transition: transform 0.2s, box-shadow 0.2s;
+          transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+          width: 100%;
+
+          @media (min-width: 480px) {
+            width: auto;
+            padding: 14px 24px;
+          }
 
           .rocket-icon {
             margin-bottom: -2px;
@@ -1282,6 +1323,10 @@
 
           &:hover {
             transform: translateY(-2px);
+          }
+          
+          &:active {
+            transform: scale(0.97);
           }
         }
 
@@ -1293,20 +1338,21 @@
 
           &:hover {
             box-shadow: 0 12px 25px rgba(7, 177, 201, 0.4);
+            background: #069db3;
           }
         }
 
         .btn-secondary-rocket {
           background: transparent;
           color: var(--text-primary);
-          border: 1px solid var(--border-color);
+          border: 1px solid var(--border-color, #E2E8F0);
 
           &:hover {
-            background: rgba(0, 0, 0, 0.02);
-            border-color: #ccc;
+            background: rgba(0, 0, 0, 0.03);
           }
 
-          :host-context(.dark-theme) & {
+          :host-context(body.dark-theme) & {
+            border-color: rgba(255, 255, 255, 0.15);
             &:hover {
               background: rgba(255, 255, 255, 0.05);
             }
@@ -1333,9 +1379,17 @@
       .empty-illustration {
         max-width: 100%;
         height: auto;
-        max-height: 350px;
+        max-height: 250px;
         object-fit: contain;
         filter: drop-shadow(0 20px 30px rgba(0,0,0,0.1));
+
+        @media (min-width: 768px) {
+          max-height: 350px;
+        }
+
+        :host-context(body.dark-theme) & {
+          filter: drop-shadow(0 20px 30px rgba(0,0,0,0.4));
+        }
       }
     }
   }
@@ -1343,23 +1397,30 @@
   .empty-features-row {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 20px;
-    margin-top: 40px;
-    padding-top: 30px;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 25px;
     border-top: 1px solid var(--border-light);
 
     @media (min-width: 768px) {
       grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 40px;
+      padding-top: 30px;
     }
 
     .feature-item {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
+
+      @media (min-width: 768px) {
+        gap: 15px;
+      }
 
       .feature-icon {
-        width: 48px;
-        height: 48px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         background: rgba(7, 177, 201, 0.1);
         color: var(--primary);
@@ -1367,13 +1428,26 @@
         justify-content: center;
         align-items: center;
         flex-shrink: 0;
+
+        @media (min-width: 768px) {
+          width: 48px;
+          height: 48px;
+        }
+
+        :host-context(body.dark-theme) & {
+          background: rgba(7, 177, 201, 0.2);
+        }
       }
 
       .feature-text {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 500;
         color: var(--text-primary);
         line-height: 1.3;
+
+        @media (min-width: 768px) {
+          font-size: 0.9rem;
+        }
       }
     }
   }
