@@ -42,6 +42,14 @@
       <span class="icon"><app-lucide-icon name="settings" [size]="20"></app-lucide-icon></span>
       <span class="label">Configuración</span>
     </a>
+
+    <!-- Botón de instalación PWA -->
+    <a *ngIf="(pwaInstall.canInstall$ | async) || (pwaInstall.isIos$ | async)" 
+       (click)="pwaInstall.installApp(); closeMenu()" 
+       class="nav-item install-btn" style="cursor: pointer;">
+      <span class="icon"><app-lucide-icon name="download" [size]="20"></app-lucide-icon></span>
+      <span class="label" style="font-weight: 700; color: var(--steam-blue);">Instalar App</span>
+    </a>
   </nav>
 
   <div class="sidebar-footer">

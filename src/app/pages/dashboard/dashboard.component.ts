@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { RouterModule, Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+import { PwaInstallService } from '../../core/services/pwa-install.service';
 import gsap from 'gsap';
 
 @Component({
@@ -19,6 +20,7 @@ import gsap from 'gsap';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
+  public pwaInstall = inject(PwaInstallService);
   userName = 'Cargando...';
   userProfile?: Usuario;
   avatarUrl = '';

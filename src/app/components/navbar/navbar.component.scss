@@ -100,6 +100,25 @@
       margin-left: 10px; /* Espacio entre icono y texto */
     }
   }
+
+  /* Install Button Special Styling */
+  &.install-btn {
+    cursor: pointer;
+    .icon-box {
+      color: var(--primary-color, #07B1C9); /* Siempre de color para resaltar */
+    }
+    
+    &:hover, &:active {
+      background-color: rgba(7, 177, 201, 0.1);
+      padding: 10px 20px;
+      .label {
+        color: var(--primary-color, #07B1C9);
+        max-width: 120px;
+        opacity: 1;
+        margin-left: 10px;
+      }
+    }
+  }
 }
 
 /* =========================================

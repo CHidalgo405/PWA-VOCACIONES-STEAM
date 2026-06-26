@@ -16,6 +16,20 @@
     </div>
   </header>
 
+  <!-- PWA Install Banner -->
+  @if ((pwaInstall.canInstall$ | async) || (pwaInstall.isIos$ | async)) {
+    <div class="install-banner">
+      <div class="banner-content">
+        <app-lucide-icon name="smartphone" [size]="24"></app-lucide-icon>
+        <div class="text">
+          <strong>Instala la aplicación</strong>
+          <p>Para una experiencia más rápida y pantalla completa.</p>
+        </div>
+      </div>
+      <button class="btn-install-banner" (click)="pwaInstall.installApp()">Instalar</button>
+    </div>
+  }
+
   <!-- =============================== -->
   <!-- ESTADO 1: PRE-TEST (Pendiente)  -->
   <!-- =============================== -->

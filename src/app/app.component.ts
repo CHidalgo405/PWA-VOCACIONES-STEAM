@@ -8,6 +8,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { ThemeService } from './core/services/theme.service';
 import { DialogService } from './core/services/dialog.service';
+import { PwaInstallService } from './core/services/pwa-install.service';
 import { NgIf } from '@angular/common';
 import { fadeSlideAnimation } from './route-animations';
 
@@ -25,6 +26,7 @@ export class AppComponent implements OnInit {
   private router = inject(Router);
   private contexts = inject(ChildrenOutletContexts);
   private dialogService = inject(DialogService);
+  private pwaInstallService = inject(PwaInstallService); // Initialize service
 
   showNavbar = false;
 

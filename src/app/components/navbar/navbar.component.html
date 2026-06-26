@@ -36,5 +36,15 @@
       <span class="label">Perfil</span>
     </a>
 
+    <!-- Install App Button -->
+    <a *ngIf="(pwaInstall.canInstall$ | async) || (pwaInstall.isIos$ | async)" 
+       (click)="pwaInstall.installApp()" 
+       class="nav-item install-btn">
+      <div class="icon-box">
+        <app-lucide-icon name="download" [size]="20"></app-lucide-icon>
+      </div>
+      <span class="label">Instalar</span>
+    </a>
+
   </div>
 </nav>

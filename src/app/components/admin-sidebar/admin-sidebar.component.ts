@@ -4,6 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LucideIconComponent } from '../lucide-icon/lucide-icon.component';
 
+import { PwaInstallService } from '../../core/services/pwa-install.service';
+
 @Component({
   selector: 'app-admin-sidebar',
   standalone: true,
@@ -14,7 +16,11 @@ import { LucideIconComponent } from '../lucide-icon/lucide-icon.component';
 export class AdminSidebarComponent {
   isMobileMenuOpen = false;
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    public pwaInstall: PwaInstallService
+  ) { }
 
   toggleMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
