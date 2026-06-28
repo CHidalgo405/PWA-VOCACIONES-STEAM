@@ -289,16 +289,71 @@ export class AuthService {
 
 
   logout() {
-    sessionStorage.removeItem(this.USER_KEY);
-    localStorage.removeItem(this.USER_KEY);
-    localStorage.removeItem(this.TOKEN_KEY);
-    this.currentUserSubject.next(null);
+    this.clearSession();
     this.themeService.setTheme(false); // Force light mode on logout
     this.router.navigate(['/welcome']);
   }
 
+  /**
+   * Limpia el estado de sesión (storage + subjects + signal) SIN navegar.
+   * Se usa tanto en logout() como cuando se detecta un token expirado en los
+   * guards, donde la redirección la maneja el propio guard (UrlTree).
+   */
+  clearSession() {
+    sessionStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem(this.TOKEN_KEY);
+    this.currentUserSubject.next(null);
+    this.currentUserSig.set(null);
+  }
+
   isAuthenticated(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (!token) return false;
+
+    // Verificación proactiva de expiración del JWT del lado del cliente.
+    // Evita dejar entrar con un token muerto y depender de que el servidor
+    // devuelva un 401 limpio (que puede fallar como error de red/CORS/502).
+    if (this.isTokenExpired(token)) {
+      this.clearSession();
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Indica si el token JWT está expirado según su claim `exp`.
+   * Si el token no es un JWT decodificable o no trae `exp`, devuelve false
+   * (no podemos determinarlo, dejamos que el servidor decida).
+   */
+  isTokenExpired(token?: string | null): boolean {
+    const t = token ?? localStorage.getItem(this.TOKEN_KEY);
+    if (!t) return true;
+
+    const payload = this.decodeToken(t);
+    if (!payload || typeof payload.exp !== 'number') return false;
+
+    // `exp` viene en segundos. Aplicamos 10s de margen para no enviar una
+    // petición que va a fallar justo en el límite.
+    const nowSec = Math.floor(Date.now() / 1000);
+    return payload.exp <= nowSec + 10;
+  }
+
+  private decodeToken(token: string): any | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(json);
+    } catch {
+      return null;
+    }
   }
 
   isAdmin(): boolean {
