@@ -58,11 +58,27 @@
       <div class="sim-card-premium" [style.--card-color]="sim.colorToken || '#07B1C9'">
         
         <div class="card-hero-bg">
-          <div class="card-glass-blob"></div>
-          
+          <div class="hero-bg-decoration" aria-hidden="true">
+            <svg class="deco-svg" viewBox="0 0 340 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="310" cy="-30" r="150" fill="white" opacity="0.07"/>
+              <circle cx="330" cy="210" r="110" fill="white" opacity="0.05"/>
+              <circle cx="-20" cy="170" r="80" fill="white" opacity="0.04"/>
+              <circle cx="16" cy="16" r="1.5" fill="white" opacity="0.35"/>
+              <circle cx="32" cy="16" r="1.5" fill="white" opacity="0.35"/>
+              <circle cx="48" cy="16" r="1.5" fill="white" opacity="0.35"/>
+              <circle cx="64" cy="16" r="1.5" fill="white" opacity="0.2"/>
+              <circle cx="16" cy="32" r="1.5" fill="white" opacity="0.35"/>
+              <circle cx="32" cy="32" r="1.5" fill="white" opacity="0.25"/>
+              <circle cx="48" cy="32" r="1.5" fill="white" opacity="0.2"/>
+              <circle cx="16" cy="48" r="1.5" fill="white" opacity="0.2"/>
+              <circle cx="32" cy="48" r="1.5" fill="white" opacity="0.15"/>
+            </svg>
+            <span class="steam-letter-mark">{{ getSteamLetter(getSteamArea(sim)) }}</span>
+          </div>
+
           <div class="hero-top-row">
             <div class="icon-box-glass">
-              <app-lucide-icon *ngIf="getAreaIcon(getSteamArea(sim))" [name]="getAreaIcon(getSteamArea(sim))" [size]="28"></app-lucide-icon>
+              <app-lucide-icon *ngIf="getAreaIcon(getSteamArea(sim))" [name]="getAreaIcon(getSteamArea(sim))" [size]="30"></app-lucide-icon>
               <span *ngIf="!getAreaIcon(getSteamArea(sim))">{{ sim.areaEmoji || '🧪' }}</span>
             </div>
             <span class="area-badge">{{ getSteamArea(sim) }}</span>

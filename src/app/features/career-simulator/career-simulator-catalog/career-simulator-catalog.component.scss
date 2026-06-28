@@ -275,34 +275,58 @@
   position: relative;
   height: 180px;
   padding: 24px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%);
-  
-  :host-context(.dark-theme) & {
-    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--card-color) 88%, black 12%) 0%,
+    color-mix(in srgb, var(--card-color) 60%, black 40%) 100%
+  );
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: linear-gradient(to bottom, transparent, var(--bg-surface));
+    pointer-events: none;
+    z-index: 1;
   }
 }
 
-.card-glass-blob {
+.hero-bg-decoration {
   position: absolute;
-  top: -50px;
-  right: -50px;
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  background-color: var(--card-color);
-  opacity: 0.15;
-  filter: blur(50px);
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
   z-index: 0;
-  transition: opacity 0.3s ease;
+}
 
-  .sim-card-premium:hover & {
-    opacity: 0.25;
-  }
+.deco-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.steam-letter-mark {
+  position: absolute;
+  bottom: -28px;
+  right: -8px;
+  font-size: 148px;
+  font-weight: 900;
+  color: white;
+  opacity: 0.08;
+  line-height: 1;
+  letter-spacing: -4px;
+  user-select: none;
+  font-family: 'Poppins', sans-serif;
 }
 
 .hero-top-row {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -311,18 +335,20 @@
     width: 64px;
     height: 64px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--card-color);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+    color: white;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: transform var(--duration-hover) var(--ease-out),
+                background var(--duration-hover) var(--ease-out);
 
-    :host-context(.dark-theme) & {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    .sim-card-premium:hover & {
+      background: rgba(255, 255, 255, 0.32);
+      transform: scale(1.06);
     }
   }
 
@@ -333,8 +359,10 @@
     letter-spacing: 0.5px;
     padding: 6px 12px;
     border-radius: 20px;
-    background: color-mix(in srgb, var(--card-color) 15%, transparent);
-    color: var(--card-color);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
   }
 }
 

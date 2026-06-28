@@ -209,4 +209,15 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
       default: return '';
     }
   }
+
+  public getSteamLetter(area: string): string {
+    switch (area) {
+      case 'Ciencia': return 'S';
+      case 'Tecnología': return 'T';
+      case 'Ingeniería': return 'E';
+      case 'Artes': return 'A';
+      case 'Matemáticas': return 'M';
+      default: return 'S';
+    }
+  }
 }
