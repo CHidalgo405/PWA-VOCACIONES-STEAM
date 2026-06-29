@@ -1,485 +1,336 @@
 <div class="result-container">
 
-    <!-- ============================================================
-         VIEW 1: PROFILE RESULT & AI SEARCH
-         ============================================================ -->
-    <div class="view-profile" *ngIf="viewState === 'result'">
-        <app-header title="Tus Resultados" [showBack]="true" backRoute="/dashboard"></app-header>
+  <app-header title="Tu Perfil Vocacional" [showBack]="true" backRoute="/dashboard"></app-header>
 
-        <div class="result-dashboard">
-            
-            <!-- Hero Header -->
-            <header class="result-hero fade-in-up">
-                <div class="hero-chip">
-                    <app-lucide-icon name="sparkles" [size]="16" color="var(--primary)"></app-lucide-icon>
-                    <span>{{ userProfile.greeting }}</span>
-                </div>
-                <h1 class="hero-title">
-                    Perfil
-                    <span class="gradient-text" [style.background-image]="'linear-gradient(135deg, ' + areaGradientStart(0) + ', ' + areaGradientEnd(0) + ')'">
-                        {{ userProfile.dominantTraits || 'STEAM' }}
-                    </span>
-                </h1>
-                <p class="hero-subtitle">Descubrimos las áreas donde tu potencial brilla más. Conoce tu ADN vocacional y descubre hacia dónde apunta tu futuro.</p>
-            </header>
-
-            <!-- Main Dashboard Grid -->
-            <div class="dashboard-grid fade-in-up">
-                
-                <!-- Left Column: Affinity & Metrics -->
-                <div class="grid-col-left">
-                    
-                    <!-- Affinity Card -->
-                    <div class="premium-card affinity-card">
-                        <div class="affinity-content">
-                            <span class="affinity-label">Afinidad Global STEAM</span>
-                            <div class="affinity-score-box">
-                                <span class="affinity-number">{{ globalAffinityPct }}</span>
-                                <span class="affinity-percent">%</span>
-                            </div>
-                        </div>
-                        <div class="affinity-icon">
-                            <app-lucide-icon name="target" [size]="48" color="rgba(7, 177, 201, 0.2)"></app-lucide-icon>
-                        </div>
-                    </div>
-
-                    <!-- Metrics Card -->
-                    <div class="premium-card metrics-card">
-                        <div class="card-header">
-                            <div class="icon-circle">
-                                <app-lucide-icon name="bar-chart-2" [size]="20" color="var(--primary)"></app-lucide-icon>
-                            </div>
-                            <h3>Desglose de tu perfil STEAM</h3>
-                        </div>
-                        
-                        <div class="metrics-list">
-                            <div class="metric-item" *ngFor="let area of steamAreas">
-                                <div class="metric-icon-box" [style.background]="'linear-gradient(135deg,' + area.gradientStart + ' 0%,' + area.gradientEnd + ' 100%)'">
-                                    <app-lucide-icon [name]="area.icon" [size]="18" color="white"></app-lucide-icon>
-                                </div>
-                                <div class="metric-content">
-                                    <div class="metric-info">
-                                        <span class="metric-name">{{ area.label }}</span>
-                                        <span class="metric-score" [style.color]="area.gradientStart">{{ area.percentage }}%</span>
-                                    </div>
-                                    <div class="metric-progress-bg">
-                                        <div class="metric-progress-fill" 
-                                             [style.width]="area.percentage + '%'"
-                                             [style.background]="'linear-gradient(90deg,' + area.gradientStart + ',' + area.gradientEnd + ')'">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Right Column: DNA Analysis & Calibration -->
-                <div class="grid-col-right">
-                    
-                    <!-- DNA Analysis Card -->
-                    <div class="premium-card dna-card">
-                        <div class="card-header">
-                            <div class="icon-circle ai-icon">
-                                <app-lucide-icon name="bot" [size]="20" color="#6366F1"></app-lucide-icon>
-                            </div>
-                            <div class="header-titles">
-                                <span class="ai-badge">IA en tiempo real</span>
-                                <h3>Análisis de tu ADN STEAM</h3>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <p class="dna-description">{{ userProfile.description }}</p>
-                            
-                            <div class="dna-traits">
-                                <div class="trait-tag" *ngFor="let area of topThree" [style.color]="area.gradientStart" [style.background]="area.gradientStart + '1A'">
-                                    <app-lucide-icon [name]="area.icon" [size]="14"></app-lucide-icon>
-                                    {{ area.label }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Calibration CTA -->
-                    <div class="premium-card calibration-card">
-                        <div class="calibration-info">
-                            <h3>Módulos de Calibración</h3>
-                            <p>Tienes talentos ocultos por mapear. Completa los Módulos de Calibración para alcanzar el <strong>100% de precisión</strong>.</p>
-                            <button class="btn-calibrar" (click)="goToHome()">
-                                Calibrar mi perfil
-                                <app-lucide-icon name="arrow-right" [size]="16"></app-lucide-icon>
-                            </button>
-                        </div>
-                        <div class="calibration-bg-icon">
-                            <app-lucide-icon name="crosshair" [size]="120"></app-lucide-icon>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- Bottom Actions -->
-            <div class="action-buttons-row fade-in-up">
-                <button class="btn-action primary" (click)="downloadPDF()">
-                    <app-lucide-icon name="download" [size]="20"></app-lucide-icon>
-                    Descargar Reporte
-                </button>
-                <button class="btn-action secondary" (click)="navigateToUniversities()">
-                    <app-lucide-icon name="search" [size]="20"></app-lucide-icon>
-                    Explorar Universidades
-                </button>
-                <button class="btn-action secondary" (click)="openAnswersModal()">
-                    <app-lucide-icon name="list" [size]="20"></app-lucide-icon>
-                    Ver Respuestas
-                </button>
-                <button class="btn-action outline" (click)="goToHome()">
-                    <app-lucide-icon name="home" [size]="20"></app-lucide-icon>
-                    Ir al Inicio
-                </button>
-            </div>
-
-        </div>
-    </div>
-
-
-    <!-- OVERLAY / FULL SCREEN SPLASH -->
-    <app-splash-screen *ngIf="isLoading"
-        [loadingText]="splashText"
-        [controlExternally]="true"
-        [isVisible]="isLoading">
-    </app-splash-screen>
-
-
-    <!-- =============================================
-         VIEW 2: UNIVERSITIES — REDESIGNED SPLIT-VIEW
-         ============================================= -->
-    <div class="view-universities" *ngIf="viewState === 'universities' && !isLoading">
-
-        <app-location-filter (locationChanged)="updateLocation($event)"></app-location-filter>
-
-        <!-- Header -->
-        <div class="universities-header">
-            <button class="btn-back" (click)="goBackToResult()">
-                <app-lucide-icon name="chevron-left" [size]="18" color="#07B1C9"
-                    style="margin-right:4px;margin-bottom:-3px;">
-                </app-lucide-icon>
-                Volver al Perfil
-            </button>
-            <h2>Top Recomendaciones para ti</h2>
-            <p>Basado en tu perfil de {{ userProfile.dominantTraits }} en {{ locationInput }}</p>
-        </div>
-
-        <!-- Split-View container -->
-        <div class="uni-split-view">
-
-            <!-- LEFT COLUMN: Card list (scrollable) -->
-            <div class="uni-card-list">
-                <div class="uni-card"
-                     *ngFor="let uni of recommendedUniversities; let i = index"
-                     [class.uni-card--selected]="selectedUniversity === uni"
-                     (click)="openDetails(uni)">
-
-                    <!-- AI Match badge -->
-                    <div class="uni-match-badge">
-                        <app-lucide-icon name="sparkles" [size]="12" color="white"
-                            style="margin-right:3px;margin-bottom:-1px;">
-                        </app-lucide-icon>
-                        {{ getMatchScore(i) }}% Match
-                    </div>
-
-                    <!-- Major badge -->
-                    <div class="uni-major-tag">
-                        <app-lucide-icon name="graduation-cap" [size]="14" color="#07B1C9"
-                            style="margin-right:5px;margin-bottom:-2px;">
-                        </app-lucide-icon>
-                        {{ uni.suggestedMajor }}
-                    </div>
-
-                    <!-- University name -->
-                    <h3 class="uni-name">{{ uni.name }}</h3>
-
-                    <!-- Tag row: location + modality -->
-                    <div class="uni-tags-row">
-                        <span class="uni-tag">
-                            <app-lucide-icon name="map-pin" [size]="13" color="#07B1C9"
-                                style="margin-right:4px;margin-bottom:-2px;">
-                            </app-lucide-icon>
-                            {{ uni.location }}
-                        </span>
-                        <span class="uni-tag">
-                            <app-lucide-icon name="laptop" [size]="13" color="#6366F1"
-                                style="margin-right:4px;margin-bottom:-2px;">
-                            </app-lucide-icon>
-                            Presencial
-                        </span>
-                    </div>
-
-                    <!-- Match reason preview (truncated) -->
-                    <p class="uni-match-reason">{{ uni.matchReason }}</p>
-
-                    <!-- Card footer -->
-                    <div class="uni-card-footer">
-                        <span class="uni-detail-link">
-                            Ver detalles
-                            <app-lucide-icon name="arrow-right" [size]="14"
-                                style="margin-left:4px;margin-bottom:-2px;">
-                            </app-lucide-icon>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT COLUMN: Inline detail (desktop) -->
-            <div class="uni-detail-inline" *ngIf="selectedUniversity">
-                <div class="detail-inline-header">
-                    <div class="detail-inline-badge">{{ selectedUniversity.suggestedMajor }}</div>
-                    <h2>{{ selectedUniversity.name }}</h2>
-                    <div class="detail-inline-meta">
-                        <span class="uni-tag">
-                            <app-lucide-icon name="map-pin" [size]="13" color="#07B1C9"
-                                style="margin-right:4px;margin-bottom:-2px;">
-                            </app-lucide-icon>
-                            {{ selectedUniversity.location }}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="detail-inline-body">
-                    <div class="detail-section">
-                        <h3>
-                            <app-lucide-icon name="target" [size]="16" color="#07B1C9"
-                                style="margin-right:6px;margin-bottom:-2px;">
-                            </app-lucide-icon>
-                            ¿Por qué hace match contigo?
-                        </h3>
-                        <p>{{ selectedUniversity.matchReason }}</p>
-                    </div>
-                    <div class="detail-section">
-                        <h3>
-                            <app-lucide-icon name="calendar-days" [size]="16" color="#07B1C9"
-                                style="margin-right:6px;margin-bottom:-2px;">
-                            </app-lucide-icon>
-                            Fechas Clave
-                        </h3>
-                        <div class="info-box date-box">{{ selectedUniversity.keyDates }}</div>
-                    </div>
-                    <div class="detail-section">
-                        <h3>
-                            <app-lucide-icon name="book-open" [size]="16" color="#07B1C9"
-                                style="margin-right:6px;margin-bottom:-2px;">
-                            </app-lucide-icon>
-                            Plan de Estudios Sugerido
-                        </h3>
-                        <ul class="study-plan-list">
-                            <li *ngFor="let subject of selectedUniversity.studyPlan">
-                                <span class="bullet">•</span> {{ subject }}
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="detail-inline-actions">
-                    <button class="btn-save-fav" (click)="saveToFavorites()">
-                        <app-lucide-icon name="bookmark" [size]="16" color="#07B1C9"
-                            style="margin-right:6px;margin-bottom:-2px;">
-                        </app-lucide-icon>
-                        Guardar en favoritos
-                    </button>
-                    <a [href]="selectedUniversity.websiteUrl" target="_blank" class="btn-visit-site">
-                        <app-lucide-icon name="globe" [size]="16" color="white"
-                            style="margin-right:6px;margin-bottom:-2px;">
-                        </app-lucide-icon>
-                        Ver sitio web oficial
-                    </a>
-                </div>
-            </div>
-
-            <!-- Placeholder when no uni is selected on desktop -->
-            <div class="uni-detail-placeholder" *ngIf="!selectedUniversity">
-                <app-lucide-icon name="search" [size]="48" color="#D1D5DB"></app-lucide-icon>
-                <p>Selecciona una universidad para ver sus detalles</p>
-            </div>
-
-        </div>
-        <!-- /uni-split-view -->
-
-    </div>
-
-
+  <div class="result-dashboard" *ngIf="profile">
 
     <!-- ============================================================
-         MOBILE BOTTOM-SHEET / DESKTOP OFF-CANVAS DETAILS PANEL
+         1. HERO — Perfil dominante
          ============================================================ -->
-    <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()"></div>
-    <div class="details-panel" [class.open]="isModalOpen">
+    <header class="result-hero fade-in-up">
+      <div class="hero-chip">
+        <app-lucide-icon name="sparkles" [size]="15"></app-lucide-icon>
+        <span>{{ greeting }}</span>
+      </div>
 
-        <ng-container *ngIf="selectedUniversity">
+      <h1 class="hero-title">
+        <span class="gradient-text"
+              [style.background-image]="'linear-gradient(135deg,' + topThree[0].gradientStart + ',' + topThree[0].gradientEnd + ')'">
+          {{ profile.profileName }}
+        </span>
+      </h1>
+      <p class="hero-archetype">{{ profile.profileArchetype }}</p>
+      <p class="hero-summary">{{ profile.profileSummary }}</p>
 
-            <!-- ── Drag handle (mobile bottom-sheet indicator) ── -->
-            <div class="panel-drag-handle">
-                <div class="drag-pill"></div>
-            </div>
-
-            <!-- ── COVER HEADER (image fallback → gradient) ── -->
-            <div class="panel-cover">
-                <!-- Close button -->
-                <button class="btn-close" (click)="closeModal()" aria-label="Cerrar">
-                    <app-lucide-icon name="x" [size]="18"></app-lucide-icon>
-                </button>
-
-                <!-- Cover gradient overlay always present -->
-                <div class="panel-cover-gradient"></div>
-
-                <!-- Text on top of cover -->
-                <div class="panel-cover-content">
-                    <span class="panel-major-chip">
-                        <app-lucide-icon name="graduation-cap" [size]="13" color="white"
-                            style="margin-right:5px;margin-bottom:-2px;">
-                        </app-lucide-icon>
-                        {{ selectedUniversity.suggestedMajor }}
-                    </span>
-                    <h2 class="panel-uni-name">{{ selectedUniversity.name }}</h2>
-                    <p class="panel-location">
-                        <app-lucide-icon name="map-pin" [size]="14" color="rgba(255,255,255,0.85)"
-                            style="margin-right:5px;margin-bottom:-2px;">
-                        </app-lucide-icon>
-                        {{ selectedUniversity.location }}
-                    </p>
-                </div>
-            </div>
-
-            <!-- ── BODY: sections ── -->
-            <div class="panel-body">
-
-                <!-- Match reason -->
-                <div class="detail-section">
-                    <h3 class="section-heading">
-                        <span class="section-icon-wrap">
-                            <app-lucide-icon name="target" [size]="15" color="#07B1C9"></app-lucide-icon>
-                        </span>
-                        ¿Por qué hace match contigo?
-                    </h3>
-                    <p>{{ selectedUniversity.matchReason }}</p>
-                </div>
-
-                <!-- Key dates -->
-                <div class="detail-section">
-                    <h3 class="section-heading">
-                        <span class="section-icon-wrap">
-                            <app-lucide-icon name="calendar-check" [size]="15" color="#07B1C9"></app-lucide-icon>
-                        </span>
-                        Fechas Clave
-                    </h3>
-                    <div class="info-box date-box">
-                        <app-lucide-icon name="clock" [size]="16" color="#07B1C9"
-                            style="flex-shrink:0;margin-bottom:-2px;">
-                        </app-lucide-icon>
-                        {{ selectedUniversity.keyDates }}
-                    </div>
-                </div>
-
-                <!-- Study plan -->
-                <div class="detail-section">
-                    <h3 class="section-heading">
-                        <span class="section-icon-wrap">
-                            <app-lucide-icon name="book-open" [size]="15" color="#07B1C9"></app-lucide-icon>
-                        </span>
-                        Plan de Estudios Sugerido
-                    </h3>
-                    <ul class="study-plan-list">
-                        <li *ngFor="let subject of selectedUniversity.studyPlan">
-                            <span class="subject-icon">
-                                <app-lucide-icon name="check-circle" [size]="15" color="#07B1C9"></app-lucide-icon>
-                            </span>
-                            {{ subject }}
-                        </li>
-                    </ul>
-                </div>
-
-            </div>
-
-            <!-- ── FOOTER: unified CTA buttons ── -->
-            <div class="panel-footer">
-                <!-- Secondary: outline bookmark -->
-                <button class="panel-btn-secondary" (click)="saveToFavorites()">
-                    <app-lucide-icon name="bookmark" [size]="16"
-                        style="margin-right:7px;margin-bottom:-2px;">
-                    </app-lucide-icon>
-                    Guardar en favoritos
-                </button>
-                <!-- Primary: solid #07B1C9 -->
-                <a [href]="selectedUniversity.websiteUrl" target="_blank" class="panel-btn-primary">
-                    <app-lucide-icon name="globe" [size]="16" color="white"
-                        style="margin-right:7px;margin-bottom:-2px;">
-                    </app-lucide-icon>
-                    Ver sitio web oficial
-                </a>
-            </div>
-
-        </ng-container>
-    </div>
-
-    
-
-    <!-- ── MODAL: RESPUESTAS DEL TEST ── -->
-    <div class="side-panel-overlay" *ngIf="showAnswersModal" (click)="closeAnswersModal()">
-        <div class="side-panel-content" (click)="$event.stopPropagation()">
-            <div class="panel-cover" style="padding-bottom: 20px;">
-                <button class="btn-close" (click)="closeAnswersModal()" aria-label="Cerrar">
-                    <app-lucide-icon name="x" [size]="18"></app-lucide-icon>
-                </button>
-                <div class="panel-cover-content" style="padding-top: 40px;">
-                    <h2 class="panel-uni-name">Tus Respuestas</h2>
-                    <p class="panel-location" style="margin-top: 5px;">Revisa lo que contestaste en este test.</p>
-                </div>
-            </div>
-            <div class="panel-body" style="padding: 20px;">
-                <!-- PREMIUM LOADING STATE -->
-                <div *ngIf="allQuestions.length === 0" class="premium-loader-container fade-in" style="padding: 2rem 1rem;">
-                  <div class="loader-pulse-ring" style="width: 80px; height: 80px; margin-bottom: 15px;">
-                    <div class="pulse-circle pulse-1"></div>
-                    <div class="pulse-circle pulse-2"></div>
-                    <div class="loader-icon-wrap" style="width: 45px; height: 45px;">
-                      <app-lucide-icon name="list-checks" [size]="24" color="#07B1C9" class="spin-slow"></app-lucide-icon>
-                    </div>
-                  </div>
-                  <h3 class="loader-title" style="font-size: 1.1rem;">Recopilando tus respuestas...</h3>
-                  <p class="loader-subtitle" style="font-size: 0.85rem;">Por favor, espera un momento</p>
-                </div>
-                
-                <div class="qa-timeline-container" *ngIf="allQuestions.length > 0">
-                    <div class="qa-timeline-item fade-in-up" *ngFor="let q of allQuestions; let i = index" [style.animation-delay]="(i * 0.05) + 's'">
-                        <div class="qa-timeline-marker">
-                            <span class="qa-number">{{ i + 1 }}</span>
-                            <div class="qa-line" *ngIf="i !== allQuestions.length - 1"></div>
-                        </div>
-                        <div class="qa-timeline-content">
-                            <h3 class="qa-question-text">{{ q.text }}</h3>
-                            <div class="qa-answer-badge">
-                                <app-lucide-icon name="check-circle" [size]="15" color="#07B1C9" style="margin-right:8px; flex-shrink: 0;"></app-lucide-icon>
-                                <span class="qa-answer-letter">{{ testAnswers[q.id.toString()] || '?' }})</span>
-                                <span class="qa-answer-text">{{ getAnswerText(q.id.toString(), testAnswers[q.id.toString()]) }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+      <!-- Calibration badge -->
+      <div class="calibration-badge" [style.--cal-color]="calibrationColor">
+        <app-lucide-icon name="shield-check" [size]="16"></app-lucide-icon>
+        <span class="cal-label">{{ calibrationLabel }}</span>
+        <span class="cal-pct">{{ profile.calibration.level }}%</span>
+      </div>
+    </header>
 
     <!-- ============================================================
-         PDF EXPORT TEMPLATE (HIDDEN OFF-SCREEN FOR CAPTURE)
+         2. NIVEL DE CALIBRACIÓN
          ============================================================ -->
-    <div id="pdf-report-template-wrapper" style="position: absolute; left: -9999px; top: 0;">
-        <app-pdf-report-template 
-            [dominantTraits]="userProfile.dominantTraits"
-            [description]="userProfile.description"
-            [greeting]="userProfile.greeting"
-            [steamAreas]="steamAreas"
-            [recommendations]="recommendedUniversities">
-        </app-pdf-report-template>
+    <section class="premium-card calibration-section fade-in-up">
+      <div class="cal-head">
+        <div class="cal-title-wrap">
+          <div class="icon-circle"><app-lucide-icon name="target" [size]="20"></app-lucide-icon></div>
+          <div>
+            <h3>Nivel de calibración del perfil</h3>
+            <p>{{ profile.calibration.explanation }}</p>
+          </div>
+        </div>
+        <div class="cal-big-number" [style.color]="calibrationColor">{{ profile.calibration.level }}%</div>
+      </div>
+
+      <div class="cal-bar-track">
+        <div class="cal-bar-fill" [style.width.%]="profile.calibration.level" [style.background]="calibrationColor"></div>
+      </div>
+
+      <div class="cal-sources">
+        <div class="cal-source">
+          <app-lucide-icon name="clipboard-list" [size]="16"></app-lucide-icon>
+          <span>Test teórico</span>
+          <strong class="done">Completado</strong>
+        </div>
+        <div class="cal-source">
+          <app-lucide-icon name="list-checks" [size]="16"></app-lucide-icon>
+          <span>Calibración</span>
+          <strong>{{ profile.calibration.calibrationModulesCompleted }}/4 módulos</strong>
+        </div>
+        <div class="cal-source">
+          <app-lucide-icon name="gamepad-2" [size]="16"></app-lucide-icon>
+          <span>Simuladores</span>
+          <strong>{{ profile.calibration.simulatorsCompleted }} vividos</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         3. DESGLOSE STEAM + AFINIDAD GLOBAL
+         ============================================================ -->
+    <section class="steam-grid fade-in-up">
+
+      <!-- Global affinity ring -->
+      <div class="premium-card affinity-ring-card">
+        <span class="card-eyebrow">Afinidad global</span>
+        <div class="ring-wrap">
+          <svg viewBox="0 0 180 180" class="affinity-ring">
+            <circle class="ring-bg" cx="90" cy="90" [attr.r]="ringRadius" />
+            <circle class="ring-fg" cx="90" cy="90" [attr.r]="ringRadius"
+                    [style.stroke]="topThree[0].gradientStart"
+                    [attr.stroke-dasharray]="circumference(ringRadius)"
+                    [attr.stroke-dashoffset]="ringFilled ? ringOffset : circumference(ringRadius)" />
+          </svg>
+          <div class="ring-center">
+            <span class="ring-pct">{{ globalAffinityPct }}<small>%</small></span>
+            <span class="ring-sub">{{ topThree[0].label }}</span>
+          </div>
+        </div>
+        <p class="ring-caption">Tu área dominante es <strong>{{ topThree[0].label }}</strong></p>
+      </div>
+
+      <!-- STEAM breakdown bars -->
+      <div class="premium-card metrics-card">
+        <div class="card-header">
+          <div class="icon-circle"><app-lucide-icon name="bar-chart-3" [size]="20"></app-lucide-icon></div>
+          <h3>Desglose de tu perfil STEAM</h3>
+        </div>
+        <div class="metrics-list">
+          <div class="metric-item" *ngFor="let area of steamAreas">
+            <div class="metric-icon-box" [style.background]="'linear-gradient(135deg,' + area.gradientStart + ',' + area.gradientEnd + ')'">
+              <app-lucide-icon [name]="area.icon" [size]="18" color="white"></app-lucide-icon>
+            </div>
+            <div class="metric-content">
+              <div class="metric-info">
+                <span class="metric-name">{{ area.label }}</span>
+                <span class="metric-score" [style.color]="area.gradientStart">{{ area.percentage }}%</span>
+              </div>
+              <div class="metric-progress-bg">
+                <div class="metric-progress-fill"
+                     [style.width.%]="area.percentage"
+                     [style.background]="'linear-gradient(90deg,' + area.gradientStart + ',' + area.gradientEnd + ')'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         4. FORTALEZAS + ESTILO DE TRABAJO
+         ============================================================ -->
+    <section class="premium-card strengths-section fade-in-up">
+      <div class="card-header">
+        <div class="icon-circle"><app-lucide-icon name="zap" [size]="20"></app-lucide-icon></div>
+        <h3>Tus fortalezas y estilo</h3>
+      </div>
+
+      <div class="strengths-grid">
+        <div class="strength-card" *ngFor="let s of profile.strengths">
+          <div class="strength-icon"><app-lucide-icon [name]="s.icon" [size]="20"></app-lucide-icon></div>
+          <h4>{{ s.title }}</h4>
+          <p>{{ s.description }}</p>
+        </div>
+      </div>
+
+      <div class="workstyle-tags">
+        <span class="ws-tag" *ngFor="let t of profile.workStyle">
+          <app-lucide-icon name="check" [size]="13"></app-lucide-icon>
+          {{ t }}
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         5. VOCACIONES RECOMENDADAS (Algoritmo 1)
+         ============================================================ -->
+    <section class="block-section fade-in-up">
+      <div class="block-head">
+        <h2>Vocaciones que encajan contigo</h2>
+        <p>Áreas profesionales alineadas con tus afinidades dominantes</p>
+      </div>
+
+      <div class="vocations-grid">
+        <div class="vocation-card" *ngFor="let v of profile.recommendedVocations">
+          <div class="voc-top">
+            <div class="voc-icon"><app-lucide-icon [name]="v.icon" [size]="22"></app-lucide-icon></div>
+            <div class="voc-affinity">
+              <span class="voc-aff-num">{{ v.affinity }}%</span>
+              <span class="voc-aff-label">afinidad</span>
+            </div>
+          </div>
+          <h4>{{ v.name }}</h4>
+          <p class="voc-desc">{{ v.description }}</p>
+          <div class="voc-skills">
+            <span class="skill-chip" *ngFor="let sk of v.skills">{{ sk }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         6. CARRERAS + PLANES DE ESTUDIO (Algoritmo 2)
+         ============================================================ -->
+    <section class="block-section fade-in-up">
+      <div class="block-head">
+        <h2>Carreras y planes de estudio sugeridos</h2>
+        <p>Programas concretos afines a tu perfil. Vive un simulador para confirmar tu elección.</p>
+      </div>
+
+      <div class="careers-list">
+        <div class="career-card" *ngFor="let c of profile.recommendedCareers">
+          <div class="career-main">
+            <div class="career-icon"><app-lucide-icon [name]="c.icon" [size]="24"></app-lucide-icon></div>
+            <div class="career-headings">
+              <h4>{{ c.careerName }}</h4>
+              <p class="career-rationale">{{ c.rationale }}</p>
+            </div>
+            <div class="career-match">
+              <div class="match-ring" [style.--pct]="c.affinity">
+                <span>{{ c.affinity }}%</span>
+              </div>
+              <span class="match-label">match</span>
+            </div>
+          </div>
+
+          <div class="career-details">
+            <div class="detail-col">
+              <span class="detail-title"><app-lucide-icon name="book-open" [size]="14"></app-lucide-icon> Plan de estudios</span>
+              <div class="detail-chips">
+                <span class="study-chip" *ngFor="let h of c.studyPlanHighlights">{{ h }}</span>
+              </div>
+            </div>
+            <div class="detail-col">
+              <span class="detail-title"><app-lucide-icon name="briefcase" [size]="14"></app-lucide-icon> Campo laboral</span>
+              <div class="detail-chips">
+                <span class="field-chip" *ngFor="let f of c.careerFields">{{ f }}</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-reality-check" *ngIf="c.relatedSimulatorSlug" (click)="goToSimulator(c.relatedSimulatorSlug)">
+            <app-lucide-icon name="play" [size]="15"></app-lucide-icon>
+            Vivir un baño de realidad
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         7. PRÓXIMOS PASOS
+         ============================================================ -->
+    <section class="block-section fade-in-up" *ngIf="profile.nextSteps.length">
+      <div class="block-head">
+        <h2>Sube la precisión de tu perfil</h2>
+        <p>Cada test añade evidencia real y reduce el sesgo. Así afinamos tu resultado.</p>
+      </div>
+
+      <div class="next-steps-grid">
+        <div class="next-step-card" *ngFor="let step of profile.nextSteps" (click)="goToNextStep(step.route)">
+          <div class="ns-icon">
+            <app-lucide-icon [name]="step.type === 'simulator' ? 'gamepad-2' : 'list-checks'" [size]="22"></app-lucide-icon>
+          </div>
+          <div class="ns-body">
+            <div class="ns-top">
+              <h4>{{ step.title }}</h4>
+              <span class="ns-gain">+{{ step.calibrationGain }}%</span>
+            </div>
+            <p>{{ step.description }}</p>
+            <span class="ns-action">{{ step.actionLabel }}
+              <app-lucide-icon name="arrow-right" [size]="14"></app-lucide-icon>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         8. ACCIONES
+         ============================================================ -->
+    <div class="action-buttons-row fade-in-up">
+      <button class="btn-action primary" (click)="downloadPDF()">
+        <app-lucide-icon name="download" [size]="20"></app-lucide-icon>
+        Descargar Reporte
+      </button>
+      <button class="btn-action secondary" (click)="navigateToUniversities()">
+        <app-lucide-icon name="building-2" [size]="20"></app-lucide-icon>
+        Ver Universidades
+      </button>
+      <button class="btn-action secondary" (click)="openAnswersModal()">
+        <app-lucide-icon name="list" [size]="20"></app-lucide-icon>
+        Ver Respuestas
+      </button>
+      <button class="btn-action outline" (click)="goToHome()">
+        <app-lucide-icon name="home" [size]="20"></app-lucide-icon>
+        Ir al Inicio
+      </button>
     </div>
+
+  </div>
+
+  <!-- OVERLAY / FULL SCREEN SPLASH -->
+  <app-splash-screen *ngIf="isLoading"
+    [loadingText]="splashText"
+    [controlExternally]="true"
+    [isVisible]="isLoading">
+  </app-splash-screen>
+
+  <!-- ── MODAL: RESPUESTAS DEL TEST ── -->
+  <div class="side-panel-overlay" *ngIf="showAnswersModal" (click)="closeAnswersModal()">
+    <div class="side-panel-content" (click)="$event.stopPropagation()">
+      <div class="panel-cover">
+        <button class="btn-close" (click)="closeAnswersModal()" aria-label="Cerrar">
+          <app-lucide-icon name="x" [size]="18"></app-lucide-icon>
+        </button>
+        <div class="panel-cover-content">
+          <h2 class="panel-title">Tus Respuestas</h2>
+          <p class="panel-sub">Revisa lo que contestaste en este test.</p>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div *ngIf="allQuestions.length === 0" class="premium-loader-container fade-in" style="padding: 2rem 1rem;">
+          <div class="loader-pulse-ring" style="width: 80px; height: 80px; margin-bottom: 15px;">
+            <div class="pulse-circle pulse-1"></div>
+            <div class="pulse-circle pulse-2"></div>
+            <div class="loader-icon-wrap" style="width: 45px; height: 45px;">
+              <app-lucide-icon name="list-checks" [size]="24" color="#07B1C9" class="spin-slow"></app-lucide-icon>
+            </div>
+          </div>
+          <h3 class="loader-title" style="font-size: 1.1rem;">Recopilando tus respuestas...</h3>
+        </div>
+
+        <div class="qa-timeline-container" *ngIf="allQuestions.length > 0">
+          <div class="qa-timeline-item fade-in-up" *ngFor="let q of allQuestions; let i = index" [style.animation-delay]="(i * 0.05) + 's'">
+            <div class="qa-timeline-marker">
+              <span class="qa-number">{{ i + 1 }}</span>
+              <div class="qa-line" *ngIf="i !== allQuestions.length - 1"></div>
+            </div>
+            <div class="qa-timeline-content">
+              <h3 class="qa-question-text">{{ q.text }}</h3>
+              <div class="qa-answer-badge">
+                <app-lucide-icon name="check-circle" [size]="15" color="#07B1C9" style="margin-right:8px; flex-shrink: 0;"></app-lucide-icon>
+                <span class="qa-answer-letter">{{ testAnswers[q.id.toString()] || '?' }})</span>
+                <span class="qa-answer-text">{{ getAnswerText(q.id.toString(), testAnswers[q.id.toString()]) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF EXPORT TEMPLATE (HIDDEN OFF-SCREEN) -->
+  <div id="pdf-report-template-wrapper" style="position: absolute; left: -9999px; top: 0;" *ngIf="profile">
+    <app-pdf-report-template
+      [dominantTraits]="profile.profileName"
+      [description]="profile.profileSummary"
+      [greeting]="greeting"
+      [steamAreas]="steamAreas"
+      [careers]="profile.recommendedCareers">
+    </app-pdf-report-template>
+  </div>
 
 </div>

@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideIconComponent } from '../lucide-icon/lucide-icon.component';
 import { SteamArea } from '../../pages/test-result/test-result.component';
+import { CareerRecommendation } from '../../core/models/vocational-profile.models';
 import { UniversityRecommendation } from '../../core/services/test.service';
 
 @Component({
@@ -51,16 +52,33 @@ import { UniversityRecommendation } from '../../core/services/test.service';
                 </div>
             </div>
 
-            <!-- AI Insights -->
+            <!-- Profile Analysis -->
             <div class="pdf-section">
-                <h2>Análisis del ADN STEAM (Generado por IA)</h2>
+                <h2>Análisis de tu Perfil STEAM</h2>
                 <div class="pdf-ai-box">
                     <p>{{ description }}</p>
                 </div>
             </div>
 
-            <!-- Top Careers -->
-            <div class="pdf-section" *ngIf="recommendations && recommendations.length > 0">
+            <!-- Top Careers (nuevo motor de perfil) -->
+            <div class="pdf-section" *ngIf="careers && careers.length > 0">
+                <h2>Carreras Sugeridas para tu Perfil</h2>
+                <div class="pdf-career-list">
+                    <div class="pdf-career-item" *ngFor="let career of careers | slice:0:3">
+                        <div class="pdf-career-icon">
+                            <app-lucide-icon name="graduation-cap" [size]="20" color="#07B1C9"></app-lucide-icon>
+                        </div>
+                        <div class="pdf-career-info">
+                            <h4>{{ career.careerName }} · {{ career.affinity }}% afinidad</h4>
+                            <p class="uni-name">{{ career.careerFields.join(' · ') }}</p>
+                            <p class="uni-match">{{ career.rationale | slice:0:130 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Careers (compat: recomendaciones de universidades, panel admin) -->
+            <div class="pdf-section" *ngIf="(!careers || careers.length === 0) && recommendations && recommendations.length > 0">
                 <h2>Principales Carreras Sugeridas</h2>
                 <div class="pdf-career-list">
                     <div class="pdf-career-item" *ngFor="let uni of recommendations | slice:0:3">
@@ -182,6 +200,7 @@ export class PdfReportTemplateComponent {
   @Input() description: string = '';
   @Input() greeting: string = '';
   @Input() steamAreas: SteamArea[] = [];
+  @Input() careers: CareerRecommendation[] = [];
   @Input() recommendations: UniversityRecommendation[] = [];
   @Input() currentDate: Date = new Date();
 }

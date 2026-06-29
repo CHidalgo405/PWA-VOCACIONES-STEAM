@@ -178,9 +178,11 @@ export class EvaluationsComponent implements OnInit {
             localStorage.setItem(`hasTakenTest_${user.id}`, 'true');
         }
         
-        // Save answers so the results page can call the API
+        // Save answers + per-area STEAM scores so the local profile engine can
+        // compute the calibrated profile (replaces the previous AI call).
         const userId = user?.id || 'guest';
         localStorage.setItem(`test_answers_${userId}`, JSON.stringify(this.userAnswers));
+        localStorage.setItem(`test_theoretical_scores_${userId}`, JSON.stringify(this.profileScores));
 
         // Simulate a brief delay before navigating
         setTimeout(() => {
