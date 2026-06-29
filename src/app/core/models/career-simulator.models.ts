@@ -1,18 +1,20 @@
 /**
  * Tipos de mecánicas disponibles en los pasos del simulador de carrera.
- * 
+ *
  * - CONTEXT: Solo lectura, establece el escenario.
  * - DATA_ANALYSIS: El usuario debe identificar un patrón o interpretar datos.
  * - TRADEOFF_DECISION: El usuario debe elegir entre opciones con restricciones reales.
  * - SURPRISE_REVEAL: Se revela un dato o evento inesperado propio de la carrera.
- * - AI_FEEDBACK: Se muestra un feedback generado por IA basado en el razonamiento previo.
+ * - REALITY_CHECK: Procesamiento algorítmico de afinidad (reemplaza AI_FEEDBACK).
+ * - AI_FEEDBACK: Alias legacy para compatibilidad con la API actual; se normaliza a REALITY_CHECK al cargar.
  * - EMOTIONAL_REFLECTION: El usuario evalúa cómo se sintió ante el reto.
  */
-export type SimulatorStepType = 
+export type SimulatorStepType =
   | 'CONTEXT'
   | 'DATA_ANALYSIS'
   | 'TRADEOFF_DECISION'
   | 'SURPRISE_REVEAL'
+  | 'REALITY_CHECK'
   | 'AI_FEEDBACK'
   | 'EMOTIONAL_REFLECTION';
 

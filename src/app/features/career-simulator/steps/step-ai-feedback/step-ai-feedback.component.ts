@@ -24,7 +24,7 @@ export class StepAIFeedbackComponent implements OnInit {
   public continue() {
     this.stepCompleted.emit({
       stepId: this.step().id,
-      stepType: 'AI_FEEDBACK',
+      stepType: 'REALITY_CHECK',
       timeSpentMs: 0
     });
   }

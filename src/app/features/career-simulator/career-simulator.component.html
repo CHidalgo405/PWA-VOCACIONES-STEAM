@@ -21,22 +21,22 @@
 
   <div class="progress-container" *ngIf="!isCompleted() && careerData()">
     <div class="progress-bar">
-      <!-- Mapeo de iconos: 📋 Contexto → 🔍 Análisis → ⚖️ Tradeoff → ⚡ Sorpresa → 🤖 IA → 💭 Reflexión -->
+      <!-- Mapeo de iconos: 📋 Contexto → 🔍 Análisis → ⚖️ Tradeoff → ⚡ Sorpresa → 📊 Perfil → 💭 Reflexión -->
       <div class="step-icon" [class.active]="currentStepIndex() === 0" [class.completed]="currentStepIndex() > 0">📋</div>
       <div class="progress-line" [class.completed]="currentStepIndex() > 0"></div>
-      
+
       <div class="step-icon" [class.active]="currentStepIndex() === 1" [class.completed]="currentStepIndex() > 1">🔍</div>
       <div class="progress-line" [class.completed]="currentStepIndex() > 1"></div>
-      
+
       <div class="step-icon" [class.active]="currentStepIndex() === 2" [class.completed]="currentStepIndex() > 2">⚖️</div>
       <div class="progress-line" [class.completed]="currentStepIndex() > 2"></div>
-      
+
       <div class="step-icon" [class.active]="currentStepIndex() === 3" [class.completed]="currentStepIndex() > 3">⚡</div>
       <div class="progress-line" [class.completed]="currentStepIndex() > 3"></div>
-      
-      <div class="step-icon" [class.active]="currentStepIndex() === 4" [class.completed]="currentStepIndex() > 4">🤖</div>
+
+      <div class="step-icon" [class.active]="currentStepIndex() === 4" [class.completed]="currentStepIndex() > 4">📊</div>
       <div class="progress-line" [class.completed]="currentStepIndex() > 4"></div>
-      
+
       <div class="step-icon" [class.active]="currentStepIndex() === 5" [class.completed]="currentStepIndex() > 5">💭</div>
     </div>
   </div>
@@ -84,9 +84,17 @@
             </app-step-surprise-reveal>
           }
         }
+        @case ('REALITY_CHECK') {
+          @if (currentStepData(); as stepData) {
+            <app-step-ai-feedback
+              [step]="$any(stepData)"
+              (stepCompleted)="onStepCompleted($event)">
+            </app-step-ai-feedback>
+          }
+        }
         @case ('AI_FEEDBACK') {
           @if (currentStepData(); as stepData) {
-            <app-step-ai-feedback 
+            <app-step-ai-feedback
               [step]="$any(stepData)"
               (stepCompleted)="onStepCompleted($event)">
             </app-step-ai-feedback>

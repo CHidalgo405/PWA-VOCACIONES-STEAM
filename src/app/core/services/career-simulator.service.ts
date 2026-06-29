@@ -1,19 +1,16 @@
 import { Injectable, inject, DestroyRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
-import { catchError, tap, map, delay } from 'rxjs/operators';
-import { 
-  SimulatorSessionState, 
+import { map } from 'rxjs/operators';
+import {
+  SimulatorSessionState,
   UserStepDecision,
-  CareerSimulatorData
+  CareerSimulatorData,
+  SimulatorFeedbackResponse,
 } from '../models/career-simulator.models';
+import { SimulatorAffinityResult, SteamAxis } from '../models/vocational-profile.models';
 import { environment } from '../../../environments/environment';
-import { 
-  SimulatorFeedbackRequest, 
-  SimulatorFeedbackResponse, 
-  SimulatorFeedbackDecision 
-} from '../models/career-simulator.models';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +18,7 @@ import {
 export class CareerSimulatorService {
   private http = inject(HttpClient);
   private destroyRef = inject(DestroyRef);
+  private authService = inject(AuthService);
 
   private readonly STORAGE_KEY = 'steam_completed_simulators';
 
@@ -92,7 +90,11 @@ export class CareerSimulatorService {
         steamAreaName: sim.steamArea || sim.steamAreaName,
         areaClass: sim.colorToken ? `bg-[${sim.colorToken}]` : this.inferAreaClass(sim.steamArea || sim.steamAreaName),
         areaEmoji: sim.icon || this.inferAreaEmoji(sim.steamArea || sim.steamAreaName),
-        steps: sim.steps
+        steps: (sim.steps || []).map((step: any) => ({
+          ...step,
+          // Normaliza el tipo legacy que envía la API actual
+          type: step.type === 'AI_FEEDBACK' ? 'REALITY_CHECK' : step.type,
+        })),
       }))
     );
   }
@@ -224,83 +226,154 @@ export class CareerSimulatorService {
   }
 
   /**
-   * Toma el estado actual de la sesión, construye el payload y hace el POST
-   * al endpoint REST del backend para evaluar las decisiones matemáticamente.
-   * @returns Observable con la respuesta (SimulatorFeedbackResponse).
+   * Calcula algorítmicamente la afinidad del usuario con la carrera simulada,
+   * persiste el resultado en localStorage y lo devuelve como Observable.
    */
-  public submitForAIFeedback(): Observable<SimulatorFeedbackResponse> {
+  public computeAffinityResult(): Observable<SimulatorFeedbackResponse> {
     const state = this.sessionSubject.value;
-    if (!state || !state.currentCareerData) {
+    if (!state?.currentCareerData) {
       return throwError(() => new Error('No hay una sesión activa de simulación.'));
     }
+    try {
+      const result = this.runAffinityAlgorithm(state);
+      this.persistSimulatorResult(state.currentCareerData.careerId, state.currentCareerData.steamAreaName, result);
+      this.sessionSubject.next({ ...state, isLoadingAIFeedback: false, aiFeedbackData: result });
+      return of(result);
+    } catch (err) {
+      return throwError(() => err);
+    }
+  }
 
-    // Mapear las decisiones al nuevo payload esperado (pasos 2 y 3 típicamente son DATA_ANALYSIS y TRADEOFF_DECISION)
-    const decisionsForAI: SimulatorFeedbackDecision[] = state.userDecisions.map((d, index) => {
-      // Find the option text if it was a selection
-      let decisionText = d.reasoning || '';
-      let optionChosenIndex = undefined;
+  /** Algoritmo de afinidad: acumula steamTraitWeight de cada opción elegida y deriva métricas. */
+  private runAffinityAlgorithm(state: SimulatorSessionState): SimulatorFeedbackResponse {
+    const career = state.currentCareerData!;
+    const decisions = state.userDecisions;
 
-      if (d.selectedOptionId) {
-        const stepData = state.currentCareerData?.steps.find(s => s.id === d.stepId);
-        if (stepData && stepData.options) {
-          const optIndex = stepData.options.findIndex((o: any) => o.id === d.selectedOptionId);
-          if (optIndex !== -1) {
-            optionChosenIndex = optIndex;
-            decisionText = stepData.options[optIndex].text;
-          }
+    const AXIS_MAP: Record<string, string> = { S: 'ciencia', T: 'tecnologia', E: 'ingenieria', A: 'artes', M: 'matematicas' };
+    const steamAccum: Record<string, number> = { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 };
+    let scoredDecisions = 0;
+
+    for (const decision of decisions) {
+      if (!decision.selectedOptionId) continue;
+      const step = career.steps.find((s: any) => s.id === decision.stepId);
+      if (!step?.options) continue;
+      const option = step.options.find((o: any) => o.id === decision.selectedOptionId);
+      if (!option) continue;
+
+      if (option.steamTraitWeight) {
+        for (const [axis, weight] of Object.entries(option.steamTraitWeight as Record<string, number>)) {
+          if (axis in steamAccum) steamAccum[axis] += weight;
         }
+        scoredDecisions++;
+      } else if (option.steamArea && AXIS_MAP[option.steamArea]) {
+        steamAccum[AXIS_MAP[option.steamArea]] += 10;
+        scoredDecisions++;
       }
+    }
 
-      return {
-        step: index + 1,
-        step_type: d.stepType,
-        decision_text: decisionText,
-        time_spent_seconds: d.timeSpentMs / 1000,
-        option_chosen_index: optionChosenIndex
+    // Normalizar a 0-100 relativo al eje con mayor acumulación
+    const steamScores: Record<string, number> = { ...steamAccum };
+    const maxVal = Math.max(...Object.values(steamAccum), 1);
+    for (const axis of Object.keys(steamScores)) {
+      steamScores[axis] = Math.round((steamAccum[axis] / maxVal) * 100);
+    }
+
+    // Afinidad basada en el eje principal de la carrera
+    const primaryAxis = this.getCareerAxisKey(career.steamAreaName);
+    const primaryScore = scoredDecisions > 0 ? (steamScores[primaryAxis] ?? 60) : 60;
+
+    // Tiempo promedio por decisión (segundos)
+    const avgTimeSec = decisions.length > 0
+      ? decisions.reduce((sum, d) => sum + d.timeSpentMs, 0) / decisions.length / 1000
+      : 0;
+
+    const timeFactor = Math.min(1, avgTimeSec / 20);
+    const biasDeduction = state.biasFlags.linear_pattern_detected ? 15 : 0;
+    const speedDeduction = state.biasFlags.too_fast ? 10 : 0;
+    const affinityScore = Math.max(10, Math.min(100,
+      Math.round(primaryScore * (0.7 + 0.3 * timeFactor) - biasDeduction - speedDeduction)
+    ));
+
+    const confidenceLevel: 'high' | 'medium' | 'low' =
+      (state.biasFlags.too_fast && state.biasFlags.linear_pattern_detected) ? 'low' :
+      (state.biasFlags.too_fast || state.biasFlags.linear_pattern_detected) ? 'medium' : 'high';
+
+    const reasoningStyle =
+      avgTimeSec > 15 ? 'Reflexivo y analítico. Tomaste tiempo para evaluar cada escenario con cuidado antes de decidir.' :
+      avgTimeSec > 5  ? 'Equilibrado e intuitivo. Combinaste análisis con instinto al enfrentar cada situación.' :
+                        'Rápido y directo. Tus decisiones fueron ágiles; asegúrate de haber leído cada escenario con calma.';
+
+    // Fortalezas: top 3 ejes con mayor puntuación
+    const STRENGTH_LABELS: Record<string, string> = {
+      ciencia: 'Pensamiento científico', tecnologia: 'Aptitud tecnológica',
+      ingenieria: 'Resolución de problemas', artes: 'Creatividad aplicada',
+      matematicas: 'Razonamiento lógico-matemático',
+    };
+    const AREA_LABELS: Record<string, string> = {
+      ciencia: 'CIENCIA', tecnologia: 'TECNOLOGÍA', ingenieria: 'INGENIERÍA',
+      artes: 'ARTES', matematicas: 'MATEMÁTICAS',
+    };
+    const sortedAxes = Object.entries(steamScores).sort(([, a], [, b]) => b - a);
+    const strengthsDetected = sortedAxes.slice(0, 3)
+      .filter(([, s]) => s > 0)
+      .map(([axis]) => STRENGTH_LABELS[axis] || axis);
+
+    if (strengthsDetected.length === 0) {
+      strengthsDetected.push('Participación en el simulador', 'Exploración vocacional', 'Toma de decisiones');
+    }
+
+    const steamAffinityAnalysis = sortedAxes.slice(0, 3)
+      .filter(([, s]) => s > 0)
+      .map(([axis, s]) => `${AREA_LABELS[axis] || axis}: ${s >= 70 ? 'Fuerte' : s >= 40 ? 'Moderado' : 'En desarrollo'}`)
+      .join(', ') || `${career.steamAreaName}: Explorado`;
+
+    const honestRealityCheck =
+      affinityScore >= 75
+        ? `Tu comportamiento mostró una afinidad ${affinityScore >= 85 ? 'muy alta' : 'alta'} con ${career.careerName}. Las decisiones que tomaste reflejan un perfil compatible con los retos reales de esta carrera.`
+        : affinityScore >= 50
+        ? `Tienes bases sólidas para esta área, pero algunos escenarios revelaron zonas de incertidumbre. ${career.careerName} requiere habilidades que podrías desarrollar con práctica constante.`
+        : `Tu perfil de decisiones sugiere que esta área puede representar un reto significativo. Explora también otras opciones antes de comprometerte con ${career.careerName}.`;
+
+    return {
+      reasoning_style: reasoningStyle,
+      steam_affinity_analysis: steamAffinityAnalysis,
+      strengths_detected: strengthsDetected,
+      honest_reality_check: honestRealityCheck,
+      affinity_score: affinityScore,
+      confidence_level: confidenceLevel,
+      suggested_next_simulators: [],
+    };
+  }
+
+  private getCareerAxisKey(steamAreaName: string): SteamAxis {
+    const area = (steamAreaName || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    if (area.includes('ciencia')) return 'ciencia';
+    if (area.includes('tecnologia')) return 'tecnologia';
+    if (area.includes('ingenieria')) return 'ingenieria';
+    if (area.includes('arte')) return 'artes';
+    if (area.includes('matematica')) return 'matematicas';
+    return 'tecnologia';
+  }
+
+  /** Guarda el SimulatorAffinityResult en localStorage para que el motor de perfil lo consuma. */
+  private persistSimulatorResult(careerSlug: string, steamAreaName: string, result: SimulatorFeedbackResponse): void {
+    const userId = this.authService.getCurrentUser()?.id;
+    if (!userId) return;
+    const key = `simulator_results_${userId}`;
+    try {
+      const existing: SimulatorAffinityResult[] = JSON.parse(localStorage.getItem(key) || '[]');
+      const idx = existing.findIndex(r => r.careerSlug === careerSlug);
+      const entry: SimulatorAffinityResult = {
+        careerSlug,
+        axis: this.getCareerAxisKey(steamAreaName),
+        affinity: result.affinity_score,
+        biasFlags: { too_fast: false, linear_pattern_detected: false },
       };
-    });
-
-    const totalResponseTime = state.userDecisions.reduce((acc, curr) => acc + (curr.timeSpentMs / 1000), 0);
-    const avgResponseTime = decisionsForAI.length > 0 ? totalResponseTime / decisionsForAI.length : 0;
-
-    const payload: SimulatorFeedbackRequest = {
-      career_slug: state.currentCareerData.careerId,
-      career_name: state.currentCareerData.careerName,
-      steam_area: state.currentCareerData.steamAreaName,
-      user_decisions: decisionsForAI,
-      avg_response_time_seconds: avgResponseTime,
-      bias_flags: state.biasFlags
-    };
-
-    // Actualizar estado para reflejar la carga
-    this.sessionSubject.next({ ...state, isLoadingAIFeedback: true });
-
-    // --- DEMO MOCK: Retornar resultado simulado estático ---
-    const mockResponse: SimulatorFeedbackResponse = {
-      reasoning_style: 'Analítico y estructurado. Tomaste decisiones basadas en datos objetivos antes que en corazonadas.',
-      steam_affinity_analysis: 'CIENCIA: Fuerte, TECNOLOGÍA: Moderado, MATEMÁTICAS: Fuerte',
-      strengths_detected: [
-        'Priorización de riesgos inminentes',
-        'Uso de lógica estructurada',
-        'Visión de impacto a gran escala'
-      ],
-      honest_reality_check: 'Tu nivel de paciencia para lidiar con variables incompletas demuestra que estarías cómodo en entornos de incertidumbre, un aspecto vital de esta carrera.',
-      affinity_score: 85,
-      confidence_level: state.biasFlags.too_fast ? 'low' : 'high',
-      suggested_next_simulators: ['ciencia-de-datos', 'inteligencia-artificial-ml', 'uxui-design']
-    };
-
-    return of(mockResponse).pipe(
-      delay(3000), // Simular tiempo de procesamiento de IA (3 segundos)
-      tap((response) => {
-        const currentState = this.sessionSubject.value!;
-        this.sessionSubject.next({
-          ...currentState,
-          isLoadingAIFeedback: false,
-          aiFeedbackData: response
-        });
-      })
-    );
+      const state = this.sessionSubject.value;
+      if (state) entry.biasFlags = state.biasFlags;
+      if (idx >= 0) existing[idx] = entry; else existing.push(entry);
+      localStorage.setItem(key, JSON.stringify(existing));
+    } catch { /* silently ignore storage errors */ }
   }
 
   /**
