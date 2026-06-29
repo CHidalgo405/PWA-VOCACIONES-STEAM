@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { VocationalProfileService } from '../../../core/services/vocational-profile.service';
+import { CalibrationModuleResult, SimulatorAffinityResult, SteamAxis } from '../../../core/models/vocational-profile.models';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 
 interface HobbyCard {
@@ -27,6 +29,9 @@ export class HobbiesTestComponent implements OnInit {
   animatingOut: 'left' | 'right' | null = null;
   viewState: 'intro' | 'swiping' | 'outro' = 'intro';
   isSubmitting = false;
+
+  /** Resumen de la contribución de este módulo al perfil (para mostrar en el outro). */
+  calibrationSummary: { axis: string; label: string; liked: number; disliked: number }[] = [];
 
   allDecks: Record<string, { title: string; subtitle: string; cards: HobbyCard[] }> = {
     gaming_habits: {
@@ -79,10 +84,16 @@ export class HobbiesTestComponent implements OnInit {
     }
   };
 
+  private readonly AXIS_LABELS: Record<string, string> = {
+    ciencia: 'Ciencia', tecnologia: 'Tecnología',
+    ingenieria: 'Ingeniería', artes: 'Artes', matematicas: 'Matemáticas',
+  };
+
   constructor(
-    private router: Router, 
+    private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private profileEngine: VocationalProfileService,
   ) {}
 
   ngOnInit() {
@@ -96,6 +107,7 @@ export class HobbiesTestComponent implements OnInit {
       this.currentIndex = 0;
       this.answers = {};
       this.viewState = 'intro';
+      this.calibrationSummary = [];
     });
   }
 
@@ -109,30 +121,30 @@ export class HobbiesTestComponent implements OnInit {
 
   swipe(direction: 'left' | 'right') {
     if (this.animatingOut || !this.currentCard) return;
-
     this.animatingOut = direction;
     this.answers[this.currentCard.id] = direction === 'right' ? 'liked' : 'disliked';
-
     setTimeout(() => {
       this.currentIndex++;
       this.animatingOut = null;
-      
-      if (this.currentIndex >= this.cards.length) {
-        this.finish();
-      }
+      if (this.currentIndex >= this.cards.length) this.finish();
     }, 400);
   }
 
   finish() {
     this.viewState = 'outro';
     this.isSubmitting = true;
-    // Save to the backend database via AuthService
+
+    // 1. Persistir localmente (fuente de verdad para el motor de perfil)
+    this.saveCalibrationLocal();
+
+    // 2. Recomputar el perfil completo con la nueva señal de calibración
+    this.recomputeProfile();
+
+    // 3. Sincronizar con la API (marca el módulo como completado en el backend)
     this.authService.submitCalibration(this.moduleId, this.answers).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-      },
+      next: () => { this.isSubmitting = false; },
       error: (err) => {
-        console.error('Error saving calibration to backend:', err);
+        console.error('Error al sincronizar calibración con la API:', err);
         this.isSubmitting = false;
       }
     });
@@ -140,5 +152,81 @@ export class HobbiesTestComponent implements OnInit {
 
   exitModule() {
     this.router.navigate(['/dashboard']);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Convierte las respuestas del swipe deck al formato CalibrationModuleResult
+   * y las persiste en localStorage para que el motor de perfil las consuma.
+   */
+  private saveCalibrationLocal(): void {
+    const userId = this.authService.getCurrentUser()?.id;
+    if (!userId) return;
+
+    const moduleResult: CalibrationModuleResult = {
+      moduleId: this.moduleId,
+      answers: this.cards
+        .filter(card => this.answers[card.id] !== undefined)
+        .map(card => ({
+          axis: card.category as SteamAxis,
+          liked: this.answers[card.id] === 'liked',
+        })),
+    };
+
+    const key = `calibration_results_${userId}`;
+    try {
+      const existing: CalibrationModuleResult[] = JSON.parse(localStorage.getItem(key) || '[]');
+      const idx = existing.findIndex(r => r.moduleId === this.moduleId);
+      if (idx >= 0) existing[idx] = moduleResult; else existing.push(moduleResult);
+      localStorage.setItem(key, JSON.stringify(existing));
+    } catch { /* ignore storage errors */ }
+
+    // Generar resumen para el outro
+    this.calibrationSummary = this.buildSummary(moduleResult);
+  }
+
+  /**
+   * Recomputa el VocationalProfile completo (teórico + calibración + simuladores)
+   * y lo actualiza en localStorage para que el dashboard y los resultados lo reflejen.
+   */
+  private recomputeProfile(): void {
+    const userId = this.authService.getCurrentUser()?.id;
+    if (!userId) return;
+    try {
+      const scoresRaw = localStorage.getItem(`test_theoretical_scores_${userId}`);
+      if (!scoresRaw) return; // Sin test teórico previo no hay perfil base
+
+      const theoreticalScores = JSON.parse(scoresRaw);
+      const calibrationResults: CalibrationModuleResult[] = JSON.parse(
+        localStorage.getItem(`calibration_results_${userId}`) || '[]'
+      );
+      const simulatorResults: SimulatorAffinityResult[] = JSON.parse(
+        localStorage.getItem(`simulator_results_${userId}`) || '[]'
+      );
+
+      const profile = this.profileEngine.computeProfile(
+        theoreticalScores, calibrationResults, simulatorResults
+      );
+      localStorage.setItem(`test_profile_${userId}`, JSON.stringify(profile));
+    } catch { /* ignore */ }
+  }
+
+  /** Agrupa los resultados por eje para mostrar en el outro. */
+  private buildSummary(result: CalibrationModuleResult) {
+    const acc: Record<string, { liked: number; disliked: number }> = {};
+    for (const ans of result.answers) {
+      if (!acc[ans.axis]) acc[ans.axis] = { liked: 0, disliked: 0 };
+      ans.liked ? acc[ans.axis].liked++ : acc[ans.axis].disliked++;
+    }
+    return Object.entries(acc)
+      .filter(([, c]) => c.liked + c.disliked > 0)
+      .sort(([, a], [, b]) => b.liked - a.liked)
+      .map(([axis, c]) => ({
+        axis,
+        label: this.AXIS_LABELS[axis] || axis,
+        liked: c.liked,
+        disliked: c.disliked,
+      }));
   }
 }

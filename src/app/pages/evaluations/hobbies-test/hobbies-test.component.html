@@ -1,5 +1,5 @@
 <div class="hobbies-wrapper fade-in">
-  
+
   <!-- INTRO STATE -->
   <div class="state-container intro-state fade-in" *ngIf="viewState === 'intro'">
     <div class="icon-wrap">
@@ -8,7 +8,7 @@
     <div class="badge">Calibración</div>
     <h2>{{ moduleTitle }}</h2>
     <p class="subtitle">{{ moduleSubtitle }}</p>
-    
+
     <div class="explanation-card">
       <p>Los módulos de calibración están diseñados para complementar tu test teórico principal.</p>
       <p>Al indicarnos qué situaciones, dinámicas o actividades prefieres o has experimentado, el sistema logra una <strong>mayor precisión</strong> en tu perfil STEAM.</p>
@@ -45,7 +45,7 @@
         <app-lucide-icon name="heart" [size]="32" color="#10B981"></app-lucide-icon>
       </button>
     </div>
-    
+
     <div class="progress-bar" *ngIf="currentCard">
       <div class="fill" [style.width]="(currentIndex / cards.length) * 100 + '%'"></div>
     </div>
@@ -57,11 +57,40 @@
       <app-lucide-icon name="check-circle" [size]="56" color="#10B981"></app-lucide-icon>
     </div>
     <h2>¡Módulo Completado!</h2>
-    
+
     <div class="explanation-card">
-      <p>Tus respuestas han sido registradas con éxito.</p>
-      <p>Nuestros algoritmos tomarán en cuenta esta información para calibrar y afinar aún más la precisión de tu perfil vocacional STEAM.</p>
+      <p>Tus respuestas han sido registradas y tu perfil vocacional ha sido <strong>recalibrado</strong>.</p>
+      <p>El sistema ahora tiene más evidencia real sobre tus preferencias para afinar las recomendaciones de carreras.</p>
     </div>
+
+    <!-- Resumen de contribución por eje -->
+    @if (calibrationSummary.length > 0) {
+      <div class="calib-summary">
+        <p class="summary-title">
+          <app-lucide-icon name="bar-chart-3" [size]="15"></app-lucide-icon>
+          Lo que detectamos en este módulo
+        </p>
+        @for (item of calibrationSummary; track item.axis) {
+          <div class="summary-row">
+            <span class="axis-label">{{ item.label }}</span>
+            <div class="summary-bars">
+              @if (item.liked > 0) {
+                <span class="bar-liked">
+                  <app-lucide-icon name="heart" [size]="12"></app-lucide-icon>
+                  {{ item.liked }}
+                </span>
+              }
+              @if (item.disliked > 0) {
+                <span class="bar-disliked">
+                  <app-lucide-icon name="x" [size]="12"></app-lucide-icon>
+                  {{ item.disliked }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
 
     <button class="btn-primary-block start-btn" (click)="exitModule()" [disabled]="isSubmitting">
       <span *ngIf="!isSubmitting">Volver al Inicio</span>
