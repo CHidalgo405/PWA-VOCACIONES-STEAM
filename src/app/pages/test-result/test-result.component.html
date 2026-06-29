@@ -326,10 +326,14 @@
   <div id="pdf-report-template-wrapper" style="position: absolute; left: -9999px; top: 0;" *ngIf="profile">
     <app-pdf-report-template
       [dominantTraits]="profile.profileName"
+      [archetype]="profile.profileArchetype"
       [description]="profile.profileSummary"
       [greeting]="greeting"
       [steamAreas]="steamAreas"
-      [careers]="profile.recommendedCareers">
+      [strengths]="profile.strengths"
+      [vocations]="profile.recommendedVocations"
+      [careers]="profile.recommendedCareers"
+      [calibration]="profile.calibration">
     </app-pdf-report-template>
   </div>
 
