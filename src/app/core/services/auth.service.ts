@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, of, map, catchError, tap, throwError } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, BehaviorSubject, map, tap, throwError } from 'rxjs';
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -39,6 +39,7 @@ export interface Usuario {
 export class AuthService {
   private readonly USER_KEY = 'steam_pwa_user';
   private readonly TOKEN_KEY = 'steam_pwa_token';
+  private readonly REFRESH_TOKEN_KEY = 'steam_pwa_refresh_token';
 
   private http = inject(HttpClient);
   private router = inject(Router);
@@ -70,9 +71,7 @@ export class AuthService {
   verifyOtp(email: string, code: string, purpose: 'register' | 'recovery'): Observable<any> {
     return this.http.post(`${environment.apiUrl}/auth/verify-otp`, { email, code, purpose }).pipe(
       tap((res: any) => {
-        if (res.accessToken) {
-          this.setSession(res.accessToken, res.user);
-        }
+        if (res.accessToken) this.setSession(res.accessToken, res.user, res.refreshToken);
       })
     );
   }
@@ -80,9 +79,7 @@ export class AuthService {
   login(email: string, password: string): Observable<any> {
     return this.http.post(`${environment.apiUrl}/auth/login`, { email, password }).pipe(
       tap((res: any) => {
-        if (res.accessToken) {
-          this.setSession(res.accessToken, res.user);
-        }
+        if (res.accessToken) this.setSession(res.accessToken, res.user, res.refreshToken);
       })
     );
   }
@@ -90,9 +87,7 @@ export class AuthService {
   verifyLogin(email: string, code: string): Observable<any> {
     return this.http.post(`${environment.apiUrl}/auth/verify-login`, { email, code }).pipe(
       tap((res: any) => {
-        if (res.accessToken) {
-          this.setSession(res.accessToken, res.user);
-        }
+        if (res.accessToken) this.setSession(res.accessToken, res.user, res.refreshToken);
       })
     );
   }
@@ -167,7 +162,7 @@ export class AuthService {
   // SESSION MANAGEMENT
   // ---------------------------------------------------------
 
-  private setSession(token: string, user: any, rememberMe: boolean = true) {
+  private setSession(accessToken: string, user: any, refreshToken?: string) {
     // Standardize user object
     const usuario: Usuario = {
       id: user.id,
@@ -189,13 +184,67 @@ export class AuthService {
       nicheCareers: user.nicheCareers || []
     };
 
-    localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.TOKEN_KEY, accessToken);
+    if (refreshToken) localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
-    
+
     this.currentUserSubject.next(usuario);
-    if (usuario.darkMode !== undefined) {
-      this.themeService.setTheme(usuario.darkMode);
-    }
+    this.currentUserSig.set(usuario);
+    if (usuario.darkMode !== undefined) this.themeService.setTheme(usuario.darkMode);
+  }
+
+  // ---------------------------------------------------------
+  // TOKEN REFRESH
+  // ---------------------------------------------------------
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+  }
+
+  /**
+   * Solicita un nuevo par de tokens usando el refreshToken almacenado.
+   * El interceptor llama a este método cuando detecta un 401 o un access
+   * token expirado. Actualiza ambos tokens en localStorage automáticamente.
+   */
+  refreshAccessToken(): Observable<{ accessToken: string; refreshToken?: string }> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) return throwError(() => new Error('No hay refresh token disponible.'));
+
+    return this.http.post<any>(
+      `${environment.apiUrl}/auth/refresh`,
+      {},
+      { headers: new HttpHeaders({ Authorization: `Bearer ${refreshToken}` }) }
+    ).pipe(
+      tap((res: any) => {
+        if (res.accessToken) localStorage.setItem(this.TOKEN_KEY, res.accessToken);
+        if (res.refreshToken) localStorage.setItem(this.REFRESH_TOKEN_KEY, res.refreshToken);
+        if (res.user) this.setCurrentUser(this.mapServerUser(res.user));
+      }),
+      map((res: any) => ({ accessToken: res.accessToken, refreshToken: res.refreshToken }))
+    );
+  }
+
+  /** Convierte la respuesta del servidor al modelo interno Usuario. */
+  private mapServerUser(user: any): Usuario {
+    return {
+      id: user.id,
+      nombre: user.fullname || user.nombre,
+      email: user.email,
+      role: user.role,
+      fotoUrl: user.avatarUrl || user.fotoUrl,
+      title: user.title,
+      level: user.level,
+      darkMode: user.settings?.darkMode,
+      baseResolution: user.baseResolution || 50,
+      unlockedBadges: user.unlockedBadges || [],
+      calibrationModules: user.calibrationModules || [
+        { id: 'gaming_habits', status: 'available' },
+        { id: 'physical_hobbies', status: 'available' },
+        { id: 'digital_consumption', status: 'available' },
+        { id: 'everyday_mechanics', status: 'available' },
+      ],
+      nicheCareers: user.nicheCareers || [],
+    };
   }
 
   private setCurrentUser(usuario: Usuario) {
@@ -303,22 +352,28 @@ export class AuthService {
     sessionStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     this.currentUserSubject.next(null);
     this.currentUserSig.set(null);
   }
 
   isAuthenticated(): boolean {
-    const token = localStorage.getItem(this.TOKEN_KEY);
-    if (!token) return false;
+    const accessToken = localStorage.getItem(this.TOKEN_KEY);
+    const refreshToken = this.getRefreshToken();
 
-    // Verificación proactiva de expiración del JWT del lado del cliente.
-    // Evita dejar entrar con un token muerto y depender de que el servidor
-    // devuelva un 401 limpio (que puede fallar como error de red/CORS/502).
-    if (this.isTokenExpired(token)) {
-      this.clearSession();
-      return false;
-    }
-    return true;
+    // Sin ningún token → no autenticado
+    if (!accessToken && !refreshToken) return false;
+
+    // Access token válido → autenticado
+    if (accessToken && !this.isTokenExpired(accessToken)) return true;
+
+    // Access token expirado pero refresh token vivo → el interceptor renovará
+    // silenciosamente en la primera petición; dejamos pasar al usuario.
+    if (refreshToken && !this.isTokenExpired(refreshToken)) return true;
+
+    // Ambos expirados → limpiamos y rechazamos
+    this.clearSession();
+    return false;
   }
 
   /**
