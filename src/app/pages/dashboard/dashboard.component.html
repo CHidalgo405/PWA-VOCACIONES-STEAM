@@ -1,15 +1,16 @@
-<div class="dashboard-wrap" [class.test-taken]="hasTakenTest">
-  
-  <header class="header-section">
+<div class="dashboard-wrap">
+
+  <!-- ============================ HEADER ============================ -->
+  <header class="dash-header">
     <div class="user-greeting">
       <span class="subtext">Bienvenido{{ hasTakenTest ? ' de nuevo' : '' }},</span>
-      <h1>{{ userName }} <app-lucide-icon name="sparkles" [size]="20" color="var(--text-primary)"></app-lucide-icon></h1>
+      <h1>{{ userName }}</h1>
     </div>
     <div class="header-actions">
-      <div class="notification-bell">
-        <app-lucide-icon name="bell" [size]="24" color="var(--steam-orange)"></app-lucide-icon>
-        <div class="notification-dot"></div>
-      </div>
+      <button class="icon-btn" aria-label="Notificaciones">
+        <app-lucide-icon name="bell" [size]="20"></app-lucide-icon>
+        <span class="notification-dot"></span>
+      </button>
       <div class="user-avatar" routerLink="/profile">
         <img [src]="avatarUrl" alt="Perfil">
       </div>
@@ -20,270 +21,199 @@
   @if ((pwaInstall.canInstall$ | async) || (pwaInstall.isIos$ | async)) {
     <div class="install-banner">
       <div class="banner-content">
-        <app-lucide-icon name="smartphone" [size]="24"></app-lucide-icon>
+        <div class="install-icon"><app-lucide-icon name="smartphone" [size]="22"></app-lucide-icon></div>
         <div class="text">
           <strong>Instala la aplicación</strong>
-          <p>Para una experiencia más rápida y pantalla completa.</p>
+          <p>Para una experiencia más rápida y a pantalla completa.</p>
         </div>
       </div>
       <button class="btn-install-banner" (click)="pwaInstall.installApp()">Instalar</button>
     </div>
   }
 
-  <!-- =============================== -->
-  <!-- ESTADO 1: PRE-TEST (Pendiente)  -->
-  <!-- =============================== -->
+  <!-- =============================================================== -->
+  <!-- ESTADO 1: PRE-TEST                                              -->
+  <!-- =============================================================== -->
   @if (!hasTakenTest) {
-    
-    <!-- Top Locked Banner -->
-    <div class="steam-banner locked">
-      <div class="banner-content">
-        <span class="banner-label">Tu perfil STEAM</span>
-        <div class="banner-title-row">
-          <app-lucide-icon name="lock" [size]="18" color="rgba(255,255,255,0.6)"></app-lucide-icon>
-          <h3>Completa el test para desbloquear tu perfil</h3>
-        </div>
+
+    <!-- Hero CTA -->
+    <section class="steam-hero locked">
+      <div class="hero-deco" aria-hidden="true">
+        <span class="steam-watermark">STEAM</span>
+      </div>
+      <div class="hero-content">
+        <span class="hero-eyebrow"><app-lucide-icon name="lock" [size]="14"></app-lucide-icon> Tu perfil STEAM</span>
+        <h2>Descubre tu vocación STEAM</h2>
+        <p>Responde 20 preguntas y nuestro algoritmo analizará tu perfil para recomendarte las carreras que mejor encajan contigo.</p>
+
+        <ul class="hero-features">
+          <li><app-lucide-icon name="clock" [size]="15"></app-lucide-icon> 10 min aprox.</li>
+          <li><app-lucide-icon name="list-checks" [size]="15"></app-lucide-icon> 20 preguntas</li>
+          <li><app-lucide-icon name="zap" [size]="15"></app-lucide-icon> Resultado al instante</li>
+        </ul>
+
+        <button class="btn-hero" (click)="startTest()">
+          Iniciar test <app-lucide-icon name="arrow-right" [size]="18"></app-lucide-icon>
+        </button>
+      </div>
+    </section>
+
+    <!-- Stepper -->
+    <div class="stepper-card">
+      <div class="step completed">
+        <div class="step-icon"><app-lucide-icon name="check" [size]="14"></app-lucide-icon></div>
+        <span class="step-label">Registro</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step active">
+        <div class="step-icon">2</div>
+        <span class="step-label">Test</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step pending">
+        <div class="step-icon">3</div>
+        <span class="step-label">Resultados</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step pending">
+        <div class="step-icon">4</div>
+        <span class="step-label">Carreras</span>
       </div>
     </div>
 
-    <div class="desktop-grid pre-test-grid">
-      <!-- MAIN COLUMN -->
-      <div class="main-column">
-        <!-- Stepper -->
-        <div class="stepper-container">
-          <div class="step completed">
-            <div class="step-icon">
-              <app-lucide-icon name="check" [size]="14"></app-lucide-icon>
-            </div>
-            <span class="step-label">Registro</span>
-          </div>
-          <div class="step active">
-            <div class="step-icon">2</div>
-            <span class="step-label">Test</span>
-          </div>
-          <div class="step pending">
-            <div class="step-icon">3</div>
-            <span class="step-label">Resultados</span>
-          </div>
-          <div class="step pending">
-            <div class="step-icon">4</div>
-            <span class="step-label">Carreras</span>
-          </div>
+    <!-- Por qué hacerlo -->
+    <section class="block">
+      <h3 class="block-title">¿Por qué hacerlo?</h3>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-icon" style="--c: var(--steam-red)"><app-lucide-icon name="target" [size]="22"></app-lucide-icon></div>
+          <span>Carreras alineadas a tu forma de pensar</span>
         </div>
-
-        <!-- CTA Card -->
-        <div class="cta-card">
-          <div class="cta-bg-shapes"></div>
-          <span class="step-badge">PASO 2 • PENDIENTE</span>
-          <h2>Descubre tu vocación STEAM ahora</h2>
-          <p>Responde 20 preguntas y nuestra IA analizará tu perfil para recomendarte las mejores carreras.</p>
-          
-          <ul class="cta-features">
-            <li><span class="dot"></span> 10 min aprox.</li>
-            <li><span class="dot"></span> 20 preguntas</li>
-            <li><span class="dot"></span> Resultado al instante</li>
-          </ul>
-
-          <button class="btn-start-test" (click)="startTest()">
-            Iniciar test <app-lucide-icon name="arrow-right" [size]="18"></app-lucide-icon>
-          </button>
+        <div class="why-card">
+          <div class="why-icon" style="--c: var(--steam-blue)"><app-lucide-icon name="building-2" [size]="22"></app-lucide-icon></div>
+          <span>Universidades ideales para tu perfil</span>
         </div>
-
-        <!-- Por qué hacerlo -->
-        <div class="why-section">
-          <h3>¿Por qué hacerlo?</h3>
-          <div class="why-grid">
-            <div class="why-card">
-              <div class="icon-box red-light">
-                <app-lucide-icon name="target" [size]="24" color="#F44336"></app-lucide-icon>
-              </div>
-              <span>Carreras alineadas a ti</span>
-            </div>
-            <div class="why-card">
-              <div class="icon-box green-light">
-                <app-lucide-icon name="landmark" [size]="24" color="#8B7355"></app-lucide-icon>
-              </div>
-              <span>Top universidades para tu perfil</span>
-            </div>
-            <div class="why-card">
-              <div class="icon-box dark-light">
-                <app-lucide-icon name="sparkles" [size]="24" color="#1A1A1A"></app-lucide-icon>
-              </div>
-              <span>IA personalizada para ti</span>
-            </div>
-          </div>
+        <div class="why-card">
+          <div class="why-icon" style="--c: var(--steam-orange)"><app-lucide-icon name="gamepad-2" [size]="22"></app-lucide-icon></div>
+          <span>Simuladores para vivir un baño de realidad</span>
         </div>
       </div>
-
-      <!-- SIDEBAR COLUMN -->
-      <div class="sidebar-column">
-        
-        <!-- Tu Perfil Por Area (Bloqueado) -->
-        <div class="widget-card">
-          <div class="widget-header">
-            <h3>Tu perfil por área</h3>
-            <span class="widget-action-text disabled">Disponible tras el test</span>
-          </div>
-          <div class="locked-bars-list">
-            @for (area of profileAreas; track area.name) {
-              <div class="locked-bar-item">
-                <div class="area-name-col">
-                  <span class="color-dot" [style.background-color]="area.color"></span>
-                  <span class="area-name">{{ area.name }}</span>
-                </div>
-                <div class="bar-col">
-                  <div class="empty-bar"></div>
-                </div>
-                <div class="icon-col">
-                  <app-lucide-icon name="lock" [size]="16" color="#CCCCCC"></app-lucide-icon>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-
-
-      </div>
-    </div>
+    </section>
   }
 
-  <!-- =============================== -->
-  <!-- ESTADO 2: POST-TEST (Realizado) -->
-  <!-- =============================== -->
+  <!-- =============================================================== -->
+  <!-- ESTADO 2: POST-TEST                                             -->
+  <!-- =============================================================== -->
   @if (hasTakenTest) {
-    
-    <!-- Top Active Banner -->
-    <div class="steam-banner active">
-      <div class="banner-content">
-        <span class="banner-label">Tu perfil dominante</span>
-        <h3>{{ dominantTraitsStr }}</h3>
-      </div>
-    </div>
 
-    <!-- NUEVO: Panel Hero Consolidado (Perfil + Resumen) -->
-    <div class="hero-stats-panel fade-in-up">
-      <div class="hero-main-stat">
+    <!-- Profile summary -->
+    <section class="profile-summary-card">
+      <div class="summary-left">
+        <span class="summary-eyebrow">Tu perfil dominante</span>
+        <h2 class="summary-name">{{ dominantTraitsStr }}</h2>
+        <div class="summary-areas" *ngIf="dominantArea">
+          <span class="area-pill" [style.--c]="dominantArea.color">
+            {{ dominantArea.name }} · {{ dominantArea.percentage }}%
+          </span>
+          <span class="area-pill secondary" *ngIf="secondaryArea" [style.--c]="secondaryArea.color">
+            {{ secondaryArea.name }} · {{ secondaryArea.percentage }}%
+          </span>
+        </div>
 
-        <div class="summary-details">
-          <span class="summary-eyebrow">Disciplina Principal</span>
-          <h2>{{ dominantArea ? dominantArea.name : '--' }} <span class="accent-text" [style.color]="dominantArea?.color">{{ dominantArea?.percentage }}%</span></h2>
-          <span class="summary-secondary" *ngIf="secondaryArea">Área secundaria: {{ secondaryArea.name }} ({{ secondaryArea.percentage }}%)</span>
-          
-          <!-- Badges Section -->
-          <div class="badges-container">
-            <span class="badges-title">Insignias de Talento</span>
-            <div class="badges-grid">
-              @if (authService.currentUserSig()?.unlockedBadges?.length) {
-                @for (badge of authService.currentUserSig()?.unlockedBadges; track badge.id) {
-                  <div class="badge-item active" [title]="badge.description">
-                    <app-lucide-icon [name]="badge.lucideIconName" [size]="18"></app-lucide-icon>
-                  </div>
-                }
-              } @else {
-                <div class="badge-item empty">
-                  <app-lucide-icon name="shield-question" [size]="18"></app-lucide-icon>
-                </div>
-                <div class="badge-item empty">
-                  <app-lucide-icon name="shield-question" [size]="18"></app-lucide-icon>
-                </div>
-              }
-            </div>
+        <!-- Calibration meter -->
+        <div class="calib-mini">
+          <div class="calib-mini-head">
+            <span><app-lucide-icon name="target" [size]="14"></app-lucide-icon> Calibración del perfil</span>
+            <strong>{{ calibrationLevel }}%</strong>
           </div>
-          
-
-        </div>
-      </div>
-      
-      <div class="hero-radar-chart">
-        <div class="radar-container">
-          <canvas baseChart
-            [data]="radarChartData"
-            [options]="radarChartOptions"
-            [type]="'radar'">
-          </canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- GAMIFICATION BANNER -->
-    <div class="gamification-banner">
-      <div class="banner-text">
-        <app-lucide-icon name="map" [size]="20" class="banner-icon"></app-lucide-icon>
-        <span>Este es tu perfil base, pero tienes talentos ocultos que aún no hemos mapeado.</span>
-      </div>
-      
-      <div class="calibration-modules-container">
-        <h4 class="modules-title">Módulos de Calibración</h4>
-        <div class="modules-grid">
-          @for (modConfig of calibrationModulesConfig; track modConfig.id) {
-            <div class="module-slot" 
-                 [class.completed]="getModuleState(modConfig.id) === 'completed'"
-                 [class.available]="getModuleState(modConfig.id) === 'available'"
-                 [class.locked]="getModuleState(modConfig.id) === 'locked'"
-                 (click)="goToMission(modConfig.id)">
-              <div class="slot-icon">
-                @if (getModuleState(modConfig.id) === 'completed') {
-                  <app-lucide-icon name="check-circle-2" [size]="16"></app-lucide-icon>
-                } @else if (getModuleState(modConfig.id) === 'locked') {
-                  <app-lucide-icon name="lock" [size]="16"></app-lucide-icon>
-                } @else {
-                  <app-lucide-icon [name]="modConfig.icon" [size]="16"></app-lucide-icon>
-                }
-              </div>
-              <span class="slot-name">{{ modConfig.title }}</span>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- NUEVA GRID: Foco en CTAs -->
-    <div class="desktop-grid post-test-grid-new">
-      <!-- MAIN COLUMN: Prominent CTA's -->
-      <div class="main-column">
-        
-
-        <!-- Simulador de Carrera (Hero CTA) -->
-        <div class="widget-card simulator-hero-card">
-          <div class="simulator-hero-bg"></div>
-          <div class="simulator-hero-content">
-            <span class="widget-badge purple"><app-lucide-icon name="flask-conical" [size]="14"></app-lucide-icon> Laboratorio Práctico</span>
-            <h2>Simulador de Carrera</h2>
-            <p>
-              ¿No estás seguro de qué carrera elegir? Ponte en los zapatos de un profesional STEAM y vive situaciones reales para validar tu vocación.
-            </p>
-            <div class="simulator-features">
-              <div class="feat"><app-lucide-icon name="check" [size]="14"></app-lucide-icon> Retos reales</div>
-              <div class="feat"><app-lucide-icon name="check" [size]="14"></app-lucide-icon> 10 simuladores</div>
-            </div>
-            <button class="btn-simulator-large" routerLink="/career-simulator">
-              Ingresar al simulador
-              <app-lucide-icon name="rocket" [size]="18" color="#fff"></app-lucide-icon>
-            </button>
+          <div class="calib-mini-track">
+            <div class="calib-mini-fill" [style.width.%]="calibrationLevel"></div>
           </div>
         </div>
 
-      </div>
-
-      <!-- SIDEBAR COLUMN: Minimized Actions -->
-      <div class="sidebar-column">
-
-        <!-- Progreso y Reintentar -->
-        <div class="widget-card compact-card">
-          <h3>¿Quieres más precisión?</h3>
-          <p class="subtitle-text-xs mb-3">Tus gustos pueden cambiar. Vuelve a hacer el test si crees que tu perfil ha evolucionado.</p>
-          <button class="btn-retry-outline" (click)="startTest()">
-            <app-lucide-icon name="rotate-ccw" [size]="14"></app-lucide-icon>
-            Reintentar test
+        <div class="summary-actions">
+          <button class="btn-sm primary" routerLink="/test-result">
+            <app-lucide-icon name="bar-chart-3" [size]="16"></app-lucide-icon> Ver mi perfil completo
+          </button>
+          <button class="btn-sm ghost" (click)="startTest()">
+            <app-lucide-icon name="rotate-ccw" [size]="16"></app-lucide-icon> Repetir test
           </button>
         </div>
-
       </div>
-    </div>
+
+      <div class="summary-radar">
+        <canvas baseChart [data]="radarChartData" [options]="radarChartOptions" [type]="'radar'"></canvas>
+      </div>
+    </section>
+
+    <!-- Calibration modules -->
+    <section class="dash-card calibration-card">
+      <div class="card-head">
+        <div>
+          <h3>Calibra tu perfil</h3>
+          <p>Cada módulo aporta evidencia real y reduce el sesgo. Llevas {{ completedModulesCount }}/4.</p>
+        </div>
+        <span class="head-badge">+{{ (4 - completedModulesCount) * 10 }}% por completar</span>
+      </div>
+      <div class="modules-grid">
+        @for (mod of calibrationModulesConfig; track mod.id) {
+          <button class="module-chip"
+                  [class.completed]="getModuleState(mod.id) === 'completed'"
+                  (click)="goToMission(mod.id)">
+            <div class="chip-icon">
+              @if (getModuleState(mod.id) === 'completed') {
+                <app-lucide-icon name="check-circle-2" [size]="18"></app-lucide-icon>
+              } @else {
+                <app-lucide-icon [name]="mod.icon" [size]="18"></app-lucide-icon>
+              }
+            </div>
+            <span class="chip-name">{{ mod.title }}</span>
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- Simulator CTA -->
+    <section class="steam-hero simulator-hero">
+      <div class="hero-deco" aria-hidden="true">
+        <span class="steam-watermark">LAB</span>
+      </div>
+      <div class="hero-content">
+        <span class="hero-eyebrow"><app-lucide-icon name="flask-conical" [size]="14"></app-lucide-icon> Laboratorio práctico</span>
+        <h2>Simulador de carrera</h2>
+        <p>Ponte en los zapatos de un profesional STEAM y vive situaciones reales para validar si una carrera es para ti.</p>
+        <ul class="hero-features">
+          <li><app-lucide-icon name="check" [size]="15"></app-lucide-icon> Retos reales</li>
+          <li><app-lucide-icon name="check" [size]="15"></app-lucide-icon> Baño de realidad</li>
+        </ul>
+        <button class="btn-hero" routerLink="/career-simulator">
+          Ingresar al simulador <app-lucide-icon name="rocket" [size]="18"></app-lucide-icon>
+        </button>
+      </div>
+    </section>
+
+    <!-- Quick links -->
+    <section class="quick-grid">
+      <button class="quick-card" routerLink="/explore">
+        <div class="quick-icon" style="--c: var(--steam-blue)"><app-lucide-icon name="building-2" [size]="22"></app-lucide-icon></div>
+        <div class="quick-text">
+          <strong>Universidades</strong>
+          <span>Explora opciones para tu perfil</span>
+        </div>
+        <app-lucide-icon name="chevron-right" [size]="18" class="quick-arrow"></app-lucide-icon>
+      </button>
+      <button class="quick-card" routerLink="/history">
+        <div class="quick-icon" style="--c: var(--steam-orange)"><app-lucide-icon name="clock" [size]="22"></app-lucide-icon></div>
+        <div class="quick-text">
+          <strong>Historial</strong>
+          <span>Revisa tus tests anteriores</span>
+        </div>
+        <app-lucide-icon name="chevron-right" [size]="18" class="quick-arrow"></app-lucide-icon>
+      </button>
+    </section>
   }
 
   <div class="spacer-bottom"></div>
-
 </div>
 
 <!-- Modal de Bienvenida -->
@@ -292,14 +222,14 @@
     <div class="welcome-modal-content">
       <div class="modal-header-welcome">
         <div class="icon-pulse">
-          <app-lucide-icon name="sparkles" [size]="48" color="var(--steam-blue)"></app-lucide-icon>
+          <app-lucide-icon name="sparkles" [size]="44" color="var(--steam-blue)"></app-lucide-icon>
         </div>
         <h2>¡Bienvenido a Vocaciones STEAM!</h2>
       </div>
       <div class="modal-body-welcome">
         <div class="beta-warning">
           <app-lucide-icon name="alert-triangle" [size]="20" color="var(--steam-orange)"></app-lucide-icon>
-          <p><strong>Fase Beta Temprana:</strong> Esta aplicación está en desarrollo. Es posible que encuentres errores funcionales o contenido incompleto.</p>
+          <p><strong>Fase Beta Temprana:</strong> Esta aplicación está en desarrollo. Es posible que encuentres errores o contenido incompleto.</p>
         </div>
         <p class="suggestion-text">Te sugerimos realizar el test vocacional primero para conocer tu perfil.</p>
       </div>
