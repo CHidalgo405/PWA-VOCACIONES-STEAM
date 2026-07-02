@@ -179,13 +179,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadTestResult(userId: string) {
-    // 1. Perfil local del nuevo motor (fuente principal)
+    // 1. Perfil cacheado localmente (pintado instantáneo)
     if (this.tryLoadLocalProfile(userId)) return;
 
-    // 2. Legacy: tests previos guardados en la API
+    // 2. API: último test con el VocationalProfile del motor determinista
     this.testService.getLatestTest().subscribe({
       next: (latestTest: TestDetail | null) => {
-        if (latestTest) {
+        const apiProfile = (latestTest as any)?.profile as VocationalProfile | null;
+        if (apiProfile) {
+          this.profileEngine.cacheProfile(apiProfile);
+          this.applyProfile(apiProfile);
+        } else if (latestTest) {
+          // 3. Legacy: tests previos sin perfil persistido
           localStorage.setItem(`test_result_${userId}`, JSON.stringify(latestTest));
           this.processLegacyResult(latestTest);
         } else {
@@ -214,7 +219,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (!profile) return false;
+    this.applyProfile(profile);
+    return true;
+  }
 
+  /** Pinta un VocationalProfile (del caché o de la API) en el dashboard. */
+  private applyProfile(profile: VocationalProfile): void {
     this.hasTakenTest = true;
     this.dominantTraitsStr = profile.profileName;
     this.calibrationLevel = profile.calibration.level;
@@ -231,7 +241,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.secondaryArea = this.profileAreas[1] || null;
     this.recommendedCareers = profile.recommendedCareers.slice(0, 5).map(c => ({ title: c.careerName, category: '' }));
     this.updateRadar();
-    return true;
   }
 
   private readFromCache(userId: string) {

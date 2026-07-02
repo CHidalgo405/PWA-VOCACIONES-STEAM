@@ -1,4 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
 import {
   SteamAxis,
   SteamVector,
@@ -15,6 +20,30 @@ import {
   SOURCE_WEIGHTS,
   CALIBRATION_GAINS,
 } from '../models/vocational-profile.models';
+
+/** Respuesta de POST /calibration/submit. */
+export interface CalibrationSubmitResponse {
+  success: boolean;
+  moduleId: string;
+  /** Perfil recomputado por la API (null si aún no hay test teórico). */
+  profile: VocationalProfile | null;
+}
+
+/** Respuesta de POST /simulator/submit. */
+export interface SimulatorSubmitResponse {
+  success: boolean;
+  affinity: SimulatorAffinityResult;
+  feedback: {
+    reasoning_style: string;
+    steam_affinity_analysis: string;
+    strengths_detected: string[];
+    honest_reality_check: string;
+    affinity_score: number;
+    confidence_level: 'high' | 'medium' | 'low';
+    suggested_next_simulators: string[];
+  };
+  profile: VocationalProfile | null;
+}
 
 /**
  * ============================================================================
@@ -144,8 +173,105 @@ const CAREER_CATALOG: Record<SteamAxis, Omit<CareerRecommendation, 'affinity' | 
 
 @Injectable({ providedIn: 'root' })
 export class VocationalProfileService {
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+
+  /** Perfil vigente (reactivo) para dashboard/resultados. */
+  readonly currentProfile = signal<VocationalProfile | null>(null);
+
+  // ===========================================================================
+  //  CAPA API — el motor determinista ahora vive en el backend (A1-A8).
+  //  Los métodos locales de abajo se conservan como fallback offline.
+  // ===========================================================================
+
   /**
-   * Calcula el perfil vocacional calibrado.
+   * Corre A1→A7 en la API con las respuestas del test teórico
+   * ({ questionId: letra }) y persiste el resultado en el historial.
+   */
+  computeProfileRemote(
+    theoreticalAnswers: Record<string, string>,
+    locationInput?: string,
+  ): Observable<VocationalProfile> {
+    const body: any = { theoreticalAnswers };
+    if (locationInput?.trim()) body.locationInput = locationInput.trim();
+    return this.http
+      .post<VocationalProfile>(`${environment.apiUrl}/profile/compute`, body)
+      .pipe(tap((profile) => this.cacheProfile(profile)));
+  }
+
+  /** Guarda un módulo de calibración en la API y recibe el perfil recomputado. */
+  submitCalibrationModule(
+    result: CalibrationModuleResult,
+  ): Observable<CalibrationSubmitResponse> {
+    return this.http
+      .post<CalibrationSubmitResponse>(
+        `${environment.apiUrl}/calibration/submit`,
+        result,
+      )
+      .pipe(tap((res) => { if (res.profile) this.cacheProfile(res.profile); }));
+  }
+
+  /**
+   * Envía las decisiones del simulador; la API corre A3a, guarda el
+   * resultado y devuelve feedback + perfil recomputado.
+   */
+  submitSimulatorSession(payload: {
+    careerSlug: string;
+    decisions: Array<{
+      stepId: string;
+      stepType?: string;
+      selectedOptionId?: string;
+      timeSpentMs: number;
+    }>;
+    biasFlags?: { too_fast: boolean; linear_pattern_detected: boolean };
+  }): Observable<SimulatorSubmitResponse> {
+    return this.http
+      .post<SimulatorSubmitResponse>(
+        `${environment.apiUrl}/simulator/submit`,
+        payload,
+      )
+      .pipe(tap((res) => { if (res.profile) this.cacheProfile(res.profile); }));
+  }
+
+  /** Recupera el último perfil persistido en la API (p. ej. en otro dispositivo). */
+  fetchLatestProfile(): Observable<VocationalProfile | null> {
+    return this.http.get<any>(`${environment.apiUrl}/tests/latest`).pipe(
+      map((res) => (res?.profile as VocationalProfile) ?? null),
+      tap((profile) => { if (profile) this.cacheProfile(profile); }),
+      catchError(() => of(null)),
+    );
+  }
+
+  // ── Caché local (pintado instantáneo + soporte offline) ──────────────────
+
+  cacheProfile(profile: VocationalProfile): void {
+    this.currentProfile.set(profile);
+    const userId = this.authService.getCurrentUser()?.id || 'guest';
+    try {
+      localStorage.setItem(`test_profile_${userId}`, JSON.stringify(profile));
+    } catch { /* storage lleno o bloqueado: ignorar */ }
+  }
+
+  getCachedProfile(): VocationalProfile | null {
+    if (this.currentProfile()) return this.currentProfile();
+    const userId = this.authService.getCurrentUser()?.id || 'guest';
+    try {
+      const raw = localStorage.getItem(`test_profile_${userId}`);
+      const profile = raw ? (JSON.parse(raw) as VocationalProfile) : null;
+      if (profile) this.currentProfile.set(profile);
+      return profile;
+    } catch {
+      return null;
+    }
+  }
+
+  // ===========================================================================
+  //  MOTOR LOCAL (fallback offline) — réplica de los algoritmos A1-A7
+  // ===========================================================================
+
+  /**
+   * Calcula el perfil vocacional calibrado LOCALMENTE (fallback sin conexión).
+   * La fuente de verdad es la API (computeProfileRemote).
    * @param theoreticalScores Conteo por eje del test teórico (ej. {ciencia: 4, ...}).
    * @param calibrationResults Resultados de módulos de calibración completados.
    * @param simulatorResults Afinidades de simuladores completados.

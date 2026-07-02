@@ -5,8 +5,10 @@ import { Router } from '@angular/router';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
 import { VocationTestService, Question, Option, TestSubmissionResponse } from '../../core/services/test.service';
 import { AuthService } from '../../core/services/auth.service';
+import { VocationalProfileService } from '../../core/services/vocational-profile.service';
+import { ToastService } from '../../core/services/toast.service';
 import { catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { forkJoin, of, timer } from 'rxjs';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
 @Component({
@@ -49,7 +51,9 @@ export class EvaluationsComponent implements OnInit {
     constructor(
         private router: Router,
         private testService: VocationTestService,
-        private authService: AuthService
+        private authService: AuthService,
+        private profileService: VocationalProfileService,
+        private toastService: ToastService
     ) { }
 
     ngOnInit(): void {
@@ -177,17 +181,31 @@ export class EvaluationsComponent implements OnInit {
         if (user?.id) {
             localStorage.setItem(`hasTakenTest_${user.id}`, 'true');
         }
-        
-        // Save answers + per-area STEAM scores so the local profile engine can
-        // compute the calibrated profile (replaces the previous AI call).
+
+        // Espejo local de las respuestas (soporte offline y modal de revisión)
         const userId = user?.id || 'guest';
         localStorage.setItem(`test_answers_${userId}`, JSON.stringify(this.userAnswers));
         localStorage.setItem(`test_theoretical_scores_${userId}`, JSON.stringify(this.profileScores));
 
-        // Simulate a brief delay before navigating
-        setTimeout(() => {
-            this.router.navigate(['/test-result']);
-        }, 1500);
+        // El motor determinista (A1-A7) corre en la API y persiste el perfil
+        // en el historial. El timer garantiza un splash mínimo legible.
+        forkJoin({
+            profile: this.profileService.computeProfileRemote(this.userAnswers),
+            delay: timer(1400),
+        }).subscribe({
+            next: () => this.router.navigate(['/test-result']),
+            error: () => {
+                // Sin conexión: computamos localmente con el motor de respaldo
+                // para no bloquear al estudiante.
+                const profile = this.profileService.computeProfile(this.profileScores);
+                this.profileService.cacheProfile(profile);
+                this.toastService.showToast(
+                    'Sin conexión con el servidor: mostramos tu perfil calculado localmente.',
+                    'info'
+                );
+                this.router.navigate(['/test-result']);
+            },
+        });
     }
 
     promptExit() {

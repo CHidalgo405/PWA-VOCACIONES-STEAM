@@ -84,16 +84,42 @@ export class TestResultComponent implements OnInit {
     this.loadResults();
   }
 
-  /** Carga las señales persistidas y computa el perfil con el motor local. */
+  /**
+   * Carga el perfil calculado por la API (caché local → API → fallback
+   * offline con el motor local).
+   */
   private loadResults(): void {
     const user = this.authService.getCurrentUser();
     const userId = user?.id || 'guest';
 
+    this.isLoading = true;
+    this.splashText = 'Cargando tu perfil vocacional...';
+
+    // 1. Caché: el perfil recién computado por /profile/compute
+    const cached = this.profileEngine.getCachedProfile();
+    if (cached) {
+      this.applyProfile(cached, userId);
+      return;
+    }
+
+    // 2. API: último perfil persistido (p. ej. sesión en otro dispositivo)
+    this.profileEngine.fetchLatestProfile().subscribe((profile) => {
+      if (profile) {
+        this.applyProfile(profile, userId);
+        return;
+      }
+      this.tryLocalFallback(userId);
+    });
+  }
+
+  /** Fallback offline: recomputa con el motor local desde localStorage. */
+  private tryLocalFallback(userId: string): void {
     const scoresStr =
       localStorage.getItem(`test_theoretical_scores_${userId}`) ||
       localStorage.getItem('test_theoretical_scores_guest');
 
     if (!scoresStr) {
+      this.isLoading = false;
       this.toastService.showToast('No se encontraron resultados de tu test. Realiza el test teórico primero.', 'error');
       this.router.navigate(['/evaluations']);
       return;
@@ -102,24 +128,20 @@ export class TestResultComponent implements OnInit {
     const theoreticalScores: Record<string, number> = JSON.parse(scoresStr);
     const calibrationResults = this.readCalibrationResults(userId);
     const simulatorResults = this.readSimulatorResults(userId);
+    const profile = this.profileEngine.computeProfile(theoreticalScores, calibrationResults, simulatorResults);
+    this.profileEngine.cacheProfile(profile);
+    this.applyProfile(profile, userId);
+  }
 
-    this.isLoading = true;
-    this.splashText = 'Calculando tu perfil vocacional...';
-
-    // El cómputo es síncrono (local). Mantenemos un breve splash por UX.
+  /** Pinta el perfil en la vista y carga las respuestas para el modal. */
+  private applyProfile(profile: VocationalProfile, userId: string): void {
     setTimeout(() => {
-      this.profile = this.profileEngine.computeProfile(theoreticalScores, calibrationResults, simulatorResults);
-      this.buildSteamChart(this.profile.steamScores);
-
-      // Guardamos el perfil para el dashboard / historial local
-      localStorage.setItem(`test_profile_${userId}`, JSON.stringify(this.profile));
-
-      // Cargamos respuestas para el modal de revisión
+      this.profile = profile;
+      this.buildSteamChart(profile.steamScores);
       const answersStr = localStorage.getItem(`test_answers_${userId}`);
       this.testAnswers = answersStr ? JSON.parse(answersStr) : {};
-
       this.isLoading = false;
-    }, 600);
+    }, 400);
   }
 
   /** Lee los resultados de calibración persistidos (si existen). */
