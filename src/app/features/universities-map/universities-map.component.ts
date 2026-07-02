@@ -31,7 +31,7 @@ export class UniversitiesMapComponent implements OnInit {
   selectedUniversity: University | null = null;
   userPosition: google.maps.LatLngLiteral | null = null;
   
-  center: google.maps.LatLngLiteral = { lat: 14.6349, lng: -90.5069 }; // Por defecto
+  center: google.maps.LatLngLiteral = { lat: 19.4326, lng: -99.1332 }; // CDMX por defecto
   zoom = 6;
 
   // Icono SVG personalizado para el usuario (punto azul)

@@ -45,7 +45,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
   userPosition: google.maps.LatLngLiteral | null = null;
   userMarkerIcon: google.maps.Icon | null = null;
   
-  center: google.maps.LatLngLiteral = { lat: 14.6349, lng: -90.5069 }; // Por defecto
+  center: google.maps.LatLngLiteral = { lat: 19.4326, lng: -99.1332 }; // CDMX por defecto
   zoom = 6;
 
   mapOptions: google.maps.MapOptions = {
@@ -209,7 +209,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
             this.ngZone.run(() => {
               this.isLocating = false;
               this.loadApiMatches();
-              this.triggerPlacesSearch(); // Fallback a Guatemala
+              this.triggerPlacesSearch(); // Fallback a la ubicación por defecto
             });
           }
         },
@@ -244,7 +244,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
           description: item.relationshipExplanation || 'Universidad guardada.',
           keyDates: item.keyDates || 'Consultar sitio web',
           studyPlan: item.studyPlan || 'Varios módulos',
-          position: { lat: 14.6349, lng: -90.5069 } // No tenemos el geocoder, pondremos dummy para que no rompa el mapa
+          position: null // Sin coordenadas guardadas: se excluye del mapa (mapMarkers filtra)
         }));
 
         this.savedUniversities = mappedSaved;
