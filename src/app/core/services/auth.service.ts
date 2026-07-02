@@ -144,12 +144,7 @@ export class AuthService {
            darkMode: res.settings?.darkMode,
            baseResolution: res.baseResolution || 50,
            unlockedBadges: res.unlockedBadges || [],
-           calibrationModules: res.calibrationModules || [
-             { id: 'gaming_habits', status: 'available' },
-             { id: 'physical_hobbies', status: 'available' },
-             { id: 'digital_consumption', status: 'available' },
-             { id: 'everyday_mechanics', status: 'available' }
-           ],
+           calibrationModules: this.resolveCalibrationModules(res.calibrationModules),
            nicheCareers: res.nicheCareers || []
         };
         this.setCurrentUser(user);
@@ -175,12 +170,7 @@ export class AuthService {
       darkMode: user.settings?.darkMode,
       baseResolution: user.baseResolution || 50,
       unlockedBadges: user.unlockedBadges || [],
-      calibrationModules: user.calibrationModules || [
-        { id: 'gaming_habits', status: 'available' },
-        { id: 'physical_hobbies', status: 'available' },
-        { id: 'digital_consumption', status: 'available' },
-        { id: 'everyday_mechanics', status: 'available' }
-      ],
+      calibrationModules: this.resolveCalibrationModules(user.calibrationModules),
       nicheCareers: user.nicheCareers || []
     };
 
@@ -237,14 +227,26 @@ export class AuthService {
       darkMode: user.settings?.darkMode,
       baseResolution: user.baseResolution || 50,
       unlockedBadges: user.unlockedBadges || [],
-      calibrationModules: user.calibrationModules || [
-        { id: 'gaming_habits', status: 'available' },
-        { id: 'physical_hobbies', status: 'available' },
-        { id: 'digital_consumption', status: 'available' },
-        { id: 'everyday_mechanics', status: 'available' },
-      ],
+      calibrationModules: this.resolveCalibrationModules(user.calibrationModules),
       nicheCareers: user.nicheCareers || [],
     };
+  }
+
+  /**
+   * El backend aún no persiste calibrationModules: si el servidor no los
+   * envía, preservamos el estado local (módulos completados) en lugar de
+   * resetear todo a 'available' en cada fetch del perfil.
+   */
+  private resolveCalibrationModules(serverModules?: CalibrationModule[]): CalibrationModule[] {
+    if (serverModules?.length) return serverModules;
+    const current = this.getCurrentUser()?.calibrationModules;
+    if (current?.length) return current;
+    return [
+      { id: 'gaming_habits', status: 'available' },
+      { id: 'physical_hobbies', status: 'available' },
+      { id: 'digital_consumption', status: 'available' },
+      { id: 'everyday_mechanics', status: 'available' },
+    ];
   }
 
   private setCurrentUser(usuario: Usuario) {

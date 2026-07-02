@@ -48,6 +48,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   showWelcomeModal = false;
 
+  /** Módulos completados según la BD (fuente de verdad cross-device). */
+  private completedModuleIds = new Set<string>();
+
   profileAreas: ProfileArea[] = [];
   recommendedCareers: { title: string; category: string }[] = [];
   dominantArea: ProfileArea | null = null;
@@ -114,6 +117,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    // Estado real de calibración desde la BD (sobrevive recargas y
+    // cambios de dispositivo, a diferencia del estado local del usuario).
+    this.profileEngine.getMyCalibrations().subscribe((rows) => {
+      this.completedModuleIds = new Set(rows.map((r) => r.moduleId));
+    });
+
     const cachedUser = this.authService.getCurrentUser();
     if (cachedUser) {
       this.userProfile = cachedUser;
@@ -316,6 +325,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getModuleState(moduleId: string): 'locked' | 'available' | 'completed' {
+    if (this.completedModuleIds.has(moduleId)) return 'completed';
     const mod = this.authService.currentUserSig()?.calibrationModules?.find(m => m.id === moduleId);
     if (mod && mod.status === 'completed') return 'completed';
     return 'available';

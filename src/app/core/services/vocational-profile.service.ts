@@ -233,6 +233,19 @@ export class VocationalProfileService {
       .pipe(tap((res) => { if (res.profile) this.cacheProfile(res.profile); }));
   }
 
+  /**
+   * Módulos de calibración completados según la BD (fuente de verdad
+   * cross-device para los chips del dashboard).
+   */
+  getMyCalibrations(): Observable<{ moduleId: string }[]> {
+    return this.http
+      .get<any[]>(`${environment.apiUrl}/tests/calibration/me`)
+      .pipe(
+        map((rows) => (Array.isArray(rows) ? rows : [])),
+        catchError(() => of([])),
+      );
+  }
+
   /** Recupera el último perfil persistido en la API (p. ej. en otro dispositivo). */
   fetchLatestProfile(): Observable<VocationalProfile | null> {
     return this.http.get<any>(`${environment.apiUrl}/tests/latest`).pipe(
