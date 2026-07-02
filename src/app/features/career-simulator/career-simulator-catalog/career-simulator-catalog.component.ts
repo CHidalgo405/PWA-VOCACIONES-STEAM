@@ -71,8 +71,22 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /** Scores por carrera según la API (prioridad sobre localStorage). */
+  private apiScores = new Map<string, number>();
+
   ngOnInit() {
     this.completedSimulators.set(this.simulatorService.getCompletedSimulators());
+
+    // Fuente de verdad cross-device: resultados guardados en la API.
+    this.simulatorService.getMyResults().subscribe(results => {
+      if (!results.length) return;
+      this.apiScores = new Map(results.map(r => [r.careerSlug, r.affinity]));
+      const merged = new Set([
+        ...this.simulatorService.getCompletedSimulators(),
+        ...results.map(r => r.careerSlug),
+      ]);
+      this.completedSimulators.set([...merged]);
+    });
 
     // Carga exclusiva desde la API (JSONB)
     this.simulatorService.getSimulators().subscribe({
@@ -181,6 +195,8 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
   }
 
   public getAffinityScore(careerId: string): number | null {
+    const fromApi = this.apiScores.get(careerId);
+    if (typeof fromApi === 'number') return fromApi;
     try {
       const val = localStorage.getItem(`sim_score_${careerId}`);
       return val ? parseInt(val, 10) : null;

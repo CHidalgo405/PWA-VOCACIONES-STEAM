@@ -409,6 +409,22 @@ export class CareerSimulatorService {
   }
 
   /**
+   * Resultados de simuladores del usuario guardados en la API (último
+   * intento por carrera). Fuente de verdad cross-device para el catálogo.
+   */
+  public getMyResults(): Observable<Array<{
+    careerSlug: string;
+    axis: string;
+    affinity: number;
+    completedAt?: string;
+  }>> {
+    return this.http.get<any[]>(`${environment.apiUrl}/simulator/results`).pipe(
+      map(rows => (Array.isArray(rows) ? rows : [])),
+      catchError(() => of([])),
+    );
+  }
+
+  /**
    * Resetea el estado completo de la sesión.
    */
   public resetSession(): void {
