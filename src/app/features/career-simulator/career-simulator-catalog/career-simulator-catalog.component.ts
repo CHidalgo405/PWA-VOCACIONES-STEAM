@@ -2,7 +2,9 @@ import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy, signal, comp
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { CareerSimulatorService } from '../../../core/services/career-simulator.service';
+import { VocationalProfileService } from '../../../core/services/vocational-profile.service';
 import { CareerSimulatorData } from '../../../core/models/career-simulator.models';
+import { SteamVector } from '../../../core/models/vocational-profile.models';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 import gsap from 'gsap';
 
@@ -18,14 +20,16 @@ type SteamAreaFilter = 'Todas' | 'Ciencia' | 'Tecnología' | 'Ingeniería' | 'Ar
 })
 export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
   private simulatorService = inject(CareerSimulatorService);
+  private profileService = inject(VocationalProfileService);
   private router = inject(Router);
 
   public viewState = signal<'intro' | 'catalog'>('intro');
   public filters: SteamAreaFilter[] = ['Todas', 'Ciencia', 'Tecnología', 'Ingeniería', 'Artes', 'Matemáticas'];
   public currentFilter = signal<SteamAreaFilter>('Todas');
-  
+
   public completedSimulators = signal<string[]>([]);
-  public userSteamProfile = signal<any>(null);
+  /** Vector STEAM del perfil vocacional (para ordenar por afinidad). */
+  public userSteamScores = signal<SteamVector | null>(null);
 
   // Lista base dinámica
   public allSimulators = signal<CareerSimulatorData[]>([]);
@@ -40,18 +44,19 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
       sims = sims.filter(sim => this.getSteamArea(sim) === filter);
     }
 
-    // 2. Ordenamiento inteligente si existe perfil STEAM
-    const profile = this.userSteamProfile();
-    if (profile && profile.desglose_steam) {
+    // 2. Ordenamiento inteligente por afinidad del perfil vocacional
+    const scores = this.userSteamScores();
+    if (scores) {
+      const AXIS_BY_AREA: Record<string, keyof SteamVector> = {
+        'Ciencia': 'ciencia',
+        'Tecnología': 'tecnologia',
+        'Ingeniería': 'ingenieria',
+        'Artes': 'artes',
+        'Matemáticas': 'matematicas',
+      };
       sims.sort((a, b) => {
-        // Normalizamos los nombres de área para compararlos con la DB
-        const normalize = (area: string) => area.toLowerCase().replace('á', 'a').replace('í', 'i');
-        const areaA = normalize(this.getSteamArea(a));
-        const areaB = normalize(this.getSteamArea(b));
-        
-        const scoreA = profile.desglose_steam[areaA] || 0;
-        const scoreB = profile.desglose_steam[areaB] || 0;
-        
+        const scoreA = scores[AXIS_BY_AREA[this.getSteamArea(a)]] ?? 0;
+        const scoreB = scores[AXIS_BY_AREA[this.getSteamArea(b)]] ?? 0;
         // Orden descendente por afinidad del perfil
         return scoreB - scoreA;
       });
@@ -102,13 +107,15 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
       }
     });
 
-    try {
-      const stored = localStorage.getItem('steam_profile');
-      if (stored) {
-        this.userSteamProfile.set(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.error('Error parseando steam_profile del localStorage', e);
+    // Perfil vocacional para ordenar el catálogo por afinidad
+    // (caché instantánea; si no existe, se pide a la API).
+    const cached = this.profileService.getCachedProfile();
+    if (cached) {
+      this.userSteamScores.set(cached.steamScores);
+    } else {
+      this.profileService.fetchLatestProfile().subscribe(profile => {
+        if (profile) this.userSteamScores.set(profile.steamScores);
+      });
     }
   }
 
