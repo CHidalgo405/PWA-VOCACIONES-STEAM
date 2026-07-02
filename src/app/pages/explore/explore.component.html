@@ -26,6 +26,41 @@
           </button>
         </div>
       </div>
+
+      <!-- Filtros A8: distancia y costo (instantáneos, sobre el caché del backend) -->
+      <div class="filters-bar" *ngIf="viewMode === 'explore' && hasTakenTest">
+        <div class="filter-group">
+          <span class="filter-label">
+            <app-lucide-icon name="map-pin" [size]="14"></app-lucide-icon> Distancia
+          </span>
+          <div class="filter-chips">
+            <button
+              class="filter-chip"
+              *ngFor="let km of distanceOptions"
+              [class.active]="maxDistanceKm === km"
+              (click)="setDistanceFilter(km)">
+              {{ km }} km
+            </button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">
+            <app-lucide-icon name="wallet" [size]="14"></app-lucide-icon> Costo
+          </span>
+          <div class="filter-chips">
+            <button
+              class="filter-chip"
+              *ngFor="let opt of costOptions"
+              [class.active]="costPreference === opt.value"
+              (click)="setCostFilter(opt.value)">
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+        <div class="filter-loading" *ngIf="isLoadingMatches">
+          <span class="dot-pulse"></span> Actualizando coincidencias…
+        </div>
+      </div>
     </div>
   </header>
 
@@ -146,12 +181,17 @@
                 </div>
                 
                 <h4 class="uni-name">{{ bestMatchUniversity.name }}</h4>
-                
+
                 <p class="location-text">
                   <app-lucide-icon name="map-pin" [size]="14" color="#94A3B8"></app-lucide-icon>
                   {{ bestMatchUniversity.location }}
+                  <span class="distance-pill" *ngIf="bestMatchUniversity.distanceKm != null">a {{ bestMatchUniversity.distanceKm }} km</span>
                 </p>
-                
+
+                <p class="match-explanation" *ngIf="bestMatchUniversity.description">
+                  {{ bestMatchUniversity.description }}
+                </p>
+
                 <div class="card-bottom-row">
                   <span class="match-text">Match {{ bestMatchUniversity.matchPercentage }}% <app-lucide-icon name="sparkles" [size]="12" fill="currentColor"></app-lucide-icon></span>
                   <span class="link-text">Ver oferta educativa &rarr;</span>
@@ -186,16 +226,21 @@
                   <p class="location-text">
                     <app-lucide-icon name="map-pin" [size]="14" color="#ef4444"></app-lucide-icon>
                     {{ uni.location }}
+                    <span class="distance-pill" *ngIf="uni.distanceKm != null">a {{ uni.distanceKm }} km</span>
                   </p>
-                  
+
+                  <p class="match-explanation subtle" *ngIf="uni.source === 'api' && uni.description">
+                    {{ uni.description }}
+                  </p>
+
                   <div class="chips-row">
                     <span class="mini-chip" *ngFor="let tag of uni.tags">{{ tag }}</span>
                   </div>
-                  
+
                   <div class="list-bottom-row">
                     <div class="left-stats">
-                      <span class="rating-text"><app-lucide-icon name="star" [size]="14" color="#F97316" fill="#F97316" style="margin-bottom: -2px; margin-right: 2px;"></app-lucide-icon> {{ uni.rating }}</span>
-                      <span class="match-badge">Match: {{ uni.matchPercentage }}%</span>
+                      <span class="rating-text" *ngIf="uni.rating"><app-lucide-icon name="star" [size]="14" color="#F97316" fill="#F97316" style="margin-bottom: -2px; margin-right: 2px;"></app-lucide-icon> {{ uni.rating }}</span>
+                      <span class="match-badge" *ngIf="uni.matchPercentage != null">Match: {{ uni.matchPercentage }}%</span>
                     </div>
                     <span class="link-text">Explorar oferta &rarr;</span>
                   </div>
@@ -205,8 +250,60 @@
             </div>
           </section>
 
+          <!-- SIN COINCIDENCIAS A8 (pero con test hecho) -->
+          <div class="no-matches-note" *ngIf="viewMode === 'explore' && !isLoadingMatches && apiMatches.length === 0">
+            <app-lucide-icon name="compass" [size]="20"></app-lucide-icon>
+            <div>
+              <strong>Aún no hay coincidencias exactas en tu zona.</strong>
+              <p>Prueba ampliando la distancia o cambiando el filtro de costo. Mientras tanto, te mostramos universidades cercanas a tu ubicación.</p>
+            </div>
+          </div>
+
+          <!-- CERCA DE TI (Google Maps, sin % de match inventado) -->
+          <section class="all-recommendations-section nearby-section" *ngIf="viewMode === 'explore' && filteredNearbyUniversities.length > 0">
+            <div class="section-header space-between">
+              <h3>
+                <app-lucide-icon name="map" [size]="18" style="margin-right: 6px; margin-bottom: -3px;"></app-lucide-icon>
+                Universidades cerca de ti
+              </h3>
+              <span class="section-caption">Fuente: Google Maps</span>
+            </div>
+
+            <div class="recommendations-list">
+              <div class="recommended-list-card animate-on-scroll" *ngFor="let uni of filteredNearbyUniversities" (click)="openUniversityDetail(uni)" appScrollReveal>
+                <div class="list-card-icon">
+                  <div class="square-icon-bg">
+                    <app-lucide-icon [name]="uni.logo || 'graduation-cap'" [size]="30" color="#334155"></app-lucide-icon>
+                  </div>
+                </div>
+
+                <div class="list-card-content">
+                  <div class="list-top-row">
+                    <h4 class="list-uni-name">{{ uni.name }}</h4>
+                    <button class="btn-fav-invisible" (click)="toggleFavoriteStatus(uni, $event)">
+                      <app-lucide-icon name="heart" [size]="18" color="#94A3B8"></app-lucide-icon>
+                    </button>
+                  </div>
+
+                  <p class="location-text">
+                    <app-lucide-icon name="map-pin" [size]="14" color="#ef4444"></app-lucide-icon>
+                    {{ uni.location }}
+                  </p>
+
+                  <div class="list-bottom-row">
+                    <div class="left-stats">
+                      <span class="rating-text" *ngIf="uni.rating"><app-lucide-icon name="star" [size]="14" color="#F97316" fill="#F97316" style="margin-bottom: -2px; margin-right: 2px;"></app-lucide-icon> {{ uni.rating }}</span>
+                      <span class="nearby-badge">Cerca de ti</span>
+                    </div>
+                    <span class="link-text">Ver detalles &rarr;</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <!-- EMPTY STATE BÚSQUEDA / GUARDADAS -->
-          <div class="premium-empty-state" *ngIf="filteredOtherUniversities.length === 0 && !showBestMatch">
+          <div class="premium-empty-state" *ngIf="filteredOtherUniversities.length === 0 && !showBestMatch && filteredNearbyUniversities.length === 0">
             <div class="empty-visual">
               <app-lucide-icon [name]="viewMode === 'saved' ? 'heart-off' : 'search'" [size]="64"></app-lucide-icon>
             </div>
@@ -238,8 +335,8 @@
           ></map-marker>
 
           <!-- Recommended Universities Markers -->
-          <map-marker 
-            *ngFor="let uni of currentUniversitiesList" 
+          <map-marker
+            *ngFor="let uni of mapMarkers"
             [position]="uni.position"
             [title]="uni.name"
             [options]="getMarkerOptions(uni)"
@@ -291,22 +388,29 @@
       </div>
 
       <div class="modal-stats-grid">
-          <div class="stat-box highlight-match">
-            <app-lucide-icon name="sparkles" [size]="20"></app-lucide-icon> 
+          <div class="stat-box highlight-match" *ngIf="selectedUniversity?.matchPercentage != null">
+            <app-lucide-icon name="sparkles" [size]="20"></app-lucide-icon>
             <div class="stat-info">
               <span class="stat-label">Tu Match</span>
               <span class="stat-value">{{ selectedUniversity?.matchPercentage }}%</span>
             </div>
           </div>
-          <div class="stat-box">
-            <app-lucide-icon name="star" [size]="20" color="#F59E0B" fill="#F59E0B"></app-lucide-icon> 
+          <div class="stat-box" *ngIf="selectedUniversity?.distanceKm != null">
+            <app-lucide-icon name="map-pin" [size]="20" color="#07B1C9"></app-lucide-icon>
+            <div class="stat-info">
+              <span class="stat-label">Distancia</span>
+              <span class="stat-value">{{ selectedUniversity?.distanceKm }} km</span>
+            </div>
+          </div>
+          <div class="stat-box" *ngIf="selectedUniversity?.rating">
+            <app-lucide-icon name="star" [size]="20" color="#F59E0B" fill="#F59E0B"></app-lucide-icon>
             <div class="stat-info">
               <span class="stat-label">Rating</span>
               <span class="stat-value">{{ selectedUniversity?.rating }}</span>
             </div>
           </div>
-          <div class="stat-box full-width">
-            <app-lucide-icon name="graduation-cap" [size]="20"></app-lucide-icon> 
+          <div class="stat-box full-width" *ngIf="selectedUniversity?.career">
+            <app-lucide-icon name="graduation-cap" [size]="20"></app-lucide-icon>
             <div class="stat-info">
               <span class="stat-label">Carrera Recomendada</span>
               <span class="stat-value">{{ selectedUniversity?.career }}</span>
@@ -317,7 +421,7 @@
       <div class="modal-section-box">
         <div class="section-title">
           <app-lucide-icon name="info" [size]="18"></app-lucide-icon>
-          <h4>Sobre la Institución</h4>
+          <h4>{{ selectedUniversity?.source === 'api' ? '¿Por qué te conviene?' : 'Sobre la Institución' }}</h4>
         </div>
         <p>{{ selectedUniversity?.description }}</p>
       </div>
@@ -345,7 +449,7 @@
       <button class="btn-fav-large" (click)="saveUniversity()">
         <app-lucide-icon name="heart" [size]="24" color="#64748B"></app-lucide-icon>
       </button>
-      <button class="btn-action-primary" (click)="closeUniversityModal()">
+      <button class="btn-action-primary" (click)="openWebsite()">
         Visitar Sitio Web
         <app-lucide-icon name="external-link" [size]="18" style="margin-left: 8px; margin-bottom: -4px;"></app-lucide-icon>
       </button>

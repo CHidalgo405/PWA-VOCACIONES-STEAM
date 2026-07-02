@@ -4,11 +4,57 @@ import { Observable, map } from 'rxjs';
 import { University } from '../models/university.model';
 import { environment } from '../../../environments/environment';
 
+// ── Contrato del algoritmo A8 (POST /universities/match) ────────────────────
+
+export type CostTier = 'public' | 'affordable' | 'private-premium';
+export type CostPreference = 'public' | 'affordable' | 'any';
+
+export interface UniversityMatchFilters {
+  /** 10 | 25 | 50 | 100 km — se aplican sobre el caché del backend, sin IA. */
+  maxDistanceKm: number;
+  costPreference: CostPreference;
+}
+
+export interface UniversityMatchItem {
+  universityId: string;
+  name: string;
+  matchedCareer: string;
+  /** Match real: baseScore determinista + ajuste acotado de la IA (±10). */
+  matchScore: number;
+  distanceKm: number;
+  costTier: CostTier;
+  explanation: string;
+  websiteUrl?: string;
+  googleMapsData?: { rating?: number; address?: string };
+  location?: { lat: number; lng: number };
+  scoreAdjustmentReason?: string;
+}
+
+export interface UniversityMatchResponse {
+  matches: UniversityMatchItem[];
+  generatedAt: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class UniversityService {
   private http = inject(HttpClient);
+
+  /**
+   * A8 — Matching de universidades: capa determinista (programa, distancia,
+   * costo) + IA acotada que explica cada match. Los filtros son instantáneos
+   * porque el backend los aplica sobre su caché.
+   */
+  matchUniversities(request: {
+    userLocation: { lat: number; lng: number };
+    filters: UniversityMatchFilters;
+  }): Observable<UniversityMatchResponse> {
+    return this.http.post<UniversityMatchResponse>(
+      `${environment.apiUrl}/universities/match`,
+      request,
+    );
+  }
 
   /**
    * Busca universidades usando Google Maps Places API (New) vía REST

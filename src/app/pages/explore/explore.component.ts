@@ -14,7 +14,11 @@ import { HeaderComponent } from '../../components/header/header.component';
 import { Router } from '@angular/router';
 import { GoogleMapsModule, GoogleMap } from '@angular/google-maps';
 import { GoogleMapsLoaderService } from '../../core/services/google-maps-loader.service';
-import { UniversityService } from '../../core/services/university.service';
+import {
+  UniversityService,
+  CostPreference,
+  UniversityMatchItem,
+} from '../../core/services/university.service';
 import { ScrollRevealDirective } from './scroll-reveal.directive';
 
 @Component({
@@ -68,12 +72,39 @@ export class ExploreComponent implements OnInit, OnDestroy {
   // Datos
   bestMatchUniversity: any = null;
   otherUniversities: any[] = [];
-  
+
   dominantTraitsStr: string = 'STEAM';
   totalCoincidencias: number = 0;
   maxMatchPercentage: number = 0;
 
   universities: any[] = [];
+
+  // ── A8: matching real (API) + filtros instantáneos ──
+  apiMatches: any[] = [];
+  nearbyUniversities: any[] = [];
+  isLoadingMatches = false;
+  readonly distanceOptions = [10, 25, 50, 100];
+  maxDistanceKm = 50;
+  costPreference: CostPreference = 'any';
+
+  readonly costOptions: { value: CostPreference; label: string }[] = [
+    { value: 'any', label: 'Todas' },
+    { value: 'public', label: 'Públicas' },
+    { value: 'affordable', label: 'Accesibles' },
+  ];
+
+  private readonly COST_TIER_LABELS: Record<string, string> = {
+    public: 'Pública',
+    affordable: 'Costo accesible',
+    'private-premium': 'Privada',
+  };
+
+  private readonly DEFAULT_IMAGES = [
+    'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
+    'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&q=80&w=1000',
+    'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
+    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000',
+  ];
 
   private router = inject(Router);
 
@@ -125,6 +156,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
             }
             this.isLocating = false;
             this.toastService.showToast(`Ubicación aproximada: ${data.city || data.region}`, 'info');
+            this.loadApiMatches();
             this.triggerPlacesSearch();
           });
           return true;
@@ -143,6 +175,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
           if (!success) {
             this.ngZone.run(() => {
               this.isLocating = false;
+              this.loadApiMatches();
               this.triggerPlacesSearch();
             });
           }
@@ -165,6 +198,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
               this.googleMap.panTo(userLocation);
             }
             this.isLocating = false;
+            this.loadApiMatches();
             this.triggerPlacesSearch();
           });
         },
@@ -174,6 +208,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
           if (!success) {
             this.ngZone.run(() => {
               this.isLocating = false;
+              this.loadApiMatches();
               this.triggerPlacesSearch(); // Fallback a Guatemala
             });
           }
@@ -185,6 +220,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
         if (!success) {
           this.ngZone.run(() => {
             this.isLocating = false;
+            this.loadApiMatches();
             this.triggerPlacesSearch();
           });
         }
@@ -225,7 +261,9 @@ export class ExploreComponent implements OnInit, OnDestroy {
       next: (latestTest: TestDetail | null) => {
         if (latestTest) {
           this.hasTakenTest = true;
-          this.dominantTraitsStr = latestTest.dominantTraits || 'STEAM';
+          const profile = (latestTest as any)?.profile;
+          this.dominantTraitsStr = profile?.profileName || latestTest.dominantTraits || 'STEAM';
+          this.loadApiMatches();
           this.triggerPlacesSearch();
         } else {
           this.processData();
@@ -240,11 +278,83 @@ export class ExploreComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ── A8: matching real desde la API ─────────────────────────────────────────
+
+  /**
+   * Pide a la API el matching de universidades (A8): match duro por programa,
+   * distancia y costo + explicación de la IA. Los cambios de filtro re-piden
+   * al instante porque el backend responde desde su caché sin re-llamar a la IA.
+   */
+  loadApiMatches() {
+    if (!this.hasTakenTest) return;
+    const location = this.userPosition || this.center;
+
+    this.isLoadingMatches = true;
+    this.universityService.matchUniversities({
+      userLocation: { lat: location.lat, lng: location.lng },
+      filters: {
+        maxDistanceKm: this.maxDistanceKm,
+        costPreference: this.costPreference,
+      },
+    }).subscribe({
+      next: (res) => {
+        this.apiMatches = (res.matches || []).map((m, index) => this.mapApiMatch(m, index));
+        this.isLoadingMatches = false;
+        this.processData();
+        this.fitMapToResults();
+      },
+      error: (err) => {
+        console.error('Error en el matching de universidades (A8)', err);
+        this.apiMatches = [];
+        this.isLoadingMatches = false;
+        this.processData();
+      },
+    });
+  }
+
+  /** Convierte un UniversityMatchItem de la API al modelo de tarjeta de la vista. */
+  private mapApiMatch(m: UniversityMatchItem, index: number): any {
+    return {
+      id: m.universityId,
+      name: m.name,
+      location: m.googleMapsData?.address || 'Dirección no disponible',
+      image: this.DEFAULT_IMAGES[index % this.DEFAULT_IMAGES.length],
+      logo: index === 0 ? 'building' : 'graduation-cap',
+      tags: [m.matchedCareer, this.COST_TIER_LABELS[m.costTier] || m.costTier],
+      rating: m.googleMapsData?.rating ?? null,
+      matchPercentage: m.matchScore,
+      career: m.matchedCareer,
+      description: m.explanation,
+      keyDates: 'Consultar sitio web',
+      studyPlan: m.matchedCareer,
+      websiteUrl: m.websiteUrl || null,
+      distanceKm: m.distanceKm,
+      costTier: m.costTier,
+      costTierLabel: this.COST_TIER_LABELS[m.costTier] || m.costTier,
+      position: m.location ? { lat: m.location.lat, lng: m.location.lng } : null,
+      source: 'api',
+    };
+  }
+
+  setDistanceFilter(km: number) {
+    if (this.maxDistanceKm === km) return;
+    this.maxDistanceKm = km;
+    this.loadApiMatches();
+  }
+
+  setCostFilter(pref: CostPreference) {
+    if (this.costPreference === pref) return;
+    this.costPreference = pref;
+    this.loadApiMatches();
+  }
+
+  // ── Google Places: contexto "cerca de ti" (sin porcentajes inventados) ─────
+
   triggerPlacesSearch() {
     // Procedemos si ya tomamos el test
     if (!this.hasTakenTest) return;
-    
-    // Fallback: usar el default (Guatemala) si no hay ubicación de usuario
+
+    // Fallback: usar el default si no hay ubicación de usuario
     const locationToUse = this.userPosition || this.center;
 
     // Si el mapa aún no está listo en la vista, lo intentamos en un breve timeout
@@ -253,60 +363,29 @@ export class ExploreComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Usamos simplemente 'universidad' para asegurar resultados.
-    // Combinarlo con 'Tecnología' o 'STEAM' hace que Google Places no devuelva resultados.
-    const searchQuery = 'universidad';
-
-    this.universityService.searchNearbyUniversities(this.googleMap.googleMap, locationToUse, 30000, searchQuery).subscribe({
+    this.universityService.searchNearbyUniversities(this.googleMap.googleMap, locationToUse, 30000, 'universidad').subscribe({
       next: (results) => {
-        const defaultImages = [
-          'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1000',
-          'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&q=80&w=1000',
-          'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
-          'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000'
-        ];
-
-        this.universities = results.map((place: any, index: number) => {
-          const matchPct = Math.max(70, 95 - (index * 2));
-          return {
-            id: place.id,
-            name: place.name,
-            location: place.address || 'Ubicación no especificada',
-            image: place.logoUrl || defaultImages[index % defaultImages.length],
-            logo: index === 0 ? 'building' : 'graduation-cap', 
-            tags: [this.dominantTraitsStr, 'Google Places'],
-            rating: place.rating || 4.5,
-            matchPercentage: matchPct,
-            career: this.dominantTraitsStr,
-            description: place.isOpen ? 'Abierto en este momento.' : 'Cerrado en este momento.',
-            keyDates: 'Consultar sitio web',
-            studyPlan: 'Programas de ' + this.dominantTraitsStr,
-            position: place.location // ¡Para el mapa!
-          };
-        });
+        this.nearbyUniversities = results.map((place: any, index: number) => ({
+          id: place.id,
+          name: place.name,
+          location: place.address || 'Ubicación no especificada',
+          image: place.logoUrl || this.DEFAULT_IMAGES[index % this.DEFAULT_IMAGES.length],
+          logo: 'graduation-cap',
+          tags: ['Cerca de ti'],
+          rating: place.rating || null,
+          matchPercentage: null, // sin match real: no lo inventamos
+          career: null,
+          description: place.isOpen === true ? 'Abierta en este momento.' : (place.isOpen === false ? 'Cerrada en este momento.' : 'Universidad cercana a tu ubicación.'),
+          keyDates: 'Consultar sitio web',
+          studyPlan: 'Consultar oferta educativa',
+          websiteUrl: null,
+          position: place.location,
+          source: 'places',
+        }));
 
         this.processData();
         this.isLoading = false;
-
-        // Animar la cámara para encuadrar todas las universidades y al usuario (FitBounds)
-        if (this.googleMap && this.googleMap.googleMap && this.universities.length > 0) {
-          const bounds = new google.maps.LatLngBounds();
-          if (this.userPosition) {
-            bounds.extend(this.userPosition);
-          }
-          this.universities.forEach(u => {
-            if (u.position) {
-              bounds.extend(u.position);
-            }
-          });
-          // Ajustamos la cámara suavemente
-          this.googleMap.googleMap.fitBounds(bounds, {
-            bottom: 40,
-            left: 40,
-            right: 40,
-            top: 40
-          });
-        }
+        this.fitMapToResults();
       },
       error: (err) => {
         console.error("Error buscando en Google Places", err);
@@ -314,6 +393,18 @@ export class ExploreComponent implements OnInit, OnDestroy {
         this.processData();
       }
     });
+  }
+
+  /** Encuadra la cámara del mapa para mostrar usuario + resultados. */
+  private fitMapToResults() {
+    if (!this.googleMap?.googleMap) return;
+    const withPosition = this.universities.filter(u => u.position);
+    if (!withPosition.length && !this.userPosition) return;
+
+    const bounds = new google.maps.LatLngBounds();
+    if (this.userPosition) bounds.extend(this.userPosition);
+    withPosition.forEach(u => bounds.extend(u.position));
+    this.googleMap.googleMap.fitBounds(bounds, { bottom: 40, left: 40, right: 40, top: 40 });
   }
 
   getMarkerOptions(uni: any): google.maps.MarkerOptions {
@@ -345,16 +436,46 @@ export class ExploreComponent implements OnInit, OnDestroy {
   }
 
   processData() {
-    this.totalCoincidencias = this.universities.length;
-    
-    if (this.universities.length > 0) {
-      this.bestMatchUniversity = this.universities[0];
-      this.maxMatchPercentage = Math.max(...this.universities.map(u => u.matchPercentage));
-      this.otherUniversities = this.universities.slice(1);
+    // Combina matches reales (A8) con contexto de Places, sin duplicar por nombre.
+    const apiNames = new Set(this.apiMatches.map(u => this.normalizeName(u.name)));
+    const nearbyDeduped = this.nearbyUniversities.filter(u => !apiNames.has(this.normalizeName(u.name)));
+    this.universities = [...this.apiMatches, ...nearbyDeduped];
+
+    this.totalCoincidencias = this.apiMatches.length;
+    this.bestMatchUniversity = this.apiMatches[0] || null;
+    this.maxMatchPercentage = this.apiMatches[0]?.matchPercentage || 0;
+    this.otherUniversities = this.apiMatches.slice(1);
+  }
+
+  private normalizeName(name: string): string {
+    return (name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  }
+
+  /** Lista "cerca de ti" (Places) con el filtro de búsqueda aplicado. */
+  get filteredNearbyUniversities(): any[] {
+    if (this.viewMode === 'saved') return [];
+    const apiNames = new Set(this.apiMatches.map(u => this.normalizeName(u.name)));
+    const list = this.nearbyUniversities.filter(u => !apiNames.has(this.normalizeName(u.name)));
+    if (!this.searchQuery) return list;
+    const query = this.searchQuery.toLowerCase();
+    return list.filter(uni =>
+      uni.name.toLowerCase().includes(query) ||
+      uni.location.toLowerCase().includes(query)
+    );
+  }
+
+  /** Marcadores del mapa: solo universidades con coordenadas. */
+  get mapMarkers(): any[] {
+    return this.currentUniversitiesList.filter(u => u.position);
+  }
+
+  /** Abre el sitio oficial de la universidad seleccionada (si existe). */
+  openWebsite() {
+    const url = this.selectedUniversity?.websiteUrl;
+    if (url) {
+      window.open(url, '_blank', 'noopener');
     } else {
-      this.bestMatchUniversity = null;
-      this.maxMatchPercentage = 0;
-      this.otherUniversities = [];
+      this.toastService.showToast('Esta universidad no tiene sitio web registrado.', 'info');
     }
   }
 
