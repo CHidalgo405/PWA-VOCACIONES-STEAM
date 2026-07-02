@@ -38,10 +38,10 @@
     </div>
 
     <div class="controls" *ngIf="currentCard">
-      <button class="btn-swipe btn-nope" (click)="swipe('left')">
+      <button class="btn-swipe btn-nope" (click)="swipe('left')" aria-label="No me interesa">
         <app-lucide-icon name="x" [size]="32" color="#EF4444"></app-lucide-icon>
       </button>
-      <button class="btn-swipe btn-like" (click)="swipe('right')">
+      <button class="btn-swipe btn-like" (click)="swipe('right')" aria-label="Me interesa">
         <app-lucide-icon name="heart" [size]="32" color="#10B981"></app-lucide-icon>
       </button>
     </div>

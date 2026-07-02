@@ -21,7 +21,7 @@
         <div class="search-bar-premium">
           <app-lucide-icon name="search" [size]="20" class="search-icon"></app-lucide-icon>
           <input type="text" placeholder="Buscar universidades o programas..." [(ngModel)]="searchQuery">
-          <button class="filter-trigger" *ngIf="searchQuery" (click)="searchQuery = ''">
+          <button class="filter-trigger" *ngIf="searchQuery" (click)="searchQuery = ''" aria-label="Limpiar búsqueda">
             <app-lucide-icon name="x" [size]="16"></app-lucide-icon>
           </button>
         </div>
@@ -175,7 +175,7 @@
               <div class="card-content-area">
                 <div class="card-top-row">
                   <span class="rank-badge">#1 · TU MEJOR MATCH</span>
-                  <button class="btn-fav-invisible" (click)="saveUniversity(bestMatchUniversity); $event.stopPropagation()">
+                  <button class="btn-fav-invisible" (click)="saveUniversity(bestMatchUniversity); $event.stopPropagation()" aria-label="Guardar universidad en favoritos">
                     <app-lucide-icon name="heart" [size]="18" color="#64748B"></app-lucide-icon>
                   </button>
                 </div>
@@ -218,7 +218,7 @@
                 <div class="list-card-content">
                   <div class="list-top-row">
                     <h4 class="list-uni-name">{{ uni.name }}</h4>
-                    <button class="btn-fav-invisible" (click)="toggleFavoriteStatus(uni, $event)">
+                    <button class="btn-fav-invisible" (click)="toggleFavoriteStatus(uni, $event)" [attr.aria-label]="viewMode === 'saved' ? 'Quitar de favoritos' : 'Guardar universidad en favoritos'">
                       <app-lucide-icon [name]="viewMode === 'saved' ? 'x' : 'heart'" [size]="18" [color]="viewMode === 'saved' ? '#EF4444' : '#94A3B8'"></app-lucide-icon>
                     </button>
                   </div>
@@ -280,7 +280,7 @@
                 <div class="list-card-content">
                   <div class="list-top-row">
                     <h4 class="list-uni-name">{{ uni.name }}</h4>
-                    <button class="btn-fav-invisible" (click)="toggleFavoriteStatus(uni, $event)">
+                    <button class="btn-fav-invisible" (click)="toggleFavoriteStatus(uni, $event)" aria-label="Guardar universidad en favoritos">
                       <app-lucide-icon name="heart" [size]="18" color="#94A3B8"></app-lucide-icon>
                     </button>
                   </div>
@@ -346,7 +346,7 @@
         </google-map>
 
         <!-- Floating Location FAB -->
-        <button class="location-fab" (click)="getUserLocation()" [class.locating]="isLocating" title="Mi ubicación">
+        <button class="location-fab" (click)="getUserLocation()" [class.locating]="isLocating" title="Mi ubicación" aria-label="Centrar el mapa en mi ubicación">
           <app-lucide-icon name="target" [size]="22" color="#07B1C9"></app-lucide-icon>
         </button>
       </div>
@@ -365,7 +365,7 @@
     
     <header class="modal-banner" [style.backgroundImage]="'url(' + selectedUniversity?.image + ')'">
       <div class="modal-close-wrapper">
-        <button class="btn-modal-close" (click)="closeUniversityModal()">
+        <button class="btn-modal-close" (click)="closeUniversityModal()" aria-label="Cerrar detalles de la universidad">
           <app-lucide-icon name="x" [size]="20"></app-lucide-icon>
         </button>
       </div>
@@ -446,7 +446,7 @@
     </div>
 
     <footer class="modal-footer-glass">
-      <button class="btn-fav-large" (click)="saveUniversity()">
+      <button class="btn-fav-large" (click)="saveUniversity()" aria-label="Guardar universidad en favoritos">
         <app-lucide-icon name="heart" [size]="24" color="#64748B"></app-lucide-icon>
       </button>
       <button class="btn-action-primary" (click)="openWebsite()">
