@@ -134,17 +134,21 @@ export class HobbiesTestComponent implements OnInit {
     this.viewState = 'outro';
     this.isSubmitting = true;
 
-    // 1. Persistir localmente (fuente de verdad para el motor de perfil)
-    this.saveCalibrationLocal();
+    // 1. Espejo local (resumen del outro + soporte offline)
+    const moduleResult = this.saveCalibrationLocal();
 
-    // 2. Recomputar el perfil completo con la nueva señal de calibración
-    this.recomputeProfile();
-
-    // 3. Sincronizar con la API (marca el módulo como completado en el backend)
-    this.authService.submitCalibration(this.moduleId, this.answers).subscribe({
-      next: () => { this.isSubmitting = false; },
+    // 2. La API guarda el módulo (A2) y recomputa el perfil completo (A4).
+    //    El perfil recomputado queda cacheado por el servicio.
+    this.profileEngine.submitCalibrationModule(moduleResult).subscribe({
+      next: () => {
+        this.authService.completeCalibrationModule(this.moduleId);
+        this.isSubmitting = false;
+      },
       error: (err) => {
         console.error('Error al sincronizar calibración con la API:', err);
+        // Fallback offline: recomputamos localmente para que el dashboard
+        // refleje la nueva señal aunque no haya conexión.
+        this.recomputeProfile();
         this.isSubmitting = false;
       }
     });
@@ -158,12 +162,9 @@ export class HobbiesTestComponent implements OnInit {
 
   /**
    * Convierte las respuestas del swipe deck al formato CalibrationModuleResult
-   * y las persiste en localStorage para que el motor de perfil las consuma.
+   * (el contrato de POST /calibration/submit) y guarda un espejo local.
    */
-  private saveCalibrationLocal(): void {
-    const userId = this.authService.getCurrentUser()?.id;
-    if (!userId) return;
-
+  private saveCalibrationLocal(): CalibrationModuleResult {
     const moduleResult: CalibrationModuleResult = {
       moduleId: this.moduleId,
       answers: this.cards
@@ -174,16 +175,20 @@ export class HobbiesTestComponent implements OnInit {
         })),
     };
 
-    const key = `calibration_results_${userId}`;
-    try {
-      const existing: CalibrationModuleResult[] = JSON.parse(localStorage.getItem(key) || '[]');
-      const idx = existing.findIndex(r => r.moduleId === this.moduleId);
-      if (idx >= 0) existing[idx] = moduleResult; else existing.push(moduleResult);
-      localStorage.setItem(key, JSON.stringify(existing));
-    } catch { /* ignore storage errors */ }
+    const userId = this.authService.getCurrentUser()?.id;
+    if (userId) {
+      const key = `calibration_results_${userId}`;
+      try {
+        const existing: CalibrationModuleResult[] = JSON.parse(localStorage.getItem(key) || '[]');
+        const idx = existing.findIndex(r => r.moduleId === this.moduleId);
+        if (idx >= 0) existing[idx] = moduleResult; else existing.push(moduleResult);
+        localStorage.setItem(key, JSON.stringify(existing));
+      } catch { /* ignore storage errors */ }
+    }
 
     // Generar resumen para el outro
     this.calibrationSummary = this.buildSummary(moduleResult);
+    return moduleResult;
   }
 
   /**
@@ -208,7 +213,7 @@ export class HobbiesTestComponent implements OnInit {
       const profile = this.profileEngine.computeProfile(
         theoreticalScores, calibrationResults, simulatorResults
       );
-      localStorage.setItem(`test_profile_${userId}`, JSON.stringify(profile));
+      this.profileEngine.cacheProfile(profile);
     } catch { /* ignore */ }
   }
 

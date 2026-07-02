@@ -1,7 +1,7 @@
 import { Injectable, inject, DestroyRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import {
   SimulatorSessionState,
   UserStepDecision,
@@ -11,6 +11,7 @@ import {
 import { SimulatorAffinityResult, SteamAxis } from '../models/vocational-profile.models';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
+import { VocationalProfileService } from './vocational-profile.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,7 @@ export class CareerSimulatorService {
   private http = inject(HttpClient);
   private destroyRef = inject(DestroyRef);
   private authService = inject(AuthService);
+  private profileService = inject(VocationalProfileService);
 
   private readonly STORAGE_KEY = 'steam_completed_simulators';
 
@@ -226,17 +228,47 @@ export class CareerSimulatorService {
   }
 
   /**
-   * Calcula algorítmicamente la afinidad del usuario con la carrera simulada,
-   * persiste el resultado en localStorage y lo devuelve como Observable.
+   * Envía las decisiones a la API (POST /simulator/submit): el backend corre
+   * el algoritmo A3a contra los pasos reales, guarda el resultado y recomputa
+   * el perfil vocacional. Sin conexión, cae al algoritmo local equivalente.
    */
   public computeAffinityResult(): Observable<SimulatorFeedbackResponse> {
     const state = this.sessionSubject.value;
     if (!state?.currentCareerData) {
       return throwError(() => new Error('No hay una sesión activa de simulación.'));
     }
+
+    const career = state.currentCareerData;
+    const payload = {
+      careerSlug: career.careerId,
+      decisions: state.userDecisions.map(d => ({
+        stepId: d.stepId,
+        stepType: d.stepType,
+        selectedOptionId: d.selectedOptionId,
+        timeSpentMs: d.timeSpentMs,
+      })),
+      biasFlags: state.biasFlags,
+    };
+
+    return this.profileService.submitSimulatorSession(payload).pipe(
+      map(res => res.feedback as SimulatorFeedbackResponse),
+      tap(feedback => {
+        this.persistSimulatorResult(career.careerId, career.steamAreaName, feedback);
+        this.sessionSubject.next({ ...state, isLoadingAIFeedback: false, aiFeedbackData: feedback });
+      }),
+      catchError(err => {
+        console.warn('Simulador: API no disponible, usando algoritmo local.', err);
+        return this.computeAffinityLocally(state);
+      }),
+    );
+  }
+
+  /** Fallback offline: la réplica local del algoritmo A3a. */
+  private computeAffinityLocally(state: SimulatorSessionState): Observable<SimulatorFeedbackResponse> {
+    const career = state.currentCareerData!;
     try {
       const result = this.runAffinityAlgorithm(state);
-      this.persistSimulatorResult(state.currentCareerData.careerId, state.currentCareerData.steamAreaName, result);
+      this.persistSimulatorResult(career.careerId, career.steamAreaName, result);
       this.sessionSubject.next({ ...state, isLoadingAIFeedback: false, aiFeedbackData: result });
       return of(result);
     } catch (err) {
