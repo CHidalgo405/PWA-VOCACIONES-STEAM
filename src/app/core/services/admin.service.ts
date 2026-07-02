@@ -47,6 +47,20 @@ export interface AiLogsStatsResponse {
   recentLogs: RecentLogItem[];
 }
 
+/** Candidata para el algoritmo A8 (matching de universidades). */
+export interface AdminUniversity {
+  id?: string;
+  name: string;
+  address?: string;
+  website?: string;
+  location?: { latitude: number; longitude: number };
+  steamPrograms?: { name: string; area: string }[];
+  costTier?: 'public' | 'affordable' | 'private-premium';
+  tuitionRange?: string;
+  rating?: number;
+  modality?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -103,5 +117,22 @@ export class AdminService {
 
   public deleteSimulator(id: string): Observable<any> {
     return this.http.delete<any>(`${environment.apiUrl}/career-simulators/${id}`);
+  }
+
+  // --- ADMINISTRACIÓN DE UNIVERSIDADES (candidatas de A8) ---
+  public getAdminUniversities(): Observable<AdminUniversity[]> {
+    return this.http.get<AdminUniversity[]>(`${environment.apiUrl}/universities`);
+  }
+
+  public createUniversity(university: Partial<AdminUniversity>): Observable<AdminUniversity> {
+    return this.http.post<AdminUniversity>(`${environment.apiUrl}/admin/universities`, university);
+  }
+
+  public updateUniversity(id: string, university: Partial<AdminUniversity>): Observable<AdminUniversity> {
+    return this.http.put<AdminUniversity>(`${environment.apiUrl}/admin/universities/${id}`, university);
+  }
+
+  public deleteUniversity(id: string): Observable<any> {
+    return this.http.delete<any>(`${environment.apiUrl}/admin/universities/${id}`);
   }
 }

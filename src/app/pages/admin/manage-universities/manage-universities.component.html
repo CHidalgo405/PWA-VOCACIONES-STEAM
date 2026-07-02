@@ -1,0 +1,215 @@
+<app-admin-sidebar></app-admin-sidebar>
+
+<div class="admin-layout-content">
+
+  <header class="page-header">
+    <div>
+      <h1>Gestión de Universidades</h1>
+      <p>Candidatas del matching de universidades (A8). Sin universidades aquí, los filtros de Explorar no muestran resultados.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-primary" (click)="openCreateModal()">
+        <app-lucide-icon name="plus" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+        Nueva Universidad
+      </button>
+    </div>
+  </header>
+
+  <!-- BÚSQUEDA Y FILTRADO -->
+  <div class="premium-search-container">
+    <div class="search-input-wrapper">
+      <span class="search-icon"><app-lucide-icon name="search" [size]="18"></app-lucide-icon></span>
+      <input type="text" placeholder="Buscar por nombre o dirección..." [(ngModel)]="searchTerm">
+    </div>
+    <select [(ngModel)]="filterCostTier" class="search-select">
+      <option value="">Todos los costos</option>
+      <option *ngFor="let opt of costTierOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+  </div>
+
+  <!-- TABLA DE UNIVERSIDADES -->
+  <div class="table-card" style="display: flex; flex-direction: column;">
+    <div class="toolbar">
+      <div class="toolbar-header">
+        <h2>Universidades registradas</h2>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Universidad</th>
+            <th>Programas</th>
+            <th>Costo</th>
+            <th>Rating</th>
+            <th>Coordenadas</th>
+            <th style="text-align: center;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody *ngIf="isLoading()">
+          <tr *ngFor="let i of [1, 2, 3]" class="skeleton-row">
+            <td><div class="shimmer" style="width: 200px; height: 16px; border-radius: 4px;"></div></td>
+            <td><div class="shimmer" style="width: 120px; height: 16px; border-radius: 4px;"></div></td>
+            <td><div class="shimmer" style="width: 80px; height: 20px; border-radius: 12px;"></div></td>
+            <td><div class="shimmer" style="width: 50px; height: 16px; border-radius: 4px;"></div></td>
+            <td><div class="shimmer" style="width: 100px; height: 16px; border-radius: 4px;"></div></td>
+            <td><div class="shimmer" style="width: 100px; height: 32px; border-radius: 6px; margin: 0 auto;"></div></td>
+          </tr>
+        </tbody>
+
+        <tbody *ngIf="!isLoading()">
+          <tr *ngFor="let u of filteredUniversities">
+            <td>
+              <strong class="uni-name-cell">{{ u.name }}</strong>
+              <p class="uni-address-preview">{{ u.address || 'Sin dirección registrada' }}</p>
+            </td>
+            <td>
+              <div class="programs-chips">
+                <span class="mini-chip" *ngFor="let p of (u.steamPrograms || []).slice(0, 2)">{{ p.name }}</span>
+                <span class="mini-chip more" *ngIf="(u.steamPrograms?.length || 0) > 2">+{{ (u.steamPrograms?.length || 0) - 2 }}</span>
+                <span class="mini-chip warn" *ngIf="!u.steamPrograms?.length">Sin programas</span>
+              </div>
+            </td>
+            <td><span class="badge" [ngClass]="u.costTier || 'affordable'">{{ costTierLabel(u.costTier) }}</span></td>
+            <td>{{ u.rating != null ? u.rating : '—' }}</td>
+            <td>
+              <span class="coords-ok" *ngIf="!isMissingCoordinates(u)">
+                <app-lucide-icon name="map-pin" [size]="14"></app-lucide-icon> OK
+              </span>
+              <span class="coords-missing" *ngIf="isMissingCoordinates(u)" title="Sin coordenadas: excluida del matching A8">
+                <app-lucide-icon name="triangle-alert" [size]="14"></app-lucide-icon> Faltan
+              </span>
+            </td>
+            <td>
+              <div class="actions-wrapper">
+                <button class="btn-action edit" (click)="openEditModal(u)" aria-label="Editar universidad">
+                  <app-lucide-icon name="pencil" [size]="14"></app-lucide-icon>
+                </button>
+                <button class="btn-action delete" (click)="deleteUniversity(u)" aria-label="Eliminar universidad">
+                  <app-lucide-icon name="trash-2" [size]="14"></app-lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ESTADO VACÍO -->
+      <div *ngIf="!isLoading() && filteredUniversities.length === 0" class="empty-state-card">
+        <div class="empty-icon"><app-lucide-icon name="building-2" [size]="48" color="#bdc3c7"></app-lucide-icon></div>
+        <h3>No hay universidades registradas</h3>
+        <p>Agrega la primera universidad para que el matching de A8 (Explorar) tenga candidatas que ofrecer.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FORMULARIO CRUD -->
+<div class="modal-overlay" *ngIf="isModalOpen()">
+  <div class="modal-box simple-modal">
+    <button class="btn-close-modal-floating" (click)="closeModal()">
+      <app-lucide-icon name="x" [size]="20"></app-lucide-icon>
+    </button>
+
+    <div class="modal-content-area">
+      <div class="modal-header">
+        <h2>{{ modalMode() === 'create' ? 'Nueva Universidad' : 'Editar Universidad' }}</h2>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="input-group full-width">
+            <label>Nombre <span style="color: red;">*</span></label>
+            <input type="text" [(ngModel)]="formModel.name" placeholder="ej. Universidad Nacional Autónoma de México">
+          </div>
+
+          <div class="input-group full-width">
+            <label>Dirección</label>
+            <input type="text" [(ngModel)]="formModel.address" placeholder="ej. Av. Universidad 3000, Coyoacán, CDMX">
+          </div>
+
+          <div class="input-group">
+            <label>Latitud <span style="color: red;">*</span></label>
+            <input type="number" step="0.000001" [(ngModel)]="formModel.latitude" placeholder="ej. 19.3325">
+          </div>
+
+          <div class="input-group">
+            <label>Longitud <span style="color: red;">*</span></label>
+            <input type="number" step="0.000001" [(ngModel)]="formModel.longitude" placeholder="ej. -99.1866">
+          </div>
+
+          <div class="input-group">
+            <label>Costo</label>
+            <select [(ngModel)]="formModel.costTier">
+              <option *ngFor="let opt of costTierOptions" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label>Modalidad</label>
+            <input type="text" [(ngModel)]="formModel.modality" placeholder="ej. presencial">
+          </div>
+
+          <div class="input-group">
+            <label>Rango de colegiatura</label>
+            <input type="text" [(ngModel)]="formModel.tuitionRange" placeholder="ej. $3,000 - $6,000 MXN/semestre">
+          </div>
+
+          <div class="input-group">
+            <label>Rating (0-5)</label>
+            <input type="number" min="0" max="5" step="0.1" [(ngModel)]="formModel.rating" placeholder="ej. 4.5">
+          </div>
+
+          <div class="input-group full-width">
+            <label>Sitio web</label>
+            <input type="text" [(ngModel)]="formModel.website" placeholder="https://www.ejemplo.edu.mx">
+          </div>
+        </div>
+
+        <!-- PROGRAMAS / CARRERAS OFRECIDAS -->
+        <div class="options-container">
+          <div class="options-header">
+            <h4>Carreras que ofrece <span style="color: red;">*</span></h4>
+            <button type="button" class="btn-action edit" (click)="addProgram()">
+              + Añadir carrera
+            </button>
+          </div>
+          <p class="hint-text">A8 solo recomienda esta universidad si el nombre coincide con una de las carreras del perfil del estudiante.</p>
+
+          <div class="options-list">
+            <div class="option-card" *ngFor="let program of formModel.steamPrograms; let i = index">
+              <div class="option-card-header">
+                <span>Carrera {{ i + 1 }}</span>
+                <button type="button" class="btn-delete-opt" (click)="removeProgram(i)">
+                  <app-lucide-icon name="trash" [size]="14"></app-lucide-icon>
+                </button>
+              </div>
+              <div class="option-inputs">
+                <div class="input-group full-width">
+                  <label>Nombre de la carrera</label>
+                  <input type="text" [(ngModel)]="program.name" placeholder="ej. Ingeniería en Software">
+                </div>
+                <div class="input-group full-width">
+                  <label>Eje STEAM</label>
+                  <select [(ngModel)]="program.area">
+                    <option *ngFor="let axis of axisOptions" [value]="axis.value">{{ axis.label }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <p class="hint-text" *ngIf="!formModel.steamPrograms.length">Aún no has agregado ninguna carrera.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="button" class="btn-primary" (click)="saveUniversity()" [disabled]="isSubmitting()">
+          <span *ngIf="isSubmitting()">⏳ Guardando...</span>
+          <span *ngIf="!isSubmitting()">Guardar Universidad</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

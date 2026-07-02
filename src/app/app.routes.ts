@@ -53,6 +53,7 @@ export const routes: Routes = [
   { path: 'admin/users', component: ManageUsersComponent, canActivate: [authGuard, adminGuard] },
   { path: 'admin/test', component: ManageTestComponent, canActivate: [authGuard, adminGuard] },
   { path: 'admin/simulators', loadComponent: () => import('./pages/admin/manage-simulators/manage-simulators.component').then(m => m.ManageSimulatorsComponent), canActivate: [authGuard, adminGuard] },
+  { path: 'admin/universities', loadComponent: () => import('./pages/admin/manage-universities/manage-universities.component').then(m => m.ManageUniversitiesComponent), canActivate: [authGuard, adminGuard] },
   { path: 'admin/ai-logs', component: AiLogsComponent, canActivate: [authGuard, adminGuard] },
   { path: 'admin/settings', component: SettingsComponent, canActivate: [authGuard, adminGuard] },
   { path: '**', component: Error404Component }
