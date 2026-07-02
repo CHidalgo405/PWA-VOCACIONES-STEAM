@@ -776,3 +776,96 @@
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Trazabilidad (RG-7): fuentes y pesos del cálculo del perfil
+   ═══════════════════════════════════════════════════════════════════ */
+
+.contributions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.contribution-card {
+  display: flex;
+  gap: 0.9rem;
+  padding: 1.1rem 1.2rem;
+  background: #fff;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
+  }
+
+  .contrib-icon {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(7, 177, 201, 0.14), rgba(99, 102, 241, 0.12));
+    color: #07b1c9;
+  }
+
+  .contrib-body { flex: 1; min-width: 0; }
+
+  .contrib-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.6rem;
+
+    h4 {
+      margin: 0;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+  }
+
+  .contrib-weight {
+    flex-shrink: 0;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #0e9aa7;
+    background: rgba(7, 177, 201, 0.12);
+    padding: 0.14rem 0.6rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .contrib-axes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+  }
+
+  .contrib-axis {
+    font-size: 0.74rem;
+    color: #64748b;
+    background: rgba(148, 163, 184, 0.14);
+    padding: 0.18rem 0.55rem;
+    border-radius: 8px;
+
+    strong { color: #0f172a; font-weight: 700; }
+  }
+}
+
+.contrib-footnote {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: #94a3b8;
+
+  app-lucide-icon { color: #4db046; }
+}

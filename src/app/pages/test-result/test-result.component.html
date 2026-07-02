@@ -248,7 +248,41 @@
     </section>
 
     <!-- ============================================================
-         8. ACCIONES
+         8. TRAZABILIDAD — cómo se calculó el perfil (RG-7)
+         ============================================================ -->
+    <section class="block-section fade-in-up" *ngIf="profile.contributions?.length">
+      <div class="block-head">
+        <h2>¿Cómo se calculó tu perfil?</h2>
+        <p>Transparencia total: estas son las fuentes de evidencia y el peso exacto de cada una en tu resultado.</p>
+      </div>
+
+      <div class="contributions-grid">
+        <div class="contribution-card" *ngFor="let c of profile.contributions">
+          <div class="contrib-icon">
+            <app-lucide-icon [name]="contributionIcon(c.source)" [size]="20"></app-lucide-icon>
+          </div>
+          <div class="contrib-body">
+            <div class="contrib-top">
+              <h4>{{ c.label }}</h4>
+              <span class="contrib-weight">peso {{ c.weight * 100 | number:'1.0-0' }}%</span>
+            </div>
+            <div class="contrib-axes">
+              <span class="contrib-axis" *ngFor="let entry of contributionAxes(c)">
+                {{ entry.label }} <strong>{{ entry.value }}</strong>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="contrib-footnote">
+        <app-lucide-icon name="shield-check" [size]="14"></app-lucide-icon>
+        Calculado con un motor determinista y auditable: mismas respuestas, mismo resultado. Sin cajas negras.
+      </p>
+    </section>
+
+    <!-- ============================================================
+         9. ACCIONES
          ============================================================ -->
     <div class="action-buttons-row fade-in-up">
       <button class="btn-action primary" (click)="downloadPDF()">

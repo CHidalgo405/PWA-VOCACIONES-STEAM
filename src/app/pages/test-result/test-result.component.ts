@@ -10,6 +10,8 @@ import {
   VocationalProfile,
   SteamAxis,
   CalibrationModuleResult,
+  ProfileContribution,
+  ProfileSource,
   SimulatorAffinityResult,
 } from '../../core/models/vocational-profile.models';
 import { AuthService } from '../../core/services/auth.service';
@@ -221,6 +223,26 @@ export class TestResultComponent implements OnInit {
   // ── Ring helpers ──
   circumference(r: number): number {
     return 2 * Math.PI * r;
+  }
+
+  // ── Trazabilidad (RG-7): cómo se formó el perfil ──
+  contributionIcon(source: ProfileSource): string {
+    switch (source) {
+      case 'calibration': return 'list-checks';
+      case 'simulator': return 'gamepad-2';
+      default: return 'clipboard-list';
+    }
+  }
+
+  /** Aporte por eje de una contribución, con etiqueta legible. */
+  contributionAxes(c: ProfileContribution): { label: string; value: number }[] {
+    return Object.entries(c.vector || {})
+      .filter(([, v]) => typeof v === 'number')
+      .map(([axis, value]) => ({
+        label: this.STEAM_META[axis]?.label || axis,
+        value: value as number,
+      }))
+      .sort((a, b) => b.value - a.value);
   }
 
   // ── Navegación ──
