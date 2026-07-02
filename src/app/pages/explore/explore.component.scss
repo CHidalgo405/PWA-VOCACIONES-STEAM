@@ -1608,3 +1608,17 @@
   background: rgba(148, 163, 184, 0.18);
   border-radius: 999px;
 }
+
+/* Indicador del origen del ranking (IA activa vs. degradado a datos duros) */
+.ai-provider-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #0e9aa7;
+
+  &.degraded {
+    color: #b45309;
+  }
+}

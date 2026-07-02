@@ -60,6 +60,12 @@
         <div class="filter-loading" *ngIf="isLoadingMatches">
           <span class="dot-pulse"></span> Actualizando coincidencias…
         </div>
+        <div class="ai-provider-note" *ngIf="!isLoadingMatches && aiProvider" [class.degraded]="aiProvider === 'deterministic'">
+          <app-lucide-icon [name]="aiProvider === 'deterministic' ? 'circle-alert' : 'sparkles'" [size]="13"></app-lucide-icon>
+          {{ aiProvider === 'deterministic'
+              ? 'IA no disponible: ranking solo por datos duros'
+              : 'Explicaciones generadas por IA (' + aiProvider + ')' }}
+        </div>
       </div>
     </div>
   </header>
@@ -288,6 +294,7 @@
                   <p class="location-text">
                     <app-lucide-icon name="map-pin" [size]="14" color="#ef4444"></app-lucide-icon>
                     {{ uni.location }}
+                    <span class="distance-pill" *ngIf="uni.distanceKm != null">a {{ uni.distanceKm }} km</span>
                   </p>
 
                   <div class="list-bottom-row">

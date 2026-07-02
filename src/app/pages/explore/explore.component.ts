@@ -83,6 +83,8 @@ export class ExploreComponent implements OnInit, OnDestroy {
   apiMatches: any[] = [];
   nearbyUniversities: any[] = [];
   isLoadingMatches = false;
+  /** Origen del ranking: 'Groq'/'Gemini' (IA activa) o 'deterministic'. */
+  aiProvider: string | null = null;
 
   /** Claves de la última búsqueda ejecutada (dedupe de llamadas repetidas). */
   private lastMatchKey = '';
@@ -311,6 +313,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: (res) => {
         this.apiMatches = (res.matches || []).map((m, index) => this.mapApiMatch(m, index));
+        this.aiProvider = res.aiProvider ?? null;
         this.isLoadingMatches = false;
         this.processData();
         this.fitMapToResults();
@@ -353,6 +356,8 @@ export class ExploreComponent implements OnInit, OnDestroy {
     if (this.maxDistanceKm === km) return;
     this.maxDistanceKm = km;
     this.loadApiMatches();
+    // El radio de Places también depende de la distancia elegida
+    this.triggerPlacesSearch();
   }
 
   setCostFilter(pref: CostPreference) {
@@ -376,12 +381,15 @@ export class ExploreComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Dedupe: misma ubicación (±100m) → esta búsqueda ya se hizo.
-    const key = `${locationToUse.lat.toFixed(3)},${locationToUse.lng.toFixed(3)}`;
+    // El radio de búsqueda sigue al filtro de distancia (Places admite máx. 50 km)
+    const radiusKm = Math.min(this.maxDistanceKm, 50);
+
+    // Dedupe: misma ubicación (±100m) y mismo radio → esta búsqueda ya se hizo.
+    const key = `${locationToUse.lat.toFixed(3)},${locationToUse.lng.toFixed(3)}|${radiusKm}`;
     if (key === this.lastPlacesKey) return;
     this.lastPlacesKey = key;
 
-    this.universityService.searchNearbyUniversities(this.googleMap.googleMap, locationToUse, 30000, 'universidad').subscribe({
+    this.universityService.searchNearbyUniversities(this.googleMap.googleMap, locationToUse, radiusKm * 1000, 'universidad').subscribe({
       next: (results) => {
         this.nearbyUniversities = results.map((place: any, index: number) => ({
           id: place.id,
@@ -397,6 +405,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
           keyDates: 'Consultar sitio web',
           studyPlan: 'Consultar oferta educativa',
           websiteUrl: null,
+          distanceKm: place.location ? this.distanceKmBetween(locationToUse, place.location) : null,
           position: place.location,
           source: 'places',
         }));
@@ -470,17 +479,35 @@ export class ExploreComponent implements OnInit, OnDestroy {
     return (name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
   }
 
-  /** Lista "cerca de ti" (Places) con el filtro de búsqueda aplicado. */
+  /** Lista "cerca de ti" (Places) con los filtros de distancia y búsqueda aplicados. */
   get filteredNearbyUniversities(): any[] {
     if (this.viewMode === 'saved') return [];
     const apiNames = new Set(this.apiMatches.map(u => this.normalizeName(u.name)));
-    const list = this.nearbyUniversities.filter(u => !apiNames.has(this.normalizeName(u.name)));
+    const list = this.nearbyUniversities.filter(u =>
+      !apiNames.has(this.normalizeName(u.name)) &&
+      (u.distanceKm == null || u.distanceKm <= this.maxDistanceKm)
+    );
     if (!this.searchQuery) return list;
     const query = this.searchQuery.toLowerCase();
     return list.filter(uni =>
       uni.name.toLowerCase().includes(query) ||
       uni.location.toLowerCase().includes(query)
     );
+  }
+
+  /** Distancia haversine en km (1 decimal) entre dos coordenadas. */
+  private distanceKmBetween(
+    a: { lat: number; lng: number },
+    b: { lat: number; lng: number },
+  ): number {
+    const R = 6371;
+    const rad = (d: number) => (d * Math.PI) / 180;
+    const dLat = rad(b.lat - a.lat);
+    const dLng = rad(b.lng - a.lng);
+    const h =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return Math.round(2 * R * Math.asin(Math.sqrt(h)) * 10) / 10;
   }
 
   /** Marcadores del mapa: solo universidades con coordenadas. */
