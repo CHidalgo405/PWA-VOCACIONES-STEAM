@@ -196,8 +196,13 @@ export class EvaluationsComponent implements OnInit {
             next: () => this.router.navigate(['/test-result']),
             error: () => {
                 // Sin conexión: computamos localmente con el motor de respaldo
-                // para no bloquear al estudiante.
-                const profile = this.profileService.computeProfile(this.profileScores);
+                // para no bloquear al estudiante, incluyendo la evidencia
+                // local de calibración y simuladores (igual que la API).
+                const profile = this.profileService.computeProfile(
+                    this.profileScores,
+                    this.readLocalArray(`calibration_results_${userId}`),
+                    this.readLocalArray(`simulator_results_${userId}`),
+                );
                 this.profileService.cacheProfile(profile);
                 this.toastService.showToast(
                     'Sin conexión con el servidor: mostramos tu perfil calculado localmente.',
@@ -206,6 +211,17 @@ export class EvaluationsComponent implements OnInit {
                 this.router.navigate(['/test-result']);
             },
         });
+    }
+
+    /** Lee un arreglo persistido en localStorage (o [] si no existe/corrupto). */
+    private readLocalArray(key: string): any[] {
+        try {
+            const raw = localStorage.getItem(key);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
     }
 
     promptExit() {
