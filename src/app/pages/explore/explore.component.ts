@@ -83,6 +83,11 @@ export class ExploreComponent implements OnInit, OnDestroy {
   apiMatches: any[] = [];
   nearbyUniversities: any[] = [];
   isLoadingMatches = false;
+
+  /** Claves de la última búsqueda ejecutada (dedupe de llamadas repetidas). */
+  private lastMatchKey = '';
+  private lastPlacesKey = '';
+  private recommendationsRequested = false;
   readonly distanceOptions = [10, 25, 50, 100];
   maxDistanceKm = 50;
   costPreference: CostPreference = 'any';
@@ -256,6 +261,8 @@ export class ExploreComponent implements OnInit, OnDestroy {
   }
 
   loadRecommendations() {
+    if (this.recommendationsRequested) return; // currentUser$ puede emitir varias veces
+    this.recommendationsRequested = true;
     this.isLoading = true;
     this.testService.getLatestTest().subscribe({
       next: (latestTest: TestDetail | null) => {
@@ -289,6 +296,11 @@ export class ExploreComponent implements OnInit, OnDestroy {
     if (!this.hasTakenTest) return;
     const location = this.userPosition || this.center;
 
+    // Dedupe: misma ubicación (±100m) y mismos filtros → ya está pedido.
+    const key = `${location.lat.toFixed(3)},${location.lng.toFixed(3)}|${this.maxDistanceKm}|${this.costPreference}`;
+    if (key === this.lastMatchKey) return;
+    this.lastMatchKey = key;
+
     this.isLoadingMatches = true;
     this.universityService.matchUniversities({
       userLocation: { lat: location.lat, lng: location.lng },
@@ -305,6 +317,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error en el matching de universidades (A8)', err);
+        this.lastMatchKey = ''; // permitir reintento (p. ej. cambiando filtros)
         this.apiMatches = [];
         this.isLoadingMatches = false;
         this.processData();
@@ -363,6 +376,11 @@ export class ExploreComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Dedupe: misma ubicación (±100m) → esta búsqueda ya se hizo.
+    const key = `${locationToUse.lat.toFixed(3)},${locationToUse.lng.toFixed(3)}`;
+    if (key === this.lastPlacesKey) return;
+    this.lastPlacesKey = key;
+
     this.universityService.searchNearbyUniversities(this.googleMap.googleMap, locationToUse, 30000, 'universidad').subscribe({
       next: (results) => {
         this.nearbyUniversities = results.map((place: any, index: number) => ({
@@ -389,6 +407,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error("Error buscando en Google Places", err);
+        this.lastPlacesKey = ''; // permitir reintento
         this.isLoading = false;
         this.processData();
       }
