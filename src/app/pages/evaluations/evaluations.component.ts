@@ -3,7 +3,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
-import { VocationTestService, Question, Option, TestSubmissionResponse } from '../../core/services/test.service';
+import { VocationTestService, Question } from '../../core/services/test.service';
 import { AuthService } from '../../core/services/auth.service';
 import { VocationalProfileService } from '../../core/services/vocational-profile.service';
 import { ToastService } from '../../core/services/toast.service';

@@ -258,14 +258,6 @@ export class AuthService {
     }
   }
 
-  submitCalibration(moduleId: string, answers: Record<string, string>): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/tests/calibration`, { moduleId, answers }).pipe(
-      tap(() => {
-        this.completeCalibrationModule(moduleId);
-      })
-    );
-  }
-
   // ---------------------------------------------------------
   // GAMIFICATION & CALIBRATION LOGIC
   // ---------------------------------------------------------

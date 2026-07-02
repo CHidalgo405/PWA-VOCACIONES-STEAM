@@ -95,9 +95,4 @@ export class VocationTestService {
   deleteTest(id: string): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/tests/history/${id}`);
   }
-
-  calculateWeightedScores(apiScores: Record<string, number>, userId: string): Record<string, number> {
-    // Deprecated client-side calculation. Now the backend returns pre-calibrated weighted scores.
-    return apiScores || {};
-  }
 }

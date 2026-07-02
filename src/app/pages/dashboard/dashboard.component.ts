@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, OnDestroy, inject } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService, Usuario } from '../../core/services/auth.service';
-import { VocationTestService, TestDetail, TestSubmissionResponse } from '../../core/services/test.service';
+import { VocationTestService, TestDetail } from '../../core/services/test.service';
 import { VocationalProfileService } from '../../core/services/vocational-profile.service';
 import { VocationalProfile } from '../../core/models/vocational-profile.models';
 
