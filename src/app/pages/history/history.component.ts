@@ -61,20 +61,28 @@ export class HistoryComponent implements OnInit {
     });
   }
 
+  /**
+   * Convierte un puntaje de área a porcentaje 0-100 detectando la escala:
+   * los tests del motor determinista ya guardan porcentajes (0-100), pero
+   * los tests legacy guardaban conteos crudos (0-20 respuestas por área).
+   */
+  private scoreToPct(score: number, allScores: Record<string, number>): number {
+    const max = Math.max(...Object.values(allScores), 0);
+    const pct = max <= 20 ? (score / 20) * 100 : score;
+    return Math.min(100, Math.max(0, Math.round(pct)));
+  }
+
   calculateGlobalStats() {
-    let maxScore = 0;
+    let maxPct = 0;
     this.testHistory.forEach(test => {
       if (test.profileScores) {
-        const scores = Object.values(test.profileScores);
-        const testMax = Math.max(...scores, 0);
-        if (testMax > maxScore) {
-          maxScore = testMax;
+        for (const score of Object.values(test.profileScores)) {
+          const pct = this.scoreToPct(score, test.profileScores);
+          if (pct > maxPct) maxPct = pct;
         }
       }
     });
-    // Asumiendo un puntaje máximo de 20 por área
-    this.maxMatchGlobal = Math.round((maxScore / 20) * 100);
-    if (this.maxMatchGlobal > 100) this.maxMatchGlobal = 100;
+    this.maxMatchGlobal = maxPct;
   }
 
   startRename(test: TestHistorySummary, event: Event) {
@@ -175,15 +183,11 @@ export class HistoryComponent implements OnInit {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3); // Take top 3
 
-    return sorted.map(([name, score]) => {
-      let percentage = Math.round((score / 20) * 100);
-      if (percentage > 100) percentage = 100;
-      return {
-        name,
-        percentage,
-        color: this.getSteamColor(name)
-      };
-    });
+    return sorted.map(([name, score]) => ({
+      name,
+      percentage: this.scoreToPct(score, scores),
+      color: this.getSteamColor(name)
+    }));
   }
 
   getMiniChartBars(scores: Record<string, number>): { height: number, color: string }[] {
@@ -192,8 +196,7 @@ export class HistoryComponent implements OnInit {
     // We can just take the first 5 or all of them, order doesn't strictly matter but maybe sorted by name or just use as is.
     const entries = Object.entries(scores).slice(0, 5);
     return entries.map(([name, score]) => {
-      let percentage = Math.round((score / 20) * 100);
-      if (percentage > 100) percentage = 100;
+      const percentage = this.scoreToPct(score, scores);
       // We scale height for the mini chart (e.g. max height 30px)
       return {
         height: Math.max(10, (percentage / 100) * 30), // Min 10px height
