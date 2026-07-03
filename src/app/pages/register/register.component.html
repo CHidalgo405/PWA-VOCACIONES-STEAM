@@ -64,7 +64,18 @@
             </label>
           </div>
 
-          <button type="submit" class="premium-submit-button" [disabled]="isRegistering">
+          <!-- Aceptación OBLIGATORIA de documentos legales -->
+          <label class="legal-consent-row">
+            <input type="checkbox" name="acceptedTerms" [(ngModel)]="acceptedTerms">
+            <span class="legal-consent-text">
+              He leído y acepto el
+              <a routerLink="/legal/privacidad" target="_blank" rel="noopener">Aviso de Privacidad</a>
+              y los
+              <a routerLink="/legal/terminos" target="_blank" rel="noopener">Términos y Condiciones</a>.
+            </span>
+          </label>
+
+          <button type="submit" class="premium-submit-button" [disabled]="isRegistering || !acceptedTerms">
             <span *ngIf="isRegistering" class="btn-spinner"></span>
             <span *ngIf="!isRegistering">Crear mi Cuenta</span>
           </button>

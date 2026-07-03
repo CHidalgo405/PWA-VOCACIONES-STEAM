@@ -1,0 +1,406 @@
+<div class="legal-topbar">
+  <button class="back-btn" (click)="goBack()" aria-label="Volver">
+    <app-lucide-icon name="arrow-left" [size]="20"></app-lucide-icon>
+  </button>
+  <h2 class="topbar-title">Aviso de Privacidad</h2>
+</div>
+
+<div class="legal-container">
+  <div class="legal-hero">
+    <div class="hero-icon">
+      <app-lucide-icon name="shield-check" [size]="30"></app-lucide-icon>
+    </div>
+    <h1>Aviso de Privacidad Integral</h1>
+    <div class="legal-meta">
+      <span><app-lucide-icon name="calendar" [size]="14"></app-lucide-icon> Vigente desde: {{ effectiveDate }}</span>
+      <span><app-lucide-icon name="history" [size]="14"></app-lucide-icon> Última actualización: {{ lastUpdated }}</span>
+      <span><app-lucide-icon name="tag" [size]="14"></app-lucide-icon> Versión: {{ version }}</span>
+    </div>
+  </div>
+
+  <div class="legal-intro">
+    En cumplimiento de la <strong>Ley Federal de Protección de Datos Personales en Posesión de los Particulares</strong>
+    (en adelante, la “<strong>Ley</strong>”), su Reglamento, los Lineamientos del Aviso de Privacidad y demás
+    normativa aplicable en {{ legal.jurisdiction }}, {{ legal.responsible }} (en adelante, “<strong>{{ legal.appName }}</strong>”,
+    “nosotros” o el “<strong>Responsable</strong>”) pone a tu disposición el presente Aviso de Privacidad, el cual
+    describe de forma amplia y detallada qué datos personales recabamos, con qué finalidades, cómo los tratamos,
+    con quién los compartimos y qué derechos te asisten. <strong>Lee este documento con detenimiento.</strong>
+  </div>
+
+  <div class="legal-toc">
+    <h3>Índice</h3>
+    <ol>
+      <li><a href="#p1">Identidad y domicilio del Responsable</a></li>
+      <li><a href="#p2">Definiciones</a></li>
+      <li><a href="#p3">Datos personales que recabamos</a></li>
+      <li><a href="#p4">Datos sensibles</a></li>
+      <li><a href="#p5">Formas de obtención</a></li>
+      <li><a href="#p6">Finalidades primarias</a></li>
+      <li><a href="#p7">Finalidades secundarias</a></li>
+      <li><a href="#p8">Fundamento y consentimiento</a></li>
+      <li><a href="#p9">Decisiones automatizadas e IA</a></li>
+      <li><a href="#p10">Transferencias y encargados</a></li>
+      <li><a href="#p11">Transferencias internacionales</a></li>
+      <li><a href="#p12">Cookies y tecnologías locales</a></li>
+      <li><a href="#p13">Conservación de los datos</a></li>
+      <li><a href="#p14">Medidas de seguridad</a></li>
+      <li><a href="#p15">Derechos ARCO</a></li>
+      <li><a href="#p16">Revocación y limitación</a></li>
+      <li><a href="#p17">Menores de edad</a></li>
+      <li><a href="#p18">Datos de terceros</a></li>
+      <li><a href="#p19">Enlaces a sitios de terceros</a></li>
+      <li><a href="#p20">Cambios al Aviso</a></li>
+      <li><a href="#p21">Autoridad (INAI)</a></li>
+      <li><a href="#p22">Contacto</a></li>
+    </ol>
+  </div>
+
+  <section id="p1">
+    <h2>1. Identidad y domicilio del Responsable</h2>
+    <p>
+      El Responsable del tratamiento de tus datos personales es <strong>{{ legal.appName }}</strong>, plataforma
+      web progresiva (PWA) de orientación vocacional en áreas STEAM (Ciencia, Tecnología, Ingeniería, Artes y
+      Matemáticas). Para cualquier asunto relacionado con la protección de tus datos personales, ponemos a tu
+      disposición el correo electrónico <strong>{{ legal.contactEmail }}</strong>, que funge como medio oficial de
+      contacto de nuestro departamento de privacidad.
+    </p>
+    <p>
+      El presente Aviso aplica a la aplicación, sus subdominios, la interfaz de programación de aplicaciones (API)
+      y cualquier servicio conexo operado por el Responsable.
+    </p>
+  </section>
+
+  <section id="p2">
+    <h2>2. Definiciones</h2>
+    <ul>
+      <li><span class="def-term">Datos personales:</span> cualquier información concerniente a una persona física identificada o identificable.</li>
+      <li><span class="def-term">Datos sensibles:</span> aquellos que puedan revelar aspectos como origen racial o étnico, estado de salud, creencias, preferencias sexuales, entre otros de análoga naturaleza.</li>
+      <li><span class="def-term">Titular:</span> la persona física a quien corresponden los datos personales (tú).</li>
+      <li><span class="def-term">Tratamiento:</span> obtención, uso, divulgación o almacenamiento de datos personales por cualquier medio.</li>
+      <li><span class="def-term">Encargado:</span> tercero que trata datos personales por cuenta del Responsable.</li>
+      <li><span class="def-term">Transferencia:</span> comunicación de datos a persona distinta del Responsable o encargado.</li>
+      <li><span class="def-term">Perfil vocacional:</span> vector de puntajes STEAM y recomendaciones derivadas de tus respuestas y actividades dentro de la plataforma.</li>
+    </ul>
+  </section>
+
+  <section id="p3">
+    <h2>3. Datos personales que recabamos</h2>
+    <p>Para las finalidades descritas más adelante, podremos recabar las siguientes categorías de datos personales:</p>
+
+    <div class="legal-table-wrap">
+      <table class="legal-table">
+        <thead>
+          <tr><th>Categoría</th><th>Datos específicos</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Identificación</strong></td>
+            <td>Nombre completo, correo electrónico, fotografía de perfil (avatar) que elijas cargar.</td>
+          </tr>
+          <tr>
+            <td><strong>Autenticación</strong></td>
+            <td>Contraseña (almacenada exclusivamente cifrada mediante <em>hashing</em> con bcrypt; nunca en texto claro), identificador de Google cuando usas “Continuar con Google”, tokens de sesión, número de intentos fallidos de inicio de sesión y marcas de bloqueo temporal por seguridad.</td>
+          </tr>
+          <tr>
+            <td><strong>Perfil ampliado</strong></td>
+            <td>Biografía, fecha de nacimiento, teléfono, ubicación textual (ciudad/país), usuario de GitHub y enlace de LinkedIn, cuando decidas proporcionarlos de forma voluntaria.</td>
+          </tr>
+          <tr>
+            <td><strong>Datos vocacionales</strong></td>
+            <td>Respuestas al test teórico, resultados de módulos de calibración (preferencias de “me gusta / no me gusta”), decisiones y tiempos en los simuladores de carrera, banderas de comportamiento, vector STEAM calculado, ejes dominantes, nivel de calibración y trazabilidad del cálculo (contribuciones por fuente).</td>
+          </tr>
+          <tr>
+            <td><strong>Recomendaciones y favoritos</strong></td>
+            <td>Vocaciones y carreras recomendadas, universidades y cursos que guardes como favoritos, y los resultados del emparejamiento de universidades.</td>
+          </tr>
+          <tr>
+            <td><strong>Geolocalización</strong></td>
+            <td>Coordenadas aproximadas (latitud y longitud) obtenidas del navegador con tu autorización o, en su defecto, una ubicación aproximada derivada de tu dirección IP, utilizada únicamente para calcular la distancia a universidades cercanas.</td>
+          </tr>
+          <tr>
+            <td><strong>Preferencias</strong></td>
+            <td>Tema de la interfaz (claro/oscuro), idioma y preferencias de notificación (correo, push, categorías).</td>
+          </tr>
+          <tr>
+            <td><strong>Técnicos y de uso</strong></td>
+            <td>Datos almacenados localmente en tu dispositivo (localStorage), fecha y hora de actividades, registros técnicos de latencia y consumo de la capa de inteligencia artificial, y versión del Aviso de Privacidad que aceptaste junto con su fecha.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      No estás obligado a proporcionar los datos marcados como voluntarios; sin embargo, algunos datos de
+      identificación y autenticación son <strong>indispensables</strong> para crear tu cuenta y prestarte el servicio.
+    </p>
+  </section>
+
+  <section id="p4">
+    <h2>4. Datos personales sensibles</h2>
+    <div class="legal-callout">
+      <app-lucide-icon name="alert-triangle" [size]="18"></app-lucide-icon>
+      <span>
+        <strong>{{ legal.appName }} no solicita ni requiere datos personales sensibles</strong> (como origen étnico,
+        estado de salud, creencias religiosas, opiniones políticas o preferencias sexuales) para prestar el servicio.
+        Te pedimos <strong>no incluir</strong> este tipo de información en campos de texto libre como la biografía. Si
+        de forma voluntaria llegaras a proporcionarlos, se entenderá otorgado tu consentimiento expreso para su
+        tratamiento con la única finalidad de mostrarlos en tu perfil, y podrás eliminarlos en cualquier momento.
+      </span>
+    </div>
+  </section>
+
+  <section id="p5">
+    <h2>5. Formas de obtención de los datos</h2>
+    <p>Obtenemos tus datos personales por las siguientes vías:</p>
+    <ul>
+      <li><strong>Directamente de ti:</strong> al registrarte, iniciar sesión, completar el test teórico, los módulos de calibración, los simuladores, editar tu perfil o guardar favoritos.</li>
+      <li><strong>Por medios electrónicos y tecnológicos:</strong> a través de tu navegador y dispositivo (por ejemplo, geolocalización previa autorización, y almacenamiento local de sesión y preferencias).</li>
+      <li><strong>De terceros autorizados:</strong> cuando eliges autenticarte con Google, recibimos de dicho proveedor tu nombre, correo, identificador y fotografía de perfil.</li>
+    </ul>
+  </section>
+
+  <section id="p6">
+    <h2>6. Finalidades primarias (necesarias para el servicio)</h2>
+    <p>Tus datos personales serán tratados para las siguientes finalidades primarias, que dan origen y son necesarias para la relación con el Responsable:</p>
+    <ul>
+      <li>Crear, autenticar, administrar y dar mantenimiento a tu cuenta.</li>
+      <li>Verificar tu identidad y correo mediante códigos de un solo uso (OTP) y gestionar la seguridad de la sesión.</li>
+      <li>Calcular tu <strong>perfil vocacional STEAM</strong> mediante algoritmos deterministas a partir de tus respuestas, calibraciones y simuladores.</li>
+      <li>Generar recomendaciones de vocaciones, carreras y planes de estudio.</li>
+      <li>Realizar el emparejamiento de universidades cercanas conforme a tu ubicación, preferencias y perfil.</li>
+      <li>Almacenar tu historial de tests, resultados y favoritos.</li>
+      <li>Brindarte atención, soporte y responder tus solicitudes.</li>
+      <li>Registrar y acreditar tu aceptación del presente Aviso y de los Términos y Condiciones.</li>
+      <li>Cumplir obligaciones legales y prevenir fraude o usos indebidos de la plataforma.</li>
+    </ul>
+  </section>
+
+  <section id="p7">
+    <h2>7. Finalidades secundarias (no necesarias)</h2>
+    <p>De manera adicional y sólo si no manifiestas tu oposición, podremos tratar tus datos para:</p>
+    <ul>
+      <li>Enviarte comunicaciones informativas, recordatorios y novedades sobre nuevas carreras, simuladores o funciones.</li>
+      <li>Elaborar estadísticas y estudios internos <strong>de forma agregada y disociada</strong> para mejorar los algoritmos y la experiencia de uso.</li>
+      <li>Enviarte contenidos de mercadotecnia o promociones de terceros aliados (por ejemplo, becas o cursos), únicamente por los canales que hayas habilitado.</li>
+    </ul>
+    <div class="legal-callout">
+      <app-lucide-icon name="info" [size]="18"></app-lucide-icon>
+      <span>
+        Puedes negar u oponerte a las finalidades secundarias sin que ello afecte la prestación del servicio,
+        desactivando las notificaciones correspondientes en tu perfil o escribiendo a {{ legal.contactEmail }}.
+      </span>
+    </div>
+  </section>
+
+  <section id="p8">
+    <h2>8. Fundamento del tratamiento y consentimiento</h2>
+    <p>
+      El tratamiento de tus datos se sustenta en tu <strong>consentimiento</strong>, en la necesidad de dar
+      cumplimiento a la relación derivada del uso del servicio y en el cumplimiento de obligaciones legales. Al
+      registrarte, marcar la casilla de aceptación y/o utilizar la plataforma, <strong>otorgas tu consentimiento</strong>
+      para el tratamiento de tus datos conforme a este Aviso. Registramos la versión de este documento que aceptaste
+      y la fecha de aceptación como evidencia de dicho consentimiento.
+    </p>
+  </section>
+
+  <section id="p9">
+    <h2>9. Decisiones automatizadas e inteligencia artificial</h2>
+    <p>
+      El <strong>perfil vocacional</strong> (puntajes STEAM, ejes dominantes, vocaciones y carreras recomendadas) se
+      genera mediante <strong>algoritmos deterministas y auditables</strong>: las mismas respuestas producen siempre el
+      mismo resultado, sin intervención de inteligencia artificial en su cálculo. La plataforma conserva la
+      trazabilidad de las fuentes que formaron tu perfil para que puedas comprenderlo.
+    </p>
+    <p>
+      Únicamente el <strong>emparejamiento de universidades</strong> utiliza un modelo de inteligencia artificial de
+      terceros, y sólo para ordenar de forma fina y redactar explicaciones en lenguaje natural sobre una lista de
+      universidades reales previamente filtrada por criterios objetivos (que ofrezcan el programa, distancia y costo).
+      El modelo <strong>no decide por sí solo</strong>, no inventa instituciones y su ajuste está acotado. Para ello,
+      podemos enviar a dicho proveedor datos estrictamente necesarios como tus ejes dominantes, las carreras
+      recomendadas y la lista de universidades candidatas. Estas recomendaciones son <strong>orientativas</strong> y no
+      sustituyen una decisión personal, académica o profesional informada.
+    </p>
+  </section>
+
+  <section id="p10">
+    <h2>10. Transferencias y encargados (subprocesadores)</h2>
+    <p>
+      Para operar la plataforma nos apoyamos en proveedores de tecnología que actúan como <strong>encargados</strong>,
+      tratando datos por cuenta y bajo instrucciones del Responsable, con obligaciones de confidencialidad y seguridad.
+      No vendemos tus datos personales. Los principales encargados son:
+    </p>
+    <div class="legal-table-wrap">
+      <table class="legal-table">
+        <thead>
+          <tr><th>Proveedor</th><th>Finalidad</th><th>Datos involucrados</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Railway</td><td>Alojamiento del servidor y base de datos (PostgreSQL)</td><td>Todos los datos de cuenta y actividad</td></tr>
+          <tr><td>Vercel</td><td>Alojamiento y entrega de la aplicación web</td><td>Datos técnicos de acceso</td></tr>
+          <tr><td>Google (OAuth, Maps/Places)</td><td>Inicio de sesión con Google y datos de ubicación/distancia de universidades</td><td>Identificador, nombre, correo, avatar y coordenadas</td></tr>
+          <tr><td>Groq / Google (IA)</td><td>Ranking y explicación del emparejamiento de universidades (A8)</td><td>Ejes dominantes, carreras y universidades candidatas</td></tr>
+          <tr><td>Firebase (Google)</td><td>Servicios de infraestructura de la aplicación</td><td>Identificadores técnicos</td></tr>
+          <tr><td>Brevo</td><td>Envío de correos transaccionales (verificación, OTP, avisos)</td><td>Nombre y correo electrónico</td></tr>
+          <tr><td>Servicios de geolocalización por IP</td><td>Ubicación aproximada de respaldo</td><td>Dirección IP aproximada</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Estas comunicaciones se realizan al amparo de las excepciones previstas por la Ley por ser necesarias para el
+      mantenimiento y cumplimiento de la relación jurídica entre el Titular y el Responsable, por lo que no requieren tu
+      consentimiento adicional. La lista de proveedores puede actualizarse; publicaremos los cambios relevantes en este Aviso.
+    </p>
+  </section>
+
+  <section id="p11">
+    <h2>11. Transferencias internacionales</h2>
+    <p>
+      Algunos de nuestros encargados se encuentran ubicados fuera de {{ legal.jurisdiction }} (principalmente en los
+      Estados Unidos de América y la Unión Europea). Al utilizar la plataforma, reconoces que tus datos podrán ser
+      almacenados y procesados en servidores localizados en dichas jurisdicciones, con niveles de seguridad acordes a la
+      práctica de la industria y bajo compromisos contractuales de protección equivalentes a los aquí descritos.
+    </p>
+  </section>
+
+  <section id="p12">
+    <h2>12. Cookies, almacenamiento local y tecnologías similares</h2>
+    <p>
+      La plataforma utiliza <strong>almacenamiento local (localStorage)</strong> de tu navegador para conservar tu
+      sesión (tokens), tus preferencias (tema, idioma) y datos de apoyo del perfil, así como una copia local de
+      resultados para permitir su consulta sin conexión. Estas tecnologías son <strong>necesarias</strong> para el
+      funcionamiento de la aplicación. Puedes borrarlas desde la configuración de tu navegador; hacerlo cerrará tu
+      sesión y podría requerir que vuelvas a iniciar sesión y reconfigurar tus preferencias.
+    </p>
+  </section>
+
+  <section id="p13">
+    <h2>13. Plazo de conservación</h2>
+    <p>
+      Conservaremos tus datos personales mientras mantengas una cuenta activa y durante el tiempo necesario para
+      cumplir las finalidades descritas, así como los plazos legales de conservación aplicables (por ejemplo, para
+      atender responsabilidades o requerimientos de autoridad). Cuando dejen de ser necesarios, procederemos a su
+      supresión o bloqueo conforme a la Ley. Si solicitas la cancelación de tu cuenta, eliminaremos o anonimizaremos
+      tus datos, salvo aquellos que debamos conservar por obligación legal.
+    </p>
+  </section>
+
+  <section id="p14">
+    <h2>14. Medidas de seguridad</h2>
+    <p>
+      Implementamos medidas de seguridad administrativas, técnicas y físicas razonables para proteger tus datos
+      personales contra daño, pérdida, alteración, destrucción o uso, acceso o tratamiento no autorizados, entre ellas:
+    </p>
+    <ul>
+      <li>Cifrado de contraseñas mediante funciones de <em>hashing</em> (bcrypt); nunca almacenamos contraseñas en texto claro.</li>
+      <li>Cifrado en tránsito mediante HTTPS/TLS en las comunicaciones con nuestros servidores.</li>
+      <li>Autenticación basada en tokens de vigencia limitada y verificación por código de un solo uso.</li>
+      <li>Bloqueo temporal de la cuenta ante múltiples intentos fallidos de inicio de sesión.</li>
+      <li>Control de acceso por roles y minimización de los datos compartidos con terceros.</li>
+    </ul>
+    <p>
+      Ningún sistema es completamente infalible; en caso de una vulneración que afecte de forma significativa tus
+      derechos, te lo notificaremos conforme a la Ley para que puedas tomar las medidas correspondientes.
+    </p>
+  </section>
+
+  <section id="p15">
+    <h2>15. Derechos ARCO</h2>
+    <p>
+      Como Titular, tienes derecho a <strong>Acceder</strong> a tus datos personales, <strong>Rectificarlos</strong>
+      cuando sean inexactos o incompletos, <strong>Cancelarlos</strong> cuando consideres que no se requieren para las
+      finalidades, y <strong>Oponerte</strong> a su tratamiento para fines específicos (derechos “ARCO”).
+    </p>
+    <p>Para ejercerlos, envía una solicitud a <strong>{{ legal.contactEmail }}</strong> que contenga al menos:</p>
+    <ul>
+      <li>Tu nombre y un medio para comunicarte la respuesta.</li>
+      <li>Documento que acredite tu identidad (o representación legal, en su caso).</li>
+      <li>Descripción clara de los datos sobre los que buscas ejercer el derecho y del derecho que deseas ejercer.</li>
+      <li>Cualquier elemento que facilite la localización de los datos.</li>
+    </ul>
+    <p>
+      Daremos respuesta a tu solicitud en los plazos que marca la Ley. Muchas de estas acciones también puedes
+      realizarlas directamente desde la sección <strong>“Administrar Perfil”</strong> y <strong>“Seguridad”</strong>
+      de la aplicación (por ejemplo, editar tus datos, cambiar tu contraseña o eliminar tu historial).
+    </p>
+  </section>
+
+  <section id="p16">
+    <h2>16. Revocación del consentimiento y limitación de uso</h2>
+    <p>
+      Puedes <strong>revocar</strong> en cualquier momento el consentimiento que nos otorgaste para el tratamiento de
+      tus datos, así como <strong>limitar</strong> su uso o divulgación, enviando tu solicitud a {{ legal.contactEmail }}.
+      La revocación podría implicar que no podamos seguir prestándote el servicio si los datos son indispensables para
+      el mismo. Asimismo, podrás inscribir tus datos en el Registro Público para Evitar Publicidad de la PROFECO si no
+      deseas recibir comunicaciones promocionales.
+    </p>
+  </section>
+
+  <section id="p17">
+    <h2>17. Menores de edad</h2>
+    <div class="legal-callout">
+      <app-lucide-icon name="users" [size]="18"></app-lucide-icon>
+      <span>
+        Dado que {{ legal.appName }} está dirigida a estudiantes de nivel medio y medio superior, es posible que
+        algunos usuarios sean <strong>menores de edad</strong>. En tal caso, el uso de la plataforma y el
+        consentimiento para el tratamiento de datos deberá contar con la <strong>autorización de quien ejerza la patria
+        potestad, tutela o representación legal</strong>. Al registrarte declaras que cuentas con dicha autorización.
+        Si eres madre, padre o tutor y consideras que un menor nos proporcionó datos sin tu consentimiento, contáctanos
+        para atender el caso.
+      </span>
+    </div>
+  </section>
+
+  <section id="p18">
+    <h2>18. Datos personales de terceros</h2>
+    <p>
+      Si proporcionas datos personales de terceros (por ejemplo, al recomendar la aplicación), manifiestas que cuentas
+      con su consentimiento y que les has informado sobre el tratamiento que se dará a sus datos conforme a este Aviso.
+    </p>
+  </section>
+
+  <section id="p19">
+    <h2>19. Enlaces a sitios de terceros</h2>
+    <p>
+      La plataforma puede contener enlaces a sitios de universidades u otros terceros (por ejemplo, sitios oficiales de
+      instituciones educativas). El Responsable <strong>no controla ni es responsable</strong> de las prácticas de
+      privacidad de dichos sitios; te recomendamos revisar sus propios avisos.
+    </p>
+  </section>
+
+  <section id="p20">
+    <h2>20. Cambios al Aviso de Privacidad</h2>
+    <p>
+      Podremos actualizar el presente Aviso en cualquier momento para reflejar cambios legales, operativos o del
+      servicio. Cuando realicemos modificaciones sustanciales, incrementaremos el número de <strong>versión</strong> y
+      te solicitaremos nuevamente tu aceptación al ingresar a la plataforma. La versión vigente siempre estará
+      disponible dentro de la aplicación, en la sección de tu perfil.
+    </p>
+  </section>
+
+  <section id="p21">
+    <h2>21. Autoridad garante (INAI)</h2>
+    <p>
+      Si consideras que tu derecho a la protección de datos personales ha sido vulnerado, tienes derecho a acudir al
+      <strong>Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales (INAI)</strong>
+      o a la autoridad que la sustituya, para presentar la denuncia o queja que corresponda. Más información en el sitio
+      oficial de dicha autoridad.
+    </p>
+  </section>
+
+  <section id="p22">
+    <h2>22. Contacto</h2>
+    <p>
+      Para cualquier duda, aclaración o ejercicio de derechos relacionados con este Aviso de Privacidad, escríbenos a
+      <strong>{{ legal.contactEmail }}</strong>. Para soporte general del servicio, puedes usar
+      <strong>{{ legal.supportEmail }}</strong> o la sección de contacto dentro de la aplicación.
+    </p>
+  </section>
+
+  <div class="legal-footer">
+    <p>Al utilizar {{ legal.appName }} reconoces haber leído y comprendido este Aviso de Privacidad (versión {{ version }}).</p>
+    <a class="cross-link" routerLink="/legal/terminos">Ver también: Términos y Condiciones →</a>
+    <br>
+    <button class="scroll-top-btn" (click)="scrollTop()">
+      <app-lucide-icon name="arrow-up" [size]="14"></app-lucide-icon> Volver al inicio
+    </button>
+  </div>
+</div>

@@ -6,6 +6,7 @@ import { SplashScreenComponent } from './components/splash-screen/splash-screen.
 import { ToastComponent } from './components/toast/toast.component';
 import { DialogComponent } from './components/dialog/dialog.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { TermsGateComponent } from './components/terms-gate/terms-gate.component';
 import { ThemeService } from './core/services/theme.service';
 import { DialogService } from './core/services/dialog.service';
 import { PwaInstallService } from './core/services/pwa-install.service';
@@ -14,7 +15,7 @@ import { fadeSlideAnimation } from './route-animations';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, SplashScreenComponent, ToastComponent, DialogComponent, NavbarComponent, NgIf],
+  imports: [RouterOutlet, SplashScreenComponent, ToastComponent, DialogComponent, NavbarComponent, TermsGateComponent, NgIf],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   animations: [fadeSlideAnimation]

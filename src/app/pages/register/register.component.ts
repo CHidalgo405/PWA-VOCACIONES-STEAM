@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { UserService } from '../../core/services/user.service';
 import { ToastService } from '../../core/services/toast.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+import { POLICY_VERSION } from '../../core/legal/legal.constants';
 
 @Component({
   selector: 'app-register',
@@ -20,6 +22,7 @@ export class RegisterComponent {
   password = '';
   showPassword = false;
   rememberMe = false;
+  acceptedTerms = false;
 
   isVerificationStep = false;
 
@@ -29,6 +32,7 @@ export class RegisterComponent {
 
   private router = inject(Router);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private toastService = inject(ToastService);
 
   verificationCode = '';
@@ -42,12 +46,21 @@ export class RegisterComponent {
 
   simularLoginGoogle(event: Event) {
     event.preventDefault();
+    if (!this.acceptedTerms) {
+      this.toastService.showToast('Debes aceptar el Aviso de Privacidad y los Términos para continuar.', 'warning');
+      return;
+    }
     this.authService.loginWithGoogle();
   }
 
   onSubmit() {
     if (!this.email || !this.fullname || !this.password) {
       this.toastService.showToast('Por favor, completa todos los campos.', 'warning');
+      return;
+    }
+
+    if (!this.acceptedTerms) {
+      this.toastService.showToast('Debes aceptar el Aviso de Privacidad y los Términos para crear tu cuenta.', 'warning');
       return;
     }
 
@@ -130,7 +143,12 @@ export class RegisterComponent {
       if (res) {
         this.otpFailedAttempts = 0;
         this.toastService.showToast('¡Cuenta verificada y activada con éxito!', 'success');
-        this.router.navigate(['/dashboard']);
+        // El usuario ya está autenticado: registramos su consentimiento en la
+        // API (versión + fecha). Es best-effort; la compuerta lo reintenta.
+        this.userService.acceptTerms(POLICY_VERSION).subscribe({
+          next: () => this.router.navigate(['/dashboard']),
+          error: () => this.router.navigate(['/dashboard']),
+        });
       }
     });
   }

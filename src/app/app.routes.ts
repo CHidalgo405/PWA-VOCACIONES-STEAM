@@ -48,6 +48,9 @@ export const routes: Routes = [
   { path: 'profile/about', loadComponent: () => import('./pages/profile/about-app/about-app.component').then(m => m.AboutAppComponent), canActivate: [authGuard] },
   { path: 'mapa-universidades', loadComponent: () => import('./features/universities-map/universities-map.component').then(m => m.UniversitiesMapComponent), canActivate: [authGuard] },
   { path: 'oauth-callback', component: OAuthCallbackComponent },
+  // Documentos legales — públicos (accesibles desde login/registro sin sesión)
+  { path: 'legal/privacidad', loadComponent: () => import('./pages/legal/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent) },
+  { path: 'legal/terminos', loadComponent: () => import('./pages/legal/terms/terms.component').then(m => m.TermsComponent) },
   { path: 'admin', redirectTo: '/admin/dashboard', pathMatch: 'full' },
   { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [authGuard, adminGuard] },
   { path: 'admin/users', component: ManageUsersComponent, canActivate: [authGuard, adminGuard] },

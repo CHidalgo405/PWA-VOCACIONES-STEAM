@@ -1,0 +1,254 @@
+<div class="legal-topbar">
+  <button class="back-btn" (click)="goBack()" aria-label="Volver">
+    <app-lucide-icon name="arrow-left" [size]="20"></app-lucide-icon>
+  </button>
+  <h2 class="topbar-title">Términos y Condiciones</h2>
+</div>
+
+<div class="legal-container">
+  <div class="legal-hero">
+    <div class="hero-icon">
+      <app-lucide-icon name="scroll-text" [size]="30"></app-lucide-icon>
+    </div>
+    <h1>Términos y Condiciones de Uso</h1>
+    <div class="legal-meta">
+      <span><app-lucide-icon name="calendar" [size]="14"></app-lucide-icon> Vigente desde: {{ effectiveDate }}</span>
+      <span><app-lucide-icon name="history" [size]="14"></app-lucide-icon> Última actualización: {{ lastUpdated }}</span>
+      <span><app-lucide-icon name="tag" [size]="14"></app-lucide-icon> Versión: {{ version }}</span>
+    </div>
+  </div>
+
+  <div class="legal-intro">
+    Los presentes Términos y Condiciones (en adelante, los “<strong>Términos</strong>”) regulan el acceso y uso de la
+    plataforma <strong>{{ legal.appName }}</strong> (en adelante, la “<strong>Plataforma</strong>” o el
+    “<strong>Servicio</strong>”). Al crear una cuenta, marcar la casilla de aceptación o utilizar la Plataforma,
+    manifiestas que <strong>has leído, entendido y aceptado</strong> de forma libre e informada estos Términos y el
+    <a routerLink="/legal/privacidad">Aviso de Privacidad</a>. Si no estás de acuerdo, no debes utilizar el Servicio.
+  </div>
+
+  <div class="legal-toc">
+    <h3>Índice</h3>
+    <ol>
+      <li><a href="#t1">Objeto del Servicio</a></li>
+      <li><a href="#t2">Aceptación y capacidad</a></li>
+      <li><a href="#t3">Registro y cuenta</a></li>
+      <li><a href="#t4">Uso aceptable</a></li>
+      <li><a href="#t5">Conductas prohibidas</a></li>
+      <li><a href="#t6">Naturaleza orientativa</a></li>
+      <li><a href="#t7">Inteligencia artificial y terceros</a></li>
+      <li><a href="#t8">Propiedad intelectual</a></li>
+      <li><a href="#t9">Contenido del usuario</a></li>
+      <li><a href="#t10">Privacidad</a></li>
+      <li><a href="#t11">Disponibilidad y cambios</a></li>
+      <li><a href="#t12">Suspensión y terminación</a></li>
+      <li><a href="#t13">Exención de garantías</a></li>
+      <li><a href="#t14">Limitación de responsabilidad</a></li>
+      <li><a href="#t15">Indemnización</a></li>
+      <li><a href="#t16">Modificaciones a los Términos</a></li>
+      <li><a href="#t17">Ley aplicable y jurisdicción</a></li>
+      <li><a href="#t18">Disposiciones generales</a></li>
+      <li><a href="#t19">Contacto</a></li>
+    </ol>
+  </div>
+
+  <section id="t1">
+    <h2>1. Objeto del Servicio</h2>
+    <p>
+      {{ legal.appName }} es una aplicación web progresiva de <strong>orientación vocacional</strong> que, a partir de
+      un test psicométrico, módulos de calibración y simuladores de carrera, genera un perfil vocacional en las áreas
+      STEAM (Ciencia, Tecnología, Ingeniería, Artes y Matemáticas) y ofrece recomendaciones de vocaciones, carreras y
+      universidades. El Servicio tiene fines <strong>informativos y educativos</strong>.
+    </p>
+  </section>
+
+  <section id="t2">
+    <h2>2. Aceptación y capacidad</h2>
+    <p>
+      Para utilizar la Plataforma debes tener capacidad legal para obligarte conforme a estos Términos. Si eres
+      <strong>menor de edad</strong>, declaras contar con la autorización y supervisión de quien ejerza la patria
+      potestad o tutela, quien acepta estos Términos en tu representación. El uso continuado del Servicio implica la
+      aceptación de la versión vigente de los Términos.
+    </p>
+  </section>
+
+  <section id="t3">
+    <h2>3. Registro y seguridad de la cuenta</h2>
+    <ul>
+      <li>Debes proporcionar información <strong>veraz, exacta y actualizada</strong> al registrarte.</li>
+      <li>Eres responsable de mantener la <strong>confidencialidad</strong> de tu contraseña y de toda actividad realizada desde tu cuenta.</li>
+      <li>Notifícanos de inmediato cualquier uso no autorizado de tu cuenta.</li>
+      <li>Podemos requerir la <strong>verificación</strong> de tu correo mediante un código de un solo uso (OTP) y aplicar bloqueos temporales por seguridad.</li>
+      <li>No debes compartir tu cuenta ni suplantar la identidad de otra persona.</li>
+    </ul>
+  </section>
+
+  <section id="t4">
+    <h2>4. Uso aceptable</h2>
+    <p>Te comprometes a utilizar la Plataforma de conformidad con la ley, la moral, el orden público y estos Términos, y a responder con honestidad los instrumentos vocacionales para obtener resultados útiles.</p>
+  </section>
+
+  <section id="t5">
+    <h2>5. Conductas prohibidas</h2>
+    <p>Queda estrictamente prohibido, de manera enunciativa mas no limitativa:</p>
+    <ul>
+      <li>Acceder o intentar acceder a cuentas, sistemas o datos que no te pertenezcan.</li>
+      <li>Realizar ingeniería inversa, descompilar o vulnerar las medidas de seguridad de la Plataforma o su API.</li>
+      <li>Utilizar robots, <em>scrapers</em> u otros medios automatizados para extraer datos o generar carga excesiva.</li>
+      <li>Enviar peticiones de forma abusiva o repetitiva con el fin de degradar el Servicio.</li>
+      <li>Introducir virus, código malicioso o contenido ilícito, ofensivo o que infrinja derechos de terceros.</li>
+      <li>Usar el Servicio para fines comerciales no autorizados o para revender su contenido.</li>
+      <li>Suplantar identidades o proporcionar datos falsos.</li>
+    </ul>
+  </section>
+
+  <section id="t6">
+    <h2>6. Naturaleza orientativa de los resultados</h2>
+    <div class="legal-callout">
+      <app-lucide-icon name="lightbulb" [size]="18"></app-lucide-icon>
+      <span>
+        Los perfiles, afinidades y recomendaciones de carreras y universidades tienen carácter <strong>orientativo</strong>
+        y se basan en la información que proporcionas y en catálogos de referencia. <strong>No constituyen asesoría
+        profesional, académica, psicológica ni garantía</strong> de admisión, desempeño o resultados. Las decisiones
+        educativas y profesionales son <strong>tu responsabilidad</strong>; te recomendamos complementar la información
+        con orientadores, las propias instituciones y fuentes oficiales.
+      </span>
+    </div>
+  </section>
+
+  <section id="t7">
+    <h2>7. Inteligencia artificial y servicios de terceros</h2>
+    <p>
+      El emparejamiento de universidades puede apoyarse en modelos de <strong>inteligencia artificial</strong> de
+      terceros para ordenar y explicar resultados sobre una lista de instituciones reales. Dichos modelos pueden
+      cometer errores o imprecisiones; la información de fechas, costos, requisitos y oferta educativa debe
+      <strong>verificarse siempre</strong> en los sitios oficiales de cada institución. La Plataforma también integra
+      servicios de terceros (mapas, geolocalización, correo, alojamiento) sujetos a sus propios términos.
+    </p>
+  </section>
+
+  <section id="t8">
+    <h2>8. Propiedad intelectual</h2>
+    <p>
+      La Plataforma, su código, diseño, marcas, logotipos, algoritmos, textos, catálogos y demás elementos son
+      propiedad del Responsable o de sus licenciantes y están protegidos por la legislación en materia de propiedad
+      intelectual. Se te otorga una licencia <strong>limitada, personal, revocable e intransferible</strong> para usar
+      el Servicio conforme a estos Términos. No se te transfiere ningún derecho de propiedad.
+    </p>
+  </section>
+
+  <section id="t9">
+    <h2>9. Contenido del usuario</h2>
+    <p>
+      Eres responsable de la información que cargas (nombre, fotografía, biografía, enlaces, respuestas). Declaras
+      contar con los derechos necesarios sobre dicho contenido y que no infringe derechos de terceros ni la ley. Nos
+      otorgas una licencia limitada para almacenar y procesar dicho contenido con el único fin de prestarte el Servicio.
+      Podremos retirar contenido que infrinja estos Términos.
+    </p>
+  </section>
+
+  <section id="t10">
+    <h2>10. Privacidad y datos personales</h2>
+    <p>
+      El tratamiento de tus datos personales se rige por nuestro <a routerLink="/legal/privacidad">Aviso de Privacidad</a>,
+      que forma parte integral de estos Términos. Te recomendamos leerlo detenidamente para conocer qué datos recabamos
+      y cómo los utilizamos.
+    </p>
+  </section>
+
+  <section id="t11">
+    <h2>11. Disponibilidad, mantenimiento y cambios del Servicio</h2>
+    <p>
+      Hacemos esfuerzos razonables por mantener la Plataforma disponible, pero <strong>no garantizamos</strong> su
+      funcionamiento ininterrumpido o libre de errores. Podemos suspender temporalmente el Servicio por mantenimiento,
+      actualizaciones o causas de fuerza mayor, así como <strong>modificar, agregar o descontinuar</strong> funciones en
+      cualquier momento. Al tratarse de una plataforma en evolución (incluyendo fases beta), algunas funciones pueden
+      cambiar sin previo aviso.
+    </p>
+  </section>
+
+  <section id="t12">
+    <h2>12. Suspensión y terminación</h2>
+    <p>
+      Podemos suspender o cancelar tu cuenta, con o sin previo aviso, si incumples estos Términos, si detectamos usos
+      fraudulentos o abusivos, o por requerimiento legal. Tú puedes dejar de usar el Servicio y solicitar la cancelación
+      de tu cuenta en cualquier momento. La terminación no afecta las disposiciones que por su naturaleza deban subsistir
+      (propiedad intelectual, limitación de responsabilidad, etc.).
+    </p>
+  </section>
+
+  <section id="t13">
+    <h2>13. Exención de garantías</h2>
+    <p>
+      El Servicio se proporciona <strong>“tal cual” y “según disponibilidad”</strong>, sin garantías de ningún tipo,
+      expresas o implícitas, incluyendo de manera enunciativa las de comerciabilidad, idoneidad para un fin particular,
+      exactitud o no infracción. No garantizamos que los resultados cumplan tus expectativas ni que la información de
+      terceros sea completa o vigente.
+    </p>
+  </section>
+
+  <section id="t14">
+    <h2>14. Limitación de responsabilidad</h2>
+    <p>
+      En la máxima medida permitida por la ley, el Responsable no será responsable por daños indirectos, incidentales,
+      especiales, punitivos o consecuentes, ni por pérdida de datos, oportunidades o beneficios, derivados del uso o la
+      imposibilidad de uso del Servicio, de decisiones tomadas con base en sus recomendaciones, o de servicios de
+      terceros. El Servicio se ofrece de forma <strong>gratuita</strong> con fines educativos, lo cual se considera al
+      determinar el alcance de esta limitación.
+    </p>
+  </section>
+
+  <section id="t15">
+    <h2>15. Indemnización</h2>
+    <p>
+      Aceptas mantener en paz y a salvo al Responsable, sus colaboradores y proveedores frente a cualquier reclamación,
+      daño, pérdida o gasto (incluidos honorarios razonables de abogados) derivados de tu incumplimiento de estos
+      Términos, del uso indebido del Servicio o de la violación de derechos de terceros.
+    </p>
+  </section>
+
+  <section id="t16">
+    <h2>16. Modificaciones a los Términos</h2>
+    <p>
+      Podemos modificar estos Términos en cualquier momento. Cuando los cambios sean sustanciales, incrementaremos el
+      número de <strong>versión</strong> y te solicitaremos nuevamente tu aceptación al ingresar. El uso posterior del
+      Servicio implica la aceptación de los Términos vigentes. La versión actual siempre estará disponible dentro de la
+      aplicación.
+    </p>
+  </section>
+
+  <section id="t17">
+    <h2>17. Ley aplicable y jurisdicción</h2>
+    <p>
+      Estos Términos se rigen por las leyes de {{ legal.jurisdiction }}. Para la interpretación y cumplimiento, las
+      partes se someten a la jurisdicción de los tribunales competentes de dicho país, renunciando a cualquier otro
+      fuero que pudiera corresponderles por razón de su domicilio presente o futuro.
+    </p>
+  </section>
+
+  <section id="t18">
+    <h2>18. Disposiciones generales</h2>
+    <ul>
+      <li><strong>Independencia de cláusulas:</strong> si alguna disposición se declara inválida, las demás continuarán en vigor.</li>
+      <li><strong>No renuncia:</strong> la falta de ejercicio de un derecho no implica su renuncia.</li>
+      <li><strong>Acuerdo íntegro:</strong> estos Términos y el Aviso de Privacidad constituyen el acuerdo completo entre las partes respecto del Servicio.</li>
+      <li><strong>Cesión:</strong> no puedes ceder tus derechos u obligaciones sin autorización; el Responsable sí podrá hacerlo en el marco de una reorganización.</li>
+    </ul>
+  </section>
+
+  <section id="t19">
+    <h2>19. Contacto</h2>
+    <p>
+      Para cualquier duda sobre estos Términos, escríbenos a <strong>{{ legal.supportEmail }}</strong> o utiliza la
+      sección de contacto y soporte dentro de la aplicación.
+    </p>
+  </section>
+
+  <div class="legal-footer">
+    <p>Al crear tu cuenta o usar {{ legal.appName }} aceptas estos Términos y Condiciones (versión {{ version }}).</p>
+    <a class="cross-link" routerLink="/legal/privacidad">Ver también: Aviso de Privacidad →</a>
+    <br>
+    <button class="scroll-top-btn" (click)="scrollTop()">
+      <app-lucide-icon name="arrow-up" [size]="14"></app-lucide-icon> Volver al inicio
+    </button>
+  </div>
+</div>

@@ -498,3 +498,33 @@
   70% { box-shadow: 0 0 0 10px rgba(7, 177, 201, 0); }
   100% { box-shadow: 0 0 0 0 rgba(7, 177, 201, 0); }
 }
+/* Consentimiento legal obligatorio */
+.legal-consent-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0.25rem 0 1.1rem;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    margin-top: 3px;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    accent-color: #07b1c9;
+    cursor: pointer;
+  }
+
+  .legal-consent-text {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--text-secondary, #64748b);
+
+    a {
+      color: #07b1c9;
+      font-weight: 600;
+      text-decoration: none;
+      &:hover { text-decoration: underline; }
+    }
+  }
+}

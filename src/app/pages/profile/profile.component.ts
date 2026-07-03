@@ -119,6 +119,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   supportSettings = [
     { icon: 'help-circle', title: 'Centro de ayuda', action: '/profile/help' },
     { icon: 'headphones', title: 'Contactar soporte', action: '/profile/contact' },
+    { icon: 'shield-check', title: 'Aviso de Privacidad', action: '/legal/privacidad' },
+    { icon: 'scroll-text', title: 'Términos y Condiciones', action: '/legal/terminos' },
     { icon: 'info', title: 'Acerca de la app', action: '/profile/about', value: 'v1.0.0' }
   ];
 

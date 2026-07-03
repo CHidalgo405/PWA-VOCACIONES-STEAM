@@ -1,0 +1,45 @@
+<div class="terms-gate-overlay" *ngIf="visible">
+  <div class="terms-gate-card">
+    <div class="gate-icon">
+      <app-lucide-icon name="shield-check" [size]="30"></app-lucide-icon>
+    </div>
+
+    <h2 class="gate-title">Antes de continuar</h2>
+    <p class="gate-desc">
+      Hemos actualizado nuestros documentos legales. Para seguir usando
+      <strong>Vocaciones STEAM</strong> necesitamos que revises y aceptes cómo
+      tratamos tus datos.
+    </p>
+
+    <div class="gate-links">
+      <a routerLink="/legal/privacidad" target="_blank" rel="noopener" class="gate-link">
+        <app-lucide-icon name="shield-check" [size]="16"></app-lucide-icon>
+        Aviso de Privacidad
+        <app-lucide-icon name="external-link" [size]="13"></app-lucide-icon>
+      </a>
+      <a routerLink="/legal/terminos" target="_blank" rel="noopener" class="gate-link">
+        <app-lucide-icon name="scroll-text" [size]="16"></app-lucide-icon>
+        Términos y Condiciones
+        <app-lucide-icon name="external-link" [size]="13"></app-lucide-icon>
+      </a>
+    </div>
+
+    <label class="gate-consent">
+      <input type="checkbox" [(ngModel)]="accepted" name="gateAccept" [ngModelOptions]="{ standalone: true }">
+      <span>
+        He leído y acepto el Aviso de Privacidad y los Términos y Condiciones
+        (versión {{ version }}).
+      </span>
+    </label>
+
+    <div class="gate-actions">
+      <button class="gate-btn-primary" [disabled]="!accepted || isSubmitting" (click)="confirm()">
+        <span *ngIf="isSubmitting" class="gate-spinner"></span>
+        <span *ngIf="!isSubmitting">Aceptar y continuar</span>
+      </button>
+      <button class="gate-btn-secondary" (click)="decline()" [disabled]="isSubmitting">
+        Rechazar y salir
+      </button>
+    </div>
+  </div>
+</div>

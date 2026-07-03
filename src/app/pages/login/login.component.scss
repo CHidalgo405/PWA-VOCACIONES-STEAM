@@ -524,3 +524,17 @@
   70% { box-shadow: 0 0 0 10px rgba(7, 177, 201, 0); }
   100% { box-shadow: 0 0 0 0 rgba(7, 177, 201, 0); }
 }
+/* Nota legal informativa */
+.legal-fineprint {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #94a3b8);
+
+  a {
+    color: #07b1c9;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+}

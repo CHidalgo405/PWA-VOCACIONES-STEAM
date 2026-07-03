@@ -23,6 +23,8 @@ export interface Usuario {
   calibrationModules?: CalibrationModule[];
   /** Preferencias persistidas (tema, idioma, notificaciones). */
   settings?: any;
+  /** Versión de los documentos legales que el usuario aceptó. */
+  acceptedTermsVersion?: string;
   // Datos de perfil editables por el usuario
   bio?: string;
   birthDate?: string;
@@ -207,6 +209,7 @@ export class AuthService {
       title: user.title,
       darkMode: user.settings?.darkMode,
       settings: user.settings,
+      acceptedTermsVersion: user.acceptedTermsVersion,
       calibrationModules: this.resolveCalibrationModules(user.calibrationModules),
       bio: user.bio,
       birthDate: user.birthDate,
@@ -232,6 +235,14 @@ export class AuthService {
       { id: 'digital_consumption', status: 'available' },
       { id: 'everyday_mechanics', status: 'available' },
     ];
+  }
+
+  /** Marca localmente la versión de términos aceptada y propaga el cambio. */
+  setAcceptedTermsVersion(version: string) {
+    const user = this.getCurrentUser();
+    if (!user) return;
+    user.acceptedTermsVersion = version;
+    this.setCurrentUser(user);
   }
 
   private setCurrentUser(usuario: Usuario) {

@@ -33,6 +33,11 @@ export class UserService {
     return this.http.put(`${environment.apiUrl}/users/settings`, settings);
   }
 
+  /** Registra en la API la aceptación del Aviso de Privacidad y los Términos. */
+  acceptTerms(version: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/users/accept-terms`, { version });
+  }
+
   // --- SAVED UNIVERSITIES (FAVORITES) ---
 
   saveUniversity(data: {
