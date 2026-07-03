@@ -47,6 +47,10 @@ export class UserService {
     relationshipExplanation: string;
     keyDates: string;
     studyPlan: string;
+    officialWebsite?: string;
+    latitude?: number;
+    longitude?: number;
+    rating?: number;
   }): Observable<any> {
     return this.http.post(`${environment.apiUrl}/users/saved-universities`, data);
   }

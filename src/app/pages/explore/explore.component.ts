@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy, ViewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
-import { FormsModule } from '@angular/forms'; // Para el buscador
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { VocationTestService, TestDetail } from '../../core/services/test.service';
 import { ToastService } from '../../core/services/toast.service';
 import { inject } from '@angular/core';
@@ -21,6 +21,28 @@ import {
 } from '../../core/services/university.service';
 import { ScrollRevealDirective } from './scroll-reveal.directive';
 
+/** Estilo de mapa oscuro (tonos navy consistentes con el tema oscuro de la app). */
+const DARK_MAP_STYLE: google.maps.MapTypeStyle[] = [
+  { elementType: 'geometry', stylers: [{ color: '#0f172a' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#0b1120' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#94a3b8' }] },
+  { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#1e293b' }] },
+  { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#64748b' }] },
+  { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#111827' }] },
+  { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#1e293b' }] },
+  { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#64748b' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#0f2027' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1e293b' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#0b1120' }] },
+  { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#64748b' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#273549' }] },
+  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#0b1120' }] },
+  { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#94a3b8' }] },
+  { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#1e293b' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#061422' }] },
+  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#334155' }] },
+];
+
 @Component({
   selector: 'app-explore',
   standalone: true,
@@ -29,13 +51,14 @@ import { ScrollRevealDirective } from './scroll-reveal.directive';
   styleUrls: ['./explore.component.scss']
 })
 export class ExploreComponent implements OnInit, OnDestroy {
-  
+
   hasTakenTest = false;
   private userService = inject(UserService);
   private toastService = inject(ToastService);
   private testService = inject(VocationTestService);
   private loaderService = inject(GoogleMapsLoaderService);
   private universityService = inject(UniversityService);
+  private themeService = inject(ThemeService);
   private ngZone = inject(NgZone);
 
   @ViewChild(GoogleMap) googleMap!: GoogleMap;
@@ -44,14 +67,15 @@ export class ExploreComponent implements OnInit, OnDestroy {
   isLocating = false;
   userPosition: google.maps.LatLngLiteral | null = null;
   userMarkerIcon: google.maps.Icon | null = null;
-  
+
   center: google.maps.LatLngLiteral = { lat: 19.4326, lng: -99.1332 }; // CDMX por defecto
   zoom = 6;
 
   mapOptions: google.maps.MapOptions = {
     mapTypeControl: false,
     streetViewControl: false,
-    fullscreenControl: false
+    fullscreenControl: false,
+    zoomControl: true,
   };
 
   constructor(private authService: AuthService) {}
@@ -64,11 +88,14 @@ export class ExploreComponent implements OnInit, OnDestroy {
   isUniversityModalOpen: boolean = false;
   isUniversityModalClosing: boolean = false;
   selectedUniversity: any = null;
-  
+
   // Estado de vista
   viewMode: 'explore' | 'saved' = 'explore';
   savedUniversities: any[] = [];
-  
+
+  /** Vista activa en móvil: lista o mapa a pantalla completa (alternable con FAB). */
+  mobileView: 'list' | 'map' = 'list';
+
   // Datos
   bestMatchUniversity: any = null;
   otherUniversities: any[] = [];
@@ -90,6 +117,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
   private lastMatchKey = '';
   private lastPlacesKey = '';
   private recommendationsRequested = false;
+  private searchDebounceId: any = null;
   readonly distanceOptions = [10, 25, 50, 100];
   maxDistanceKm = 50;
   costPreference: CostPreference = 'any';
@@ -113,16 +141,31 @@ export class ExploreComponent implements OnInit, OnDestroy {
     'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000',
   ];
 
+  /** Nombres normalizados ya guardados (heart relleno) y su id de registro guardado (para poder quitarlos). */
+  private savedNames = new Set<string>();
+  private savedIdByName = new Map<string, string>();
+  /** Nombres con una petición de guardar/quitar en vuelo (anti-spam). */
+  private pendingFavorite = new Set<string>();
+
   private router = inject(Router);
 
   ngOnDestroy(): void {
     document.body.classList.remove('explore-modal-open');
+    if (this.searchDebounceId) clearTimeout(this.searchDebounceId);
   }
 
   ngOnInit() {
+    if (this.themeService.isDark) {
+      this.mapOptions = { ...this.mapOptions, styles: DARK_MAP_STYLE };
+    }
+
     this.loaderService.loadMapScript()
       .then(() => {
         this.isApiLoaded = true;
+        this.mapOptions = {
+          ...this.mapOptions,
+          zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM },
+        };
         const svgMarker = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4285F4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>';
         this.userMarkerIcon = {
           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgMarker),
@@ -200,7 +243,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
             this.center = userLocation;
             this.userPosition = userLocation;
             this.zoom = 13;
-            
+
             if (this.googleMap) {
               this.googleMap.panTo(userLocation);
             }
@@ -238,21 +281,33 @@ export class ExploreComponent implements OnInit, OnDestroy {
   loadSavedUniversities() {
     this.userService.getSavedUniversities().subscribe({
       next: (data) => {
-        const mappedSaved = data.map(item => ({
-          id: item.id,
-          name: item.universityName,
-          location: item.location,
-          image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
-          logo: 'graduation-cap',
-          tags: [item.careerName, 'Selección IA'],
-          rating: 4.8,
-          matchPercentage: 90,
-          career: item.careerName,
-          description: item.relationshipExplanation || 'Universidad guardada.',
-          keyDates: item.keyDates || 'Consultar sitio web',
-          studyPlan: item.studyPlan || 'Varios módulos',
-          position: null // Sin coordenadas guardadas: se excluye del mapa (mapMarkers filtra)
-        }));
+        this.savedNames.clear();
+        this.savedIdByName.clear();
+
+        const mappedSaved = data.map(item => {
+          const key = this.normalizeName(item.universityName);
+          this.savedNames.add(key);
+          this.savedIdByName.set(key, item.id);
+
+          const hasCoords = typeof item.latitude === 'number' && typeof item.longitude === 'number';
+          return {
+            id: item.id,
+            name: item.universityName,
+            location: item.location,
+            image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1000',
+            logo: 'graduation-cap',
+            tags: [item.careerName, 'Guardada'],
+            rating: item.rating ?? null,
+            matchPercentage: null,
+            career: item.careerName,
+            description: item.relationshipExplanation || 'Universidad guardada.',
+            keyDates: item.keyDates || 'Consultar sitio web',
+            studyPlan: item.studyPlan || 'Varios módulos',
+            websiteUrl: item.officialWebsite || null,
+            position: hasCoords ? { lat: item.latitude, lng: item.longitude } : null,
+            source: 'saved',
+          };
+        });
 
         this.savedUniversities = mappedSaved;
       },
@@ -423,43 +478,85 @@ export class ExploreComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Encuadra la cámara del mapa para mostrar usuario + resultados. */
+  /** Encuadra la cámara del mapa para mostrar usuario + resultados visibles (respeta la búsqueda activa). */
   private fitMapToResults() {
     if (!this.googleMap?.googleMap) return;
-    const withPosition = this.universities.filter(u => u.position);
+    const withPosition = this.mapMarkers;
     if (!withPosition.length && !this.userPosition) return;
 
     const bounds = new google.maps.LatLngBounds();
-    if (this.userPosition) bounds.extend(this.userPosition);
+    // Si hay una búsqueda activa con resultados, no metemos al usuario en el
+    // encuadre para que el zoom se concentre en lo que se buscó.
+    if (this.userPosition && !this.searchQuery.trim()) bounds.extend(this.userPosition);
     withPosition.forEach(u => bounds.extend(u.position));
-    this.googleMap.googleMap.fitBounds(bounds, { bottom: 40, left: 40, right: 40, top: 40 });
+    this.googleMap.googleMap.fitBounds(bounds, { bottom: 60, left: 40, right: 40, top: 40 });
+  }
+
+  /** true si la universidad coincide con la búsqueda activa (predicado único, compartido por lista y mapa). */
+  matchesQuery(uni: any): boolean {
+    if (!this.searchQuery.trim()) return true;
+    const query = this.searchQuery.toLowerCase().trim();
+    return (
+      uni.name?.toLowerCase().includes(query) ||
+      uni.location?.toLowerCase().includes(query) ||
+      (uni.career && uni.career.toLowerCase().includes(query))
+    );
+  }
+
+  /** Se dispara en cada tecleo de la búsqueda: re-encuadra el mapa a los resultados (con un pequeño debounce). */
+  onSearchChange(): void {
+    if (this.searchDebounceId) clearTimeout(this.searchDebounceId);
+    this.searchDebounceId = setTimeout(() => this.fitMapToResults(), 350);
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.fitMapToResults();
   }
 
   getMarkerOptions(uni: any): google.maps.MarkerOptions {
     const isSelected = this.selectedUniversity && this.selectedUniversity.id === uni.id;
-    
+    const isSearchMatch = !!this.searchQuery.trim() && this.matchesQuery(uni);
+
     if (isSelected) {
       // Marcador grande y color principal (cyan) para la seleccionada
       const selectedSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#07B1C9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
       return {
         icon: {
           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(selectedSvg),
-          scaledSize: new google.maps.Size(42, 42),
-          anchor: new google.maps.Point(21, 42)
+          scaledSize: new google.maps.Size(44, 44),
+          anchor: new google.maps.Point(22, 44)
         },
         zIndex: 1000
       };
     }
-    
-    // Marcador normal (rojo clásico)
-    const normalSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#EF4444" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
+
+    if (isSearchMatch) {
+      // Resalta el resultado de búsqueda: pin ámbar más grande + animación de rebote
+      const highlightSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#F59E0B" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
+      return {
+        icon: {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(highlightSvg),
+          scaledSize: new google.maps.Size(40, 40),
+          anchor: new google.maps.Point(20, 40)
+        },
+        animation: google.maps.Animation.BOUNCE,
+        zIndex: 900
+      };
+    }
+
+    // Universidades con match real (A8) en cyan; cercanas (Places) en gris-rojo neutro
+    const isApiMatch = uni.source === 'api';
+    const color = isApiMatch ? '#07B1C9' : (uni.source === 'saved' ? '#EC4899' : '#94A3B8');
+    const size = isApiMatch ? 30 : 24;
+    const normalSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
     return {
       icon: {
         url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(normalSvg),
-        scaledSize: new google.maps.Size(28, 28),
-        anchor: new google.maps.Point(14, 28)
+        scaledSize: new google.maps.Size(size, size),
+        anchor: new google.maps.Point(size / 2, size)
       },
-      zIndex: 1
+      zIndex: isApiMatch ? 200 : 1
     };
   }
 
@@ -479,6 +576,11 @@ export class ExploreComponent implements OnInit, OnDestroy {
     return (name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
   }
 
+  /** true si esta universidad ya está en favoritos (heart relleno). */
+  isSaved(uni: any): boolean {
+    return this.savedNames.has(this.normalizeName(uni?.name || ''));
+  }
+
   /** Lista "cerca de ti" (Places) con los filtros de distancia y búsqueda aplicados. */
   get filteredNearbyUniversities(): any[] {
     if (this.viewMode === 'saved') return [];
@@ -487,12 +589,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
       !apiNames.has(this.normalizeName(u.name)) &&
       (u.distanceKm == null || u.distanceKm <= this.maxDistanceKm)
     );
-    if (!this.searchQuery) return list;
-    const query = this.searchQuery.toLowerCase();
-    return list.filter(uni =>
-      uni.name.toLowerCase().includes(query) ||
-      uni.location.toLowerCase().includes(query)
-    );
+    return list.filter(uni => this.matchesQuery(uni));
   }
 
   /** Distancia haversine en km (1 decimal) entre dos coordenadas. */
@@ -510,9 +607,20 @@ export class ExploreComponent implements OnInit, OnDestroy {
     return Math.round(2 * R * Math.asin(Math.sqrt(h)) * 10) / 10;
   }
 
-  /** Marcadores del mapa: solo universidades con coordenadas. */
+  /** Marcadores del mapa: universidades con coordenadas que superen el filtro de búsqueda activo. */
   get mapMarkers(): any[] {
-    return this.currentUniversitiesList.filter(u => u.position);
+    return this.currentUniversitiesList.filter(u => u.position && this.matchesQuery(u));
+  }
+
+  /** Abre la universidad seleccionada en Google Maps (app nativa en móvil, o el sitio web en desktop). */
+  openInGoogleMaps(uni?: any): void {
+    const target = uni || this.selectedUniversity;
+    if (!target) return;
+    const query = target.position
+      ? `${target.position.lat},${target.position.lng}`
+      : `${target.name} ${target.location || ''}`.trim();
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    window.open(url, '_blank', 'noopener');
   }
 
   /** Abre el sitio oficial de la universidad seleccionada (si existe). */
@@ -527,68 +635,75 @@ export class ExploreComponent implements OnInit, OnDestroy {
 
   get currentUniversitiesList(): any[] {
     const list = this.viewMode === 'saved' ? this.savedUniversities : this.universities;
-    if (!this.searchQuery) return list;
-    const query = this.searchQuery.toLowerCase();
-    return list.filter(uni => 
-      uni.name.toLowerCase().includes(query) || 
-      uni.location.toLowerCase().includes(query) ||
-      (uni.career && uni.career.toLowerCase().includes(query))
-    );
+    return list.filter(uni => this.matchesQuery(uni));
   }
 
   // Getters computados para el filtrado en tiempo real
   get filteredOtherUniversities() {
     // Si estamos en modo 'saved', filtramos sobre las guardadas
     const sourceArray = this.viewMode === 'saved' ? this.savedUniversities : this.otherUniversities;
-
-    if (!this.searchQuery) return sourceArray;
-    const query = this.searchQuery.toLowerCase();
-    return sourceArray.filter(uni => 
-      uni.name.toLowerCase().includes(query) || 
-      uni.location.toLowerCase().includes(query) ||
-      (uni.career && uni.career.toLowerCase().includes(query))
-    );
+    return sourceArray.filter(uni => this.matchesQuery(uni));
   }
 
   get showBestMatch() {
     // No mostrar mejor coincidencia en modo 'saved'
     if (this.viewMode === 'saved') return false;
-
-    // Solo mostrar el mejor match si no hay búsqueda activa o si la búsqueda coincide con el mejor match
-    if (!this.searchQuery) return true;
     if (!this.bestMatchUniversity) return false;
-    
-    const query = this.searchQuery.toLowerCase();
-    return this.bestMatchUniversity.name.toLowerCase().includes(query) || 
-           this.bestMatchUniversity.location.toLowerCase().includes(query) ||
-           (this.bestMatchUniversity.career && this.bestMatchUniversity.career.toLowerCase().includes(query));
+    return this.matchesQuery(this.bestMatchUniversity);
   }
 
   switchViewMode(mode: 'explore' | 'saved') {
     this.viewMode = mode;
   }
 
-  toggleFavoriteStatus(uni: any, event: Event) {
-    event.stopPropagation(); // Evitar que se abra el modal
+  showMobileMap(): void {
+    this.mobileView = 'map';
+    // El contenedor del mapa estaba fuera de pantalla (transform): forzamos
+    // que Google Maps recalcule su tamaño al volverse visible, y lo re-centramos.
+    setTimeout(() => {
+      if (this.googleMap?.googleMap) {
+        google.maps.event.trigger(this.googleMap.googleMap, 'resize');
+        this.googleMap.googleMap.setCenter(this.center);
+      }
+    }, 320);
+  }
 
-    if (this.viewMode === 'saved') {
-      // Estamos en la vista de guardados, la acción es eliminar
-      this.userService.deleteSavedUniversity(uni.id).subscribe({
-        next: () => {
-          this.savedUniversities = this.savedUniversities.filter(u => u.id !== uni.id);
-          this.toastService.showToast('Universidad eliminada de favoritos', 'info');
-        },
-        error: () => {
-          this.toastService.showToast('No se pudo eliminar la universidad', 'error');
-        }
-      });
+  showMobileList(): void {
+    this.mobileView = 'list';
+  }
+
+  toggleFavoriteStatus(uni: any, event: Event) {
+    event.stopPropagation();
+    const key = this.normalizeName(uni.name);
+    if (this.pendingFavorite.has(key)) return; // anti-spam: ya hay una petición en vuelo
+
+    if (this.isSaved(uni)) {
+      this.removeSavedByName(uni);
     } else {
-      // Estamos en la vista de explorar, la acción es guardar
       this.saveUniversity(uni);
     }
   }
 
+  private removeSavedByName(uni: any): void {
+    const key = this.normalizeName(uni.name);
+    const savedId = this.savedIdByName.get(key);
+    if (!savedId) return;
 
+    this.pendingFavorite.add(key);
+    this.userService.deleteSavedUniversity(savedId).subscribe({
+      next: () => {
+        this.pendingFavorite.delete(key);
+        this.savedNames.delete(key);
+        this.savedIdByName.delete(key);
+        this.savedUniversities = this.savedUniversities.filter(u => u.id !== savedId);
+        this.toastService.showToast('Universidad eliminada de favoritos', 'info');
+      },
+      error: () => {
+        this.pendingFavorite.delete(key);
+        this.toastService.showToast('No se pudo eliminar la universidad', 'error');
+      }
+    });
+  }
 
   // Métodos para el Modal de Universidad
   openUniversityDetail(uni: any) {
@@ -617,22 +732,34 @@ export class ExploreComponent implements OnInit, OnDestroy {
     const targetUni = uni || this.selectedUniversity;
     if (!targetUni) return;
 
+    const key = this.normalizeName(targetUni.name);
+    if (this.pendingFavorite.has(key)) return; // anti-spam: ya hay una petición en vuelo
+    this.pendingFavorite.add(key);
+
     const payload = {
       careerName: targetUni.career || targetUni.tags[0],
       universityName: targetUni.name,
       location: targetUni.location,
       relationshipExplanation: targetUni.description || 'Universidad destacada en tu área de interés.',
       keyDates: targetUni.keyDates || 'Consultar sitio web',
-      studyPlan: targetUni.studyPlan || 'Varios módulos'
+      studyPlan: targetUni.studyPlan || 'Varios módulos',
+      officialWebsite: targetUni.websiteUrl || undefined,
+      latitude: targetUni.position?.lat,
+      longitude: targetUni.position?.lng,
+      rating: typeof targetUni.rating === 'number' ? targetUni.rating : undefined,
     };
 
     this.userService.saveUniversity(payload).subscribe({
       next: () => {
+        this.pendingFavorite.delete(key);
         this.toastService.showToast(`¡${targetUni.name} guardada!`, 'success');
+        this.loadSavedUniversities(); // refresca con el id y las coordenadas ya persistidas
       },
       error: (err) => {
+        this.pendingFavorite.delete(key);
         if (err.status === 409) {
           this.toastService.showToast('Ya está en tus favoritos', 'info');
+          this.savedNames.add(key); // corrige el estado local por si se había desincronizado
         } else {
           this.toastService.showToast('Error al guardar', 'error');
         }
