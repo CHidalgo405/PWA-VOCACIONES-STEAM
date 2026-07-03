@@ -31,25 +31,29 @@
 }
 
 
-.loading-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* Skeleton del mapa: replica el área de 70vh del <google-map>
+   para que el layout no cambie cuando el mapa termina de cargar */
+.map-skeleton {
+  position: relative;
   height: 70vh;
-  background-color: var(--bg-surface);
   border-radius: 8px;
-  
-  p {
-    font-size: 1.2rem;
-    color: var(--text-secondary);
-    animation: pulse 1.5s infinite;
-  }
-}
+  overflow: hidden;
 
-@keyframes pulse {
-  0% { opacity: 0.5; }
-  50% { opacity: 1; }
-  100% { opacity: 0.5; }
+  .sk-map-canvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+  }
+
+  /* Placeholder del botón flotante de ubicación (mismas medidas que .location-fab) */
+  .sk-map-fab {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
 }
 
 google-map {

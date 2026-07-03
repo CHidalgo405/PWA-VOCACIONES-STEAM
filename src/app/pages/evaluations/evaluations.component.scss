@@ -1399,3 +1399,22 @@ $warning-bg:   #F59E0B;
     font-size: 13px;
   }
 }
+/* Skeleton (shimmer) de los feature-items mientras cargan las preguntas */
+.sk-feature {
+  .sk-feature-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sk-feature-text {
+    height: 14px;
+    width: 230px;
+    max-width: 70%;
+
+    &.short {
+      width: 180px;
+    }
+  }
+}

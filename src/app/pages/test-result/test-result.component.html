@@ -305,11 +305,59 @@
 
   </div>
 
-  <!-- OVERLAY / FULL SCREEN SPLASH -->
-  <app-splash-screen *ngIf="isLoading"
+  <!-- SKELETON (shimmer) mientras carga el perfil: imita el layout del dashboard de resultados -->
+  <div class="result-dashboard result-skeleton" *ngIf="isLoading && !profile" aria-hidden="true">
+
+    <!-- Hero skeleton -->
+    <header class="sk-hero">
+      <span class="shimmer sk-hero-chip"></span>
+      <span class="shimmer sk-hero-title"></span>
+      <span class="shimmer sk-hero-sub"></span>
+      <span class="shimmer sk-hero-line"></span>
+      <span class="shimmer sk-hero-line short"></span>
+      <span class="shimmer sk-hero-badge"></span>
+    </header>
+
+    <!-- Calibración skeleton -->
+    <section class="premium-card">
+      <div class="sk-cal-head">
+        <span class="shimmer sk-circle-icon"></span>
+        <div class="sk-cal-titles">
+          <span class="shimmer sk-line w50"></span>
+          <span class="shimmer sk-line w80 thin"></span>
+        </div>
+        <span class="shimmer sk-big-number"></span>
+      </div>
+      <span class="shimmer sk-bar"></span>
+      <div class="sk-sources">
+        <span class="shimmer sk-source"></span>
+        <span class="shimmer sk-source"></span>
+        <span class="shimmer sk-source"></span>
+      </div>
+    </section>
+
+    <!-- Desglose STEAM skeleton -->
+    <section class="sk-grid">
+      <div class="premium-card sk-ring-card">
+        <span class="shimmer sk-eyebrow"></span>
+        <span class="shimmer sk-ring"></span>
+      </div>
+      <div class="premium-card">
+        <span class="shimmer sk-eyebrow"></span>
+        <div class="sk-bar-row" *ngFor="let i of [1, 2, 3, 4, 5]">
+          <span class="shimmer sk-bar-label"></span>
+          <span class="shimmer sk-bar-track"></span>
+          <span class="shimmer sk-bar-pct"></span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- OVERLAY / FULL SCREEN SPLASH (solo para exportar PDF: feedback de acción) -->
+  <app-splash-screen *ngIf="isExporting"
     [loadingText]="splashText"
     [controlExternally]="true"
-    [isVisible]="isLoading">
+    [isVisible]="isExporting">
   </app-splash-screen>
 
   <!-- ── MODAL: RESPUESTAS DEL TEST ── -->
@@ -325,15 +373,16 @@
         </div>
       </div>
       <div class="panel-body">
-        <div *ngIf="allQuestions.length === 0" class="premium-loader-container fade-in" style="padding: 2rem 1rem;">
-          <div class="loader-pulse-ring" style="width: 80px; height: 80px; margin-bottom: 15px;">
-            <div class="pulse-circle pulse-1"></div>
-            <div class="pulse-circle pulse-2"></div>
-            <div class="loader-icon-wrap" style="width: 45px; height: 45px;">
-              <app-lucide-icon name="list-checks" [size]="24" color="#07B1C9" class="spin-slow"></app-lucide-icon>
+        <!-- Skeleton (shimmer) del timeline de respuestas -->
+        <div *ngIf="allQuestions.length === 0" class="qa-skeleton fade-in" aria-hidden="true">
+          <div class="sk-qa-item" *ngFor="let i of [1, 2, 3, 4]">
+            <span class="shimmer sk-qa-marker"></span>
+            <div class="sk-qa-content">
+              <span class="shimmer sk-line w90"></span>
+              <span class="shimmer sk-line w60"></span>
+              <span class="shimmer sk-qa-badge"></span>
             </div>
           </div>
-          <h3 class="loader-title" style="font-size: 1.1rem;">Recopilando tus respuestas...</h3>
         </div>
 
         <div class="qa-timeline-container" *ngIf="allQuestions.length > 0">

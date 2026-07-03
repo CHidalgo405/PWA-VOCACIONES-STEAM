@@ -163,81 +163,6 @@ app-root {
   overflow-x: hidden;
 }
 
-/* =========================================
-   GLOBAL LOADER UTILITIES (Premium Loading)
-   ========================================= */
-.premium-loader-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 1rem;
-  text-align: center;
-  width: 100%;
-  box-sizing: border-box;
-  animation: fadeIn var(--duration-panel) var(--ease-out) both;
-  
-  .loader-pulse-ring {
-    position: relative;
-    width: 100px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 24px;
-    
-    .pulse-circle {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: rgba(7, 177, 201, 0.15);
-      animation: pulseAnim 2s var(--ease-in-out) infinite;
-      
-      &.pulse-2 {
-        animation-delay: 1s;
-      }
-    }
-    
-    .loader-icon-wrap {
-      position: relative;
-      z-index: 2;
-      background: var(--bg-surface);
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: var(--shadow-md);
-      border: 1px solid var(--border-color);
-      transition: transform var(--duration-hover) var(--ease-out);
-    }
-  }
-
-  .loader-title {
-    margin: 0 0 8px 0;
-    color: var(--text-primary);
-    font-size: 1.25rem;
-    font-weight: 700;
-  }
-
-  .loader-subtitle {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-  }
-
-  .spin-slow {
-    animation: spin 2s linear infinite; /* Faster perceived spinning */
-  }
-}
-
-@keyframes pulseAnim {
-  0% { transform: scale(0.6); opacity: 1; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-
 @keyframes spin {
   100% { transform: rotate(360deg); }
 }
@@ -250,5 +175,65 @@ app-root {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* =========================================
+   SKELETON LOADERS (Shimmer Effect)
+   Placeholders que imitan el layout final para
+   evitar layout shift (CLS) mientras cargan los datos.
+   ========================================= */
+:root {
+  --skeleton-base: #E9EEF4;
+  --skeleton-sheen: rgba(255, 255, 255, 0.7);
+}
+
+body.dark-theme {
+  --skeleton-base: #1E293B;
+  --skeleton-sheen: rgba(255, 255, 255, 0.09);
+}
+
+.shimmer {
+  display: block;
+  background-color: var(--skeleton-base);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    var(--skeleton-sheen) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  border-radius: 6px;
+  animation: shimmerSweep 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Variante para skeletons colocados sobre superficies oscuras */
+.shimmer.on-dark {
+  background-color: rgba(255, 255, 255, 0.09);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* Formas base reutilizables */
+.sk-line   { height: 14px; width: 100%; }
+.sk-title  { height: 22px; width: 60%; }
+.sk-chip   { height: 22px; width: 90px; border-radius: 999px; }
+.sk-circle { border-radius: 50%; }
+.sk-btn    { height: 40px; width: 140px; border-radius: 10px; }
+
+@keyframes shimmerSweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
   }
 }

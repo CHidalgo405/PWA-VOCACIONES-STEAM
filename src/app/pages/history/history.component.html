@@ -4,17 +4,66 @@
 
   <div class="content-body">
     
-    <!-- PREMIUM LOADING STATE -->
-    <div *ngIf="isLoading" class="premium-loader-container fade-in">
-      <div class="loader-pulse-ring">
-        <div class="pulse-circle pulse-1"></div>
-        <div class="pulse-circle pulse-2"></div>
-        <div class="loader-icon-wrap">
-          <app-lucide-icon name="compass" [size]="36" color="#07B1C9" class="spin-slow"></app-lucide-icon>
+    <!-- SKELETON LOADING STATE (shimmer, imita el layout final para evitar layout shift) -->
+    <div *ngIf="isLoading" class="history-skeleton fade-in" aria-hidden="true">
+
+      <!-- Stats grid skeleton -->
+      <div class="stats-grid">
+        <div class="stat-card sk-card">
+          <span class="shimmer sk-stat-value"></span>
+          <span class="shimmer sk-stat-label"></span>
+        </div>
+        <div class="stat-card sk-card">
+          <span class="shimmer sk-stat-value"></span>
+          <span class="shimmer sk-stat-label"></span>
         </div>
       </div>
-      <h3 class="loader-title">Explorando registros...</h3>
-      <p class="loader-subtitle">Preparando tu historial vocacional STEAM</p>
+
+      <!-- Section title skeleton -->
+      <div class="section-title">
+        <span class="shimmer sk-section-title"></span>
+      </div>
+
+      <!-- Último test (dark card) skeleton -->
+      <div class="premium-dark-card">
+        <div class="card-top-row">
+          <span class="shimmer sk-badge"></span>
+          <span class="shimmer sk-date"></span>
+        </div>
+        <span class="shimmer sk-card-title"></span>
+        <div class="sk-chips-row">
+          <span class="shimmer sk-chip"></span>
+          <span class="shimmer sk-chip"></span>
+          <span class="shimmer sk-chip"></span>
+        </div>
+        <div class="sk-progress">
+          <div class="sk-progress-item" *ngFor="let i of [1, 2, 3]">
+            <span class="shimmer sk-progress-name"></span>
+            <span class="shimmer sk-progress-bar"></span>
+            <span class="shimmer sk-progress-pct"></span>
+          </div>
+        </div>
+        <div class="sk-footer">
+          <span class="shimmer sk-footer-link"></span>
+          <span class="shimmer sk-footer-btn"></span>
+        </div>
+      </div>
+
+      <!-- Tests anteriores skeleton -->
+      <div class="section-title">
+        <span class="shimmer sk-section-title"></span>
+      </div>
+      <div class="previous-tests-list">
+        <div class="history-list-card" *ngFor="let i of [1, 2]">
+          <div class="card-left">
+            <span class="shimmer sk-number-badge"></span>
+          </div>
+          <div class="card-content">
+            <span class="shimmer sk-row-title"></span>
+            <span class="shimmer sk-row-sub"></span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- PREMIUM EMPTY STATE NO TEST -->

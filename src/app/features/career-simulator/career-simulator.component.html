@@ -7,9 +7,13 @@
       </button>
     </div>
     <div class="career-info">
-      <h1>{{ careerData()?.careerName || 'Cargando Simulador...' }}</h1>
       @if (careerData()) {
+        <h1>{{ careerData()?.careerName }}</h1>
         <span class="steam-badge">{{ steamAreaName() }}</span>
+      } @else {
+        <!-- Skeleton del título y badge mientras carga el simulador -->
+        <span class="shimmer sk-career-title" aria-hidden="true"></span>
+        <span class="shimmer sk-career-badge" aria-hidden="true"></span>
       }
     </div>
     
@@ -40,6 +44,36 @@
       <div class="step-icon" [class.active]="currentStepIndex() === 5" [class.completed]="currentStepIndex() > 5">💭</div>
     </div>
   </div>
+
+  <!-- Skeleton (shimmer) mientras carga la data del simulador: replica la barra de progreso y la tarjeta del paso -->
+  @if (!careerData() && !isCompleted()) {
+    <div class="simulator-skeleton" aria-hidden="true">
+      <div class="progress-container">
+        <div class="progress-bar">
+          <span class="shimmer sk-step-icon"></span>
+          <span class="shimmer sk-progress-line"></span>
+          <span class="shimmer sk-step-icon"></span>
+          <span class="shimmer sk-progress-line"></span>
+          <span class="shimmer sk-step-icon"></span>
+          <span class="shimmer sk-progress-line"></span>
+          <span class="shimmer sk-step-icon"></span>
+          <span class="shimmer sk-progress-line"></span>
+          <span class="shimmer sk-step-icon"></span>
+          <span class="shimmer sk-progress-line"></span>
+          <span class="shimmer sk-step-icon"></span>
+        </div>
+      </div>
+      <div class="sk-step-card">
+        <span class="shimmer sk-line w40"></span>
+        <span class="shimmer sk-line w90"></span>
+        <span class="shimmer sk-line w80"></span>
+        <span class="shimmer sk-line w60"></span>
+        <span class="shimmer sk-option"></span>
+        <span class="shimmer sk-option"></span>
+        <span class="shimmer sk-option"></span>
+      </div>
+    </div>
+  }
 
   @if (showBiasBanner()) {
     <div class="bias-banner" @fadeIn>

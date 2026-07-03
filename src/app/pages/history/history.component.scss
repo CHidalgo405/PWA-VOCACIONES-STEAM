@@ -797,3 +797,60 @@
 .previous-tests-list .history-list-card:nth-child(5) {
   animation-delay: 800ms;
 }
+
+/* =========================================
+   SKELETON (shimmer) — imita el layout final
+   ========================================= */
+.history-skeleton {
+  .stat-card.sk-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+  }
+
+  .sk-stat-value { width: 60px; height: 24px; margin-bottom: 8px; }
+  .sk-stat-label { width: 90px; height: 12px; }
+
+  .sk-section-title { width: 150px; height: 20px; }
+
+  .sk-badge { width: 170px; height: 12px; }
+  .sk-date  { width: 70px; height: 12px; }
+  .sk-card-title { width: 60%; height: 24px; margin-bottom: 1rem; }
+
+  .sk-chips-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+
+    .sk-chip { width: 90px; height: 22px; border-radius: 999px; }
+  }
+
+  .sk-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .sk-progress-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .sk-progress-name { width: 90px; height: 12px; flex-shrink: 0; }
+    .sk-progress-bar  { flex: 1; height: 8px; border-radius: 999px; }
+    .sk-progress-pct  { width: 34px; height: 12px; flex-shrink: 0; }
+  }
+
+  .sk-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .sk-footer-link { width: 150px; height: 14px; }
+    .sk-footer-btn  { width: 90px; height: 32px; border-radius: 8px; }
+  }
+
+  .sk-number-badge { width: 30px; height: 28px; border-radius: 0.5rem; }
+  .sk-row-title { width: 55%; height: 16px; margin-bottom: 10px; }
+  .sk-row-sub   { width: 35%; height: 12px; }
+}

@@ -869,3 +869,132 @@
 
   app-lucide-icon { color: #4db046; }
 }
+
+/* =========================================
+   SKELETON (shimmer) — carga del perfil
+   Replica el layout del dashboard para evitar layout shift.
+   ========================================= */
+.result-skeleton {
+  .sk-line { height: 14px; }
+  .w50 { width: 50%; }
+  .w60 { width: 60%; }
+  .w80 { width: 80%; }
+  .w90 { width: 90%; }
+  .thin { height: 11px; }
+
+  .sk-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 12px 0;
+
+    .sk-hero-chip  { width: 220px; height: 30px; border-radius: 999px; }
+    .sk-hero-title { width: 60%; max-width: 420px; height: 42px; border-radius: 10px; }
+    .sk-hero-sub   { width: 35%; max-width: 240px; height: 18px; }
+    .sk-hero-line  { width: 75%; max-width: 560px; height: 13px; }
+    .sk-hero-line.short { width: 55%; max-width: 420px; }
+    .sk-hero-badge { width: 190px; height: 34px; border-radius: 999px; margin-top: 6px; }
+  }
+
+  .sk-cal-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+
+    .sk-circle-icon { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+
+    .sk-cal-titles {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sk-big-number { width: 70px; height: 36px; border-radius: 8px; flex-shrink: 0; }
+  }
+
+  .sk-bar {
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    margin-bottom: 20px;
+  }
+
+  .sk-sources {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    .sk-source { flex: 1; min-width: 140px; height: 44px; border-radius: 12px; }
+  }
+
+  .sk-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+
+    @media (min-width: 900px) {
+      grid-template-columns: 320px 1fr;
+    }
+  }
+
+  .sk-eyebrow {
+    width: 110px;
+    height: 12px;
+    margin-bottom: 18px;
+  }
+
+  .sk-ring-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .sk-ring { width: 180px; height: 180px; border-radius: 50%; }
+  }
+
+  .sk-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    .sk-bar-label { width: 100px; height: 13px; flex-shrink: 0; }
+    .sk-bar-track { flex: 1; height: 10px; border-radius: 999px; }
+    .sk-bar-pct   { width: 36px; height: 13px; flex-shrink: 0; }
+  }
+}
+
+/* Skeleton del timeline de respuestas (modal) */
+.qa-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 1rem 0;
+
+  .sk-line { height: 14px; }
+  .w60 { width: 60%; }
+  .w90 { width: 90%; }
+
+  .sk-qa-item {
+    display: flex;
+    gap: 14px;
+
+    .sk-qa-marker {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .sk-qa-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .sk-qa-badge { width: 70%; height: 38px; border-radius: 10px; margin-top: 4px; }
+    }
+  }
+}

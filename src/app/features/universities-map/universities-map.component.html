@@ -59,9 +59,11 @@
     </div>
   </ng-container>
 
+  <!-- Skeleton del mapa (mismas dimensiones que el mapa real: 70vh) -->
   <ng-template #loading>
-    <div class="loading-state">
-      <p>Cargando el mapa...</p>
+    <div class="map-skeleton" aria-hidden="true">
+      <div class="shimmer sk-map-canvas"></div>
+      <span class="shimmer sk-map-fab"></span>
     </div>
   </ng-template>
   </div>

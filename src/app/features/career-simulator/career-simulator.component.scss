@@ -335,3 +335,70 @@
     box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
   }
 }
+
+/* =========================================
+   SKELETON (shimmer) — carga del simulador
+   ========================================= */
+.career-info {
+  .sk-career-title {
+    width: 260px;
+    max-width: 70%;
+    height: 1.75rem;
+    border-radius: 8px;
+  }
+
+  .sk-career-badge {
+    width: 110px;
+    height: 26px;
+    border-radius: 9999px;
+    margin-top: 0.5rem;
+  }
+}
+
+.simulator-skeleton {
+  .sk-step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sk-progress-line {
+    flex: 1;
+    height: 4px;
+    margin: 0 0.5rem;
+    border-radius: 999px;
+  }
+
+  .sk-step-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+
+    .sk-line { height: 16px; }
+    .w40 { width: 40%; height: 22px; margin-bottom: 6px; }
+    .w90 { width: 90%; }
+    .w80 { width: 80%; }
+    .w60 { width: 60%; margin-bottom: 12px; }
+
+    .sk-option {
+      height: 56px;
+      border-radius: 12px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .sk-step-icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .sk-step-card {
+      padding: 1.25rem;
+    }
+  }
+}

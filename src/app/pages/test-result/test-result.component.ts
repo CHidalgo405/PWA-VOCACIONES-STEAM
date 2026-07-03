@@ -42,6 +42,8 @@ export interface SteamArea {
 })
 export class TestResultComponent implements OnInit {
   isLoading = false;
+  /** Exportación de PDF: mantiene el splash como feedback de acción (no es carga de contenido). */
+  isExporting = false;
   splashText = '';
 
   /** Perfil calibrado completo (motor local). */
@@ -286,7 +288,7 @@ export class TestResultComponent implements OnInit {
 
   // ── PDF ──
   async downloadPDF(): Promise<void> {
-    this.isLoading = true;
+    this.isExporting = true;
     this.splashText = 'Generando reporte profesional...';
     await new Promise(resolve => setTimeout(resolve, 50));
 
@@ -327,7 +329,7 @@ export class TestResultComponent implements OnInit {
       console.error('Error generating PDF:', error);
       this.toastService.showToast('Ocurrió un error al generar el PDF.', 'error', 'Error');
     } finally {
-      this.isLoading = false;
+      this.isExporting = false;
     }
   }
 }

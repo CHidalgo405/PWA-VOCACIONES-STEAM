@@ -30,11 +30,15 @@
         </div>
       </div>
 
-      <!-- Spinner indicator if questions are still loading -->
-      <div class="onboarding-features" *ngIf="isLoadingQuestions">
-        <div class="feature-item" style="justify-content: center; border: none; background: transparent; gap: 8px;">
-          <span class="spinner-mini" style="display: inline-block;"></span>
-          <span>Cargando preguntas del test...</span>
+      <!-- Skeleton mientras cargan las preguntas (misma estructura que los feature-items reales) -->
+      <div class="onboarding-features" *ngIf="isLoadingQuestions" aria-hidden="true">
+        <div class="feature-item sk-feature">
+          <span class="shimmer sk-feature-icon"></span>
+          <span class="shimmer sk-feature-text"></span>
+        </div>
+        <div class="feature-item sk-feature">
+          <span class="shimmer sk-feature-icon"></span>
+          <span class="shimmer sk-feature-text short"></span>
         </div>
       </div>
 
