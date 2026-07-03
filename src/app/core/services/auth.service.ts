@@ -6,13 +6,6 @@ import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { ThemeService } from './theme.service';
 
-export interface Badge {
-  id: string;
-  name: string;
-  description: string;
-  lucideIconName: string;
-}
-
 export interface CalibrationModule {
   id: string;
   status: 'locked' | 'available' | 'completed';
@@ -25,12 +18,17 @@ export interface Usuario {
   role: 'admin' | 'student';
   fotoUrl?: string;
   title?: string;
-  level?: number;
   darkMode?: boolean;
-  baseResolution?: number;
-  unlockedBadges?: Badge[];
   calibrationModules?: CalibrationModule[];
-  nicheCareers?: string[];
+  /** Preferencias persistidas (tema, idioma, notificaciones). */
+  settings?: any;
+  // Datos de perfil editables por el usuario
+  bio?: string;
+  birthDate?: string;
+  phone?: string;
+  location?: string;
+  github?: string;
+  linkedin?: string;
 }
 
 @Injectable({
@@ -132,21 +130,7 @@ export class AuthService {
   getProfileFromServer(): Observable<Usuario> {
     return this.http.get<any>(`${environment.apiUrl}/users/profile`).pipe(
       map(res => {
-        // Transform incoming data to internal Usuario model
-        const user: Usuario = {
-           id: res.id,
-           nombre: res.fullname || res.nombre,
-           email: res.email,
-           role: res.role,
-           fotoUrl: res.avatarUrl || res.fotoUrl,
-           title: res.title,
-           level: res.level,
-           darkMode: res.settings?.darkMode,
-           baseResolution: res.baseResolution || 50,
-           unlockedBadges: res.unlockedBadges || [],
-           calibrationModules: this.resolveCalibrationModules(res.calibrationModules),
-           nicheCareers: res.nicheCareers || []
-        };
+        const user = this.mapServerUser(res);
         this.setCurrentUser(user);
         return user;
       })
@@ -158,21 +142,7 @@ export class AuthService {
   // ---------------------------------------------------------
 
   private setSession(accessToken: string, user: any, refreshToken?: string) {
-    // Standardize user object
-    const usuario: Usuario = {
-      id: user.id,
-      nombre: user.fullname,
-      email: user.email,
-      role: user.role,
-      fotoUrl: user.avatarUrl,
-      title: user.title,
-      level: user.level,
-      darkMode: user.settings?.darkMode,
-      baseResolution: user.baseResolution || 50,
-      unlockedBadges: user.unlockedBadges || [],
-      calibrationModules: this.resolveCalibrationModules(user.calibrationModules),
-      nicheCareers: user.nicheCareers || []
-    };
+    const usuario = this.mapServerUser(user);
 
     localStorage.setItem(this.TOKEN_KEY, accessToken);
     if (refreshToken) localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
@@ -223,12 +193,15 @@ export class AuthService {
       role: user.role,
       fotoUrl: user.avatarUrl || user.fotoUrl,
       title: user.title,
-      level: user.level,
       darkMode: user.settings?.darkMode,
-      baseResolution: user.baseResolution || 50,
-      unlockedBadges: user.unlockedBadges || [],
+      settings: user.settings,
       calibrationModules: this.resolveCalibrationModules(user.calibrationModules),
-      nicheCareers: user.nicheCareers || [],
+      bio: user.bio,
+      birthDate: user.birthDate,
+      phone: user.phone,
+      location: user.location,
+      github: user.github,
+      linkedin: user.linkedin,
     };
   }
 
@@ -259,74 +232,18 @@ export class AuthService {
   }
 
   // ---------------------------------------------------------
-  // GAMIFICATION & CALIBRATION LOGIC
+  // CALIBRATION MODULE STATE
   // ---------------------------------------------------------
+  /** Marca un módulo de calibración como completado en el estado local. */
   completeCalibrationModule(moduleId: string) {
     const user = this.getCurrentUser();
     if (!user) return;
 
-    // Simulate increasing base resolution by 15%
-    user.baseResolution = Math.min((user.baseResolution || 50) + 15, 100);
-
-    // Update module status
     if (user.calibrationModules) {
       const module = user.calibrationModules.find(m => m.id === moduleId);
       if (module) module.status = 'completed';
     }
 
-    // Assign specific badges based on the module
-    if (!user.unlockedBadges) user.unlockedBadges = [];
-    
-    if (moduleId === 'gaming_habits') {
-      user.unlockedBadges.push({
-        id: 'badge-gamer',
-        name: 'Estratega Virtual',
-        description: 'Habilidad para tomar decisiones rápidas y planificar en entornos complejos.',
-        lucideIconName: 'gamepad-2'
-      });
-      if (!user.nicheCareers) user.nicheCareers = [];
-      user.nicheCareers.push('Desarrollo de Videojuegos', 'Inteligencia Artificial');
-
-      // Unlock digital_consumption
-      const nextMod = user.calibrationModules?.find(m => m.id === 'digital_consumption');
-      if (nextMod && nextMod.status === 'locked') nextMod.status = 'available';
-
-    } else if (moduleId === 'physical_hobbies') {
-      user.unlockedBadges.push({
-        id: 'badge-ecosystems',
-        name: 'Explorador Naturalista',
-        description: 'Curiosidad científica y conexión con ecosistemas físicos y biológicos.',
-        lucideIconName: 'leaf'
-      });
-      if (!user.nicheCareers) user.nicheCareers = [];
-      user.nicheCareers.push('Biotecnología', 'Ingeniería Ambiental');
-
-      // Unlock everyday_mechanics
-      const nextMod = user.calibrationModules?.find(m => m.id === 'everyday_mechanics');
-      if (nextMod && nextMod.status === 'locked') nextMod.status = 'available';
-
-    } else if (moduleId === 'digital_consumption') {
-      user.unlockedBadges.push({
-        id: 'badge-digital',
-        name: 'Curador Digital',
-        description: 'Capacidad analítica frente a la información y tecnologías de consumo.',
-        lucideIconName: 'monitor-smartphone'
-      });
-      if (!user.nicheCareers) user.nicheCareers = [];
-      user.nicheCareers.push('Análisis de Datos', 'Marketing Digital Avanzado');
-
-    } else if (moduleId === 'everyday_mechanics') {
-      user.unlockedBadges.push({
-        id: 'badge-mechanic',
-        name: 'Ingenio Práctico',
-        description: 'Destreza para resolver problemas mecánicos y de organización en el día a día.',
-        lucideIconName: 'wrench'
-      });
-      if (!user.nicheCareers) user.nicheCareers = [];
-      user.nicheCareers.push('Ingeniería Mecatrónica', 'Diseño Industrial');
-    }
-
-    // Persist new state
     this.setCurrentUser(user);
   }
 

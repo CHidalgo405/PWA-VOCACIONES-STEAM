@@ -26,7 +26,7 @@
             </label>
           </div>
 
-          <div class="ios-toggle-row border-bottom" (click)="toggleSetting('emailEnabled')">
+          <div class="ios-toggle-row" (click)="toggleSetting('emailEnabled')">
             <div class="row-left-content">
               <div class="row-icon-box bg-orange-light"><app-lucide-icon name="mail" [size]="18" color="var(--steam-orange)"></app-lucide-icon></div>
               <div class="row-text">
@@ -36,20 +36,6 @@
             </div>
             <label class="apple-switch" (click)="$event.stopPropagation()">
               <input type="checkbox" [(ngModel)]="notificationSettings.emailEnabled">
-              <span class="apple-slider"></span>
-            </label>
-          </div>
-
-          <div class="ios-toggle-row" (click)="toggleSetting('smsEnabled')">
-            <div class="row-left-content">
-              <div class="row-icon-box bg-green-light"><app-lucide-icon name="message-square" [size]="18" color="var(--steam-green)"></app-lucide-icon></div>
-              <div class="row-text">
-                <span class="row-title">Mensajes SMS</span>
-                <span class="row-desc">Alertas de texto a tu móvil</span>
-              </div>
-            </div>
-            <label class="apple-switch" (click)="$event.stopPropagation()">
-              <input type="checkbox" [(ngModel)]="notificationSettings.smsEnabled">
               <span class="apple-slider"></span>
             </label>
           </div>
@@ -89,20 +75,6 @@
             </label>
           </div>
 
-          <div class="ios-toggle-row border-bottom" (click)="toggleSetting('achievements')">
-            <div class="row-left-content">
-              <div class="row-icon-box" style="background: rgba(245, 158, 11, 0.1);"><app-lucide-icon name="award" [size]="18" color="#F59E0B"></app-lucide-icon></div>
-              <div class="row-text">
-                <span class="row-title">Logros Desbloqueados</span>
-                <span class="row-desc">Avisos al ganar nuevas medallas</span>
-              </div>
-            </div>
-            <label class="apple-switch" (click)="$event.stopPropagation()">
-              <input type="checkbox" [(ngModel)]="notificationSettings.achievements">
-              <span class="apple-slider"></span>
-            </label>
-          </div>
-          
           <div class="ios-toggle-row border-bottom" (click)="toggleSetting('weeklySummary')">
             <div class="row-left-content">
               <div class="row-icon-box bg-blue-light"><app-lucide-icon name="bar-chart-3" [size]="18" color="var(--steam-blue)"></app-lucide-icon></div>

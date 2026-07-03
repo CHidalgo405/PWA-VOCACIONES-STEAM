@@ -26,6 +26,7 @@
         
         <div class="security-hints">
           <p class="hint-text"><app-lucide-icon name="info" [size]="14"></app-lucide-icon> Mínimo 8 caracteres. Mezcla letras y números.</p>
+          <p class="hint-text"><app-lucide-icon name="shield" [size]="14"></app-lucide-icon> Al cambiar tu contraseña se cerrará la sesión en tus otros dispositivos.</p>
           <div class="error-container" *ngIf="passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword">
             <small class="error-text fade-in"><app-lucide-icon name="alert-circle" [size]="12"></app-lucide-icon> Las contraseñas no coinciden</small>
           </div>
@@ -38,49 +39,6 @@
           </button>
         </div>
       </form>
-
-      <!-- SECCIÓN 2: AUTENTICACIÓN DE DOS FACTORES -->
-      <div class="form-section">
-        <h3 class="section-title">Autenticación (2FA)</h3>
-        <div class="ios-form-group">
-          <div class="ios-toggle-row" (click)="toggle2FA()">
-            <div class="row-left-content">
-              <div class="row-icon-box bg-purple-light"><app-lucide-icon name="shield" [size]="18" color="var(--steam-purple, #A855F7)"></app-lucide-icon></div>
-              <div class="row-text">
-                <span class="row-title">Verificación en dos pasos</span>
-                <span class="row-desc">Mayor seguridad al iniciar sesión</span>
-              </div>
-            </div>
-            <label class="apple-switch" (click)="$event.stopPropagation()">
-              <input type="checkbox" [checked]="twoFactorEnabled" (change)="toggle2FA()">
-              <span class="apple-slider"></span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- SECCIÓN 3: SESIONES ACTIVAS -->
-      <div class="form-section">
-        <h3 class="section-title">Sesiones Activas</h3>
-        <div class="ios-form-group sessions-list">
-          <div class="session-item" *ngFor="let session of activeSessions; let last = last" [class.border-bottom]="!last">
-            <div class="session-icon">
-              <app-lucide-icon [name]="session.icon" [size]="20"></app-lucide-icon>
-            </div>
-            <div class="session-info">
-              <div class="session-device">
-                {{ session.device }} 
-                <span class="current-badge" *ngIf="session.current">Actual</span>
-              </div>
-              <div class="session-location">{{ session.location }} · {{ session.time }}</div>
-            </div>
-          </div>
-        </div>
-        
-        <button class="btn-secondary-block mt-3" (click)="logoutAllSessions()" *ngIf="activeSessions.length > 1">
-          <app-lucide-icon name="log-out" [size]="16"></app-lucide-icon> Cerrar sesión en otros dispositivos
-        </button>
-      </div>
 
     </div>
   </div>

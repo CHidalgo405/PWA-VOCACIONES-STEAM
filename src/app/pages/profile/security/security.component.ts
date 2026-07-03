@@ -4,9 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../../components/header/header.component';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 import { UserService } from '../../../core/services/user.service';
-import { AuthService } from '../../../core/services/auth.service';
-import { Router } from '@angular/router';
-import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-security',
@@ -26,34 +23,23 @@ export class SecurityComponent {
     confirmPassword: ''
   };
 
-  twoFactorEnabled: boolean = false;
-
-  activeSessions = [
-    { device: 'iPhone 13 Pro', location: 'Ciudad de México', time: 'En línea', current: true, icon: 'smartphone' },
-    { device: 'MacBook Pro (Chrome)', location: 'Ciudad de México', time: 'Hace 2 horas', current: false, icon: 'laptop' },
-    { device: 'Windows PC (Edge)', location: 'Guadalajara', time: 'Ayer', current: false, icon: 'monitor' }
-  ];
-
-  constructor(
-    private userService: UserService,
-    private authService: AuthService,
-    private router: Router,
-    private dialogService: DialogService
-  ) {}
+  constructor(private userService: UserService) {}
 
   savePassword() {
+    if (this.isSubmitting) return; // anti-spam: evita doble envío
+
     if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
-      this.showSuccessToast("Las contraseñas no coinciden.");
+      this.showSuccessToast('Las contraseñas no coinciden.');
       return;
     }
-    
+
     if (!this.passwordForm.currentPassword || !this.passwordForm.newPassword) {
-      this.showSuccessToast("Por favor completa todos los campos.");
+      this.showSuccessToast('Por favor completa todos los campos.');
       return;
     }
 
     this.isSubmitting = true;
-    
+
     this.userService.updatePassword({
       currentPassword: this.passwordForm.currentPassword,
       newPassword: this.passwordForm.newPassword
@@ -70,24 +56,6 @@ export class SecurityComponent {
         this.showSuccessToast(`Error: ${detail}`);
       }
     });
-  }
-
-  toggle2FA() {
-    this.twoFactorEnabled = !this.twoFactorEnabled;
-    this.showSuccessToast(this.twoFactorEnabled ? '2FA Activado simulado' : '2FA Desactivado');
-  }
-
-  async logoutAllSessions() {
-    const confirmed = await this.dialogService.confirm(
-      'Cerrar Sesiones',
-      '¿Estás seguro de cerrar sesión en todos los demás dispositivos?',
-      { confirmText: 'Sí, cerrar sesiones', isDanger: true }
-    );
-    
-    if (confirmed) {
-      this.showSuccessToast('Sesiones cerradas correctamente.');
-      this.activeSessions = [this.activeSessions[0]]; // Solo mantener la actual
-    }
   }
 
   private showSuccessToast(msg: string) {

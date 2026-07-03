@@ -44,7 +44,7 @@ export class ManageProfileComponent implements OnInit {
         const names = usuario.nombre ? usuario.nombre.split(' ') : [''];
         this.profileForm.firstName = names[0] || '';
         this.profileForm.lastName = names.slice(1).join(' ') || '';
-        
+
         if (usuario.fotoUrl) {
           this.profileForm.avatar = usuario.fotoUrl;
           this.originalAvatar = usuario.fotoUrl;
@@ -54,9 +54,13 @@ export class ManageProfileComponent implements OnInit {
           this.originalAvatar = this.profileForm.avatar;
         }
 
-        // Simulando carga de datos adicionales
-        this.profileForm.bio = 'Apasionado por la tecnología y la ciencia.';
-        this.profileForm.location = 'México';
+        // Datos reales del perfil (persistidos en la API)
+        this.profileForm.bio = usuario.bio || '';
+        this.profileForm.birthDate = usuario.birthDate || '';
+        this.profileForm.phone = usuario.phone || '';
+        this.profileForm.location = usuario.location || '';
+        this.profileForm.github = usuario.github || '';
+        this.profileForm.linkedin = usuario.linkedin || '';
       },
       error: (err: any) => {
         console.error('Error al cargar perfil:', err);
@@ -127,10 +131,19 @@ export class ManageProfileComponent implements OnInit {
   }
 
   saveProfile() {
+    if (this.isSubmitting) return; // anti-spam: evita doble envío
     this.isSubmitting = true;
     const fullname = `${this.profileForm.firstName} ${this.profileForm.lastName}`.trim();
 
-    this.userService.updateProfile({ fullname }).subscribe({
+    this.userService.updateProfile({
+      fullname,
+      bio: this.profileForm.bio,
+      birthDate: this.profileForm.birthDate,
+      phone: this.profileForm.phone,
+      location: this.profileForm.location,
+      github: this.profileForm.github,
+      linkedin: this.profileForm.linkedin,
+    }).subscribe({
       next: () => {
         if (this.profileForm.avatar && this.profileForm.avatar !== this.originalAvatar) {
           this.userService.updateAvatar(this.profileForm.avatar).subscribe({

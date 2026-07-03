@@ -13,7 +13,15 @@ export class UserService {
     return this.http.put(`${environment.apiUrl}/users/avatar`, { avatarUrl });
   }
 
-  updateProfile(data: { fullname: string; title?: string }): Observable<any> {
+  updateProfile(data: {
+    fullname?: string;
+    bio?: string;
+    birthDate?: string;
+    phone?: string;
+    location?: string;
+    github?: string;
+    linkedin?: string;
+  }): Observable<any> {
     return this.http.put(`${environment.apiUrl}/users/profile`, data);
   }
 
