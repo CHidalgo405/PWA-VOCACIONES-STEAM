@@ -427,31 +427,25 @@
 <div class="premium-modal-overlay" *ngIf="isUniversityModalOpen" [class.is-closing]="isUniversityModalClosing" (click)="closeUniversityModal()">
   <div class="premium-modal-card" (click)="$event.stopPropagation()" [class.is-active]="isUniversityModalOpen" [class.is-closing]="isUniversityModalClosing">
 
-    <header class="modal-banner" [style.backgroundImage]="'url(' + selectedUniversity?.image + ')'">
+    <header class="modal-hero">
       <div class="modal-drag-handle"></div>
-      <div class="modal-close-wrapper">
-        <button class="btn-modal-close" (click)="closeUniversityModal()" aria-label="Cerrar detalles de la universidad">
-          <app-lucide-icon name="x" [size]="19"></app-lucide-icon>
-        </button>
+      <div class="hero-glow"></div>
+      <button class="btn-modal-close" (click)="closeUniversityModal()" aria-label="Cerrar detalles de la universidad">
+        <app-lucide-icon name="x" [size]="19"></app-lucide-icon>
+      </button>
+      <div class="hero-content">
+        <div class="uni-logo-box">
+          <app-lucide-icon [name]="selectedUniversity?.logo || 'school'" [size]="30"></app-lucide-icon>
+        </div>
+        <div class="uni-titles">
+          <span class="badge-tag" *ngIf="selectedUniversity?.tags?.[0]">{{ selectedUniversity?.tags?.[0] }}</span>
+          <h2>{{ selectedUniversity?.name }}</h2>
+          <p class="uni-location"><app-lucide-icon name="map-pin" [size]="14"></app-lucide-icon> {{ selectedUniversity?.location }}</p>
+        </div>
       </div>
-      <div class="banner-gradient"></div>
     </header>
 
     <div class="modal-content-scroll">
-      <!-- Profile section overlaying the banner -->
-      <div class="profile-header-card">
-         <div class="uni-logo-box">
-             <app-lucide-icon [name]="selectedUniversity?.logo || 'school'" [size]="32"></app-lucide-icon>
-         </div>
-         <div class="uni-titles">
-             <div class="uni-tags">
-               <span class="badge-tag">{{ selectedUniversity?.tags?.[0] }}</span>
-             </div>
-             <h2>{{ selectedUniversity?.name }}</h2>
-             <p class="uni-location"><app-lucide-icon name="map-pin" [size]="15"></app-lucide-icon> {{ selectedUniversity?.location }}</p>
-         </div>
-      </div>
-
       <div class="modal-stats-grid">
           <div class="stat-box highlight-match" *ngIf="selectedUniversity?.matchPercentage != null">
             <app-lucide-icon name="sparkles" [size]="18"></app-lucide-icon>
