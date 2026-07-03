@@ -1514,3 +1514,54 @@ google-map {
   .empty-hero-image img { animation: none; }
   .best-match-card, .recommended-list-card, .btn-primary-cta, .location-fab, .mobile-view-toggle { transition: none; }
 }
+
+/* =========================================
+   SELECTOR DE UBICACIÓN (ciudad manual o GPS)
+   ========================================= */
+.location-select-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  .location-select {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1.5px solid var(--border-color, var(--border-light));
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 6px 32px 6px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    max-width: 210px;
+
+    &:hover,
+    &:focus {
+      border-color: var(--accent-primary, #07B1C9);
+      color: var(--accent-primary, #07B1C9);
+      outline: none;
+    }
+  }
+
+  .select-chevron {
+    position: absolute;
+    right: 12px;
+    pointer-events: none;
+    color: var(--text-muted);
+    transform: rotate(90deg);
+  }
+
+  /* Ciudad manual activa: mismo tratamiento visual que un chip activo */
+  &.city-active .location-select {
+    background: linear-gradient(135deg, var(--accent-primary, #07B1C9), #0e9aa7);
+    border-color: transparent;
+    color: white;
+  }
+
+  &.city-active .select-chevron {
+    color: white;
+  }
+}

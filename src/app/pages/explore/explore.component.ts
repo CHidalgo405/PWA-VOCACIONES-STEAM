@@ -18,7 +18,9 @@ import {
   UniversityService,
   CostPreference,
   UniversityMatchItem,
+  UniversityMatchResponse,
 } from '../../core/services/university.service';
+import { ExploreCacheService, CityOption } from '../../core/services/explore-cache.service';
 import { ScrollRevealDirective } from './scroll-reveal.directive';
 
 /** Estilo de mapa oscuro (tonos navy consistentes con el tema oscuro de la app). */
@@ -58,6 +60,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
   private testService = inject(VocationTestService);
   private loaderService = inject(GoogleMapsLoaderService);
   private universityService = inject(UniversityService);
+  private exploreCache = inject(ExploreCacheService);
   private themeService = inject(ThemeService);
   private ngZone = inject(NgZone);
 
@@ -122,6 +125,20 @@ export class ExploreComponent implements OnInit, OnDestroy {
   maxDistanceKm = 50;
   costPreference: CostPreference = 'any';
 
+  // ── Ubicación manual (ciudad) o automática (GPS/IP) ────────────────────────
+  /** 'auto' = GPS/IP; 'city' = el usuario eligió una ciudad manualmente. */
+  locationMode: 'auto' | 'city' = 'auto';
+  selectedCityId: string | null = null;
+  readonly cities: CityOption[] = this.exploreCache.cities;
+
+  /** Marcador del test vigente: un test nuevo invalida el caché de matches. */
+  private testMarker = '';
+
+  /** Valor del <select> de ubicación en la barra de filtros. */
+  get locationChoice(): string {
+    return this.locationMode === 'city' && this.selectedCityId ? this.selectedCityId : 'auto';
+  }
+
   readonly costOptions: { value: CostPreference; label: string }[] = [
     { value: 'any', label: 'Todas' },
     { value: 'public', label: 'Públicas' },
@@ -159,6 +176,24 @@ export class ExploreComponent implements OnInit, OnDestroy {
       this.mapOptions = { ...this.mapOptions, styles: DARK_MAP_STYLE };
     }
 
+    // Preferencia de ubicación persistida: ciudad manual = cero GPS y cero IP lookup.
+    const pref = this.exploreCache.getLocationPreference();
+    const prefCity = pref?.mode === 'city' && pref.cityId ? this.exploreCache.getCityById(pref.cityId) : null;
+    if (prefCity) {
+      this.locationMode = 'city';
+      this.selectedCityId = prefCity.id;
+      this.userPosition = { lat: prefCity.lat, lng: prefCity.lng };
+      this.center = this.userPosition;
+      this.zoom = 12;
+    } else {
+      // Arrancamos sobre la última ubicación conocida mientras llega el GPS.
+      const last = this.exploreCache.getLastLocation();
+      if (last) {
+        this.center = last;
+        this.zoom = 12;
+      }
+    }
+
     this.loaderService.loadMapScript()
       .then(() => {
         this.isApiLoaded = true;
@@ -172,10 +207,18 @@ export class ExploreComponent implements OnInit, OnDestroy {
           scaledSize: new google.maps.Size(24, 24),
           anchor: new google.maps.Point(12, 12)
         };
-        this.getUserLocation();
+        if (this.locationMode === 'city') {
+          this.loadApiMatches();
+          this.triggerPlacesSearch();
+        } else {
+          this.getUserLocation();
+        }
       })
       .catch(err => {
         console.error('No se pudo cargar Google Maps en ExploreComponent:', err);
+        // Sin el script de Maps (p. ej. offline) la lista aún puede servirse desde caché.
+        this.loadApiMatches();
+        this.triggerPlacesSearch();
       });
 
     this.authService.currentUser$.subscribe(user => {
@@ -201,6 +244,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
             this.center = userLocation;
             this.userPosition = userLocation;
             this.zoom = 13;
+            this.exploreCache.setLastLocation(userLocation);
             if (this.googleMap) {
               this.googleMap.panTo(userLocation);
             }
@@ -243,6 +287,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
             this.center = userLocation;
             this.userPosition = userLocation;
             this.zoom = 13;
+            this.exploreCache.setLastLocation(userLocation);
 
             if (this.googleMap) {
               this.googleMap.panTo(userLocation);
@@ -258,6 +303,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
           if (!success) {
             this.ngZone.run(() => {
               this.isLocating = false;
+              this.toastService.showToast('No pudimos obtener tu ubicación. Puedes elegir una ciudad en los filtros.', 'info');
               this.loadApiMatches();
               this.triggerPlacesSearch(); // Fallback a la ubicación por defecto
             });
@@ -327,17 +373,35 @@ export class ExploreComponent implements OnInit, OnDestroy {
           this.hasTakenTest = true;
           const profile = (latestTest as any)?.profile;
           this.dominantTraitsStr = profile?.profileName || latestTest.dominantTraits || 'STEAM';
+          // Un test nuevo cambia el marcador → invalida el caché de matches.
+          this.testMarker = String(latestTest.testId || latestTest.completedAt || 'test');
+          this.exploreCache.setTestMeta({
+            hasTakenTest: true,
+            dominantTraitsStr: this.dominantTraitsStr,
+            testMarker: this.testMarker,
+          });
           this.loadApiMatches();
           this.triggerPlacesSearch();
         } else {
+          this.exploreCache.setTestMeta({ hasTakenTest: false, dominantTraitsStr: 'STEAM', testMarker: '' });
           this.processData();
           this.isLoading = false;
         }
       },
       error: (err) => {
         console.error("Error cargando perfil del test", err);
-        this.processData();
-        this.isLoading = false;
+        // Sin red: usamos el último perfil conocido para servir todo desde caché.
+        const meta = this.exploreCache.getTestMeta();
+        if (meta?.hasTakenTest) {
+          this.hasTakenTest = true;
+          this.dominantTraitsStr = meta.dominantTraitsStr;
+          this.testMarker = meta.testMarker;
+          this.loadApiMatches();
+          this.triggerPlacesSearch();
+        } else {
+          this.processData();
+          this.isLoading = false;
+        }
       }
     });
   }
@@ -358,6 +422,13 @@ export class ExploreComponent implements OnInit, OnDestroy {
     if (key === this.lastMatchKey) return;
     this.lastMatchKey = key;
 
+    // Caché local: mismos filtros, misma zona y mismo test → cero red.
+    const cached = this.exploreCache.getMatches(key, this.testMarker);
+    if (cached && !cached.stale) {
+      this.applyMatchResponse(cached.data);
+      return;
+    }
+
     this.isLoadingMatches = true;
     this.universityService.matchUniversities({
       userLocation: { lat: location.lat, lng: location.lng },
@@ -367,20 +438,31 @@ export class ExploreComponent implements OnInit, OnDestroy {
       },
     }).subscribe({
       next: (res) => {
-        this.apiMatches = (res.matches || []).map((m, index) => this.mapApiMatch(m, index));
-        this.aiProvider = res.aiProvider ?? null;
-        this.isLoadingMatches = false;
-        this.processData();
-        this.fitMapToResults();
+        this.exploreCache.setMatches(key, this.testMarker, res);
+        this.applyMatchResponse(res);
       },
       error: (err) => {
         console.error('Error en el matching de universidades (A8)', err);
         this.lastMatchKey = ''; // permitir reintento (p. ej. cambiando filtros)
-        this.apiMatches = [];
-        this.isLoadingMatches = false;
-        this.processData();
+        if (cached) {
+          // Vencido pero utilizable: mejor que nada cuando no hay internet.
+          this.applyMatchResponse(cached.data);
+        } else {
+          this.apiMatches = [];
+          this.isLoadingMatches = false;
+          this.processData();
+        }
       },
     });
+  }
+
+  /** Aplica una respuesta de matching (de la red o del caché) a la vista. */
+  private applyMatchResponse(res: UniversityMatchResponse): void {
+    this.apiMatches = (res.matches || []).map((m, index) => this.mapApiMatch(m, index));
+    this.aiProvider = res.aiProvider ?? null;
+    this.isLoadingMatches = false;
+    this.processData();
+    this.fitMapToResults();
   }
 
   /** Convierte un UniversityMatchItem de la API al modelo de tarjeta de la vista. */
@@ -421,20 +503,46 @@ export class ExploreComponent implements OnInit, OnDestroy {
     this.loadApiMatches();
   }
 
+  /**
+   * Cambia el centro de búsqueda: 'auto' vuelve al GPS/IP; un id de ciudad
+   * usa sus coordenadas sin pedir ubicación (útil si el usuario no quiere
+   * compartirla o quiere explorar otra ciudad). La elección se persiste.
+   */
+  setLocationChoice(choice: string) {
+    if (choice === 'auto') {
+      this.locationMode = 'auto';
+      this.selectedCityId = null;
+      this.exploreCache.setLocationPreference({ mode: 'auto' });
+      this.getUserLocation();
+      return;
+    }
+
+    const city = this.exploreCache.getCityById(choice);
+    if (!city) return;
+
+    this.locationMode = 'city';
+    this.selectedCityId = city.id;
+    this.exploreCache.setLocationPreference({ mode: 'city', cityId: city.id });
+
+    const cityLocation = { lat: city.lat, lng: city.lng };
+    this.userPosition = cityLocation;
+    this.center = cityLocation;
+    this.zoom = 12;
+    if (this.googleMap?.googleMap) {
+      this.googleMap.panTo(cityLocation);
+    }
+    this.loadApiMatches();
+    this.triggerPlacesSearch();
+  }
+
   // ── Google Places: contexto "cerca de ti" (sin porcentajes inventados) ─────
 
-  triggerPlacesSearch() {
+  triggerPlacesSearch(attempt = 0) {
     // Procedemos si ya tomamos el test
     if (!this.hasTakenTest) return;
 
     // Fallback: usar el default si no hay ubicación de usuario
     const locationToUse = this.userPosition || this.center;
-
-    // Si el mapa aún no está listo en la vista, lo intentamos en un breve timeout
-    if (!this.googleMap || !this.googleMap.googleMap) {
-      setTimeout(() => this.triggerPlacesSearch(), 300);
-      return;
-    }
 
     // El radio de búsqueda sigue al filtro de distancia (Places admite máx. 50 km)
     const radiusKm = Math.min(this.maxDistanceKm, 50);
@@ -442,40 +550,75 @@ export class ExploreComponent implements OnInit, OnDestroy {
     // Dedupe: misma ubicación (±100m) y mismo radio → esta búsqueda ya se hizo.
     const key = `${locationToUse.lat.toFixed(3)},${locationToUse.lng.toFixed(3)}|${radiusKm}`;
     if (key === this.lastPlacesKey) return;
+
+    // Caché local primero: no requiere red ni que el mapa esté listo.
+    const cached = this.exploreCache.getPlaces(key);
+    if (cached && !cached.stale) {
+      this.lastPlacesKey = key;
+      this.applyPlacesResults(cached.data, locationToUse);
+      return;
+    }
+
+    // Si el mapa aún no está listo en la vista, lo intentamos en un breve timeout
+    // (con tope: p. ej. offline el script de Maps nunca carga).
+    if (!this.googleMap || !this.googleMap.googleMap) {
+      if (attempt < 20) {
+        setTimeout(() => this.triggerPlacesSearch(attempt + 1), 300);
+      } else if (cached) {
+        this.lastPlacesKey = key;
+        this.applyPlacesResults(cached.data, locationToUse);
+      } else {
+        this.isLoading = false;
+        this.processData();
+      }
+      return;
+    }
     this.lastPlacesKey = key;
 
     this.universityService.searchNearbyUniversities(this.googleMap.googleMap, locationToUse, radiusKm * 1000, 'universidad').subscribe({
       next: (results) => {
-        this.nearbyUniversities = results.map((place: any, index: number) => ({
-          id: place.id,
-          name: place.name,
-          location: place.address || 'Ubicación no especificada',
-          image: place.logoUrl || this.DEFAULT_IMAGES[index % this.DEFAULT_IMAGES.length],
-          logo: 'graduation-cap',
-          tags: ['Cerca de ti'],
-          rating: place.rating || null,
-          matchPercentage: null, // sin match real: no lo inventamos
-          career: null,
-          description: place.isOpen === true ? 'Abierta en este momento.' : (place.isOpen === false ? 'Cerrada en este momento.' : 'Universidad cercana a tu ubicación.'),
-          keyDates: 'Consultar sitio web',
-          studyPlan: 'Consultar oferta educativa',
-          websiteUrl: null,
-          distanceKm: place.location ? this.distanceKmBetween(locationToUse, place.location) : null,
-          position: place.location,
-          source: 'places',
-        }));
-
-        this.processData();
-        this.isLoading = false;
-        this.fitMapToResults();
+        // El estado "abierta ahora" caduca en minutos: no lo persistimos.
+        this.exploreCache.setPlaces(key, results.map(({ isOpen, ...rest }: any) => rest));
+        this.applyPlacesResults(results, locationToUse);
       },
       error: (err) => {
         console.error("Error buscando en Google Places", err);
         this.lastPlacesKey = ''; // permitir reintento
-        this.isLoading = false;
-        this.processData();
+        if (cached) {
+          // Vencido pero utilizable: mejor que nada cuando no hay internet.
+          this.applyPlacesResults(cached.data, locationToUse);
+        } else {
+          this.isLoading = false;
+          this.processData();
+        }
       }
     });
+  }
+
+  /** Aplica resultados de Places (de la red o del caché) a la vista. */
+  private applyPlacesResults(results: any[], locationToUse: { lat: number; lng: number }): void {
+    this.nearbyUniversities = results.map((place: any, index: number) => ({
+      id: place.id,
+      name: place.name,
+      location: place.address || 'Ubicación no especificada',
+      image: place.logoUrl || this.DEFAULT_IMAGES[index % this.DEFAULT_IMAGES.length],
+      logo: 'graduation-cap',
+      tags: ['Cerca de ti'],
+      rating: place.rating || null,
+      matchPercentage: null, // sin match real: no lo inventamos
+      career: null,
+      description: place.isOpen === true ? 'Abierta en este momento.' : (place.isOpen === false ? 'Cerrada en este momento.' : 'Universidad cercana a tu ubicación.'),
+      keyDates: 'Consultar sitio web',
+      studyPlan: 'Consultar oferta educativa',
+      websiteUrl: null,
+      distanceKm: place.location ? this.distanceKmBetween(locationToUse, place.location) : null,
+      position: place.location,
+      source: 'places',
+    }));
+
+    this.processData();
+    this.isLoading = false;
+    this.fitMapToResults();
   }
 
   /** Encuadra la cámara del mapa para mostrar usuario + resultados visibles (respeta la búsqueda activa). */

@@ -36,8 +36,24 @@
         </p>
       </div>
 
-      <!-- Filtros A8: distancia y costo (instantáneos, sobre el caché del backend) -->
+      <!-- Filtros A8: ubicación, distancia y costo (instantáneos, sobre el caché del backend) -->
       <div class="filters-bar" *ngIf="viewMode === 'explore' && hasTakenTest">
+        <div class="filter-group">
+          <span class="filter-label">
+            <app-lucide-icon name="globe" [size]="13"></app-lucide-icon> Ubicación
+          </span>
+          <div class="location-select-wrapper" [class.city-active]="locationMode === 'city'">
+            <select
+              class="location-select"
+              [ngModel]="locationChoice"
+              (ngModelChange)="setLocationChoice($event)"
+              aria-label="Centro de búsqueda">
+              <option value="auto">📍 Mi ubicación actual</option>
+              <option *ngFor="let city of cities" [value]="city.id">{{ city.name }}</option>
+            </select>
+            <app-lucide-icon name="chevron-right" [size]="13" class="select-chevron"></app-lucide-icon>
+          </div>
+        </div>
         <div class="filter-group">
           <span class="filter-label">
             <app-lucide-icon name="map-pin" [size]="13"></app-lucide-icon> Distancia
@@ -376,12 +392,12 @@
 
         <google-map #googleMap [options]="mapOptions" [center]="center" [zoom]="zoom" height="100%" width="100%">
 
-          <!-- User Marker -->
+          <!-- User Marker (o centro de búsqueda si se eligió una ciudad manual) -->
           <map-marker
             *ngIf="userPosition && userMarkerIcon"
             [position]="userPosition"
             [options]="{ icon: userMarkerIcon }"
-            title="Tú estás aquí"
+            [title]="locationMode === 'city' ? 'Centro de búsqueda' : 'Tú estás aquí'"
           ></map-marker>
 
           <!-- Recommended Universities Markers -->
