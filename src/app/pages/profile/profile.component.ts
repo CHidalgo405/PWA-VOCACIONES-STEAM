@@ -34,35 +34,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
     name: 'Cargando...',
     email: '',
     role: '',
-    level: 5,
     avatar: 'https://ui-avatars.com/api/?name=C&background=07B1C9&color=fff&size=128'
   };
-  
+
   testCount: number = 0;
-
-  badges = [
-    { id: 'first-step', name: 'Primer Paso', icon: 'star', unlocked: false, description: 'Completaste tu primer test vocacional STEAM.' },
-    { id: 'steam-explorer', name: 'Explorador STEAM', icon: 'compass', unlocked: false, description: 'Nivel 5 o superior alcanzado en tu cuenta.' },
-    { id: 'science-fan', name: 'Afinidad Científica', icon: 'flask-conical', unlocked: false, description: 'Completa al menos 2 tests vocacionales.' },
-    { id: 'tech-innovator', name: 'Innovador Digital', icon: 'cpu', unlocked: false, description: 'Completa al menos 4 tests vocacionales.' }
-  ];
-
-  updateBadges() {
-    this.badges.forEach(badge => {
-      if (badge.id === 'first-step') {
-        badge.unlocked = this.testCount > 0;
-      }
-      if (badge.id === 'steam-explorer') {
-        badge.unlocked = this.user.level >= 5;
-      }
-      if (badge.id === 'science-fan') {
-        badge.unlocked = this.testCount >= 2;
-      }
-      if (badge.id === 'tech-innovator') {
-        badge.unlocked = this.testCount >= 4;
-      }
-    });
-  }
 
   ngOnInit() {
     // Sync theme toggle state from ThemeService
@@ -83,7 +58,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.user.name = usuario.nombre;
         this.user.email = usuario.email;
         this.user.role = usuario.role;
-        this.user.level = usuario.level || 5;
 
         if (usuario.fotoUrl) {
           this.user.avatar = usuario.fotoUrl;
@@ -100,7 +74,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
           }
           this.themeService.setTheme(usuario.darkMode);
         }
-        this.updateBadges();
       },
       error: (err) => {
         console.error('Error al cargar perfil:', err);
@@ -115,7 +88,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.testService.getTestHistory().subscribe({
       next: (history) => {
         this.testCount = history.length;
-        this.updateBadges();
       },
       error: (err) => {
         console.error('Error al cargar historial:', err);
@@ -153,10 +125,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
   // --- ESTADO ---
   showToast: boolean = false;
   toastMessage: string = '';
-  
-  // Aún mantenemos modales para insignias y logout porque son pequeñas interacciones
-  activeModal: 'logout' | 'badge' | null = null;
-  selectedBadge: any = null;
+  isSavingTheme: boolean = false;
+  isUploadingAvatar: boolean = false;
+
+  activeModal: 'logout' | null = null;
 
   handleAction(action: string) {
     if (action.startsWith('/')) {
@@ -168,15 +140,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   togglePreference(setting: any) {
     if (setting.action === 'theme') {
+      if (this.isSavingTheme) return; // anti-spam: no encadenar toggles
       const isDark = !this.themeService.isDark;
       this.themeService.setTheme(isDark);
       setting.toggleState = isDark;
-      
+      this.isSavingTheme = true;
+
       this.userService.updateSettings({ darkMode: isDark }).subscribe({
         next: () => {
+          this.isSavingTheme = false;
           this.showSuccessToast(isDark ? 'Modo oscuro activado' : 'Modo claro activado');
         },
         error: () => {
+          this.isSavingTheme = false;
           this.showSuccessToast('Error al guardar preferencia de tema');
         }
       });
@@ -200,14 +176,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.activeModal = type;
   }
 
-  openBadgeModal(badge: any) {
-    this.selectedBadge = badge;
-    this.activeModal = 'badge';
-  }
-
   closeModal() {
     this.activeModal = null;
-    this.selectedBadge = null;
   }
 
   // --- LÓGICA DE SUBIDA DE IMAGEN HERO (DIRECTA) ---
@@ -216,6 +186,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if (!file) {
       return;
     }
+    if (this.isUploadingAvatar) return; // anti-spam: una subida a la vez
 
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
     if (!allowedTypes.includes(file.type)) {
@@ -268,14 +239,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   quickSaveAvatar(base64: string) {
+    this.isUploadingAvatar = true;
     this.userService.updateAvatar(base64).subscribe({
       next: () => {
+        this.isUploadingAvatar = false;
         this.user.avatar = base64;
         this.showSuccessToast('¡Foto de perfil actualizada!');
       },
       error: (err) => {
+        this.isUploadingAvatar = false;
         console.error('Error actualizando foto', err);
-        const detail = typeof err.error?.message === 'string' ? err.error.message : 
+        const detail = typeof err.error?.message === 'string' ? err.error.message :
                        (err.error?.message?.join(', ') || err.message || 'Error desconocido');
         this.showSuccessToast(`No se pudo actualizar la foto: ${detail}`);
       }

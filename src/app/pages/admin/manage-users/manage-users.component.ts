@@ -76,7 +76,6 @@ export class ManageUsersComponent implements OnInit {
     confirmPassword: '',
     role: 'student',
     title: '',
-    level: 1,
     isEmailVerified: false,
     settings: {
       darkMode: false,
@@ -175,7 +174,6 @@ export class ManageUsersComponent implements OnInit {
         confirmPassword: '',
         role: 'student',
         title: '',
-        level: 1,
         isEmailVerified: false,
         settings: {
           darkMode: false,
@@ -203,7 +201,6 @@ export class ManageUsersComponent implements OnInit {
       confirmPassword: '',
       role: user.role || 'student',
       title: user.title || '',
-      level: user.level || 1,
       isEmailVerified: !!user.isEmailVerified,
       settings: user.settings ? { ...user.settings } : {
         darkMode: false,

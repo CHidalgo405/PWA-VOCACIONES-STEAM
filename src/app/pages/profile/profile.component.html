@@ -20,10 +20,10 @@
           
           <h2 class="user-name-title">{{ user.name }}</h2>
           <p class="user-email-subtitle">{{ user.email }}</p>
-          
+
           <div class="user-level-badge">
-            <app-lucide-icon name="zap" [size]="14" color="#F88718"></app-lucide-icon>
-            <span>Nivel {{ user.level }} · Explorador STEAM</span>
+            <app-lucide-icon name="compass" [size]="14" color="#F88718"></app-lucide-icon>
+            <span>Explorador STEAM</span>
           </div>
         </div>
       </div>
@@ -53,24 +53,6 @@
         
       </div>
 
-      <!-- BADGES & ACHIEVEMENTS BENTO -->
-      <div class="badges-bento-card">
-        <h3 class="bento-section-title">
-          <app-lucide-icon name="star" [size]="18" color="#F88718"></app-lucide-icon> Logros y Medallas
-        </h3>
-        <div class="badges-horizontal-list">
-          <div class="badge-item-mini" *ngFor="let badge of badges" (click)="openBadgeModal(badge)" [class.locked]="!badge.unlocked" [title]="badge.name">
-            <div class="badge-mini-icon-circle">
-              <app-lucide-icon [name]="badge.icon" [size]="20"></app-lucide-icon>
-            </div>
-            <span class="badge-mini-name">{{ badge.name }}</span>
-            <div class="badge-lock-overlay" *ngIf="!badge.unlocked">
-              <app-lucide-icon name="lock" [size]="10"></app-lucide-icon>
-            </div>
-          </div>
-        </div>
-      </div>
-      
     </div>
     
     <!-- RIGHT COLUMN: Settings Groups -->
@@ -162,39 +144,6 @@
     <div class="toast-content-wrapper">
       <app-lucide-icon name="info" [size]="16" color="#07B1C9"></app-lucide-icon>
       <span class="toast-text">{{ toastMessage }}</span>
-    </div>
-  </div>
-
-  <!-- OVERLAY PARA TODOS LOS MODALES -->
-  <div class="modal-overlay" *ngIf="activeModal !== null" (click)="closeModal()">
-    <div class="modal-box" (click)="$event.stopPropagation()">
-
-      <!-- 6. MODAL: DETALLES DE INSIGNIA -->
-      <ng-container *ngIf="activeModal === 'badge' && selectedBadge">
-        <div class="modal-header" style="border-bottom: none; display: flex; justify-content: flex-end; padding-bottom: 0;">
-          <button class="btn-close-modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
-        </div>
-        <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 0;">
-          
-          <div class="badge-icon-giant-wrapper" [class.unlocked]="selectedBadge.unlocked">
-            <app-lucide-icon [name]="selectedBadge.icon" [size]="56" [color]="selectedBadge.unlocked ? '#07B1C9' : '#9CA3AF'"></app-lucide-icon>
-          </div>
-          
-          <h2 class="badge-modal-title">{{ selectedBadge.name }}</h2>
-          
-          <div class="badge-modal-status-tag" [class.unlocked]="selectedBadge.unlocked">
-            <app-lucide-icon [name]="selectedBadge.unlocked ? 'star' : 'lock'" [size]="12"></app-lucide-icon> 
-            <span>{{ selectedBadge.unlocked ? 'Insignia Desbloqueada' : 'Insignia Bloqueada' }}</span>
-          </div>
-
-          <p class="badge-modal-description">
-            {{ selectedBadge.unlocked 
-              ? 'Has demostrado habilidades excepcionales en esta área. ¡Sigue así!'
-              : selectedBadge.description }}
-          </p>
-        </div>
-      </ng-container>
-
     </div>
   </div>
 
