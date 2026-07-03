@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, map, tap, throwError } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { Observable, BehaviorSubject, map, tap, throwError, timer } from 'rxjs';
+import { retry } from 'rxjs/operators';
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -175,6 +176,17 @@ export class AuthService {
       {},
       { headers: new HttpHeaders({ Authorization: `Bearer ${refreshToken}` }) }
     ).pipe(
+      // Reintento ante fallos TRANSITORIOS (red caída o servidor reiniciándose):
+      // hasta 2 reintentos con backoff. Un 401/403 (refresh token inválido) NO
+      // se reintenta: se propaga de inmediato para que el interceptor decida.
+      retry({
+        count: 2,
+        delay: (error: HttpErrorResponse, retryCount: number) => {
+          const transient = error.status === 0 || error.status >= 500;
+          if (!transient) return throwError(() => error);
+          return timer(retryCount * 800);
+        },
+      }),
       tap((res: any) => {
         if (res.accessToken) localStorage.setItem(this.TOKEN_KEY, res.accessToken);
         if (res.refreshToken) localStorage.setItem(this.REFRESH_TOKEN_KEY, res.refreshToken);

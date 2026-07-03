@@ -69,7 +69,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         catchError(err => {
           isRefreshing = false;
           pendingRefresh$.next(null);
-          forceLogout();
+          // SOLO cerrar sesión si el servidor RECHAZÓ el refresh token
+          // (401/403 = token inválido o expirado). Ante errores transitorios
+          // —red caída (status 0/504) o servidor reiniciándose (5xx, típico
+          // en cold-starts de Railway)— NO cerramos sesión: el refresh token
+          // sigue siendo válido y se reintentará en la siguiente petición.
+          // Esto evita el logout espurio "cada pocas horas".
+          if (err?.status === 401 || err?.status === 403) {
+            forceLogout();
+          }
           return throwError(() => err);
         })
       );
