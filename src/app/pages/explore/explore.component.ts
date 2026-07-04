@@ -87,6 +87,25 @@ export class ExploreComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   skeletonArray = Array(4).fill(0); // Array ficticio para renderizar 4 skeletons
 
+  /** Momento en que arrancó la carga (para el mínimo de visibilidad del skeleton). */
+  private loadStartedAt = Date.now();
+  private readonly MIN_SKELETON_MS = 400;
+
+  /**
+   * Apaga isLoading respetando un mínimo de visibilidad del skeleton: con
+   * caché o una API rápida, la carga puede resolverse en unos milisegundos,
+   * demasiado rápido para que el shimmer llegue a percibirse.
+   */
+  private finishLoading(): void {
+    const elapsed = Date.now() - this.loadStartedAt;
+    const remaining = this.MIN_SKELETON_MS - elapsed;
+    if (remaining > 0) {
+      setTimeout(() => { this.isLoading = false; }, remaining);
+    } else {
+      this.isLoading = false;
+    }
+  }
+
   // Variables para Modales
   isUniversityModalOpen: boolean = false;
   isUniversityModalClosing: boolean = false;
@@ -367,6 +386,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
     if (this.recommendationsRequested) return; // currentUser$ puede emitir varias veces
     this.recommendationsRequested = true;
     this.isLoading = true;
+    this.loadStartedAt = Date.now();
     this.testService.getLatestTest().subscribe({
       next: (latestTest: TestDetail | null) => {
         if (latestTest) {
@@ -385,7 +405,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
         } else {
           this.exploreCache.setTestMeta({ hasTakenTest: false, dominantTraitsStr: 'STEAM', testMarker: '' });
           this.processData();
-          this.isLoading = false;
+          this.finishLoading();
         }
       },
       error: (err) => {
@@ -400,7 +420,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
           this.triggerPlacesSearch();
         } else {
           this.processData();
-          this.isLoading = false;
+          this.finishLoading();
         }
       }
     });
@@ -568,7 +588,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
         this.lastPlacesKey = key;
         this.applyPlacesResults(cached.data, locationToUse);
       } else {
-        this.isLoading = false;
+        this.finishLoading();
         this.processData();
       }
       return;
@@ -588,7 +608,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
           // Vencido pero utilizable: mejor que nada cuando no hay internet.
           this.applyPlacesResults(cached.data, locationToUse);
         } else {
-          this.isLoading = false;
+          this.finishLoading();
           this.processData();
         }
       }
@@ -617,7 +637,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
     }));
 
     this.processData();
-    this.isLoading = false;
+    this.finishLoading();
     this.fitMapToResults();
   }
 

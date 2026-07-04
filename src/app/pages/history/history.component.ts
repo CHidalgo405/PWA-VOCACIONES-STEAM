@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { VocationTestService, TestHistorySummary } from '../../core/services/test.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
+import { withMinDuration } from '../../core/utils/with-min-duration';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { FormsModule } from '@angular/forms';
@@ -37,7 +38,7 @@ export class HistoryComponent implements OnInit {
 
   loadHistory() {
     this.isLoading = true;
-    this.testService.getTestHistory().subscribe({
+    withMinDuration(this.testService.getTestHistory()).subscribe({
       next: (history) => {
         this.testHistory = history;
         if (history.length > 0) {

@@ -6,6 +6,7 @@ import { CareerSimulatorService } from '../../../core/services/career-simulator.
 import { SimulatorFeedbackResponse } from '../../../core/models/career-simulator.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { VocationalProfile } from '../../../core/models/vocational-profile.models';
+import { withMinDuration } from '../../../core/utils/with-min-duration';
 
 @Component({
   selector: 'app-career-simulator-result',
@@ -52,7 +53,7 @@ export class CareerSimulatorResultComponent implements OnInit {
 
     this.status.set('LOADING');
 
-    this.simulatorService.computeAffinityResult().subscribe({
+    withMinDuration(this.simulatorService.computeAffinityResult()).subscribe({
       next: (response) => {
         this.feedback.set(response);
         this.status.set('SUCCESS');

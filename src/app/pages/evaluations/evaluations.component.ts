@@ -10,6 +10,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { catchError } from 'rxjs/operators';
 import { forkJoin, of, timer } from 'rxjs';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+import { withMinDuration } from '../../core/utils/with-min-duration';
 
 @Component({
     selector: 'app-evaluations',
@@ -57,13 +58,13 @@ export class EvaluationsComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.testService.getQuestions().pipe(
+        withMinDuration(this.testService.getQuestions().pipe(
             catchError(err => {
                 this.loadingError = 'Error al cargar las preguntas del test.';
                 console.error(err);
                 return of([]);
             })
-        ).subscribe(data => {
+        )).subscribe(data => {
             // Clonamos y barajamos el array para que el orden sea aleatorio en cada intento
             this.questions = this.shuffleArray([...data]);
             this.isLoadingQuestions = false;
