@@ -62,7 +62,6 @@ export class PwaInstallService {
       this.deferredPrompt = null;
       this.canInstallSubject.next(false);
       this.isIosSubject.next(false);
-      console.log('PWA installed successfully');
     });
   }
 

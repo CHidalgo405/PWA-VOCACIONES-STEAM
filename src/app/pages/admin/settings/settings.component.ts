@@ -46,7 +46,6 @@ export class SettingsComponent {
     }
 
     this.isSubmitting = true;
-    console.log('Guardando configuración de la app...', this.settings);
 
     setTimeout(() => {
       this.isSubmitting = false;
@@ -68,7 +67,6 @@ export class SettingsComponent {
     );
     
     if (confirmed) {
-      console.log('Caché limpiada.');
       await this.dialogService.alert('Caché Liberada', 'Caché del sistema liberada con éxito.');
     }
   }

@@ -36,7 +36,6 @@ export class OAuthCallbackComponent implements OnInit {
         this.tokenService.saveToken(token);
         this.authService.obtenerPerfil().subscribe({
           next: (perfil) => {
-            console.log('Login exitoso con Google:', perfil);
             // login con token ya se realizó, aqui solo redireccionamos basado en perfil
             if (perfil.role === 'admin') {
               this.router.navigate(['/admin/dashboard']);

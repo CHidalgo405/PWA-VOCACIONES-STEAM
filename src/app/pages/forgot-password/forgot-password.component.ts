@@ -31,6 +31,11 @@ export class ForgotPasswordComponent {
   otpFailedAttempts = 0;
   readonly MAX_OTP_ATTEMPTS = 3;
 
+  /** Estado del flujo de recuperación, solo en memoria: el email y el OTP
+   *  validado no deben persistir en localStorage (un refresh reinicia el flujo). */
+  private recoveryEmail: string | null = null;
+  private recoveryOtp: string | null = null;
+
   // UI state for password visibility
   showPassword = false;
   showConfirmPassword = false;
@@ -92,7 +97,7 @@ export class ForgotPasswordComponent {
       this.isLoading = false;
       if (res) {
         this.otpFailedAttempts = 0;
-        localStorage.setItem('recovery_email', email);
+        this.recoveryEmail = email;
         this.toastService.showToast('Código enviado. Revisa tu correo.', 'success', 'Código Enviado');
         this.step = 'otp';
       }
@@ -103,7 +108,7 @@ export class ForgotPasswordComponent {
     if (this.otpForm.invalid) return;
 
     const inputOtp = this.otpForm.value.otp;
-    const email = localStorage.getItem('recovery_email');
+    const email = this.recoveryEmail;
 
     if (!email) {
       this.toastService.showToast('Sesión de recuperación expirada. Intenta de nuevo.', 'error', 'Sesión Expirada');
@@ -163,10 +168,9 @@ export class ForgotPasswordComponent {
     ).subscribe(res => {
       this.isLoading = false;
       if (res) {
-        console.log('[ForgotPassword] OTP Verified Success Response:', res);
         this.otpFailedAttempts = 0;
         this.toastService.showToast('Código validado con éxito.', 'success', '¡Verificado!');
-        localStorage.setItem('recovery_otp_validated', inputOtp);
+        this.recoveryOtp = inputOtp;
         this.step = 'reset';
       }
     });
@@ -176,10 +180,8 @@ export class ForgotPasswordComponent {
     if (this.resetForm.invalid) return;
 
     const newPassword = this.resetForm.value.password;
-    const email = localStorage.getItem('recovery_email');
-    const code = localStorage.getItem('recovery_otp_validated');
-
-    console.log('[ForgotPassword] Saving new password for:', email, 'with code:', code);
+    const email = this.recoveryEmail;
+    const code = this.recoveryOtp;
 
     if (!email || !code) {
       this.toastService.showToast('Sesión expirada. Intenta de nuevo.', 'error', 'Sesión Inválida');
@@ -199,8 +201,8 @@ export class ForgotPasswordComponent {
       this.isLoading = false;
       if (res) {
         this.toastService.showToast('¡Contraseña actualizada con éxito!', 'success', '¡Completado!');
-        localStorage.removeItem('recovery_email');
-        localStorage.removeItem('recovery_otp_validated');
+        this.recoveryEmail = null;
+        this.recoveryOtp = null;
 
         setTimeout(() => {
           this.router.navigate(['/login']);
