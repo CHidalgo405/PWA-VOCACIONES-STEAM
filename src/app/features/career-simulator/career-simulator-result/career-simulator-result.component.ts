@@ -58,7 +58,9 @@ export class CareerSimulatorResultComponent implements OnInit {
         this.status.set('SUCCESS');
         try {
           const s = this.slug();
-          if (s) localStorage.setItem(`sim_score_${s}`, response.affinity_score.toString());
+          const userId = this.authService.getCurrentUser()?.id;
+          // userId al final: el barrido de limpieza en logout borra por sufijo `_<userId>`.
+          if (s && userId) localStorage.setItem(`sim_score_${s}_${userId}`, response.affinity_score.toString());
         } catch { /* ignore */ }
         this.animateScore(response.affinity_score);
         this.checkVocationalDiscrepancy(response.affinity_score);

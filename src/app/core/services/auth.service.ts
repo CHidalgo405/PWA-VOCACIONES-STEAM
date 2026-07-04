@@ -274,12 +274,34 @@ export class AuthService {
    * guards, donde la redirección la maneja el propio guard (UrlTree).
    */
   clearSession() {
+    const outgoingUserId = this.getCurrentUser()?.id;
+
     sessionStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    if (outgoingUserId) this.clearUserData(outgoingUserId);
+
     this.currentUserSubject.next(null);
     this.currentUserSig.set(null);
+  }
+
+  /**
+   * Borra del localStorage todo rastro de datos del usuario que cierra
+   * sesión (respuestas de tests, resultados, calibraciones, caché de
+   * Explorar, etc.). Todas esas claves siguen la convención `<prefijo>_<userId>`,
+   * así que un barrido por sufijo las cubre a todas sin mantener una lista
+   * manual. Evita que en un equipo compartido (p. ej. de un aula) el
+   * siguiente estudiante pueda leer los datos del anterior desde DevTools.
+   */
+  private clearUserData(userId: string): void {
+    const suffix = `_${userId}`;
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.endsWith(suffix)) keysToRemove.push(key);
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
   }
 
   isAuthenticated(): boolean {
@@ -303,15 +325,18 @@ export class AuthService {
 
   /**
    * Indica si el token JWT está expirado según su claim `exp`.
-   * Si el token no es un JWT decodificable o no trae `exp`, devuelve false
-   * (no podemos determinarlo, dejamos que el servidor decida).
+   * Fail-closed: si el token no es un JWT decodificable o no trae `exp`,
+   * se trata como expirado. Un JWT real emitido por el API siempre trae
+   * `exp` (jsonwebtoken lo agrega automáticamente con `expiresIn`); solo
+   * un valor corrupto o manipulado cae en este caso, y no debe tratarse
+   * como sesión válida.
    */
   isTokenExpired(token?: string | null): boolean {
     const t = token ?? localStorage.getItem(this.TOKEN_KEY);
     if (!t) return true;
 
     const payload = this.decodeToken(t);
-    if (!payload || typeof payload.exp !== 'number') return false;
+    if (!payload || typeof payload.exp !== 'number') return true;
 
     // `exp` viene en segundos. Aplicamos 10s de margen para no enviar una
     // petición que va a fallar justo en el límite.

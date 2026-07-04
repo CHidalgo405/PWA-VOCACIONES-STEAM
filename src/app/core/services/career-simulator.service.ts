@@ -431,14 +431,23 @@ export class CareerSimulatorService {
     this.sessionSubject.next(null);
   }
 
+  /** Clave por usuario: sin esto, un equipo compartido mostraría los
+   *  simuladores completados por el estudiante anterior. */
+  private completedSimulatorsKey(): string | null {
+    const userId = this.authService.getCurrentUser()?.id;
+    return userId ? `${this.STORAGE_KEY}_${userId}` : null;
+  }
+
   /**
-   * Lee del localStorage el arreglo con los identificadores (slugs) 
+   * Lee del localStorage el arreglo con los identificadores (slugs)
    * de los simuladores que el usuario ha completado.
    * @returns Array de strings con los career_slugs.
    */
   public getCompletedSimulators(): string[] {
+    const key = this.completedSimulatorsKey();
+    if (!key) return [];
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
+      const stored = localStorage.getItem(key);
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
@@ -450,11 +459,13 @@ export class CareerSimulatorService {
    * @param careerSlug Slug de la carrera completada.
    */
   private saveCompletedSimulator(careerSlug: string): void {
+    const key = this.completedSimulatorsKey();
+    if (!key) return;
     const completed = this.getCompletedSimulators();
     if (!completed.includes(careerSlug)) {
       completed.push(careerSlug);
       try {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(completed));
+        localStorage.setItem(key, JSON.stringify(completed));
       } catch (e) {
         console.error('No se pudo persistir el progreso en LocalStorage.', e);
       }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { CareerSimulatorService } from '../../../core/services/career-simulator.service';
 import { VocationalProfileService } from '../../../core/services/vocational-profile.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { CareerSimulatorData } from '../../../core/models/career-simulator.models';
 import { SteamVector } from '../../../core/models/vocational-profile.models';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
@@ -21,6 +22,7 @@ type SteamAreaFilter = 'Todas' | 'Ciencia' | 'Tecnología' | 'Ingeniería' | 'Ar
 export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
   private simulatorService = inject(CareerSimulatorService);
   private profileService = inject(VocationalProfileService);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   public viewState = signal<'intro' | 'catalog'>('intro');
@@ -205,7 +207,9 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
     const fromApi = this.apiScores.get(careerId);
     if (typeof fromApi === 'number') return fromApi;
     try {
-      const val = localStorage.getItem(`sim_score_${careerId}`);
+      const userId = this.authService.getCurrentUser()?.id;
+      if (!userId) return null;
+      const val = localStorage.getItem(`sim_score_${careerId}_${userId}`);
       return val ? parseInt(val, 10) : null;
     } catch {
       return null;
