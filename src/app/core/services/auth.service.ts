@@ -107,21 +107,14 @@ export class AuthService {
     window.location.href = `${environment.apiUrl}/auth/google`;
   }
 
-  // Handle Google Callback Token Backup
-  handleGoogleCallback(token: string) {
-    if (token) {
-      localStorage.setItem(this.TOKEN_KEY, token);
-      this.getProfileFromServer().subscribe({
-        next: (user) => {
-          this.setCurrentUser(user);
-          this.router.navigate(['/dashboard']);
-        },
-        error: (err) => {
-          console.error("Error fetching google profile", err);
-          this.logout();
-        }
-      });
-    }
+  /**
+   * Persiste el par de tokens que llega en el callback de Google OAuth.
+   * El perfil de usuario aún no se conoce en este punto: se obtiene justo
+   * después con obtenerPerfil(), que ya se encarga de guardarlo.
+   */
+  persistOAuthTokens(accessToken: string, refreshToken?: string): void {
+    localStorage.setItem(this.TOKEN_KEY, accessToken);
+    if (refreshToken) localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
   }
 
   obtenerPerfil(): Observable<Usuario> {
