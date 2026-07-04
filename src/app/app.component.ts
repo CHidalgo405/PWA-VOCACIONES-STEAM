@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd, ChildrenOutletContexts } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd, NavigationError, ChildrenOutletContexts } from '@angular/router';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter } from 'rxjs/operators';
 import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
@@ -43,6 +43,29 @@ export class AppComponent implements OnInit {
       const isNavRoute = navRoutes.includes(urlWithoutQuery);
       const isAdminRoute = event.urlAfterRedirects.includes('/admin');
       this.showNavbar = isNavRoute && !isAdminRoute;
+
+      // Una navegación exitosa confirma que el shell ya está actualizado:
+      // libera el candado de reintento para futuros fallos genuinos.
+      sessionStorage.removeItem('chunk-load-retry');
+    });
+
+    // Recuperación automática de fallos al cargar un chunk lazy (loadComponent):
+    // ocurre cuando el Service Worker sigue sirviendo un index.html/manifiesto
+    // viejo mientras el servidor ya reemplazó los archivos de una versión más
+    // reciente — la ruta lazy falla a importar y el router-outlet queda vacío
+    // (pantalla en blanco) sin que Angular lo reporte de forma visible. Un
+    // reload completo vuelve a pedir el shell actualizado y lo resuelve.
+    this.router.events.pipe(
+      filter((event): event is NavigationError => event instanceof NavigationError)
+    ).subscribe((event) => {
+      const message = String(event.error?.message || event.error || '');
+      const isChunkLoadFailure = /Failed to fetch dynamically imported module|Loading chunk|ChunkLoadError|error loading dynamically imported module/i.test(message);
+      const alreadyRetried = sessionStorage.getItem('chunk-load-retry') === '1';
+
+      if (isChunkLoadFailure && !alreadyRetried) {
+        sessionStorage.setItem('chunk-load-retry', '1');
+        window.location.reload();
+      }
     });
   }
 

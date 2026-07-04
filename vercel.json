@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/((?!.*\\.[a-zA-Z0-9]+$).*)",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(ngsw-worker.js|index.html|ngsw.json)",
