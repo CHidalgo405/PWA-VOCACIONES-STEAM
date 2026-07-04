@@ -14,15 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <script>
-    // Anti-FOUC: Apply saved theme before Angular renders
-    (function() {
-      var theme = localStorage.getItem('theme-preference');
-      if (theme === 'dark') {
-        document.body.classList.add('dark-theme');
-      }
-    })();
-  </script>
+  <script src="theme-init.js"></script>
   <app-root></app-root>
   <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
