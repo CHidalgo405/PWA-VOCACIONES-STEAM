@@ -1565,3 +1565,12 @@ google-map {
     color: white;
   }
 }
+
+/* Skeleton del banner de resumen: evita mostrar "0 / 0%" mientras cargan los matches */
+.sk-banner-stat {
+  display: block;
+  width: 32px;
+  height: 19px;
+  margin: 0 auto 4px;
+  border-radius: 4px;
+}

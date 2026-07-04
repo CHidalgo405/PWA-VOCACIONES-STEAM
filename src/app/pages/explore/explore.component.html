@@ -112,7 +112,8 @@
           <h3>Universidades recomendadas para ti</h3>
           <p>Ordenadas por compatibilidad con tu perfil dominante</p>
         </div>
-        <div class="banner-stats">
+        <!-- Mientras cargan los matches, skeleton en vez de "0 / 0%" -->
+        <div class="banner-stats" *ngIf="!isLoadingMatches; else bannerStatsSkeleton">
           <div class="stat-box">
             <span class="stat-value">{{ totalCoincidencias }}</span>
             <span class="stat-label">coincidencias</span>
@@ -122,6 +123,18 @@
             <span class="stat-label">match máximo</span>
           </div>
         </div>
+        <ng-template #bannerStatsSkeleton>
+          <div class="banner-stats" aria-hidden="true">
+            <div class="stat-box">
+              <span class="shimmer on-dark sk-banner-stat"></span>
+              <span class="stat-label">coincidencias</span>
+            </div>
+            <div class="stat-box highlight">
+              <span class="shimmer on-dark sk-banner-stat"></span>
+              <span class="stat-label">match máximo</span>
+            </div>
+          </div>
+        </ng-template>
       </section>
 
       <!-- SKELETONS (LOADING) -->
@@ -363,8 +376,16 @@
             <div class="empty-visual">
               <app-lucide-icon [name]="viewMode === 'saved' ? 'heart-off' : 'search'" [size]="52"></app-lucide-icon>
             </div>
-            <h3 *ngIf="viewMode === 'explore'">Sin resultados</h3>
-            <p *ngIf="viewMode === 'explore'">No encontramos universidades que coincidan con "{{ searchQuery }}".</p>
+            <ng-container *ngIf="viewMode === 'explore'">
+              <ng-container *ngIf="searchQuery; else noResultsWithoutSearch">
+                <h3>Sin resultados</h3>
+                <p>No encontramos universidades que coincidan con "{{ searchQuery }}".</p>
+              </ng-container>
+              <ng-template #noResultsWithoutSearch>
+                <h3>Aún no hay universidades en tu zona</h3>
+                <p>Prueba ampliar la distancia o elegir otra ciudad en los filtros de ubicación.</p>
+              </ng-template>
+            </ng-container>
 
             <h3 *ngIf="viewMode === 'saved'">No hay guardadas</h3>
             <p *ngIf="viewMode === 'saved'">Aún no has guardado ninguna universidad. Explora recomendaciones y añádelas a tus favoritos.</p>

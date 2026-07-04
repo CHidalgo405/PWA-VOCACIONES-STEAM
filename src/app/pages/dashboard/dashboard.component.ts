@@ -30,7 +30,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   public pwaInstall = inject(PwaInstallService);
   private profileEngine = inject(VocationalProfileService);
 
-  userName = 'Cargando...';
+  /** Vacío hasta que se resuelve el usuario cacheado o el perfil remoto; el template muestra un skeleton mientras tanto. */
+  userName = '';
   userProfile?: Usuario;
   avatarUrl = '';
 
@@ -176,7 +177,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private fallbackAvatar(name: string): string {
-    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2);
+    const initials = (name || '?').split(' ').map(n => n[0]).join('').substring(0, 2);
     return `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&bold=true`;
   }
 

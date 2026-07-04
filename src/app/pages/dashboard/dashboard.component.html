@@ -4,7 +4,10 @@
   <header class="dash-header">
     <div class="user-greeting">
       <span class="subtext">Bienvenido{{ hasTakenTest ? ' de nuevo' : '' }},</span>
-      <h1>{{ userName }}</h1>
+      <h1 *ngIf="userName; else userNameSkeleton">{{ userName }}</h1>
+      <ng-template #userNameSkeleton>
+        <span class="shimmer sk-username" aria-hidden="true"></span>
+      </ng-template>
     </div>
     <div class="header-actions">
       <button class="icon-btn" aria-label="Notificaciones">
