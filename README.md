@@ -57,3 +57,29 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Seguridad: API Key de Google Maps
+
+La clave `googleMapsApiKey` de `src/environments/environment.ts` es una **clave de navegador**: viaja al cliente por diseño (Maps JavaScript API lo requiere). Su protección NO es ocultarla, sino **restringirla en Google Cloud Console**. Sin restricciones, cualquiera puede copiarla y facturar peticiones de Places a tu cuenta.
+
+### Pasos obligatorios (Google Cloud Console)
+
+1. Entrar a [console.cloud.google.com](https://console.cloud.google.com) → proyecto **vocaciones-steam** → **APIs y servicios → Credenciales**.
+2. Abrir la API key usada por la PWA y configurar:
+   - **Restricciones de aplicación** → *Sitios web* (referrers HTTP), con la lista:
+     - `https://TU-DOMINIO-DE-VERCEL.vercel.app/*` (y el dominio propio si existe)
+     - `http://localhost:4200/*` (desarrollo)
+   - **Restricciones de API** → *Restringir clave* y marcar SOLO:
+     - Maps JavaScript API
+     - Places API (New)
+3. Guardar. Los cambios tardan ~5 minutos en aplicar.
+
+### Rotación (recomendada)
+
+La clave anterior vivió en scripts del repositorio y permanece en el historial de git. Aunque la restricción por referrer la vuelve inutilizable fuera del dominio, lo más limpio es rotarla:
+
+1. En Credenciales → **Crear credenciales → Clave de API**, aplicar las mismas restricciones del paso 2.
+2. Reemplazar el valor en `src/environments/environment.ts` y `environment.development.ts`.
+3. Eliminar la clave antigua en la consola.
+
+> Nota: en Cloud Console → **Facturación → Presupuestos y alertas** conviene crear una alerta (p. ej. $10 USD/mes) para detectar abuso de la clave a tiempo.
