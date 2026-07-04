@@ -280,13 +280,41 @@ export class ManageSimulatorsComponent implements OnInit {
     }
   }
 
+  // --- ORDENAMIENTO ---
+  sortColumn: 'careerName' | 'steamAreaName' = 'careerName';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  sortBy(column: typeof this.sortColumn): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+  }
+
+  sortIcon(column: typeof this.sortColumn): string {
+    if (this.sortColumn !== column) return 'arrow-up-down';
+    return this.sortDirection === 'asc' ? 'arrow-up' : 'arrow-down';
+  }
+
   // Filter helper
   public get filteredSimulatorsList() {
-    return this.simulators().filter(sim => {
+    const filtered = this.simulators().filter(sim => {
       const matchSearch = sim.careerName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
                           (sim.careerId || sim.id).toLowerCase().includes(this.searchTerm.toLowerCase());
       const matchArea = !this.filterArea || sim.steamAreaName === this.filterArea;
       return matchSearch && matchArea;
+    });
+
+    const col = this.sortColumn;
+    const dir = this.sortDirection === 'asc' ? 1 : -1;
+    return filtered.sort((a, b) => {
+      const valA = String(a[col] ?? '').toLowerCase();
+      const valB = String(b[col] ?? '').toLowerCase();
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
     });
   }
 }

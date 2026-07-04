@@ -34,6 +34,26 @@ export class ManageUsersComponent implements OnInit {
   searchTerm: string = '';
   filterRole: string = '';
 
+  // --- ORDENAMIENTO ---
+  sortColumn: 'fullname' | 'email' | 'role' | 'createdAt' | 'isEmailVerified' = 'createdAt';
+  sortDirection: 'asc' | 'desc' = 'desc';
+
+  sortBy(column: typeof this.sortColumn): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.currentPage = 1;
+  }
+
+  /** Ícono a mostrar en el encabezado: neutral si no es la columna activa. */
+  sortIcon(column: typeof this.sortColumn): string {
+    if (this.sortColumn !== column) return 'arrow-up-down';
+    return this.sortDirection === 'asc' ? 'arrow-up' : 'arrow-down';
+  }
+
   // --- PAGINACIÓN ---
   currentPage = 1;
   itemsPerPage = 10;
@@ -96,7 +116,7 @@ export class ManageUsersComponent implements OnInit {
 
   // --- FUNCIONES DE LA TABLA ---
   get filteredUsersList() {
-    return this.users.filter(u => {
+    const filtered = this.users.filter(u => {
       const splitName = u.fullname ? u.fullname.split(' ') : [''];
       const nombre = splitName[0];
       const apellidos = splitName.slice(1).join(' ');
@@ -110,6 +130,28 @@ export class ManageUsersComponent implements OnInit {
       const matchesRole = this.filterRole ? normalizedRole === this.filterRole : true;
 
       return matchesSearch && matchesRole;
+    });
+
+    const col = this.sortColumn;
+    const dir = this.sortDirection === 'asc' ? 1 : -1;
+    return filtered.sort((a, b) => {
+      let valA: string | number = a[col] as any;
+      let valB: string | number = b[col] as any;
+
+      if (col === 'createdAt') {
+        valA = new Date(a.createdAt).getTime();
+        valB = new Date(b.createdAt).getTime();
+      } else if (col === 'isEmailVerified') {
+        valA = a.isEmailVerified ? 1 : 0;
+        valB = b.isEmailVerified ? 1 : 0;
+      } else {
+        valA = String(valA ?? '').toLowerCase();
+        valB = String(valB ?? '').toLowerCase();
+      }
+
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
     });
   }
 

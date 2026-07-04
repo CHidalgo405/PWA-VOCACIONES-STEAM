@@ -2,21 +2,28 @@
 $sidebar-width-pc: 260px;
 $sidebar-width-mobile: 280px;
 
-/* 1. BOTÓN MÓVIL (Hamburguesa) */
+/* 1. BARRA SUPERIOR MÓVIL (contiene la hamburguesa) */
+/* Antes era solo un botón flotante: al hacer scroll, el contenido de la
+   página pasaba visualmente por detrás/al lado de él (no había una barra
+   opaca de ancho completo que reservara ese espacio). Ahora es una barra
+   fija de ancho completo: nada puede quedar "detrás" del nav. */
 .mobile-toggle-btn {
-  display: block;
+  display: flex;
+  align-items: center;
   position: fixed;
-  top: 15px;
-  left: 15px;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
   z-index: 900;
-  background: var(--white, #fff);
+  background: var(--bg-surface, #fff);
   border: none;
-  padding: 10px 15px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  border-bottom: 1px solid var(--border-light, rgba(0,0,0,0.05));
+  padding: 0 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--text-dark, #2c3e50);
+  color: var(--text-primary, #2c3e50);
   cursor: pointer;
 
   @media (min-width: 1024px) {

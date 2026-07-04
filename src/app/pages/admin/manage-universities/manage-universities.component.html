@@ -39,10 +39,16 @@
       <table>
         <thead>
           <tr>
-            <th>Universidad</th>
+            <th class="sortable" (click)="sortBy('name')">
+              Universidad <app-lucide-icon [name]="sortIcon('name')" [size]="13"></app-lucide-icon>
+            </th>
             <th>Programas</th>
-            <th>Costo</th>
-            <th>Rating</th>
+            <th class="sortable" (click)="sortBy('costTier')">
+              Costo <app-lucide-icon [name]="sortIcon('costTier')" [size]="13"></app-lucide-icon>
+            </th>
+            <th class="sortable" (click)="sortBy('rating')">
+              Rating <app-lucide-icon [name]="sortIcon('rating')" [size]="13"></app-lucide-icon>
+            </th>
             <th>Coordenadas</th>
             <th style="text-align: center;">Acciones</th>
           </tr>

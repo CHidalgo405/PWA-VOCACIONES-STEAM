@@ -44,9 +44,13 @@
         <thead>
           <tr>
             <th>Icono</th>
-            <th>Carrera / Simulador</th>
+            <th class="sortable" (click)="sortBy('careerName')">
+              Carrera / Simulador <app-lucide-icon [name]="sortIcon('careerName')" [size]="13"></app-lucide-icon>
+            </th>
             <th>ID (Slug)</th>
-            <th>Área STEAM</th>
+            <th class="sortable" (click)="sortBy('steamAreaName')">
+              Área STEAM <app-lucide-icon [name]="sortIcon('steamAreaName')" [size]="13"></app-lucide-icon>
+            </th>
             <th>Pasos</th>
             <th style="text-align: center;">Acciones</th>
           </tr>

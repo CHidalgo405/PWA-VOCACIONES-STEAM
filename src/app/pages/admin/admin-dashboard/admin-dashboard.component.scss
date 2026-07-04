@@ -7,11 +7,11 @@
   flex-wrap: wrap; /* Para móvil */
   gap: 15px;
 
-  h1 { margin: 0; font-size: 1.8rem; color: #2C3E50; font-weight: 800; }
-  p { margin: 5px 0 0; color: #7F8C8D; }
+  h1 { margin: 0; font-size: 1.8rem; color: var(--text-primary, #2C3E50); font-weight: 800; }
+  p { margin: 5px 0 0; color: var(--text-secondary, #7F8C8D); }
 
   .btn-export {
-    background: white;
+    background: var(--bg-surface);
     border: 1px solid #e0e0e0;
     padding: 10px 20px;
     border-radius: 10px;
@@ -33,12 +33,12 @@
 }
 
 .kpi-card {
-  background: white;
+  background: var(--bg-surface);
   padding: 25px;
   border-radius: 20px;
   box-shadow: 0 5px 20px rgba(0,0,0,0.03);
   transition: transform 0.2s;
-  border: 1px solid #f8f9fa;
+  border: 1px solid var(--border-light, #f8f9fa);
 
   &:hover { transform: translateY(-5px); }
 
@@ -56,8 +56,8 @@
     .kpi-trend { font-size: 0.8rem; font-weight: 700; background: #f9f9f9; padding: 4px 8px; border-radius: 6px;}
   }
 
-  .kpi-value { font-size: 2.2rem; font-weight: 800; margin: 0 0 5px; color: #2C3E50; }
-  .kpi-title { margin: 0; font-size: 0.9rem; color: #7F8C8D; font-weight: 500; }
+  .kpi-value { font-size: 2.2rem; font-weight: 800; margin: 0 0 5px; color: var(--text-primary, #2C3E50); }
+  .kpi-title { margin: 0; font-size: 0.9rem; color: var(--text-secondary, #7F8C8D); font-weight: 500; }
 }
 
 /* --- SECCIÓN CENTRAL (Gráficas) --- */
@@ -74,12 +74,12 @@
 }
 
 .chart-card, .alerts-card {
-  background: white;
+  background: var(--bg-surface);
   padding: 25px;
   border-radius: 20px;
   box-shadow: 0 5px 20px rgba(0,0,0,0.03);
   
-  h2 { font-size: 1.2rem; margin: 0 0 20px; color: #2C3E50; }
+  h2 { font-size: 1.2rem; margin: 0 0 20px; color: var(--text-primary, #2C3E50); }
 }
 
 .chart-wrapper {
@@ -101,14 +101,14 @@
 
 /* --- TABLA RESPONSIVA --- */
 .table-card {
-  background: white;
+  background: var(--bg-surface);
   padding: 25px;
   border-radius: 20px;
   box-shadow: 0 5px 20px rgba(0,0,0,0.03);
 
   .table-header {
     display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-    h2 { font-size: 1.2rem; margin: 0; color: #2C3E50; }
+    h2 { font-size: 1.2rem; margin: 0; color: var(--text-primary, #2C3E50); }
     .view-all { color: var(--steam-blue); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
   }
 }
@@ -123,14 +123,14 @@
     border-collapse: collapse;
     min-width: 600px; /* Evita que las columnas se aplasten demasiado */
 
-    th { text-align: left; padding: 15px; font-size: 0.85rem; color: #7F8C8D; text-transform: uppercase; border-bottom: 2px solid #f0f0f0; }
-    td { padding: 15px; font-size: 0.95rem; color: #2C3E50; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+    th { text-align: left; padding: 15px; font-size: 0.85rem; color: var(--text-secondary, #7F8C8D); text-transform: uppercase; border-bottom: 2px solid var(--border-light, #f0f0f0); }
+    td { padding: 15px; font-size: 0.95rem; color: var(--text-primary, #2C3E50); border-bottom: 1px solid var(--border-light, #f0f0f0); vertical-align: middle; }
 
     /* Estilos internos de la tabla */
     .user-info {
       display: flex; align-items: center; gap: 12px;
       .user-avatar { width: 35px; height: 35px; background: var(--steam-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-      .email { display: block; font-size: 0.8rem; color: #7F8C8D; }
+      .email { display: block; font-size: 0.8rem; color: var(--text-secondary, #7F8C8D); }
     }
 
     /* Badges de Colores para perfiles */

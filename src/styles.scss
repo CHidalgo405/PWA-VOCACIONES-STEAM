@@ -143,12 +143,31 @@ body {
   min-height: 100vh;
   background-color: var(--bg-light, #F4F6F8);
   padding: 20px;
-  padding-top: 70px; /* Espacio arriba en móvil para el botón hamburguesa */
+  padding-top: 84px; /* 64px de la barra superior fija + 20px de aire */
 
   /* En PC empujamos el contenido a la derecha para dar espacio al Sidebar */
   @media (min-width: 1024px) {
     margin-left: 260px; /* Mismo ancho del sidebar */
     padding: 40px; /* Más aire en PC */
+  }
+
+  /* Encabezados de tabla ordenables (compartido por todas las tablas admin) */
+  th.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+
+    app-lucide-icon {
+      vertical-align: middle;
+      margin-left: 2px;
+      opacity: 0.55;
+    }
+
+    &:hover {
+      color: var(--steam-blue, #07B1C9);
+      app-lucide-icon { opacity: 1; }
+    }
   }
 }
 /* Fix horizontal scroll / leaning right issue on PC */

@@ -98,8 +98,26 @@ export class ManageUniversitiesComponent implements OnInit {
     });
   }
 
+  // --- ORDENAMIENTO ---
+  sortColumn: 'name' | 'costTier' | 'rating' = 'name';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  sortBy(column: typeof this.sortColumn): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+  }
+
+  sortIcon(column: typeof this.sortColumn): string {
+    if (this.sortColumn !== column) return 'arrow-up-down';
+    return this.sortDirection === 'asc' ? 'arrow-up' : 'arrow-down';
+  }
+
   get filteredUniversities(): AdminUniversity[] {
-    return this.universities().filter((u) => {
+    const filtered = this.universities().filter((u) => {
       const term = this.searchTerm.toLowerCase().trim();
       const matchesSearch =
         !term ||
@@ -107,6 +125,23 @@ export class ManageUniversitiesComponent implements OnInit {
         (u.address || '').toLowerCase().includes(term);
       const matchesTier = !this.filterCostTier || u.costTier === this.filterCostTier;
       return matchesSearch && matchesTier;
+    });
+
+    const col = this.sortColumn;
+    const dir = this.sortDirection === 'asc' ? 1 : -1;
+    return filtered.sort((a, b) => {
+      let valA: string | number;
+      let valB: string | number;
+      if (col === 'rating') {
+        valA = a.rating ?? -1;
+        valB = b.rating ?? -1;
+      } else {
+        valA = String(a[col] ?? '').toLowerCase();
+        valB = String(b[col] ?? '').toLowerCase();
+      }
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
     });
   }
 
