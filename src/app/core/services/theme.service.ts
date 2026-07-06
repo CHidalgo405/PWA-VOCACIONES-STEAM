@@ -29,6 +29,33 @@ export class ThemeService {
     this.applyTheme(isDark);
   }
 
+  /**
+   * Aplica la preferencia de tema del servidor SOLO si el usuario todavía no
+   * ha elegido un tema en este dispositivo. El toggle local siempre tiene
+   * prioridad: sin esto, cada carga del perfil pisaba la elección del usuario
+   * y el modo oscuro "no funcionaba" (se revertía al recargar).
+   */
+  syncFromServer(isDark: boolean): void {
+    if (localStorage.getItem('app-theme') === null) {
+      this.setTheme(isDark);
+    }
+  }
+
+  /**
+   * Restablece a modo claro SIN dejar preferencia persistida (p. ej. en
+   * logout): así el siguiente usuario que inicie sesión hereda su propia
+   * preferencia del servidor en vez de quedar forzado a claro.
+   */
+  resetToLight(): void {
+    localStorage.removeItem('app-theme');
+    this.applyTheme(false);
+  }
+
+  /** Aplica un tema visualmente sin persistirlo (p. ej. pantalla de bienvenida). */
+  applyThemeOnly(isDark: boolean): void {
+    this.applyTheme(isDark);
+  }
+
   /** Toggles between light and dark mode and reloads the page. */
   toggleTheme(): void {
     const newValue = !this.isDarkMode$.value;

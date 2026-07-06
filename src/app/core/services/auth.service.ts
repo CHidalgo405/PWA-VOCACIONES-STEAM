@@ -53,11 +53,12 @@ export class AuthService {
   // State signal for modern Angular reactivity
   public currentUserSig = signal<Usuario | null>(this.getCurrentUser());
 
-  constructor() { 
-    // Apply theme from cached user if exists
+  constructor() {
+    // Preferencia de tema del servidor: solo se aplica si el usuario aún no
+    // eligió tema en este dispositivo (syncFromServer respeta el toggle local).
     const cachedUser = this.getCurrentUser();
     if (cachedUser && cachedUser.darkMode !== undefined) {
-      this.themeService.setTheme(cachedUser.darkMode);
+      this.themeService.syncFromServer(cachedUser.darkMode);
     }
   }
 
@@ -144,7 +145,7 @@ export class AuthService {
 
     this.currentUserSubject.next(usuario);
     this.currentUserSig.set(usuario);
-    if (usuario.darkMode !== undefined) this.themeService.setTheme(usuario.darkMode);
+    if (usuario.darkMode !== undefined) this.themeService.syncFromServer(usuario.darkMode);
   }
 
   // ---------------------------------------------------------
@@ -241,7 +242,7 @@ export class AuthService {
     this.currentUserSubject.next(usuario);
     this.currentUserSig.set(usuario); // Update signal
     if (usuario.darkMode !== undefined) {
-      this.themeService.setTheme(usuario.darkMode);
+      this.themeService.syncFromServer(usuario.darkMode);
     }
   }
 
@@ -264,7 +265,9 @@ export class AuthService {
 
   logout() {
     this.clearSession();
-    this.themeService.setTheme(false); // Force light mode on logout
+    // Limpia la preferencia local (no la fuerza a 'light') para que el
+    // siguiente usuario herede su propio tema del servidor.
+    this.themeService.resetToLight();
     this.router.navigate(['/welcome']);
   }
 

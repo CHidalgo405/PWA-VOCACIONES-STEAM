@@ -15,7 +15,8 @@ export class OnboardingComponent implements OnInit {
   private themeService = inject(ThemeService);
 
   ngOnInit(): void {
-    // La página de bienvenida siempre debe estar en modo claro por diseño
-    this.themeService.setTheme(false);
+    // La bienvenida se ve en claro por diseño, pero NO persistimos la
+    // preferencia: así no pisamos el tema que el usuario elija al entrar.
+    this.themeService.applyThemeOnly(false);
   }
 }

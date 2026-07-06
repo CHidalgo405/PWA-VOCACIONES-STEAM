@@ -63,6 +63,10 @@
   </nav>
 
   <div class="sidebar-footer">
+    <button type="button" class="nav-item theme-toggle" (click)="toggleDarkMode()" style="cursor: pointer; width: 100%; margin-bottom: 5px;">
+      <span class="icon"><app-lucide-icon [name]="isDark ? 'sun' : 'moon'" [size]="20"></app-lucide-icon></span>
+      <span class="label">{{ isDark ? 'Modo Claro' : 'Modo Oscuro' }}</span>
+    </button>
     <a routerLink="/dashboard" class="nav-item" (click)="closeMenu()" style="cursor: pointer; margin-bottom: 5px;">
       <span class="icon"><app-lucide-icon name="layout-dashboard" [size]="20"></app-lucide-icon></span>
       <span class="label">Ir a la App</span>

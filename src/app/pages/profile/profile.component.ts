@@ -66,13 +66,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.user.avatar = `https://ui-avatars.com/api/?name=${initials}&background=07B1C9&color=fff&size=128`;
         }
 
-        // Sync theme toggle with user preference from API
+        // Preferencia del servidor: se aplica solo si no hay tema local
+        // (syncFromServer respeta el toggle local). El switch refleja el
+        // tema realmente aplicado, no el valor crudo del servidor.
         if (usuario.darkMode !== undefined) {
-          const themeSetting = this.preferencesSettings.find(s => s.action === 'theme');
-          if (themeSetting) {
-            themeSetting.toggleState = usuario.darkMode;
-          }
-          this.themeService.setTheme(usuario.darkMode);
+          this.themeService.syncFromServer(usuario.darkMode);
+        }
+        const themeSetting = this.preferencesSettings.find(s => s.action === 'theme');
+        if (themeSetting) {
+          themeSetting.toggleState = this.themeService.isDark;
         }
       },
       error: (err) => {
