@@ -12,7 +12,13 @@ export interface AdminUser {
   level: number;
   isEmailVerified: boolean;
   createdAt: string;
+  // Moderación
+  isBanned?: boolean;
+  suspendedUntil?: string | null;
+  suspensionReason?: string | null;
 }
+
+export type SuspensionAction = 'suspend' | 'ban' | 'reactivate';
 
 export interface AdminTestOption {
   id?: string;
@@ -78,6 +84,17 @@ export class AdminService {
 
   deleteUser(id: string): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/users/${id}`);
+  }
+
+  /** Suspende (temporal), banea (permanente) o reactiva una cuenta. */
+  setUserSuspension(
+    id: string,
+    payload: { action: SuspensionAction; durationDays?: number; reason?: string },
+  ): Observable<AdminUser> {
+    return this.http.patch<AdminUser>(
+      `${environment.apiUrl}/users/${id}/suspension`,
+      payload,
+    );
   }
 
   // --- ADMINISTRACIÓN DEL TEST VOCACIONAL ---

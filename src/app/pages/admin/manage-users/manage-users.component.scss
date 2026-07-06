@@ -982,3 +982,173 @@
     background-position: 468px 0;
   }
 }
+
+/* =========================================
+   MODERACIÓN: badge de estado + botón + modal
+   ========================================= */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+
+  &.active    { background: rgba(46, 204, 113, 0.14); color: #27ae60; }
+  &.inactive  { background: rgba(148, 163, 184, 0.18); color: #64748b; }
+  &.suspended { background: rgba(248, 135, 24, 0.16); color: #e67e22; }
+  &.banned    { background: rgba(231, 76, 60, 0.14); color: #e74c3c; }
+}
+
+.btn-action.moderate:hover {
+  border-color: var(--steam-orange, #F88718);
+  color: var(--steam-orange, #F88718);
+}
+
+/* Modal de moderación */
+.suspension-box {
+  max-width: 460px;
+
+  .modal-header,
+  .suspension-body,
+  .modal-footer {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+
+  .modal-header {
+    padding-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h2 { font-size: 1.25rem; display: flex; align-items: center; }
+
+    .btn-close-modal {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted, #94a3b8);
+      display: flex;
+      &:hover { color: var(--text-primary); }
+    }
+  }
+
+  .modal-footer { padding-bottom: 22px; }
+}
+
+.suspension-body {
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+  .suspension-target {
+    margin: 0 0 4px;
+    font-weight: 700;
+    color: var(--text-primary, #1e293b);
+    span { font-weight: 500; color: var(--text-secondary); font-size: 0.9rem; }
+  }
+
+  .suspension-current {
+    margin: 0 0 16px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    strong { color: var(--text-primary); }
+  }
+
+  .action-toggle {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0 20px;
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border-color, #e2e8f0);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover { border-color: var(--steam-blue); }
+      &.active {
+        background: var(--steam-blue, #07B1C9);
+        border-color: var(--steam-blue, #07B1C9);
+        color: #fff;
+      }
+    }
+  }
+
+  .field-group {
+    margin-bottom: 18px;
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary, #1e293b);
+      margin-bottom: 8px;
+
+      .optional { font-weight: 400; color: var(--text-muted); font-size: 0.8rem; }
+    }
+
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 1.5px solid var(--border-color, #e2e8f0);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: vertical;
+      color: var(--text-primary);
+      background: var(--bg-surface);
+      outline: none;
+      &:focus { border-color: var(--steam-blue); }
+    }
+  }
+
+  .duration-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    button {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border-color, #e2e8f0);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover { border-color: var(--steam-blue); }
+      &.active {
+        background: rgba(7, 177, 201, 0.12);
+        border-color: var(--steam-blue, #07B1C9);
+        color: var(--steam-blue, #07B1C9);
+      }
+    }
+  }
+
+  .reactivate-note {
+    margin: 8px 0 0;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    background: rgba(46, 204, 113, 0.08);
+    border: 1px solid rgba(46, 204, 113, 0.25);
+    padding: 12px;
+    border-radius: 10px;
+  }
+}
+
+/* Botón primario en variante peligro (banear/suspender) */
+.btn-primary.danger {
+  background: var(--steam-red, #e74c3c);
+  box-shadow: 0 4px 10px rgba(231, 76, 60, 0.25);
+  &:hover { box-shadow: 0 6px 15px rgba(231, 76, 60, 0.35); }
+}

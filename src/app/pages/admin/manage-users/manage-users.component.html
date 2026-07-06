@@ -42,6 +42,8 @@
       <div class="action-bar-full" *ngIf="selectedUsers.length > 0">
         <button class="btn-action edit flex-1" *ngIf="selectedUsers.length === 1" (click)="openModal('edit')"
           [disabled]="isSubmitting"><app-lucide-icon name="pencil" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Editar</button>
+        <button class="btn-action moderate flex-1" *ngIf="selectedUsers.length === 1" (click)="openSuspensionModal(selectedUsers[0])"
+          [disabled]="isSubmitting"><app-lucide-icon name="shield" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Moderar</button>
         <button class="btn-action delete flex-1" (click)="deleteSelectedUsers()" [disabled]="isSubmitting">
           <span *ngIf="isSubmitting">⏳</span>
           <span *ngIf="!isSubmitting"><app-lucide-icon name="trash-2" [size]="16" style="margin-right: 4px;"></app-lucide-icon></span> Eliminar
@@ -109,8 +111,9 @@
             <td><span class="role-badge">{{ u.role === 'admin' ? 'Admin' : 'Estudiante' }}</span></td>
             <td>{{ u.createdAt | date:'d MMM yyyy' }}</td>
             <td>
-              <span class="status-dot" [class.active]="u.isEmailVerified"></span>
-              {{ u.isEmailVerified ? 'Activo' : 'Inactivo' }}
+              <span class="status-badge" [ngClass]="getUserStatus(u)">
+                {{ getUserStatusLabel(u) }}
+              </span>
             </td>
           </tr>
         </tbody>
@@ -346,3 +349,62 @@
     &#8594;
   </button>
 </div>
+
+<!-- ── MODAL DE MODERACIÓN (suspender / banear / reactivar) ── -->
+<div class="modal-overlay" *ngIf="suspensionModalOpen && suspensionTarget" (click)="closeSuspensionModal()">
+  <div class="modal-box suspension-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><app-lucide-icon name="shield" [size]="20" style="margin-right: 8px; vertical-align: middle;"></app-lucide-icon> Moderar cuenta</h2>
+        <button type="button" class="btn-close-modal" (click)="closeSuspensionModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
+      </div>
+
+      <div class="suspension-body">
+        <p class="suspension-target">
+          {{ suspensionTarget.fullname }} <span>({{ suspensionTarget.email }})</span>
+        </p>
+        <p class="suspension-current" *ngIf="isModerated(suspensionTarget)">
+          Estado actual: <strong>{{ getUserStatusLabel(suspensionTarget) }}</strong>
+        </p>
+
+        <!-- Selector de acción -->
+        <div class="action-toggle">
+          <button type="button" [class.active]="suspensionAction === 'suspend'" (click)="suspensionAction = 'suspend'">Suspender</button>
+          <button type="button" [class.active]="suspensionAction === 'ban'" (click)="suspensionAction = 'ban'">Banear</button>
+          <button type="button" [class.active]="suspensionAction === 'reactivate'" (click)="suspensionAction = 'reactivate'">Reactivar</button>
+        </div>
+
+        <!-- Duración (solo suspensión temporal) -->
+        <div class="field-group" *ngIf="suspensionAction === 'suspend'">
+          <label>Duración</label>
+          <div class="duration-chips">
+            <button type="button" *ngFor="let opt of durationOptions"
+              [class.active]="suspensionDurationDays === opt.days"
+              (click)="suspensionDurationDays = opt.days">{{ opt.label }}</button>
+          </div>
+        </div>
+
+        <!-- Motivo (suspensión y baneo) -->
+        <div class="field-group" *ngIf="suspensionAction !== 'reactivate'">
+          <label>Motivo <span class="optional">(se le mostrará al usuario)</span></label>
+          <textarea [(ngModel)]="suspensionReason" rows="3"
+            placeholder="Ej. Incumplimiento de los términos de uso."></textarea>
+        </div>
+
+        <p class="reactivate-note" *ngIf="suspensionAction === 'reactivate'">
+          Se levantará cualquier suspensión o baneo y la cuenta podrá volver a iniciar sesión.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeSuspensionModal()" [disabled]="isSuspending">Cancelar</button>
+        <button type="button" class="btn-primary"
+          [class.danger]="suspensionAction !== 'reactivate'"
+          (click)="applySuspension()" [disabled]="isSuspending">
+          <span *ngIf="isSuspending">⏳ Aplicando...</span>
+          <span *ngIf="!isSuspending">
+            {{ suspensionAction === 'reactivate' ? 'Reactivar cuenta' : (suspensionAction === 'ban' ? 'Banear cuenta' : 'Suspender cuenta') }}
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>

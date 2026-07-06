@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // Necesario para ngModel
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
-import { AdminService, AdminUser } from '../../../core/services/admin.service';
+import { AdminService, AdminUser, SuspensionAction } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -61,6 +61,90 @@ export class ManageUsersComponent implements OnInit {
 
   isLoading = true;
   skeletonArray = Array(5).fill(0); // 5 filas de skeleton
+
+  // --- MODERACIÓN (suspensión / baneo) ---
+  suspensionModalOpen = false;
+  suspensionTarget: AdminUser | null = null;
+  suspensionAction: SuspensionAction = 'suspend';
+  suspensionDurationDays = 7;
+  suspensionReason = '';
+  isSuspending = false;
+  readonly durationOptions = [
+    { days: 1, label: '1 día' },
+    { days: 3, label: '3 días' },
+    { days: 7, label: '7 días' },
+    { days: 30, label: '30 días' },
+    { days: 90, label: '90 días' },
+  ];
+
+  /** Estado efectivo de la cuenta, en orden de prioridad. */
+  getUserStatus(u: AdminUser): 'banned' | 'suspended' | 'active' | 'inactive' {
+    if (u.isBanned) return 'banned';
+    if (u.suspendedUntil && new Date(u.suspendedUntil) > new Date()) return 'suspended';
+    return u.isEmailVerified ? 'active' : 'inactive';
+  }
+
+  getUserStatusLabel(u: AdminUser): string {
+    switch (this.getUserStatus(u)) {
+      case 'banned': return 'Baneado';
+      case 'suspended': return 'Suspendido';
+      case 'active': return 'Activo';
+      default: return 'Inactivo';
+    }
+  }
+
+  isModerated(u: AdminUser): boolean {
+    const s = this.getUserStatus(u);
+    return s === 'banned' || s === 'suspended';
+  }
+
+  openSuspensionModal(user: AdminUser, event?: Event) {
+    if (event) event.stopPropagation();
+    this.suspensionTarget = user;
+    // Si ya está moderado, la acción por defecto es reactivar.
+    this.suspensionAction = this.isModerated(user) ? 'reactivate' : 'suspend';
+    this.suspensionDurationDays = 7;
+    this.suspensionReason = user.suspensionReason || '';
+    this.suspensionModalOpen = true;
+  }
+
+  closeSuspensionModal() {
+    if (this.isSuspending) return;
+    this.suspensionModalOpen = false;
+    this.suspensionTarget = null;
+  }
+
+  applySuspension() {
+    if (!this.suspensionTarget || this.isSuspending) return;
+    this.isSuspending = true;
+
+    const payload: { action: SuspensionAction; durationDays?: number; reason?: string } = {
+      action: this.suspensionAction,
+    };
+    if (this.suspensionAction === 'suspend') {
+      payload.durationDays = Number(this.suspensionDurationDays);
+      payload.reason = this.suspensionReason.trim() || undefined;
+    } else if (this.suspensionAction === 'ban') {
+      payload.reason = this.suspensionReason.trim() || undefined;
+    }
+
+    this.adminService.setUserSuspension(this.suspensionTarget.id, payload).subscribe({
+      next: () => {
+        this.isSuspending = false;
+        this.suspensionModalOpen = false;
+        const verb = this.suspensionAction === 'reactivate' ? 'reactivada'
+          : this.suspensionAction === 'ban' ? 'baneada' : 'suspendida';
+        this.displayToast(`Cuenta ${verb} correctamente.`);
+        this.suspensionTarget = null;
+        this.selectedUsers = [];
+        this.loadUsers();
+      },
+      error: (err) => {
+        this.isSuspending = false;
+        this.displayToast('No se pudo aplicar: ' + (err.error?.message || ''), true);
+      },
+    });
+  }
 
   constructor(
     private adminService: AdminService, 
