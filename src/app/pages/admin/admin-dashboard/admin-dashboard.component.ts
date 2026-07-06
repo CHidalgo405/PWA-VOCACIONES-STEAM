@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { BaseChartDirective } from 'ng2-charts'; // Importante para la gráfica
@@ -6,43 +6,41 @@ import { ChartConfiguration } from 'chart.js';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 import { PdfReportTemplateComponent } from '../../../components/pdf-report-template/pdf-report-template.component';
 import { AdminReportTemplateComponent } from '../../../components/admin-report-template/admin-report-template.component';
+import { RouterModule } from '@angular/router';
 import { SteamArea } from '../../test-result/test-result.component';
 import { UniversityRecommendation } from '../../../core/services/test.service';
 import { inject } from '@angular/core';
 import { ToastService } from '../../../core/services/toast.service';
+import { AdminService, AdminStats } from '../../../core/services/admin.service';
+import { withMinDuration } from '../../../core/utils/with-min-duration';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+
+interface Alert { type: 'warning' | 'success' | 'info'; text: string; }
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, AdminSidebarComponent, BaseChartDirective, LucideIconComponent, PdfReportTemplateComponent, AdminReportTemplateComponent],
+  imports: [CommonModule, RouterModule, AdminSidebarComponent, BaseChartDirective, LucideIconComponent, PdfReportTemplateComponent, AdminReportTemplateComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements OnInit {
   private toastService = inject(ToastService);
+  private adminService = inject(AdminService);
 
-  // 1. Datos para las tarjetas rápidas (KPIs)
-  kpis = [
-    { title: 'Usuarios Totales', value: '1,245', icon: 'users', color: '#07B1C9', trend: '+12% este mes' },
-    { title: 'Tests Completados', value: '890', icon: 'clipboard-list', color: '#4DB046', trend: '+5% esta semana' },
-    { title: 'IA API Status', value: 'Online', icon: 'bot', color: '#F88718', trend: '99.9% Uptime' },
-    { title: 'Nuevos Cursos', value: '24', icon: 'book-open', color: '#E8372D', trend: 'Sincronizados hoy' }
-  ];
+  isLoading = true;
+  loadError = false;
 
-  // 2. Configuración de la Gráfica de Anillo (Doughnut)
+  // 1. KPIs — se llenan con datos reales en ngOnInit.
+  kpis: { title: string; value: string; icon: string; color: string; trend: string }[] = [];
+
+  // 2. Gráfica de anillo (distribución real de perfiles STEAM dominantes)
   public doughnutChartLabels: string[] = ['Ciencia', 'Tecnología', 'Ingeniería', 'Artes', 'Matemáticas'];
   public doughnutChartDatasets: ChartConfiguration<'doughnut'>['data']['datasets'] = [
     {
-      data: [15, 30, 25, 10, 20],
-      backgroundColor: [
-        '#07B1C9', // C
-        '#10b981', // T (Verde esmeralda para diferenciar)
-        '#4DB046', // I
-        '#F88718', // A
-        '#E8372D'  // M
-      ],
+      data: [0, 0, 0, 0, 0],
+      backgroundColor: ['#07B1C9', '#10b981', '#4DB046', '#F88718', '#E8372D'],
       hoverOffset: 4
     }
   ];
@@ -52,13 +50,86 @@ export class AdminDashboardComponent {
     plugins: { legend: { position: 'right' } }
   };
 
-  // 3. Datos para la tabla de actividad reciente
-  recentUsers = [
-    { name: 'Ana Sofía', email: 'ana@ejemplo.com', institution: 'UTCV', profile: 'Tecnología', date: 'Hace 2 horas', status: 'Completado' },
-    { name: 'Carlos R.', email: 'carlos@ejemplo.com', institution: 'CBTIS 47', profile: 'Ingeniería', date: 'Hace 5 horas', status: 'Completado' },
-    { name: 'Lucía M.', email: 'lucia@ejemplo.com', institution: 'Independiente', profile: 'Artes', date: 'Ayer', status: 'Pendiente' },
-    { name: 'Jorge H.', email: 'jorge@ejemplo.com', institution: 'ESBAO', profile: 'Ciencia', date: 'Ayer', status: 'Completado' }
-  ];
+  hasProfileData = false;
+
+  // 3. Actividad reciente (usuarios recién registrados + su último test)
+  recentUsers: { name: string; email: string; institution: string; profile: string; date: string; status: string }[] = [];
+
+  // 4. Alertas derivadas de datos reales
+  alerts: Alert[] = [];
+
+  ngOnInit(): void {
+    this.loadStats();
+  }
+
+  private loadStats(): void {
+    this.isLoading = true;
+    this.loadError = false;
+    withMinDuration(this.adminService.getStats()).subscribe({
+      next: (stats) => {
+        this.applyStats(stats);
+        this.isLoading = false;
+      },
+      error: () => {
+        this.loadError = true;
+        this.isLoading = false;
+        this.toastService.showToast('No se pudieron cargar las métricas.', 'error');
+      },
+    });
+  }
+
+  private applyStats(stats: AdminStats): void {
+    const t = stats.totals;
+
+    this.kpis = [
+      { title: 'Usuarios Totales', value: this.fmt(t.users), icon: 'users', color: '#07B1C9', trend: `${t.students} estudiantes` },
+      { title: 'Tests Completados', value: this.fmt(t.tests), icon: 'clipboard-list', color: '#4DB046', trend: `+${t.testsThisWeek} esta semana` },
+      { title: 'Simuladores', value: this.fmt(t.simulators), icon: 'gamepad-2', color: '#F88718', trend: `${t.questions} preguntas activas` },
+      { title: 'Cuentas Moderadas', value: this.fmt(t.moderated), icon: 'shield', color: '#E8372D', trend: t.moderated === 0 ? 'Sin incidencias' : 'Suspendidas/baneadas' },
+    ];
+
+    const d = stats.distribution;
+    const data = [d.ciencia, d.tecnologia, d.ingenieria, d.artes, d.matematicas];
+    this.doughnutChartDatasets = [{ ...this.doughnutChartDatasets[0], data }];
+    this.hasProfileData = data.some((n) => n > 0);
+
+    this.recentUsers = (stats.recentUsers || []).map((u) => ({
+      name: u.fullname,
+      email: u.email,
+      institution: '—',
+      profile: u.dominantTraits || 'Sin test',
+      date: this.relativeDate(u.createdAt),
+      status: u.hasTest ? 'Completado' : 'Pendiente',
+    }));
+
+    this.alerts = this.buildAlerts(stats);
+  }
+
+  private buildAlerts(stats: AdminStats): Alert[] {
+    const t = stats.totals;
+    const list: Alert[] = [];
+    if (t.moderated > 0) {
+      list.push({ type: 'warning', text: `${t.moderated} cuenta(s) suspendida(s) o baneada(s).` });
+    }
+    list.push({ type: 'success', text: `${t.testsThisMonth} test(s) completado(s) en los últimos 30 días.` });
+    list.push({ type: 'info', text: `${t.students} estudiante(s) registrado(s) en la plataforma.` });
+    return list;
+  }
+
+  private fmt(n: number): string {
+    return (n ?? 0).toLocaleString('es-MX');
+  }
+
+  private relativeDate(iso: string): string {
+    const then = new Date(iso).getTime();
+    const diffH = Math.floor((Date.now() - then) / 3600000);
+    if (diffH < 1) return 'Hace minutos';
+    if (diffH < 24) return `Hace ${diffH} h`;
+    const diffD = Math.floor(diffH / 24);
+    if (diffD === 1) return 'Ayer';
+    if (diffD < 30) return `Hace ${diffD} días`;
+    return new Date(iso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
 
   // Data for individual student PDF
   selectedStudentPdf: any = {

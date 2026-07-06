@@ -20,6 +20,34 @@ export interface AdminUser {
 
 export type SuspensionAction = 'suspend' | 'ban' | 'reactivate';
 
+export interface AdminStats {
+  totals: {
+    users: number;
+    students: number;
+    admins: number;
+    moderated: number;
+    tests: number;
+    testsThisWeek: number;
+    testsThisMonth: number;
+    simulators: number;
+    questions: number;
+  };
+  distribution: {
+    ciencia: number;
+    tecnologia: number;
+    ingenieria: number;
+    artes: number;
+    matematicas: number;
+  };
+  recentUsers: {
+    fullname: string;
+    email: string;
+    createdAt: string;
+    dominantTraits: string | null;
+    hasTest: boolean;
+  }[];
+}
+
 export interface AdminTestOption {
   id?: string;
   text: string;
@@ -72,6 +100,11 @@ export interface AdminUniversity {
 })
 export class AdminService {
   private http = inject(HttpClient);
+
+  // --- DASHBOARD ---
+  getStats(): Observable<AdminStats> {
+    return this.http.get<AdminStats>(`${environment.apiUrl}/admin/stats`);
+  }
 
   // --- ADMINISTRACIÓN DE USUARIOS ---
   getAllUsers(): Observable<AdminUser[]> {

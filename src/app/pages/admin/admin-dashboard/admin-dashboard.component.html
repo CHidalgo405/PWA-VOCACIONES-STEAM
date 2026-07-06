@@ -11,6 +11,18 @@
   </header>
 
   <div class="kpi-grid">
+    <!-- Skeleton mientras cargan las métricas -->
+    <ng-container *ngIf="isLoading">
+      <div class="kpi-card" *ngFor="let i of [1,2,3,4]" aria-hidden="true">
+        <div class="kpi-header">
+          <span class="shimmer" style="width: 44px; height: 44px; border-radius: 12px;"></span>
+          <span class="shimmer" style="width: 70px; height: 14px; border-radius: 4px;"></span>
+        </div>
+        <span class="shimmer" style="width: 90px; height: 30px; border-radius: 6px; display: block; margin: 12px 0 8px;"></span>
+        <span class="shimmer" style="width: 120px; height: 14px; border-radius: 4px; display: block;"></span>
+      </div>
+    </ng-container>
+
     <div class="kpi-card" *ngFor="let kpi of kpis">
       <div class="kpi-header">
         <span class="kpi-icon" [style.background-color]="kpi.color + '20'"><app-lucide-icon [name]="kpi.icon" [size]="24" [color]="kpi.color"></app-lucide-icon></span>
@@ -26,27 +38,33 @@
     <div class="chart-card">
       <h2>Distribución de Perfiles</h2>
       <div class="chart-wrapper">
-        <canvas baseChart
+        <canvas *ngIf="hasProfileData" baseChart
           [labels]="doughnutChartLabels"
           [datasets]="doughnutChartDatasets"
           [options]="doughnutChartOptions"
           [legend]="true"
           type="doughnut">
         </canvas>
+        <div class="chart-empty" *ngIf="!isLoading && !hasProfileData">
+          <app-lucide-icon name="bar-chart-3" [size]="40" color="#cbd5e1"></app-lucide-icon>
+          <p>Aún no hay tests completados para graficar.</p>
+        </div>
       </div>
     </div>
 
     <div class="alerts-card">
       <h2>Alertas del Sistema</h2>
       <ul class="alerts-list">
-        <li class="alert-item warning">
-          <span class="icon"><app-lucide-icon name="alert-triangle" [size]="18" color="#f59e0b"></app-lucide-icon></span> Base de datos al 85% de capacidad.
+        <li class="alert-item" *ngFor="let alert of alerts" [ngClass]="alert.type">
+          <span class="icon">
+            <app-lucide-icon *ngIf="alert.type === 'warning'" name="alert-triangle" [size]="18" color="#f59e0b"></app-lucide-icon>
+            <app-lucide-icon *ngIf="alert.type === 'success'" name="check-circle" [size]="18" color="#10b981"></app-lucide-icon>
+            <app-lucide-icon *ngIf="alert.type === 'info'" name="circle-help" [size]="18" color="#3b82f6"></app-lucide-icon>
+          </span>
+          {{ alert.text }}
         </li>
-        <li class="alert-item success">
-          <span class="icon"><app-lucide-icon name="check-circle" [size]="18" color="#10b981"></app-lucide-icon></span> Sincronización de IA completada con éxito.
-        </li>
-        <li class="alert-item info">
-          <span class="icon"><app-lucide-icon name="circle-help" [size]="18" color="#3b82f6"></app-lucide-icon></span> 15 nuevos usuarios requieren verificación.
+        <li class="alert-item info" *ngIf="alerts.length === 0 && !isLoading">
+          <span class="icon"><app-lucide-icon name="check-circle" [size]="18" color="#10b981"></app-lucide-icon></span> Todo en orden.
         </li>
       </ul>
     </div>
@@ -55,8 +73,8 @@
 
   <div class="table-card">
     <div class="table-header">
-      <h2>Últimos Tests Realizados</h2>
-      <a href="#" class="view-all">Ver todos</a>
+      <h2>Actividad Reciente</h2>
+      <a routerLink="/admin/users" class="view-all">Ver todos</a>
     </div>
     
     <div class="table-responsive">
