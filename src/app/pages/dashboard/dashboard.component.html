@@ -154,9 +154,9 @@
       <div class="card-head">
         <div>
           <h3>Calibra tu perfil</h3>
-          <p>Cada módulo aporta evidencia real y reduce el sesgo. Llevas {{ completedModulesCount }}/4.</p>
+          <p>Cada módulo aporta evidencia real y reduce el sesgo. Llevas {{ completedModulesCount }}/{{ totalModules }}.</p>
         </div>
-        <span class="head-badge">+{{ (4 - completedModulesCount) * 10 }}% por completar</span>
+        <span class="head-badge">+{{ (totalModules - completedModulesCount) * 10 }}% por completar</span>
       </div>
       <div class="modules-grid">
         @for (mod of calibrationModulesConfig; track mod.id) {

@@ -11,6 +11,7 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { PwaInstallService } from '../../core/services/pwa-install.service';
+import { CalibrationDeckService } from '../../core/services/calibration-deck.service';
 import gsap from 'gsap';
 
 interface ProfileArea {
@@ -29,6 +30,7 @@ interface ProfileArea {
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   public pwaInstall = inject(PwaInstallService);
   private profileEngine = inject(VocationalProfileService);
+  private deckService = inject(CalibrationDeckService);
 
   /** Vacío hasta que se resuelve el usuario cacheado o el perfil remoto; el template muestra un skeleton mientras tanto. */
   userName = '';
@@ -40,12 +42,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   dominantTraitsStr = 'Pendiente';
   calibrationLevel = 0;
 
+  /** Módulos de calibración. Se cargan de la BD (admin) en ngOnInit; el
+   *  arreglo inicial sirve de respaldo si la API no responde. */
   calibrationModulesConfig = [
     { id: 'gaming_habits', title: 'Hábitos de Gaming', icon: 'gamepad-2' },
     { id: 'physical_hobbies', title: 'Hobbies y Ecosistemas', icon: 'leaf' },
     { id: 'digital_consumption', title: 'Consumo Digital', icon: 'monitor-smartphone' },
     { id: 'everyday_mechanics', title: 'Resolución Doméstica', icon: 'wrench' },
   ];
+
+  get totalModules(): number {
+    return this.calibrationModulesConfig.length || 1;
+  }
 
   showWelcomeModal = false;
 
@@ -122,6 +130,20 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     // cambios de dispositivo, a diferencia del estado local del usuario).
     this.profileEngine.getMyCalibrations().subscribe((rows) => {
       this.completedModuleIds = new Set(rows.map((r) => r.moduleId));
+    });
+
+    // Módulos de calibración administrados: reflejan altas/bajas del admin.
+    this.deckService.getActiveDecks().subscribe({
+      next: (decks) => {
+        if (decks?.length) {
+          this.calibrationModulesConfig = decks.map((d) => ({
+            id: d.moduleId,
+            title: d.title,
+            icon: d.icon || 'sparkles',
+          }));
+        }
+      },
+      error: () => { /* respaldo: se conserva el arreglo por defecto */ },
     });
 
     const cachedUser = this.authService.getCurrentUser();

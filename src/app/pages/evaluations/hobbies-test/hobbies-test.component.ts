@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { VocationalProfileService } from '../../../core/services/vocational-profile.service';
+import { CalibrationDeckService } from '../../../core/services/calibration-deck.service';
 import { CalibrationModuleResult, SimulatorAffinityResult, SteamAxis } from '../../../core/models/vocational-profile.models';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 
@@ -94,21 +95,34 @@ export class HobbiesTestComponent implements OnInit {
     private route: ActivatedRoute,
     private authService: AuthService,
     private profileEngine: VocationalProfileService,
+    private deckService: CalibrationDeckService,
   ) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id') || 'gaming_habits';
       this.moduleId = id;
-      const deck = this.allDecks[id] || this.allDecks['gaming_habits'];
-      this.moduleTitle = deck.title;
-      this.moduleSubtitle = deck.subtitle;
-      this.cards = deck.cards;
       this.currentIndex = 0;
       this.answers = {};
       this.viewState = 'intro';
       this.calibrationSummary = [];
+
+      // Fuente de verdad: el deck administrado en la BD. Si la API falla
+      // (p. ej. sin conexión) usamos el deck hardcodeado como respaldo.
+      this.deckService.getDeck(id).subscribe({
+        next: (deck) => this.applyDeck(deck.title, deck.subtitle, deck.cards as HobbyCard[]),
+        error: () => {
+          const fallback = this.allDecks[id] || this.allDecks['gaming_habits'];
+          this.applyDeck(fallback.title, fallback.subtitle, fallback.cards);
+        },
+      });
     });
+  }
+
+  private applyDeck(title: string, subtitle: string, cards: HobbyCard[]) {
+    this.moduleTitle = title;
+    this.moduleSubtitle = subtitle;
+    this.cards = cards;
   }
 
   get currentCard(): HobbyCard | undefined {
