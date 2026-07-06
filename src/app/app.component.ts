@@ -74,18 +74,27 @@ export class AppComponent implements OnInit {
     this.themeService.initializeTheme();
 
     if (this.swUpdate.isEnabled) {
+      // Cuando hay una versión nueva, la activamos y recargamos
+      // automáticamente. Antes se mostraba un diálogo que el usuario podía
+      // posponer indefinidamente y quedaba atascado con assets viejos
+      // (CSS de una versión anterior), causando fallos visuales al mezclarse
+      // JS nuevo con CSS viejo.
       this.swUpdate.versionUpdates.pipe(
         filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY')
       ).subscribe(async () => {
-        const confirmed = await this.dialogService.confirm(
-          'Actualización Disponible',
-          'Hay una nueva versión de Vocaciones STEAM disponible. ¿Deseas actualizar ahora?',
-          { confirmText: 'Actualizar', cancelText: 'Más tarde' }
-        );
-        if (confirmed) {
+        try {
+          await this.swUpdate.activateUpdate();
+        } finally {
           window.location.reload();
         }
       });
+
+      // Si el Service Worker queda en un estado irrecuperable (caché
+      // corrupta), recargamos para reinstalarlo desde cero.
+      this.swUpdate.unrecoverable.subscribe(() => window.location.reload());
+
+      // Chequeo proactivo al arrancar (por si el navegador no lo hizo aún).
+      this.swUpdate.checkForUpdate().catch(() => { /* sin conexión: se ignora */ });
     }
   }
 
