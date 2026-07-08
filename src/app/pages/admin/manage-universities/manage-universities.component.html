@@ -8,6 +8,13 @@
       <p>Candidatas del matching de universidades (A8). Sin universidades aquí, los filtros de Explorar no muestran resultados.</p>
     </div>
     <div class="header-actions">
+      <button class="btn-secondary" (click)="runDiscovery()" [disabled]="isDiscovering()" title="Busca universidades en Google Places (capitales estatales + zonas metropolitanas grandes) y agrega las nuevas.">
+        <span *ngIf="isDiscovering()">⏳ Descubriendo...</span>
+        <span *ngIf="!isDiscovering()">
+          <app-lucide-icon name="search" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+          Descubrir (Google Places)
+        </span>
+      </button>
       <button class="btn-primary" (click)="openCreateModal()">
         <app-lucide-icon name="plus" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
         Nueva Universidad

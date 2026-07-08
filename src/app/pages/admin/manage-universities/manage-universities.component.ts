@@ -70,6 +70,7 @@ export class ManageUniversitiesComponent implements OnInit {
   public universities = signal<AdminUniversity[]>([]);
   public isLoading = signal<boolean>(false);
   public isSubmitting = signal<boolean>(false);
+  public isDiscovering = signal<boolean>(false);
   public isModalOpen = signal<boolean>(false);
   public modalMode = signal<'create' | 'edit'>('create');
 
@@ -94,6 +95,43 @@ export class ManageUniversitiesComponent implements OnInit {
         console.error('Error loading universities:', err);
         this.toastService.showToast('No se pudieron cargar las universidades.', 'error', 'Error');
         this.isLoading.set(false);
+      },
+    });
+  }
+
+  /**
+   * Descubrimiento automático (Google Places): busca en capitales estatales
+   * + zonas metropolitanas grandes, de-duplica contra lo que ya existe en
+   * BD y guarda las nuevas. No llena steamPrograms/costTier/tuitionRange —
+   * eso se completa a mano por institución desde este mismo panel.
+   */
+  runDiscovery() {
+    if (this.isDiscovering()) return; // anti-spam: no encadenar ejecuciones
+    this.isDiscovering.set(true);
+    this.adminService.discoverUniversities().subscribe({
+      next: (result) => {
+        this.isDiscovering.set(false);
+        if (result.created > 0) {
+          this.loadUniversities();
+        }
+        const partes = [`${result.created} nuevas agregadas`];
+        if (result.skippedExisting > 0) partes.push(`${result.skippedExisting} ya existían`);
+        if (result.failed > 0) partes.push(`${result.failed} con error`);
+        this.toastService.showToast(
+          `Descubrimiento terminado: ${partes.join(', ')} (de ${result.totalFound} encontradas).`,
+          result.failed > 0 ? 'warning' : 'success',
+          'Descubrimiento de universidades',
+        );
+      },
+      error: (err) => {
+        console.error('Error en descubrimiento de universidades:', err);
+        this.isDiscovering.set(false);
+        const detail = err?.error?.message || 'Revisa que GOOGLE_PLACES_API_KEY esté configurada en el servidor.';
+        this.toastService.showToast(
+          `No se pudo ejecutar el descubrimiento: ${detail}`,
+          'error',
+          'Descubrimiento de universidades',
+        );
       },
     });
   }

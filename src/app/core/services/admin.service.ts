@@ -185,4 +185,17 @@ export class AdminService {
   public deleteUniversity(id: string): Observable<any> {
     return this.http.delete<any>(`${environment.apiUrl}/admin/universities/${id}`);
   }
+
+  /** Descubrimiento automático (Google Places) — capitales estatales + zonas metropolitanas grandes. */
+  public discoverUniversities(): Observable<DiscoverUniversitiesResult> {
+    return this.http.post<DiscoverUniversitiesResult>(`${environment.apiUrl}/admin/universities/discover`, {});
+  }
+}
+
+export interface DiscoverUniversitiesResult {
+  totalFound: number;
+  created: number;
+  skippedExisting: number;
+  failed: number;
+  errors: { index: number; name?: string; error: string }[];
 }
