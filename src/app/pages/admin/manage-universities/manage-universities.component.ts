@@ -255,11 +255,11 @@ export class ManageUniversitiesComponent implements OnInit {
             ? `${result.deleted} entradas eliminadas: ${result.deletedNames.slice(0, 5).join(', ')}${result.deleted > 5 ? '…' : ''}`
             : 'No se encontró nada que limpiar.',
           'success',
-          'Limpieza de nombres genéricos',
+          'Limpieza de genéricos y duplicados',
         );
       },
       error: (err) => {
-        console.error('Error en limpieza de nombres genéricos:', err);
+        console.error('Error en limpieza de genéricos y duplicados:', err);
         this.isCleaningJunk.set(false);
         this.toastService.showToast('No se pudo ejecutar la limpieza.', 'error', 'Error');
       },

@@ -26,11 +26,11 @@
           Descubrir (DENUE/INEGI)
         </span>
       </button>
-      <button class="btn-secondary" (click)="cleanupJunk()" [disabled]="isCleaningJunk() || !universities().length" title="Elimina entradas que no son universidades (oficinas de gobierno, sindicatos, estacionamientos, etc.) entre las ya guardadas.">
+      <button class="btn-secondary" (click)="cleanupJunk()" [disabled]="isCleaningJunk() || !universities().length" title="Elimina entradas que no son universidades (oficinas de gobierno, sindicatos, estacionamientos, etc.) y fusiona duplicados: mismo nombre a menos de 300m, conservando la ficha más completa.">
         <span *ngIf="isCleaningJunk()">⏳ Limpiando...</span>
         <span *ngIf="!isCleaningJunk()">
           <app-lucide-icon name="sparkles" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
-          Limpiar genéricos
+          Limpiar genéricos y duplicados
         </span>
       </button>
       <button class="btn-danger" (click)="deleteAllUniversities()" [disabled]="isDeletingAll() || !universities().length" title="Elimina todas las universidades guardadas para empezar de cero.">
