@@ -186,9 +186,14 @@ export class AdminService {
     return this.http.delete<any>(`${environment.apiUrl}/admin/universities/${id}`);
   }
 
-  /** Descubrimiento automático (Google Places) — capitales estatales + zonas metropolitanas grandes. */
-  public discoverUniversities(): Observable<DiscoverUniversitiesResult> {
-    return this.http.post<DiscoverUniversitiesResult>(`${environment.apiUrl}/admin/universities/discover`, {});
+  /** Borra TODAS las universidades — para reiniciar el mapeo desde cero. */
+  public deleteAllUniversities(): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(`${environment.apiUrl}/admin/universities/all`);
+  }
+
+  /** Descubrimiento automático (Google Places). Sin `states`: las 32 capitales + zonas metropolitanas grandes. */
+  public discoverUniversities(states?: string[]): Observable<DiscoverUniversitiesResult> {
+    return this.http.post<DiscoverUniversitiesResult>(`${environment.apiUrl}/admin/universities/discover`, { states });
   }
 }
 

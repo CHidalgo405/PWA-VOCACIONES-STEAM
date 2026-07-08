@@ -67,10 +67,22 @@ export class ManageUniversitiesComponent implements OnInit {
     { value: 'private-premium', label: 'Privada' },
   ];
 
+  /** Mismos 32 estados que cubre el descubrimiento en el backend (ai.service.ts). */
+  public readonly discoveryStates = [
+    'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche',
+    'Coahuila', 'Colima', 'Chiapas', 'Chihuahua', 'CDMX', 'Durango',
+    'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Estado de México',
+    'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla',
+    'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora',
+    'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas',
+  ];
+  public selectedDiscoveryState = '';
+
   public universities = signal<AdminUniversity[]>([]);
   public isLoading = signal<boolean>(false);
   public isSubmitting = signal<boolean>(false);
   public isDiscovering = signal<boolean>(false);
+  public isDeletingAll = signal<boolean>(false);
   public isModalOpen = signal<boolean>(false);
   public modalMode = signal<'create' | 'edit'>('create');
 
@@ -108,7 +120,8 @@ export class ManageUniversitiesComponent implements OnInit {
   runDiscovery() {
     if (this.isDiscovering()) return; // anti-spam: no encadenar ejecuciones
     this.isDiscovering.set(true);
-    this.adminService.discoverUniversities().subscribe({
+    const states = this.selectedDiscoveryState ? [this.selectedDiscoveryState] : undefined;
+    this.adminService.discoverUniversities(states).subscribe({
       next: (result) => {
         this.isDiscovering.set(false);
         if (result.created > 0) {
@@ -117,8 +130,9 @@ export class ManageUniversitiesComponent implements OnInit {
         const partes = [`${result.created} nuevas agregadas`];
         if (result.skippedExisting > 0) partes.push(`${result.skippedExisting} ya existían`);
         if (result.failed > 0) partes.push(`${result.failed} con error`);
+        const scope = this.selectedDiscoveryState ? ` en ${this.selectedDiscoveryState}` : '';
         this.toastService.showToast(
-          `Descubrimiento terminado: ${partes.join(', ')} (de ${result.totalFound} encontradas).`,
+          `Descubrimiento${scope} terminado: ${partes.join(', ')} (de ${result.totalFound} encontradas).`,
           result.failed > 0 ? 'warning' : 'success',
           'Descubrimiento de universidades',
         );
@@ -132,6 +146,32 @@ export class ManageUniversitiesComponent implements OnInit {
           'error',
           'Descubrimiento de universidades',
         );
+      },
+    });
+  }
+
+  /** Borra TODAS las universidades — para reiniciar el mapeo desde cero. Pide doble confirmación. */
+  async deleteAllUniversities() {
+    if (this.isDeletingAll()) return;
+    const total = this.universities().length;
+    const confirmed = await this.dialogService.confirm(
+      'Eliminar TODAS las universidades',
+      `Esto borra las ${total} universidades guardadas ahora mismo. Los filtros de Explorar quedarán sin resultados hasta que vuelvas a cargar datos. Esta acción no se puede deshacer.`,
+      { confirmText: 'Eliminar todo', cancelText: 'Cancelar', isDanger: true },
+    );
+    if (!confirmed) return;
+
+    this.isDeletingAll.set(true);
+    this.adminService.deleteAllUniversities().subscribe({
+      next: (result) => {
+        this.isDeletingAll.set(false);
+        this.loadUniversities();
+        this.toastService.showToast(`${result.deleted} universidades eliminadas.`, 'success', 'Éxito');
+      },
+      error: (err) => {
+        console.error('Error al eliminar todas las universidades:', err);
+        this.isDeletingAll.set(false);
+        this.toastService.showToast('No se pudieron eliminar las universidades.', 'error', 'Error');
       },
     });
   }
