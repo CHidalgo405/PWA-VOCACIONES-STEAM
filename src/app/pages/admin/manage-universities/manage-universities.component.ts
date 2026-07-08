@@ -53,6 +53,9 @@ export class ManageUniversitiesComponent implements OnInit {
   private toastService = inject(ToastService);
   private dialogService = inject(DialogService);
 
+  /** Expuesto para poder usar Math.min(...) en el template de paginación. */
+  public readonly Math = Math;
+
   public readonly axisOptions = [
     { value: 'ciencia', label: 'Ciencia' },
     { value: 'tecnologia', label: 'Tecnología' },
@@ -89,6 +92,11 @@ export class ManageUniversitiesComponent implements OnInit {
 
   public searchTerm = '';
   public filterCostTier: CostTier | '' = '';
+
+  // --- PAGINACIÓN (client-side, sobre la lista ya filtrada/ordenada) ---
+  public readonly pageSizeOptions = [10, 20, 30, 50];
+  public pageSize = signal<number>(20);
+  public currentPage = signal<number>(1);
 
   private currentUniversityId = '';
   public formModel: UniversityFormModel = { ...EMPTY_FORM, steamPrograms: [] };
@@ -233,6 +241,7 @@ export class ManageUniversitiesComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
+    this.currentPage.set(1);
   }
 
   sortIcon(column: typeof this.sortColumn): string {
@@ -267,6 +276,44 @@ export class ManageUniversitiesComponent implements OnInit {
       if (valA > valB) return 1 * dir;
       return 0;
     });
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredUniversities.length / this.pageSize()));
+  }
+
+  /**
+   * Página actual, ya recortada de filteredUniversities — esto es lo que pinta la tabla.
+   * Se auto-ajusta si la página guardada quedó fuera de rango (ej. tras borrar
+   * varias universidades) sin necesidad de resetear el estado en cada carga.
+   */
+  get pagedUniversities(): AdminUniversity[] {
+    const filtered = this.filteredUniversities;
+    const page = Math.min(this.currentPage(), this.totalPages);
+    const start = (page - 1) * this.pageSize();
+    return filtered.slice(start, start + this.pageSize());
+  }
+
+  /** Se llama al escribir en el buscador o cambiar el filtro: la búsqueda sigue corriendo sobre TODA la lista, solo se reinicia a la página 1 para no quedar viendo una página vacía. */
+  onSearchOrFilterChange() {
+    this.currentPage.set(1);
+  }
+
+  onPageSizeChange() {
+    this.currentPage.set(1);
+  }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage.set(page);
+  }
+
+  nextPage() {
+    this.goToPage(this.currentPage() + 1);
+  }
+
+  prevPage() {
+    this.goToPage(this.currentPage() - 1);
   }
 
   /** Universidades sin coordenadas: quedan excluidas de A8 sin previo aviso. */

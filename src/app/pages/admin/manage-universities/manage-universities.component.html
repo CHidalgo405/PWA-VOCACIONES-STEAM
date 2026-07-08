@@ -44,9 +44,9 @@
   <div class="premium-search-container">
     <div class="search-input-wrapper">
       <span class="search-icon"><app-lucide-icon name="search" [size]="18"></app-lucide-icon></span>
-      <input type="text" placeholder="Buscar por nombre o dirección..." [(ngModel)]="searchTerm">
+      <input type="text" placeholder="Buscar por nombre o dirección..." [(ngModel)]="searchTerm" (ngModelChange)="onSearchOrFilterChange()">
     </div>
-    <select [(ngModel)]="filterCostTier" class="search-select">
+    <select [(ngModel)]="filterCostTier" class="search-select" (ngModelChange)="onSearchOrFilterChange()">
       <option value="">Todos los costos</option>
       <option *ngFor="let opt of costTierOptions" [value]="opt.value">{{ opt.label }}</option>
     </select>
@@ -90,7 +90,7 @@
         </tbody>
 
         <tbody *ngIf="!isLoading()">
-          <tr *ngFor="let u of filteredUniversities">
+          <tr *ngFor="let u of pagedUniversities">
             <td>
               <strong class="uni-name-cell">{{ u.name }}</strong>
               <p class="uni-address-preview">{{ u.address || 'Sin dirección registrada' }}</p>
@@ -131,6 +131,29 @@
         <div class="empty-icon"><app-lucide-icon name="building-2" [size]="48" color="#bdc3c7"></app-lucide-icon></div>
         <h3>No hay universidades registradas</h3>
         <p>Agrega la primera universidad para que el matching de A8 (Explorar) tenga candidatas que ofrecer.</p>
+      </div>
+
+      <!-- PAGINACIÓN -->
+      <div class="pagination-bar" *ngIf="!isLoading() && filteredUniversities.length > 0">
+        <div class="pagination-info">
+          Mostrando {{ (currentPage() - 1) * pageSize() + 1 }}–{{ Math.min(currentPage() * pageSize(), filteredUniversities.length) }}
+          de {{ filteredUniversities.length }}
+        </div>
+        <div class="pagination-controls">
+          <label class="page-size-label">
+            Por página:
+            <select [ngModel]="pageSize()" (ngModelChange)="pageSize.set($event); onPageSizeChange()">
+              <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
+            </select>
+          </label>
+          <button class="page-btn" (click)="prevPage()" [disabled]="currentPage() === 1" aria-label="Página anterior">
+            <app-lucide-icon name="chevron-left" [size]="16"></app-lucide-icon>
+          </button>
+          <span class="page-indicator">Página {{ currentPage() }} de {{ totalPages }}</span>
+          <button class="page-btn" (click)="nextPage()" [disabled]="currentPage() >= totalPages" aria-label="Página siguiente">
+            <app-lucide-icon name="chevron-right" [size]="16"></app-lucide-icon>
+          </button>
+        </div>
       </div>
     </div>
   </div>
