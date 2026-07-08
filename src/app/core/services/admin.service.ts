@@ -195,6 +195,11 @@ export class AdminService {
   public discoverUniversities(states?: string[]): Observable<DiscoverUniversitiesResult> {
     return this.http.post<DiscoverUniversitiesResult>(`${environment.apiUrl}/admin/universities/discover`, { states });
   }
+
+  /** Descubrimiento vía DENUE/INEGI (censo económico oficial). Requiere `states` (uno o más). */
+  public discoverFromDenue(states: string[]): Observable<DiscoverUniversitiesResult> {
+    return this.http.post<DiscoverUniversitiesResult>(`${environment.apiUrl}/admin/universities/discover-denue`, { states });
+  }
 }
 
 export interface DiscoverUniversitiesResult {

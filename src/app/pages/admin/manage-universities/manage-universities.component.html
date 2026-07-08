@@ -19,6 +19,13 @@
           Descubrir (Google Places)
         </span>
       </button>
+      <button class="btn-secondary" (click)="runDenueDiscovery()" [disabled]="isDiscoveringDenue()" title="Censo económico oficial de INEGI (DENUE), filtrado por el SCIAN de educación superior. Requiere elegir un estado arriba.">
+        <span *ngIf="isDiscoveringDenue()">⏳ Consultando DENUE...</span>
+        <span *ngIf="!isDiscoveringDenue()">
+          <app-lucide-icon name="landmark" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+          Descubrir (DENUE/INEGI)
+        </span>
+      </button>
       <button class="btn-danger" (click)="deleteAllUniversities()" [disabled]="isDeletingAll() || !universities().length" title="Elimina todas las universidades guardadas para empezar de cero.">
         <span *ngIf="isDeletingAll()">⏳ Eliminando...</span>
         <span *ngIf="!isDeletingAll()">

@@ -82,6 +82,7 @@ export class ManageUniversitiesComponent implements OnInit {
   public isLoading = signal<boolean>(false);
   public isSubmitting = signal<boolean>(false);
   public isDiscovering = signal<boolean>(false);
+  public isDiscoveringDenue = signal<boolean>(false);
   public isDeletingAll = signal<boolean>(false);
   public isModalOpen = signal<boolean>(false);
   public modalMode = signal<'create' | 'edit'>('create');
@@ -145,6 +146,51 @@ export class ManageUniversitiesComponent implements OnInit {
           `No se pudo ejecutar el descubrimiento: ${detail}`,
           'error',
           'Descubrimiento de universidades',
+        );
+      },
+    });
+  }
+
+  /**
+   * Descubrimiento vía DENUE/INEGI: censo económico oficial filtrado por el
+   * SCIAN exacto de "escuelas de educación superior" — más preciso que
+   * Google Places, pero requiere elegir un estado (un solo estado puede
+   * traer cientos de registros).
+   */
+  runDenueDiscovery() {
+    if (this.isDiscoveringDenue()) return; // anti-spam
+    if (!this.selectedDiscoveryState) {
+      this.toastService.showToast(
+        'Elige un estado del selector de arriba antes de correr el descubrimiento por DENUE.',
+        'warning',
+        'Falta seleccionar estado',
+      );
+      return;
+    }
+    this.isDiscoveringDenue.set(true);
+    this.adminService.discoverFromDenue([this.selectedDiscoveryState]).subscribe({
+      next: (result) => {
+        this.isDiscoveringDenue.set(false);
+        if (result.created > 0) {
+          this.loadUniversities();
+        }
+        const partes = [`${result.created} nuevas agregadas`];
+        if (result.skippedExisting > 0) partes.push(`${result.skippedExisting} ya existían`);
+        if (result.failed > 0) partes.push(`${result.failed} con error`);
+        this.toastService.showToast(
+          `DENUE en ${this.selectedDiscoveryState} terminado: ${partes.join(', ')} (de ${result.totalFound} encontradas).`,
+          result.failed > 0 ? 'warning' : 'success',
+          'Descubrimiento vía DENUE (INEGI)',
+        );
+      },
+      error: (err) => {
+        console.error('Error en descubrimiento DENUE:', err);
+        this.isDiscoveringDenue.set(false);
+        const detail = err?.error?.message || 'Revisa que INEGI_DENUE_TOKEN esté configurada en el servidor.';
+        this.toastService.showToast(
+          `No se pudo ejecutar el descubrimiento DENUE: ${detail}`,
+          'error',
+          'Descubrimiento vía DENUE (INEGI)',
         );
       },
     });
