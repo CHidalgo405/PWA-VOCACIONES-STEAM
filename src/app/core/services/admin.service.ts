@@ -200,6 +200,11 @@ export class AdminService {
   public discoverFromDenue(states: string[]): Observable<DiscoverUniversitiesResult> {
     return this.http.post<DiscoverUniversitiesResult>(`${environment.apiUrl}/admin/universities/discover-denue`, { states });
   }
+
+  /** Borra retroactivamente nombres basura (oficinas de gobierno, sindicatos, etc.) ya guardados. */
+  public cleanupJunkUniversities(): Observable<{ deleted: number; deletedNames: string[] }> {
+    return this.http.post<{ deleted: number; deletedNames: string[] }>(`${environment.apiUrl}/admin/universities/cleanup-junk`, {});
+  }
 }
 
 export interface DiscoverUniversitiesResult {

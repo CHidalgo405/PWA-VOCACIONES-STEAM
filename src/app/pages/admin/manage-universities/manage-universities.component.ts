@@ -87,6 +87,7 @@ export class ManageUniversitiesComponent implements OnInit {
   public isDiscovering = signal<boolean>(false);
   public isDiscoveringDenue = signal<boolean>(false);
   public isDeletingAll = signal<boolean>(false);
+  public isCleaningJunk = signal<boolean>(false);
   public isModalOpen = signal<boolean>(false);
   public modalMode = signal<'create' | 'edit'>('create');
 
@@ -226,6 +227,41 @@ export class ManageUniversitiesComponent implements OnInit {
         console.error('Error al eliminar todas las universidades:', err);
         this.isDeletingAll.set(false);
         this.toastService.showToast('No se pudieron eliminar las universidades.', 'error', 'Error');
+      },
+    });
+  }
+
+  /**
+   * Borra retroactivamente lo ya guardado que coincide con el filtro de
+   * nombres basura (oficinas de gobierno, sindicatos, estacionamientos,
+   * etc. — el mismo filtro que ya se aplica al descubrir cosas nuevas).
+   */
+  async cleanupJunk() {
+    if (this.isCleaningJunk()) return;
+    const confirmed = await this.dialogService.confirm(
+      'Limpiar nombres genéricos / mal clasificados',
+      'Busca y elimina entradas que claramente no son universidades (oficinas de gobierno, sindicatos, estacionamientos, etc.) entre las ya guardadas. No afecta universidades reales.',
+      { confirmText: 'Limpiar', cancelText: 'Cancelar' },
+    );
+    if (!confirmed) return;
+
+    this.isCleaningJunk.set(true);
+    this.adminService.cleanupJunkUniversities().subscribe({
+      next: (result) => {
+        this.isCleaningJunk.set(false);
+        if (result.deleted > 0) this.loadUniversities();
+        this.toastService.showToast(
+          result.deleted > 0
+            ? `${result.deleted} entradas eliminadas: ${result.deletedNames.slice(0, 5).join(', ')}${result.deleted > 5 ? '…' : ''}`
+            : 'No se encontró nada que limpiar.',
+          'success',
+          'Limpieza de nombres genéricos',
+        );
+      },
+      error: (err) => {
+        console.error('Error en limpieza de nombres genéricos:', err);
+        this.isCleaningJunk.set(false);
+        this.toastService.showToast('No se pudo ejecutar la limpieza.', 'error', 'Error');
       },
     });
   }
