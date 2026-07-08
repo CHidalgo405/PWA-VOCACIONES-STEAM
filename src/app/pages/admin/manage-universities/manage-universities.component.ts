@@ -285,13 +285,24 @@ export class ManageUniversitiesComponent implements OnInit {
     return this.sortDirection === 'asc' ? 'arrow-up' : 'arrow-down';
   }
 
+  /** Quita acentos y normaliza a minúsculas, para que "tecnologico" encuentre "Tecnológico". */
+  private normalizeSearchText(value: string): string {
+    return (value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .trim();
+  }
+
   get filteredUniversities(): AdminUniversity[] {
     const filtered = this.universities().filter((u) => {
-      const term = this.searchTerm.toLowerCase().trim();
+      const term = this.normalizeSearchText(this.searchTerm);
+      // Búsqueda por palabras sueltas, en cualquier orden y sin acentos: no
+      // hace falta escribir el nombre exacto ni completo (ej. "tec queretaro"
+      // encuentra "Instituto Tecnológico de Querétaro" aunque no sea substring literal).
+      const haystack = this.normalizeSearchText(`${u.name} ${u.address || ''}`);
       const matchesSearch =
-        !term ||
-        u.name.toLowerCase().includes(term) ||
-        (u.address || '').toLowerCase().includes(term);
+        !term || term.split(/\s+/).every((word) => haystack.includes(word));
       const matchesTier = !this.filterCostTier || u.costTier === this.filterCostTier;
       return matchesSearch && matchesTier;
     });
