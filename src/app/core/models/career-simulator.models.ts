@@ -104,7 +104,7 @@ export interface UserStepDecision {
 }
 
 /**
- * Payload o estructura de datos que se enviará al endpoint de IA (Gemini/Groq)
+ * Payload o estructura de datos que se enviará al backend (POST /simulator/submit)
  * para generar el feedback personalizado en el paso AI_FEEDBACK.
  */
 export interface SimulatorStepResponse {

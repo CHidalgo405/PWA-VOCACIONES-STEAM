@@ -24,7 +24,7 @@ export class SettingsComponent {
     timezone: 'America/Mexico_City', // Zona horaria local (Córdoba, Veracruz)
 
     // IA Integration
-    aiProvider: 'gemini',
+    aiProvider: 'groq',
     apiKey: '************************',
     aiTemperature: 0.7, // Creatividad de la IA (0 a 1)
 

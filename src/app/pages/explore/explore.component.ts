@@ -132,7 +132,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
   apiMatches: any[] = [];
   nearbyUniversities: any[] = [];
   isLoadingMatches = false;
-  /** Origen del ranking: 'Groq'/'Gemini' (IA activa) o 'deterministic'. */
+  /** Origen del ranking: 'Groq' (IA activa) o 'deterministic'. */
   aiProvider: string | null = null;
 
   /** Claves de la última búsqueda ejecutada (dedupe de llamadas repetidas). */

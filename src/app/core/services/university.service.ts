@@ -33,7 +33,7 @@ export interface UniversityMatchItem {
 export interface UniversityMatchResponse {
   matches: UniversityMatchItem[];
   generatedAt: string;
-  /** 'Groq' | 'Gemini' si la IA explicó los matches; 'deterministic' si se degradó. */
+  /** 'Groq' si la IA explicó los matches; 'deterministic' si se degradó. */
   aiProvider?: string;
 }
 
