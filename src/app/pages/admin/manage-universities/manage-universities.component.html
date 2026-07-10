@@ -33,6 +33,13 @@
           Limpiar genéricos y duplicados
         </span>
       </button>
+      <button class="btn-secondary" (click)="runEnrichment()" [disabled]="isEnriching() || !universities().length" title="Lee el sitio oficial real de universidades con website pero sin programas/costo/modalidad, y completa esos datos con IA (Groq) — solo rellena huecos, nunca sobreescribe. Procesa 15 a la vez; pulsa varias veces para avanzar.">
+        <span *ngIf="isEnriching()">⏳ Enriqueciendo...</span>
+        <span *ngIf="!isEnriching()">
+          <app-lucide-icon name="brain" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+          Enriquecer con IA
+        </span>
+      </button>
       <button class="btn-danger" (click)="deleteAllUniversities()" [disabled]="isDeletingAll() || !universities().length" title="Elimina todas las universidades guardadas para empezar de cero.">
         <span *ngIf="isDeletingAll()">⏳ Eliminando...</span>
         <span *ngIf="!isDeletingAll()">

@@ -88,6 +88,7 @@ export class ManageUniversitiesComponent implements OnInit {
   public isDiscoveringDenue = signal<boolean>(false);
   public isDeletingAll = signal<boolean>(false);
   public isCleaningJunk = signal<boolean>(false);
+  public isEnriching = signal<boolean>(false);
   public isModalOpen = signal<boolean>(false);
   public modalMode = signal<'create' | 'edit'>('create');
 
@@ -262,6 +263,42 @@ export class ManageUniversitiesComponent implements OnInit {
         console.error('Error en limpieza de genéricos y duplicados:', err);
         this.isCleaningJunk.set(false);
         this.toastService.showToast('No se pudo ejecutar la limpieza.', 'error', 'Error');
+      },
+    });
+  }
+
+  /**
+   * Enriquece con IA (Groq) universidades que ya tienen `website` guardado
+   * pero les falta steamPrograms/costTier/tuitionRange/modality: el servidor
+   * lee el sitio oficial real y extrae solo lo que esté explícito en la
+   * página (no inventa). Se aplica directo sin revisión previa — solo
+   * rellena huecos, nunca sobreescribe un dato ya cargado a mano. Procesa
+   * un lote a la vez (15 por defecto); pulsa varias veces para avanzar en
+   * el resto de la lista.
+   */
+  runEnrichment() {
+    if (this.isEnriching()) return; // anti-spam
+    this.isEnriching.set(true);
+    this.adminService.enrichUniversitiesWithAi().subscribe({
+      next: (result) => {
+        this.isEnriching.set(false);
+        if (result.enriched > 0) {
+          this.loadUniversities();
+        }
+        const partes = [`${result.enriched} completadas`];
+        if (result.skipped > 0) partes.push(`${result.skipped} sin info nueva en su sitio`);
+        if (result.failed > 0) partes.push(`${result.failed} con error (sitio caído/bloqueado)`);
+        this.toastService.showToast(
+          `Enriquecimiento con IA: ${partes.join(', ')} (de ${result.processed} procesadas). Pulsa de nuevo para seguir con las siguientes.`,
+          result.failed > 0 ? 'warning' : 'success',
+          'Enriquecimiento con IA',
+        );
+      },
+      error: (err) => {
+        console.error('Error en enriquecimiento con IA:', err);
+        this.isEnriching.set(false);
+        const detail = err?.error?.message || 'Revisa que GROQ_API_KEY esté configurada en el servidor.';
+        this.toastService.showToast(`No se pudo ejecutar el enriquecimiento: ${detail}`, 'error', 'Enriquecimiento con IA');
       },
     });
   }

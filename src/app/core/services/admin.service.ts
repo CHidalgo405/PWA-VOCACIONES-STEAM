@@ -205,6 +205,11 @@ export class AdminService {
   public cleanupJunkUniversities(): Observable<{ deleted: number; deletedNames: string[] }> {
     return this.http.post<{ deleted: number; deletedNames: string[] }>(`${environment.apiUrl}/admin/universities/cleanup-junk`, {});
   }
+
+  /** Enriquece con IA (Groq) universidades con website pero sin steamPrograms/costTier/tuitionRange/modality. */
+  public enrichUniversitiesWithAi(limit?: number): Observable<EnrichUniversitiesResult> {
+    return this.http.post<EnrichUniversitiesResult>(`${environment.apiUrl}/admin/universities/enrich`, { limit });
+  }
 }
 
 export interface DiscoverUniversitiesResult {
@@ -213,4 +218,12 @@ export interface DiscoverUniversitiesResult {
   skippedExisting: number;
   failed: number;
   errors: { index: number; name?: string; error: string }[];
+}
+
+export interface EnrichUniversitiesResult {
+  processed: number;
+  enriched: number;
+  skipped: number;
+  failed: number;
+  errors: { name: string; error: string }[];
 }
