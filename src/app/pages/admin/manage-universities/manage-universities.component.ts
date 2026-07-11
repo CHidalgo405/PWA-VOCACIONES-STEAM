@@ -273,13 +273,15 @@ export class ManageUniversitiesComponent implements OnInit {
    * lee el sitio oficial real y extrae solo lo que esté explícito en la
    * página (no inventa). Se aplica directo sin revisión previa — solo
    * rellena huecos, nunca sobreescribe un dato ya cargado a mano. Procesa
-   * un lote a la vez (15 por defecto); pulsa varias veces para avanzar en
-   * el resto de la lista.
+   * un lote a la vez; pulsa varias veces para avanzar en el resto de la
+   * lista. Si hay texto en el buscador, se usa como filtro de zona (ej.
+   * escribir "Orizaba" y pulsar el botón enriquece solo esa zona).
    */
   runEnrichment() {
     if (this.isEnriching()) return; // anti-spam
     this.isEnriching.set(true);
-    this.adminService.enrichUniversitiesWithAi().subscribe({
+    const filter = this.searchTerm.trim() || undefined;
+    this.adminService.enrichUniversitiesWithAi(undefined, filter).subscribe({
       next: (result) => {
         this.isEnriching.set(false);
         if (result.enriched > 0) {
@@ -288,8 +290,9 @@ export class ManageUniversitiesComponent implements OnInit {
         const partes = [`${result.enriched} completadas`];
         if (result.skipped > 0) partes.push(`${result.skipped} sin info nueva en su sitio`);
         if (result.failed > 0) partes.push(`${result.failed} con error (sitio caído/bloqueado)`);
+        const scope = filter ? ` (filtro: "${filter}")` : '';
         this.toastService.showToast(
-          `Enriquecimiento con IA: ${partes.join(', ')} (de ${result.processed} procesadas). Pulsa de nuevo para seguir con las siguientes.`,
+          `Enriquecimiento con IA${scope}: ${partes.join(', ')} (de ${result.processed} procesadas). Pulsa de nuevo para seguir con las siguientes.`,
           result.failed > 0 ? 'warning' : 'success',
           'Enriquecimiento con IA',
         );

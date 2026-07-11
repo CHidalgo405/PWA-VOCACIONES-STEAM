@@ -206,9 +206,9 @@ export class AdminService {
     return this.http.post<{ deleted: number; deletedNames: string[] }>(`${environment.apiUrl}/admin/universities/cleanup-junk`, {});
   }
 
-  /** Enriquece con IA (Groq) universidades con website pero sin steamPrograms/costTier/tuitionRange/modality. */
-  public enrichUniversitiesWithAi(limit?: number): Observable<EnrichUniversitiesResult> {
-    return this.http.post<EnrichUniversitiesResult>(`${environment.apiUrl}/admin/universities/enrich`, { limit });
+  /** Enriquece con IA (Groq) universidades con website pero sin steamPrograms/costTier/tuitionRange/modality. `filter` acota por nombre/dirección (ej. "Orizaba"). */
+  public enrichUniversitiesWithAi(limit?: number, filter?: string): Observable<EnrichUniversitiesResult> {
+    return this.http.post<EnrichUniversitiesResult>(`${environment.apiUrl}/admin/universities/enrich`, { limit, filter });
   }
 }
 

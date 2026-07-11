@@ -33,7 +33,7 @@
           Limpiar genéricos y duplicados
         </span>
       </button>
-      <button class="btn-secondary" (click)="runEnrichment()" [disabled]="isEnriching() || !universities().length" title="Lee el sitio oficial real de universidades con website pero sin programas/costo/modalidad, y completa esos datos con IA (Groq) — solo rellena huecos, nunca sobreescribe. Procesa 15 a la vez; pulsa varias veces para avanzar.">
+      <button class="btn-secondary" (click)="runEnrichment()" [disabled]="isEnriching() || !universities().length" title="Lee el sitio oficial real de universidades con website pero sin programas/costo/modalidad, y completa esos datos con IA (Groq) — solo rellena huecos, nunca sobreescribe. Procesa un lote por clic; pulsa varias veces para avanzar. Tip: escribe una zona en el buscador (ej. 'Orizaba') para enriquecer solo esa zona.">
         <span *ngIf="isEnriching()">⏳ Enriqueciendo...</span>
         <span *ngIf="!isEnriching()">
           <app-lucide-icon name="brain" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
