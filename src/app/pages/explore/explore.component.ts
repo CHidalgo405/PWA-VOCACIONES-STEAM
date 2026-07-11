@@ -563,9 +563,19 @@ export class ExploreComponent implements OnInit, OnDestroy {
     this.triggerPlacesSearch();
   }
 
-  // ── Google Places: contexto "cerca de ti" (sin porcentajes inventados) ─────
+  // ── "Cerca de ti": NUESTRA BD como fuente principal; Google Places solo
+  //    como respaldo cuando la BD no tiene cobertura en la zona ─────────────
 
-  triggerPlacesSearch(attempt = 0) {
+  /** Mínimo de universidades de la BD en la zona para no recurrir a Places. */
+  private readonly MIN_DB_NEARBY = 3;
+
+  /**
+   * Nombre conservado por historia (lo llaman ~12 lugares): hoy la fuente
+   * principal es la BD propia (curada + enriquecida por IA) y Places es solo
+   * el plan B. Así los datos que el admin carga son los que ve el alumno, y
+   * no se paga una búsqueda de Places por cada visita a Explorar.
+   */
+  triggerPlacesSearch(_attempt = 0) {
     // Procedemos si ya tomamos el test
     if (!this.hasTakenTest) return;
 
@@ -575,39 +585,55 @@ export class ExploreComponent implements OnInit, OnDestroy {
     // El radio de búsqueda sigue al filtro de distancia (Places admite máx. 50 km)
     const radiusKm = Math.min(this.maxDistanceKm, 50);
 
-    // En paralelo: universidades de NUESTRA BD cercanas (datos enriquecidos)
-    // para cruzarlas con las tarjetas de Places.
-    this.loadDbNearby(locationToUse, radiusKm);
-
     // Dedupe: misma ubicación (±100m) y mismo radio → esta búsqueda ya se hizo.
     const key = `${locationToUse.lat.toFixed(3)},${locationToUse.lng.toFixed(3)}|${radiusKm}`;
-    if (key === this.lastPlacesKey) return;
+    if (key === this.lastDbNearbyKey) return;
+    this.lastDbNearbyKey = key;
 
-    // Caché local primero: no requiere red ni que el mapa esté listo.
+    this.universityService.getNearbyFromDb(locationToUse, radiusKm).subscribe({
+      next: (rows) => {
+        this.dbNearby = rows || [];
+        if (this.dbNearby.length >= this.MIN_DB_NEARBY) {
+          this.nearbyUniversities = this.dbNearby.map((u, i) => this.mapDbNearby(u, i));
+          this.processData();
+          this.finishLoading();
+          this.fitMapToResults();
+        } else {
+          // Zona con poca cobertura en la BD: Places como respaldo (lo que
+          // sí haya en la BD se inyecta a esas tarjetas vía enrichCardFromDb).
+          this.runPlacesFallback(locationToUse, radiusKm, key);
+        }
+      },
+      error: (err) => {
+        console.error('BD "cerca de ti" no disponible; usando Google Places como respaldo:', err);
+        this.lastDbNearbyKey = ''; // permitir reintento en la próxima búsqueda
+        this.runPlacesFallback(locationToUse, radiusKm, key);
+      },
+    });
+  }
+
+  /** Plan B: búsqueda en vivo en Google Places (comportamiento previo). */
+  private runPlacesFallback(
+    locationToUse: { lat: number; lng: number },
+    radiusKm: number,
+    key: string,
+  ): void {
+    if (key === this.lastPlacesKey) {
+      this.finishLoading();
+      this.processData();
+      return;
+    }
+
+    // Caché local primero: no requiere red.
     const cached = this.exploreCache.getPlaces(key);
     if (cached && !cached.stale) {
       this.lastPlacesKey = key;
       this.applyPlacesResults(cached.data, locationToUse);
       return;
     }
-
-    // Si el mapa aún no está listo en la vista, lo intentamos en un breve timeout
-    // (con tope: p. ej. offline el script de Maps nunca carga).
-    if (!this.googleMap || !this.googleMap.googleMap) {
-      if (attempt < 20) {
-        setTimeout(() => this.triggerPlacesSearch(attempt + 1), 300);
-      } else if (cached) {
-        this.lastPlacesKey = key;
-        this.applyPlacesResults(cached.data, locationToUse);
-      } else {
-        this.finishLoading();
-        this.processData();
-      }
-      return;
-    }
     this.lastPlacesKey = key;
 
-    this.universityService.searchNearbyUniversities(this.googleMap.googleMap, locationToUse, radiusKm * 1000, 'universidad').subscribe({
+    this.universityService.searchNearbyUniversities(this.googleMap?.googleMap, locationToUse, radiusKm * 1000, 'universidad').subscribe({
       next: (results) => {
         // El estado "abierta ahora" caduca en minutos: no lo persistimos.
         this.exploreCache.setPlaces(key, results.map(({ isOpen, ...rest }: any) => rest));
@@ -625,6 +651,41 @@ export class ExploreComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  /** Convierte una universidad de la BD al modelo de tarjeta "cerca de ti". */
+  private mapDbNearby(u: DbNearbyUniversity, index: number): any {
+    const programs = u.steamPrograms || [];
+    return {
+      id: u.id,
+      name: u.name,
+      location: u.address || 'Dirección no disponible',
+      image: this.DEFAULT_IMAGES[index % this.DEFAULT_IMAGES.length],
+      logo: 'graduation-cap',
+      tags: u.costTier
+        ? ['Cerca de ti', this.COST_TIER_LABELS[u.costTier] || u.costTier]
+        : ['Cerca de ti'],
+      rating: u.rating ?? null,
+      matchPercentage: null, // sin match real: no lo inventamos
+      career: null,
+      description: programs.length
+        ? `Ofrece: ${programs.slice(0, 4).map((p) => p.name).join(', ')}${programs.length > 4 ? '…' : ''}.`
+        : 'Universidad cercana a tu ubicación.',
+      keyDates: 'Consultar sitio web',
+      studyPlan: programs.length
+        ? programs.map((p) => p.name).join(', ')
+        : 'Consultar oferta educativa',
+      tuitionRange: u.tuitionRange || null,
+      modality: u.modality || null,
+      websiteUrl: u.website || null,
+      distanceKm: Math.round(u.distanceKm * 10) / 10,
+      position: u.location
+        ? { lat: u.location.latitude, lng: u.location.longitude }
+        : null,
+      costTier: u.costTier,
+      costTierLabel: u.costTier ? (this.COST_TIER_LABELS[u.costTier] || u.costTier) : undefined,
+      source: 'db',
+    };
   }
 
   /** Aplica resultados de Places (de la red o del caché) a la vista. */
@@ -651,29 +712,6 @@ export class ExploreComponent implements OnInit, OnDestroy {
     this.processData();
     this.finishLoading();
     this.fitMapToResults();
-  }
-
-  /** Carga las universidades de la BD cercanas (una vez por ubicación+radio) y re-cruza las tarjetas. */
-  private loadDbNearby(location: { lat: number; lng: number }, radiusKm: number): void {
-    const key = `${location.lat.toFixed(3)},${location.lng.toFixed(3)}|${radiusKm}`;
-    if (key === this.lastDbNearbyKey) return;
-    this.lastDbNearbyKey = key;
-
-    this.universityService.getNearbyFromDb(location, radiusKm).subscribe({
-      next: (rows) => {
-        this.dbNearby = rows || [];
-        // Las tarjetas de Places pudieron pintarse antes de que llegara la BD:
-        // se re-cruzan para inyectarles los datos enriquecidos.
-        if (this.dbNearby.length && this.nearbyUniversities.length) {
-          this.nearbyUniversities = this.nearbyUniversities.map((c) => this.enrichCardFromDb(c));
-          this.processData();
-        }
-      },
-      error: (err) => {
-        console.error('No se pudieron cargar cercanas de la BD (las tarjetas quedan solo con datos de Places):', err);
-        this.lastDbNearbyKey = ''; // permitir reintento en la próxima búsqueda
-      },
-    });
   }
 
   /**

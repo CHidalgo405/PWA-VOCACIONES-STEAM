@@ -288,7 +288,7 @@
                     <span class="distance-pill" *ngIf="uni.distanceKm != null">{{ uni.distanceKm }} km</span>
                   </p>
 
-                  <p class="match-explanation subtle" *ngIf="uni.source === 'api' && uni.description">
+                  <p class="match-explanation subtle" *ngIf="(uni.source === 'api' || uni.source === 'db') && uni.description">
                     {{ uni.description }}
                   </p>
 
@@ -320,14 +320,14 @@
             </div>
           </div>
 
-          <!-- CERCA DE TI (Google Maps, sin % de match inventado) -->
+          <!-- CERCA DE TI (BD propia; Google Maps solo como respaldo; sin % de match inventado) -->
           <section class="all-recommendations-section nearby-section" *ngIf="viewMode === 'explore' && filteredNearbyUniversities.length > 0">
             <div class="section-header space-between">
               <h3>
                 <app-lucide-icon name="map" [size]="16"></app-lucide-icon>
                 Universidades cerca de ti
               </h3>
-              <span class="section-caption">Google Maps</span>
+              <span class="section-caption">{{ filteredNearbyUniversities[0]?.source === 'db' ? 'Base Vocaciones STEAM' : 'Google Maps' }}</span>
             </div>
 
             <div class="recommendations-list">
@@ -354,6 +354,10 @@
                     <app-lucide-icon name="map-pin" [size]="13"></app-lucide-icon>
                     {{ uni.location }}
                     <span class="distance-pill" *ngIf="uni.distanceKm != null">{{ uni.distanceKm }} km</span>
+                  </p>
+
+                  <p class="match-explanation subtle" *ngIf="uni.source === 'db' && uni.studyPlan !== 'Consultar oferta educativa'">
+                    {{ uni.description }}
                   </p>
 
                   <div class="list-bottom-row">
