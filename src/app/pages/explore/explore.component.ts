@@ -499,7 +499,11 @@ export class ExploreComponent implements OnInit, OnDestroy {
       career: m.matchedCareer,
       description: m.explanation,
       keyDates: 'Consultar sitio web',
-      studyPlan: m.matchedCareer,
+      studyPlan: m.steamPrograms?.length
+        ? m.steamPrograms.map((p) => p.name).join(', ')
+        : m.matchedCareer,
+      tuitionRange: m.tuitionRange || null,
+      modality: m.modality || null,
       websiteUrl: m.websiteUrl || null,
       distanceKm: m.distanceKm,
       costTier: m.costTier,

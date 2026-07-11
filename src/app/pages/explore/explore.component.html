@@ -505,6 +505,20 @@
               <span class="stat-value">{{ selectedUniversity?.rating }}</span>
             </div>
           </div>
+          <div class="stat-box" *ngIf="selectedUniversity?.modality">
+            <app-lucide-icon name="laptop" [size]="18" color="#6366F1"></app-lucide-icon>
+            <div class="stat-info">
+              <span class="stat-label">Modalidad</span>
+              <span class="stat-value">{{ selectedUniversity?.modality }}</span>
+            </div>
+          </div>
+          <div class="stat-box" *ngIf="selectedUniversity?.tuitionRange">
+            <app-lucide-icon name="banknote" [size]="18" color="#4DB046"></app-lucide-icon>
+            <div class="stat-info">
+              <span class="stat-label">Colegiatura</span>
+              <span class="stat-value">{{ selectedUniversity?.tuitionRange }}</span>
+            </div>
+          </div>
           <div class="stat-box full-width" *ngIf="selectedUniversity?.career">
             <app-lucide-icon name="graduation-cap" [size]="18"></app-lucide-icon>
             <div class="stat-info">
