@@ -19,6 +19,7 @@ import {
   CostPreference,
   UniversityMatchItem,
   UniversityMatchResponse,
+  DbNearbyUniversity,
 } from '../../core/services/university.service';
 import { ExploreCacheService, CityOption } from '../../core/services/explore-cache.service';
 import { ScrollRevealDirective } from './scroll-reveal.directive';
@@ -138,6 +139,9 @@ export class ExploreComponent implements OnInit, OnDestroy {
   /** Claves de la última búsqueda ejecutada (dedupe de llamadas repetidas). */
   private lastMatchKey = '';
   private lastPlacesKey = '';
+  /** Universidades de nuestra BD cercanas (con datos enriquecidos), para cruzar con las tarjetas de Places. */
+  private dbNearby: DbNearbyUniversity[] = [];
+  private lastDbNearbyKey = '';
   private recommendationsRequested = false;
   private searchDebounceId: any = null;
   readonly distanceOptions = [10, 25, 50, 100];
@@ -571,6 +575,10 @@ export class ExploreComponent implements OnInit, OnDestroy {
     // El radio de búsqueda sigue al filtro de distancia (Places admite máx. 50 km)
     const radiusKm = Math.min(this.maxDistanceKm, 50);
 
+    // En paralelo: universidades de NUESTRA BD cercanas (datos enriquecidos)
+    // para cruzarlas con las tarjetas de Places.
+    this.loadDbNearby(locationToUse, radiusKm);
+
     // Dedupe: misma ubicación (±100m) y mismo radio → esta búsqueda ya se hizo.
     const key = `${locationToUse.lat.toFixed(3)},${locationToUse.lng.toFixed(3)}|${radiusKm}`;
     if (key === this.lastPlacesKey) return;
@@ -638,11 +646,65 @@ export class ExploreComponent implements OnInit, OnDestroy {
       distanceKm: place.location ? this.distanceKmBetween(locationToUse, place.location) : null,
       position: place.location,
       source: 'places',
-    }));
+    })).map((card: any) => this.enrichCardFromDb(card));
 
     this.processData();
     this.finishLoading();
     this.fitMapToResults();
+  }
+
+  /** Carga las universidades de la BD cercanas (una vez por ubicación+radio) y re-cruza las tarjetas. */
+  private loadDbNearby(location: { lat: number; lng: number }, radiusKm: number): void {
+    const key = `${location.lat.toFixed(3)},${location.lng.toFixed(3)}|${radiusKm}`;
+    if (key === this.lastDbNearbyKey) return;
+    this.lastDbNearbyKey = key;
+
+    this.universityService.getNearbyFromDb(location, radiusKm).subscribe({
+      next: (rows) => {
+        this.dbNearby = rows || [];
+        // Las tarjetas de Places pudieron pintarse antes de que llegara la BD:
+        // se re-cruzan para inyectarles los datos enriquecidos.
+        if (this.dbNearby.length && this.nearbyUniversities.length) {
+          this.nearbyUniversities = this.nearbyUniversities.map((c) => this.enrichCardFromDb(c));
+          this.processData();
+        }
+      },
+      error: (err) => {
+        console.error('No se pudieron cargar cercanas de la BD (las tarjetas quedan solo con datos de Places):', err);
+        this.lastDbNearbyKey = ''; // permitir reintento en la próxima búsqueda
+      },
+    });
+  }
+
+  /**
+   * Cruza una tarjeta "cerca de ti" (Google Places) con nuestra BD: si la
+   * universidad existe (misma ubicación a <300m o mismo nombre), la tarjeta
+   * hereda programas/costo/modalidad/sitio — la info que Places no tiene.
+   */
+  private enrichCardFromDb(card: any): any {
+    if (!this.dbNearby.length) return card;
+    const db = this.dbNearby.find((u) => {
+      if (u.location && card.position) {
+        const d = this.distanceKmBetween(card.position, { lat: u.location.latitude, lng: u.location.longitude });
+        if (d < 0.3) return true;
+      }
+      return this.normalizeName(u.name) === this.normalizeName(card.name);
+    });
+    if (!db) return card;
+
+    const programs = db.steamPrograms || [];
+    return {
+      ...card,
+      studyPlan: programs.length ? programs.map((p) => p.name).join(', ') : card.studyPlan,
+      tuitionRange: db.tuitionRange || card.tuitionRange || null,
+      modality: db.modality || card.modality || null,
+      websiteUrl: card.websiteUrl || db.website || null,
+      costTier: db.costTier || card.costTier,
+      costTierLabel: db.costTier ? (this.COST_TIER_LABELS[db.costTier] || db.costTier) : card.costTierLabel,
+      description: programs.length
+        ? `Ofrece: ${programs.slice(0, 4).map((p) => p.name).join(', ')}${programs.length > 4 ? '…' : ''}.`
+        : card.description,
+    };
   }
 
   /** Encuadra la cámara del mapa para mostrar usuario + resultados visibles (respeta la búsqueda activa). */

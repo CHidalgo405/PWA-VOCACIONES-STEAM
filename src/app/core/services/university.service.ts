@@ -36,6 +36,21 @@ export interface UniversityMatchItem {
   scoreAdjustmentReason?: string;
 }
 
+/** Universidad de nuestra BD con distancia calculada (GET /universities/nearby). */
+export interface DbNearbyUniversity {
+  id: string;
+  name: string;
+  address?: string;
+  website?: string;
+  location?: { latitude: number; longitude: number };
+  steamPrograms?: { name: string; area: string }[];
+  costTier?: CostTier;
+  tuitionRange?: string;
+  rating?: number;
+  modality?: string;
+  distanceKm: number;
+}
+
 export interface UniversityMatchResponse {
   matches: UniversityMatchItem[];
   generatedAt: string;
@@ -61,6 +76,18 @@ export class UniversityService {
     return this.http.post<UniversityMatchResponse>(
       `${environment.apiUrl}/universities/match`,
       request,
+    );
+  }
+
+  /**
+   * Universidades de NUESTRA base cercanas a una coordenada, con los campos
+   * enriquecidos (programas/costo/modalidad). Se cruza con los resultados de
+   * Google Places para que las tarjetas "cerca de ti" muestren la info real
+   * de la BD y no solo lo que trae el mapa.
+   */
+  getNearbyFromDb(location: { lat: number; lng: number }, radiusKm: number): Observable<DbNearbyUniversity[]> {
+    return this.http.get<DbNearbyUniversity[]>(
+      `${environment.apiUrl}/universities/nearby?lat=${location.lat}&lng=${location.lng}&radiusKm=${radiusKm}`,
     );
   }
 
