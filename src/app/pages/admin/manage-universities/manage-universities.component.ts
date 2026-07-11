@@ -89,6 +89,8 @@ export class ManageUniversitiesComponent implements OnInit {
   public isDeletingAll = signal<boolean>(false);
   public isCleaningJunk = signal<boolean>(false);
   public isEnriching = signal<boolean>(false);
+  public isExporting = signal<boolean>(false);
+  public isImporting = signal<boolean>(false);
   public isModalOpen = signal<boolean>(false);
   public modalMode = signal<'create' | 'edit'>('create');
 
@@ -302,6 +304,102 @@ export class ManageUniversitiesComponent implements OnInit {
         this.isEnriching.set(false);
         const detail = err?.error?.message || 'Revisa que GROQ_API_KEY esté configurada en el servidor.';
         this.toastService.showToast(`No se pudo ejecutar el enriquecimiento: ${detail}`, 'error', 'Enriquecimiento con IA');
+      },
+    });
+  }
+
+  /**
+   * Exporta a un archivo .json (con `id` real de cada universidad) para
+   * llenar a mano steamPrograms/costTier/tuitionRange/modality — el camino
+   * más confiable, porque no depende de que una IA adivine nada. Si hay
+   * texto en el buscador, se usa como filtro de zona (mismo criterio que
+   * "Enriquecer con IA").
+   */
+  exportJson() {
+    if (this.isExporting()) return;
+    this.isExporting.set(true);
+    const filter = this.searchTerm.trim() || undefined;
+    this.adminService.exportUniversities(filter).subscribe({
+      next: (rows) => {
+        this.isExporting.set(false);
+        if (!rows.length) {
+          this.toastService.showToast('No hay universidades que coincidan con ese filtro.', 'warning', 'Exportar JSON');
+          return;
+        }
+        const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const scope = filter ? filter.trim().toLowerCase().replace(/\s+/g, '-') : 'todas';
+        a.href = url;
+        a.download = `universidades-${scope}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.toastService.showToast(
+          `${rows.length} universidades exportadas${filter ? ` (filtro: "${filter}")` : ''}. Llena los campos que falten y vuelve a subir el archivo con "Importar JSON editado".`,
+          'success',
+          'Exportar JSON',
+        );
+      },
+      error: (err) => {
+        console.error('Error exportando universidades:', err);
+        this.isExporting.set(false);
+        this.toastService.showToast('No se pudo exportar el JSON.', 'error', 'Error');
+      },
+    });
+  }
+
+  /** Dispara el selector de archivo oculto para "Importar JSON editado". */
+  triggerImportPicker(fileInput: HTMLInputElement) {
+    if (this.isImporting()) return;
+    fileInput.value = ''; // permite re-subir el mismo archivo dos veces seguidas
+    fileInput.click();
+  }
+
+  /**
+   * Reimporta el JSON exportado (ya editado a mano): ACTUALIZA por `id`,
+   * nunca crea universidades nuevas — para eso están los botones de
+   * descubrimiento. Filas sin `id` o con `id` que ya no existe se reportan
+   * como error individual sin tocar el resto del archivo.
+   */
+  async onImportFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    let rows: any[];
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      rows = Array.isArray(parsed) ? parsed : [parsed];
+    } catch (err) {
+      this.toastService.showToast('El archivo no es un JSON válido.', 'error', 'Importar JSON editado');
+      return;
+    }
+    if (!rows.length) {
+      this.toastService.showToast('El archivo no tiene universidades.', 'warning', 'Importar JSON editado');
+      return;
+    }
+
+    this.isImporting.set(true);
+    this.adminService.bulkUpdateUniversities(rows).subscribe({
+      next: (result) => {
+        this.isImporting.set(false);
+        if (result.updated > 0) this.loadUniversities();
+        const partes = [`${result.updated} actualizadas`];
+        if (result.failed > 0) partes.push(`${result.failed} con error`);
+        this.toastService.showToast(
+          `Importación: ${partes.join(', ')} (de ${rows.length} filas en el archivo).`,
+          result.failed > 0 ? 'warning' : 'success',
+          'Importar JSON editado',
+        );
+        if (result.errors?.length) {
+          console.warn('Errores al importar JSON:', result.errors);
+        }
+      },
+      error: (err) => {
+        console.error('Error importando JSON:', err);
+        this.isImporting.set(false);
+        this.toastService.showToast('No se pudo importar el archivo.', 'error', 'Error');
       },
     });
   }

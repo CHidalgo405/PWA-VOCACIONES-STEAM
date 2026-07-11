@@ -40,6 +40,21 @@
           Enriquecer con IA
         </span>
       </button>
+      <button class="btn-secondary" (click)="exportJson()" [disabled]="isExporting() || !universities().length" title="Descarga un .json con las universidades (o de una zona, si escribes algo en el buscador) para llenar a mano los campos que falten — la fuente más confiable, sin depender de que la IA adivine.">
+        <span *ngIf="isExporting()">⏳ Exportando...</span>
+        <span *ngIf="!isExporting()">
+          <app-lucide-icon name="file-down" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+          Exportar JSON
+        </span>
+      </button>
+      <button class="btn-secondary" (click)="triggerImportPicker(importFileInput)" [disabled]="isImporting()" title="Sube el .json ya editado a mano: ACTUALIZA por id, nunca crea universidades nuevas.">
+        <span *ngIf="isImporting()">⏳ Importando...</span>
+        <span *ngIf="!isImporting()">
+          <app-lucide-icon name="folder-open" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+          Importar JSON editado
+        </span>
+      </button>
+      <input #importFileInput type="file" accept=".json,application/json" style="display: none;" (change)="onImportFileSelected($event)">
       <button class="btn-danger" (click)="deleteAllUniversities()" [disabled]="isDeletingAll() || !universities().length" title="Elimina todas las universidades guardadas para empezar de cero.">
         <span *ngIf="isDeletingAll()">⏳ Eliminando...</span>
         <span *ngIf="!isDeletingAll()">

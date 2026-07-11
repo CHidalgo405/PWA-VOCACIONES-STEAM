@@ -210,6 +210,17 @@ export class AdminService {
   public enrichUniversitiesWithAi(limit?: number, filter?: string): Observable<EnrichUniversitiesResult> {
     return this.http.post<EnrichUniversitiesResult>(`${environment.apiUrl}/admin/universities/enrich`, { limit, filter });
   }
+
+  /** Exporta universidades (con id) para editar a mano. `filter` acota por nombre/dirección (ej. "Veracruz"). */
+  public exportUniversities(filter?: string): Observable<AdminUniversity[]> {
+    const query = filter ? `?filter=${encodeURIComponent(filter)}` : '';
+    return this.http.get<AdminUniversity[]>(`${environment.apiUrl}/admin/universities/export${query}`);
+  }
+
+  /** Reimporta un JSON ya editado a mano: ACTUALIZA por id (no crea universidades nuevas). */
+  public bulkUpdateUniversities(universities: Partial<AdminUniversity>[]): Observable<BulkUpdateResult> {
+    return this.http.post<BulkUpdateResult>(`${environment.apiUrl}/admin/universities/bulk-update`, { universities });
+  }
 }
 
 export interface DiscoverUniversitiesResult {
@@ -226,4 +237,10 @@ export interface EnrichUniversitiesResult {
   skipped: number;
   failed: number;
   errors: { name: string; error: string }[];
+}
+
+export interface BulkUpdateResult {
+  updated: number;
+  failed: number;
+  errors: { index: number; name?: string; error: string }[];
 }
