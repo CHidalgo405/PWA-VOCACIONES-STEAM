@@ -3,71 +3,93 @@
 <div class="admin-layout-content">
 
   <header class="page-header">
-    <div>
+    <div class="page-title-section">
       <h1>Gestión de Universidades</h1>
       <p>Candidatas del matching de universidades (A8). Sin universidades aquí, los filtros de Explorar no muestran resultados.</p>
     </div>
-    <div class="header-actions">
-      <select class="discovery-state-select" [(ngModel)]="selectedDiscoveryState" [disabled]="isDiscovering()" title="Elige un estado para una búsqueda más profunda (más páginas por término); 'Todo el país' hace un barrido rápido.">
-        <option value="">Todo el país</option>
-        <option *ngFor="let state of discoveryStates" [value]="state">{{ state }}</option>
-      </select>
-      <button class="btn-secondary" (click)="runDiscovery()" [disabled]="isDiscovering()" title="Busca universidad / instituto tecnológico / centro universitario / escuela superior en Google Places y agrega las nuevas.">
-        <span *ngIf="isDiscovering()">⏳ Descubriendo...</span>
-        <span *ngIf="!isDiscovering()">
-          <app-lucide-icon name="search" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
-          Descubrir (Google Places)
-        </span>
-      </button>
-      <button class="btn-secondary" (click)="runDenueDiscovery()" [disabled]="isDiscoveringDenue()" title="Censo económico oficial de INEGI (DENUE), filtrado por el SCIAN de educación superior. Requiere elegir un estado arriba.">
-        <span *ngIf="isDiscoveringDenue()">⏳ Consultando DENUE...</span>
-        <span *ngIf="!isDiscoveringDenue()">
-          <app-lucide-icon name="landmark" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
-          Descubrir (DENUE/INEGI)
-        </span>
-      </button>
-      <button class="btn-secondary" (click)="cleanupJunk()" [disabled]="isCleaningJunk() || !universities().length" title="Elimina entradas que no son universidades (oficinas de gobierno, sindicatos, estacionamientos, etc.) y fusiona duplicados: mismo nombre a menos de 300m, conservando la ficha más completa.">
-        <span *ngIf="isCleaningJunk()">⏳ Limpiando...</span>
-        <span *ngIf="!isCleaningJunk()">
-          <app-lucide-icon name="sparkles" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
-          Limpiar genéricos y duplicados
-        </span>
-      </button>
-      <button class="btn-secondary" (click)="runEnrichment()" [disabled]="isEnriching() || !universities().length" title="Lee el sitio oficial real de universidades con website pero sin programas/costo/modalidad, y completa esos datos con IA (Groq) — solo rellena huecos, nunca sobreescribe. Procesa un lote por clic; pulsa varias veces para avanzar. Tip: escribe una zona en el buscador (ej. 'Orizaba') para enriquecer solo esa zona.">
-        <span *ngIf="isEnriching()">⏳ Enriqueciendo...</span>
-        <span *ngIf="!isEnriching()">
-          <app-lucide-icon name="brain" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
-          Enriquecer con IA
-        </span>
-      </button>
-      <button class="btn-secondary" (click)="exportJson()" [disabled]="isExporting() || !universities().length" title="Descarga un .json con las universidades (o de una zona, si escribes algo en el buscador) para llenar a mano los campos que falten — la fuente más confiable, sin depender de que la IA adivine.">
-        <span *ngIf="isExporting()">⏳ Exportando...</span>
-        <span *ngIf="!isExporting()">
-          <app-lucide-icon name="file-down" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
-          Exportar JSON
-        </span>
-      </button>
-      <button class="btn-secondary" (click)="triggerImportPicker(importFileInput)" [disabled]="isImporting()" title="Sube el .json ya editado a mano: ACTUALIZA por id, nunca crea universidades nuevas.">
-        <span *ngIf="isImporting()">⏳ Importando...</span>
-        <span *ngIf="!isImporting()">
-          <app-lucide-icon name="folder-open" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
-          Importar JSON editado
-        </span>
-      </button>
-      <input #importFileInput type="file" accept=".json,application/json" style="display: none;" (change)="onImportFileSelected($event)">
-      <button class="btn-danger" (click)="deleteAllUniversities()" [disabled]="isDeletingAll() || !universities().length" title="Elimina todas las universidades guardadas para empezar de cero.">
-        <span *ngIf="isDeletingAll()">⏳ Eliminando...</span>
-        <span *ngIf="!isDeletingAll()">
-          <app-lucide-icon name="trash-2" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
-          Vaciar todo
-        </span>
-      </button>
+    <div class="primary-actions">
       <button class="btn-primary" (click)="openCreateModal()">
         <app-lucide-icon name="plus" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
         Nueva Universidad
       </button>
     </div>
   </header>
+
+  <!-- HERRAMIENTAS DE MANTENIMIENTO -->
+  <div class="admin-toolkit-panel">
+    <div class="toolkit-header">
+      <app-lucide-icon name="wrench" [size]="18" class="toolkit-icon"></app-lucide-icon>
+      <h3>Herramientas de Mantenimiento de Datos</h3>
+    </div>
+    <div class="toolkit-actions">
+      <div class="action-group">
+        <select class="discovery-state-select" [(ngModel)]="selectedDiscoveryState" [disabled]="isDiscovering()" title="Elige un estado para una búsqueda más profunda (más páginas por término); 'Todo el país' hace un barrido rápido.">
+          <option value="">Todo el país</option>
+          <option *ngFor="let state of discoveryStates" [value]="state">{{ state }}</option>
+        </select>
+        <button class="btn-toolkit" (click)="runDiscovery()" [disabled]="isDiscovering()" title="Busca universidad / instituto tecnológico / centro universitario / escuela superior en Google Places y agrega las nuevas.">
+          <span *ngIf="isDiscovering()">⏳ Descubriendo...</span>
+          <span *ngIf="!isDiscovering()">
+            <app-lucide-icon name="search" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+            Google Places
+          </span>
+        </button>
+        <button class="btn-toolkit" (click)="runDenueDiscovery()" [disabled]="isDiscoveringDenue()" title="Censo económico oficial de INEGI (DENUE), filtrado por el SCIAN de educación superior. Requiere elegir un estado arriba.">
+          <span *ngIf="isDiscoveringDenue()">⏳ DENUE...</span>
+          <span *ngIf="!isDiscoveringDenue()">
+            <app-lucide-icon name="landmark" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+            DENUE/INEGI
+          </span>
+        </button>
+      </div>
+
+      <div class="action-group">
+        <button class="btn-toolkit" (click)="cleanupJunk()" [disabled]="isCleaningJunk() || !universities().length" title="Elimina entradas que no son universidades (oficinas de gobierno, sindicatos, estacionamientos, etc.) y fusiona duplicados: mismo nombre a menos de 300m, conservando la ficha más completa.">
+          <span *ngIf="isCleaningJunk()">⏳ Limpiando...</span>
+          <span *ngIf="!isCleaningJunk()">
+            <app-lucide-icon name="sparkles" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+            Limpiar genéricos
+          </span>
+        </button>
+        <button class="btn-toolkit enrich" (click)="runEnrichment()" [disabled]="isEnriching() || !universities().length" title="Lee el sitio oficial real de universidades con website pero sin programas/costo/modalidad, y completa esos datos con IA (Groq) — solo rellena huecos, nunca sobreescribe. Procesa un lote por clic; pulsa varias veces para avanzar. Tip: escribe una zona en el buscador (ej. 'Orizaba') para enriquecer solo esa zona.">
+          <span *ngIf="isEnriching()">⏳ Enriqueciendo...</span>
+          <span *ngIf="!isEnriching()">
+            <app-lucide-icon name="brain" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+            Enriquecer con IA
+          </span>
+        </button>
+      </div>
+
+      <div class="action-group">
+        <button class="btn-toolkit outline" (click)="exportJson()" [disabled]="isExporting() || !universities().length" title="Descarga un .json con las universidades (o de una zona, si escribes algo en el buscador) para llenar a mano los campos que falten — la fuente más confiable, sin depender de que la IA adivine.">
+          <span *ngIf="isExporting()">⏳ Exportando...</span>
+          <span *ngIf="!isExporting()">
+            <app-lucide-icon name="file-down" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+            Exportar JSON
+          </span>
+        </button>
+        <button class="btn-toolkit outline" (click)="triggerImportPicker(importFileInput)" [disabled]="isImporting()" title="Sube el .json ya editado a mano: ACTUALIZA por id, nunca crea universidades nuevas.">
+          <span *ngIf="isImporting()">⏳ Importando...</span>
+          <span *ngIf="!isImporting()">
+            <app-lucide-icon name="folder-open" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+            Importar JSON
+          </span>
+        </button>
+        <input #importFileInput type="file" accept=".json,application/json" style="display: none;" (change)="onImportFileSelected($event)">
+      </div>
+
+      <div class="action-group delete-group">
+        <button class="btn-toolkit danger" (click)="deleteAllUniversities()" [disabled]="isDeletingAll() || !universities().length" title="Elimina todas las universidades guardadas para empezar de cero.">
+          <span *ngIf="isDeletingAll()">⏳ Eliminando...</span>
+          <span *ngIf="!isDeletingAll()">
+            <app-lucide-icon name="trash-2" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+            Vaciar todo
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- BÚSQUEDA Y FILTRADO -->
   <div class="premium-search-container">
