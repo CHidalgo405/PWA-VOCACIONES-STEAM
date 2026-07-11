@@ -61,7 +61,7 @@
       </div>
 
       <div class="action-group">
-        <button class="btn-toolkit outline" (click)="exportJson()" [disabled]="isExporting() || !universities().length" title="Descarga un .json con las universidades (o de una zona, si escribes algo en el buscador) para llenar a mano los campos que falten — la fuente más confiable, sin depender de que la IA adivine.">
+        <button class="btn-toolkit outline" (click)="openExportModal()" [disabled]="isExporting() || !universities().length" title="Descarga un .json con las universidades de un estado para llenar a mano los campos que falten.">
           <span *ngIf="isExporting()">⏳ Exportando...</span>
           <span *ngIf="!isExporting()">
             <app-lucide-icon name="file-down" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
@@ -318,3 +318,44 @@
     </div>
   </div>
 </div>
+
+<!-- MODAL EXPORTAR JSON -->
+<div class="modal-overlay" *ngIf="isExportModalOpen()">
+  <div class="modal-box simple-modal" style="max-width: 500px;">
+    <button class="btn-close-modal-floating" (click)="closeExportModal()">
+      <app-lucide-icon name="x" [size]="20"></app-lucide-icon>
+    </button>
+
+    <div class="modal-content-area">
+      <div class="modal-header">
+        <h2>Exportar JSON por Estado</h2>
+      </div>
+
+      <div class="modal-body" style="padding-top: 10px;">
+        <p class="hint-text" style="margin-bottom: 20px;">
+          Selecciona un estado para exportar sus universidades. El sistema generará varios archivos JSON de máximo 20 universidades cada uno para facilitar su edición.
+        </p>
+
+        <div class="input-group full-width">
+          <label>Estado a exportar <span style="color: red;">*</span></label>
+          <select [(ngModel)]="selectedExportState" class="discovery-state-select" style="width: 100%;">
+            <option value="" disabled>Selecciona un estado</option>
+            <option *ngFor="let state of discoveryStates" [value]="state">{{ state }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeExportModal()">Cancelar</button>
+        <button type="button" class="btn-primary" (click)="exportJsonByState()" [disabled]="!selectedExportState || isExporting()">
+          <span *ngIf="isExporting()">⏳ Exportando...</span>
+          <span *ngIf="!isExporting()">
+            <app-lucide-icon name="file-down" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
+            Exportar
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

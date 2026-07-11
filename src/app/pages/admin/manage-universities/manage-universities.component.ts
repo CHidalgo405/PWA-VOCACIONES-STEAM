@@ -93,6 +93,10 @@ export class ManageUniversitiesComponent implements OnInit {
   public isImporting = signal<boolean>(false);
   public isModalOpen = signal<boolean>(false);
   public modalMode = signal<'create' | 'edit'>('create');
+  
+  // Export Modal
+  public isExportModalOpen = signal<boolean>(false);
+  public selectedExportState = '';
 
   public searchTerm = '';
   public filterCostTier: CostTier | '' = '';
@@ -308,37 +312,70 @@ export class ManageUniversitiesComponent implements OnInit {
     });
   }
 
+  /** Abre el modal para seleccionar el estado a exportar */
+  openExportModal() {
+    this.selectedExportState = '';
+    this.isExportModalOpen.set(true);
+  }
+
+  closeExportModal() {
+    this.isExportModalOpen.set(false);
+  }
+
   /**
-   * Exporta a un archivo .json (con `id` real de cada universidad) para
-   * llenar a mano steamPrograms/costTier/tuitionRange/modality — el camino
-   * más confiable, porque no depende de que una IA adivine nada. Si hay
-   * texto en el buscador, se usa como filtro de zona (mismo criterio que
-   * "Enriquecer con IA").
+   * Exporta a un archivo .json (con `id` real de cada universidad) filtrando
+   * por estado y dividiendo el resultado en archivos de 20 universidades max.
    */
-  exportJson() {
+  exportJsonByState() {
+    if (!this.selectedExportState) {
+      this.toastService.showToast('Por favor selecciona un estado.', 'warning', 'Exportar JSON');
+      return;
+    }
     if (this.isExporting()) return;
     this.isExporting.set(true);
-    const filter = this.searchTerm.trim() || undefined;
-    this.adminService.exportUniversities(filter).subscribe({
+    const state = this.selectedExportState;
+    this.adminService.exportUniversities(state).subscribe({
       next: (rows) => {
         this.isExporting.set(false);
+        this.closeExportModal();
         if (!rows.length) {
-          this.toastService.showToast('No hay universidades que coincidan con ese filtro.', 'warning', 'Exportar JSON');
+          this.toastService.showToast(`No hay universidades que coincidan con ${state}.`, 'warning', 'Exportar JSON');
           return;
         }
-        const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        const scope = filter ? filter.trim().toLowerCase().replace(/\s+/g, '-') : 'todas';
-        a.href = url;
-        a.download = `universidades-${scope}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        this.toastService.showToast(
-          `${rows.length} universidades exportadas${filter ? ` (filtro: "${filter}")` : ''}. Llena los campos que falten y vuelve a subir el archivo con "Importar JSON editado".`,
-          'success',
-          'Exportar JSON',
-        );
+
+        const chunkSize = 20;
+        let index = 0;
+        let chunkNum = 1;
+        const totalChunks = Math.ceil(rows.length / chunkSize);
+
+        const downloadNextChunk = () => {
+          if (index >= rows.length) {
+            this.toastService.showToast(
+              `${rows.length} universidades exportadas en ${totalChunks} archivo(s) para ${state}.`,
+              'success',
+              'Exportar JSON'
+            );
+            return;
+          }
+
+          const chunk = rows.slice(index, index + chunkSize);
+          const blob = new Blob([JSON.stringify(chunk, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          const scope = state.toLowerCase().replace(/\s+/g, '-');
+          a.href = url;
+          a.download = `universidades-${scope}-part${chunkNum}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+
+          index += chunkSize;
+          chunkNum++;
+
+          // Retraso para evitar que el navegador bloquee descargas múltiples
+          setTimeout(downloadNextChunk, 500);
+        };
+
+        downloadNextChunk();
       },
       error: (err) => {
         console.error('Error exportando universidades:', err);
