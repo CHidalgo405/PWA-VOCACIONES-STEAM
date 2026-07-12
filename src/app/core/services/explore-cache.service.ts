@@ -76,31 +76,35 @@ export class ExploreCacheService {
   }
 
   // ── Matches A8 ─────────────────────────────────────────────────────────────
+  // Los stores llevan sufijo de versión (_v2): al reconstruir el matching
+  // (matchedProgram, match por eje STEAM) las respuestas viejas cacheadas
+  // hasta por 7 días quedaron obsoletas — versionar el store las deja
+  // huérfanas sin necesidad de migrarlas ni borrarlas una a una.
 
   getMatches(key: string, testMarker: string): CacheHit<UniversityMatchResponse> | null {
-    const entry = this.readStore<UniversityMatchResponse>('explore_matches')[key];
+    const entry = this.readStore<UniversityMatchResponse>('explore_matches_v2')[key];
     if (!entry || entry.testMarker !== testMarker) return null;
     return { data: entry.data, stale: Date.now() - entry.savedAt > MATCHES_TTL_MS };
   }
 
   setMatches(key: string, testMarker: string, data: UniversityMatchResponse): void {
-    const store = this.readStore<UniversityMatchResponse>('explore_matches');
+    const store = this.readStore<UniversityMatchResponse>('explore_matches_v2');
     store[key] = { savedAt: Date.now(), testMarker, data };
-    this.writeStore('explore_matches', this.prune(store));
+    this.writeStore('explore_matches_v2', this.prune(store));
   }
 
-  // ── Google Places "cerca de ti" ────────────────────────────────────────────
+  // ── "Cerca de ti" (BD propia + descubrimiento server-side) ────────────────
 
   getPlaces(key: string): CacheHit<any[]> | null {
-    const entry = this.readStore<any[]>('explore_places')[key];
+    const entry = this.readStore<any[]>('explore_places_v2')[key];
     if (!entry) return null;
     return { data: entry.data, stale: Date.now() - entry.savedAt > PLACES_TTL_MS };
   }
 
   setPlaces(key: string, data: any[]): void {
-    const store = this.readStore<any[]>('explore_places');
+    const store = this.readStore<any[]>('explore_places_v2');
     store[key] = { savedAt: Date.now(), data };
-    this.writeStore('explore_places', this.prune(store));
+    this.writeStore('explore_places_v2', this.prune(store));
   }
 
   // ── Preferencia de ubicación y última ubicación conocida ─────────────────

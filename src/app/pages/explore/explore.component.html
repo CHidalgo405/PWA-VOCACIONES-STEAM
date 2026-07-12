@@ -241,6 +241,11 @@
                   {{ bestMatchUniversity.description }}
                 </p>
 
+                <p class="matched-program-line" *ngIf="bestMatchUniversity.matchedProgram && bestMatchUniversity.matchedProgram !== bestMatchUniversity.career">
+                  <app-lucide-icon name="book-open" [size]="13"></app-lucide-icon>
+                  Programa: <strong>{{ bestMatchUniversity.matchedProgram }}</strong> · afín a {{ bestMatchUniversity.career }}
+                </p>
+
                 <div class="card-bottom-row">
                   <span class="match-text">
                     <app-lucide-icon name="sparkles" [size]="12"></app-lucide-icon>
@@ -293,6 +298,11 @@
 
                   <p class="match-explanation subtle" *ngIf="(uni.source === 'api' || uni.source === 'db') && uni.description">
                     {{ uni.description }}
+                  </p>
+
+                  <p class="matched-program-line" *ngIf="uni.matchedProgram && uni.matchedProgram !== uni.career">
+                    <app-lucide-icon name="book-open" [size]="12"></app-lucide-icon>
+                    Programa: <strong>{{ uni.matchedProgram }}</strong> · afín a {{ uni.career }}
                   </p>
 
                   <div class="chips-row">
@@ -366,6 +376,12 @@
                   <p class="match-explanation subtle" *ngIf="uni.source === 'db' && uni.studyPlan !== 'Consultar oferta educativa'">
                     {{ uni.description }}
                   </p>
+
+                  <div class="chips-row" *ngIf="uni.costTierLabel || uni.modality || uni.tuitionRange">
+                    <span class="mini-chip" *ngIf="uni.costTierLabel">{{ uni.costTierLabel }}</span>
+                    <span class="mini-chip" *ngIf="uni.modality">{{ uni.modality }}</span>
+                    <span class="mini-chip" *ngIf="uni.tuitionRange">{{ uni.tuitionRange }}</span>
+                  </div>
 
                   <div class="list-bottom-row">
                     <div class="left-stats">
@@ -535,6 +551,13 @@
             <div class="stat-info">
               <span class="stat-label">Carrera Recomendada</span>
               <span class="stat-value">{{ selectedUniversity?.career }}</span>
+            </div>
+          </div>
+          <div class="stat-box full-width" *ngIf="selectedUniversity?.matchedProgram && selectedUniversity?.matchedProgram !== selectedUniversity?.career">
+            <app-lucide-icon name="book-open" [size]="18" color="#0e9aa7"></app-lucide-icon>
+            <div class="stat-info">
+              <span class="stat-label">Programa afín en esta universidad</span>
+              <span class="stat-value">{{ selectedUniversity?.matchedProgram }}</span>
             </div>
           </div>
       </div>

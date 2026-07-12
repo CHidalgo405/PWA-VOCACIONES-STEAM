@@ -500,6 +500,8 @@ export class ExploreComponent implements OnInit, OnDestroy {
       rating: m.googleMapsData?.rating ?? null,
       matchPercentage: m.matchScore,
       career: m.matchedCareer,
+      /** Programa real de la universidad afín a la carrera recomendada (si difiere del nombre del catálogo). */
+      matchedProgram: m.matchedProgram || null,
       description: m.explanation,
       keyDates: 'Consultar sitio web',
       studyPlan: m.steamPrograms?.length

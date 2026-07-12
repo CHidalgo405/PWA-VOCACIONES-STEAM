@@ -18,7 +18,12 @@ export interface UniversityMatchItem {
   universityId: string;
   name: string;
   matchedCareer: string;
-  /** Match real: baseScore determinista + ajuste acotado de la IA (±10). */
+  /**
+   * Programa REAL de la universidad más afín a matchedCareer (puede diferir
+   * del catálogo: "Ing. en Sistemas Computacionales" ≈ "Ingeniería en Software").
+   */
+  matchedProgram?: string;
+  /** Match real: baseScore determinista + ajuste acotado de la IA (±15). */
   matchScore: number;
   distanceKm: number;
   costTier: CostTier;
