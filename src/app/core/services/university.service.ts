@@ -35,6 +35,8 @@ export interface UniversityMatchItem {
   tuitionRange?: string;
   /** presencial | en línea | híbrida. */
   modality?: string;
+  /** Fecha/periodo de examen de admisión, ficha o convocatoria (solo si el sitio oficial lo menciona explícitamente). */
+  admissionDates?: string;
   /** Oferta educativa completa (no solo matchedCareer). */
   steamPrograms?: { name: string; area: string }[];
   googleMapsData?: { rating?: number; address?: string };
@@ -54,6 +56,8 @@ export interface DbNearbyUniversity {
   tuitionRange?: string;
   rating?: number;
   modality?: string;
+  /** Fecha/periodo de examen de admisión, ficha o convocatoria (solo si el sitio oficial lo menciona explícitamente). */
+  admissionDates?: string;
   distanceKm: number;
   /** true si algún campo fue completado/validado por IA (aiEnrichedAt presente) — para mostrar advertencia al alumno. */
   aiEnrichedAt?: string | null;

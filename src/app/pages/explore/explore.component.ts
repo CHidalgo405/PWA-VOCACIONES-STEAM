@@ -504,7 +504,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
       matchedProgram: m.matchedProgram || null,
       aiAnalyzed: m.aiAnalyzed ?? false,
       description: m.explanation,
-      keyDates: 'Consultar sitio web',
+      keyDates: m.admissionDates || 'Consultar sitio web',
       studyPlan: m.steamPrograms?.length
         ? m.steamPrograms.map((p) => p.name).join(', ')
         : m.matchedCareer,
@@ -626,7 +626,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
       description: programs.length
         ? `Ofrece: ${programs.slice(0, 4).map((p) => p.name).join(', ')}${programs.length > 4 ? '…' : ''}.`
         : 'Universidad cercana a tu ubicación.',
-      keyDates: 'Consultar sitio web',
+      keyDates: u.admissionDates || 'Consultar sitio web',
       studyPlan: programs.length
         ? programs.map((p) => p.name).join(', ')
         : 'Consultar oferta educativa',

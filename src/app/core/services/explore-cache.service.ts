@@ -36,7 +36,17 @@ export interface CacheHit<T> {
   stale: boolean;
 }
 
-const MATCHES_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 días
+/**
+ * 24h en vez de los 7 días originales: un TTL tan largo dejaba servir
+ * respuestas de A8 generadas por una versión vieja del motor de matching
+ * durante días enteros (el único invalidador real era `testMarker`, que no
+ * cambia si el alumno no rehace el test) — un usuario reportó tener que
+ * cerrar sesión para ver resultados frescos tras un deploy del backend. Con
+ * 24h, un cambio de motor se autocorrige solo en un día como red de
+ * seguridad, sin depender de que el usuario cierre sesión (eso solo purgaba
+ * la caché por efecto colateral de la limpieza de privacidad del logout).
+ */
+const MATCHES_TTL_MS = 24 * 60 * 60 * 1000; // 24 horas
 const PLACES_TTL_MS = 24 * 60 * 60 * 1000; // 24 horas
 const MAX_ENTRIES_PER_STORE = 8; // combinaciones de ubicación+filtros retenidas
 
@@ -76,35 +86,36 @@ export class ExploreCacheService {
   }
 
   // ── Matches A8 ─────────────────────────────────────────────────────────────
-  // Los stores llevan sufijo de versión (_v2): al reconstruir el matching
-  // (matchedProgram, match por eje STEAM) las respuestas viejas cacheadas
-  // hasta por 7 días quedaron obsoletas — versionar el store las deja
-  // huérfanas sin necesidad de migrarlas ni borrarlas una a una.
+  // Los stores llevan sufijo de versión (_v3): cada vez que el motor de
+  // matching/enriquecimiento cambia de forma significativa, bump la versión
+  // acá para purgar de inmediato lo cacheado con la lógica vieja — no hace
+  // falta migrar ni borrar entradas una a una, simplemente quedan huérfanas.
+  // El TTL de 24h (abajo) es la red de seguridad para cuando se nos olvide.
 
   getMatches(key: string, testMarker: string): CacheHit<UniversityMatchResponse> | null {
-    const entry = this.readStore<UniversityMatchResponse>('explore_matches_v2')[key];
+    const entry = this.readStore<UniversityMatchResponse>('explore_matches_v3')[key];
     if (!entry || entry.testMarker !== testMarker) return null;
     return { data: entry.data, stale: Date.now() - entry.savedAt > MATCHES_TTL_MS };
   }
 
   setMatches(key: string, testMarker: string, data: UniversityMatchResponse): void {
-    const store = this.readStore<UniversityMatchResponse>('explore_matches_v2');
+    const store = this.readStore<UniversityMatchResponse>('explore_matches_v3');
     store[key] = { savedAt: Date.now(), testMarker, data };
-    this.writeStore('explore_matches_v2', this.prune(store));
+    this.writeStore('explore_matches_v3', this.prune(store));
   }
 
   // ── "Cerca de ti" (BD propia + descubrimiento server-side) ────────────────
 
   getPlaces(key: string): CacheHit<any[]> | null {
-    const entry = this.readStore<any[]>('explore_places_v2')[key];
+    const entry = this.readStore<any[]>('explore_places_v3')[key];
     if (!entry) return null;
     return { data: entry.data, stale: Date.now() - entry.savedAt > PLACES_TTL_MS };
   }
 
   setPlaces(key: string, data: any[]): void {
-    const store = this.readStore<any[]>('explore_places_v2');
+    const store = this.readStore<any[]>('explore_places_v3');
     store[key] = { savedAt: Date.now(), data };
-    this.writeStore('explore_places_v2', this.prune(store));
+    this.writeStore('explore_places_v3', this.prune(store));
   }
 
   // ── Preferencia de ubicación y última ubicación conocida ─────────────────
