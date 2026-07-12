@@ -502,6 +502,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
       career: m.matchedCareer,
       /** Programa real de la universidad afín a la carrera recomendada (si difiere del nombre del catálogo). */
       matchedProgram: m.matchedProgram || null,
+      aiAnalyzed: m.aiAnalyzed ?? false,
       description: m.explanation,
       keyDates: 'Consultar sitio web',
       studyPlan: m.steamPrograms?.length
@@ -799,6 +800,22 @@ export class ExploreComponent implements OnInit, OnDestroy {
     // Si estamos en modo 'saved', filtramos sobre las guardadas
     const sourceArray = this.viewMode === 'saved' ? this.savedUniversities : this.otherUniversities;
     return sourceArray.filter(uni => this.matchesQuery(uni));
+  }
+
+  /**
+   * Sugerencias secundarias: las ~5 siguientes a la mejor coincidencia, que
+   * son las que la IA analizó individualmente (el backend solo manda a la IA
+   * la mejor + 5 para no gastar tokens ni degradar el análisis).
+   */
+  get secondarySuggestions(): any[] {
+    if (this.viewMode !== 'explore') return [];
+    return this.filteredOtherUniversities.slice(0, 5);
+  }
+
+  /** El resto de coincidencias (ranking determinista, sin análisis individual de IA). */
+  get remainingRecommended(): any[] {
+    if (this.viewMode !== 'explore') return [];
+    return this.filteredOtherUniversities.slice(5);
   }
 
   get showBestMatch() {

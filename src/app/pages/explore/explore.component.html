@@ -257,70 +257,105 @@
             </div>
           </section>
 
-          <!-- TODAS LAS RECOMENDADAS / GUARDADAS -->
-          <section class="all-recommendations-section" *ngIf="filteredOtherUniversities.length > 0">
-            <div class="section-header space-between">
-              <h3>{{ viewMode === 'explore' ? 'Todas las recomendadas' : 'Universidades guardadas' }}</h3>
-              <span class="section-count">{{ filteredOtherUniversities.length }}</span>
-            </div>
+          <!-- Tarjeta reusable de recomendada/guardada -->
+          <ng-template #recommendedCard let-uni>
+            <div class="recommended-list-card animate-on-scroll" (click)="openUniversityDetail(uni)" appScrollReveal>
 
-            <div class="recommendations-list">
-              <div class="recommended-list-card animate-on-scroll" *ngFor="let uni of filteredOtherUniversities" (click)="openUniversityDetail(uni)" appScrollReveal>
-
-                <div class="list-card-icon">
-                  <div class="square-icon-bg">
-                    <app-lucide-icon [name]="uni.logo || 'graduation-cap'" [size]="26"></app-lucide-icon>
-                  </div>
-                </div>
-
-                <div class="list-card-content">
-                  <div class="list-top-row">
-                    <h4 class="list-uni-name">{{ uni.name }}</h4>
-                    <button
-                      class="btn-fav-invisible"
-                      [class.is-saved]="isSaved(uni)"
-                      (click)="toggleFavoriteStatus(uni, $event)"
-                      [attr.aria-label]="isSaved(uni) ? 'Quitar de favoritos' : 'Guardar en favoritos'">
-                      <app-lucide-icon
-                        [name]="viewMode === 'saved' ? 'x' : 'heart'"
-                        [size]="17"
-                        [fill]="viewMode !== 'saved' && isSaved(uni) ? '#EC4899' : 'none'"
-                        [color]="viewMode === 'saved' ? '#EF4444' : (isSaved(uni) ? '#EC4899' : 'currentColor')">
-                      </app-lucide-icon>
-                    </button>
-                  </div>
-
-                  <p class="location-text">
-                    <app-lucide-icon name="map-pin" [size]="13"></app-lucide-icon>
-                    {{ uni.location }}
-                    <span class="distance-pill" *ngIf="uni.distanceKm != null">{{ uni.distanceKm }} km</span>
-                  </p>
-
-                  <p class="match-explanation subtle" *ngIf="(uni.source === 'api' || uni.source === 'db') && uni.description">
-                    {{ uni.description }}
-                  </p>
-
-                  <p class="matched-program-line" *ngIf="uni.matchedProgram && uni.matchedProgram !== uni.career">
-                    <app-lucide-icon name="book-open" [size]="12"></app-lucide-icon>
-                    Programa: <strong>{{ uni.matchedProgram }}</strong> · afín a {{ uni.career }}
-                  </p>
-
-                  <div class="chips-row">
-                    <span class="mini-chip" *ngFor="let tag of uni.tags">{{ tag }}</span>
-                  </div>
-
-                  <div class="list-bottom-row">
-                    <div class="left-stats">
-                      <span class="rating-text" *ngIf="uni.rating">
-                        <app-lucide-icon name="star" [size]="13" color="#F97316" fill="#F97316"></app-lucide-icon>
-                        {{ uni.rating }}
-                      </span>
-                      <span class="match-badge" *ngIf="uni.matchPercentage != null">{{ uni.matchPercentage }}% match</span>
-                    </div>
-                    <span class="link-text">Ver detalles <app-lucide-icon name="chevron-right" [size]="13"></app-lucide-icon></span>
-                  </div>
+              <div class="list-card-icon">
+                <div class="square-icon-bg">
+                  <app-lucide-icon [name]="uni.logo || 'graduation-cap'" [size]="26"></app-lucide-icon>
                 </div>
               </div>
+
+              <div class="list-card-content">
+                <div class="list-top-row">
+                  <h4 class="list-uni-name">{{ uni.name }}</h4>
+                  <button
+                    class="btn-fav-invisible"
+                    [class.is-saved]="isSaved(uni)"
+                    (click)="toggleFavoriteStatus(uni, $event)"
+                    [attr.aria-label]="isSaved(uni) ? 'Quitar de favoritos' : 'Guardar en favoritos'">
+                    <app-lucide-icon
+                      [name]="viewMode === 'saved' ? 'x' : 'heart'"
+                      [size]="17"
+                      [fill]="viewMode !== 'saved' && isSaved(uni) ? '#EC4899' : 'none'"
+                      [color]="viewMode === 'saved' ? '#EF4444' : (isSaved(uni) ? '#EC4899' : 'currentColor')">
+                    </app-lucide-icon>
+                  </button>
+                </div>
+
+                <p class="location-text">
+                  <app-lucide-icon name="map-pin" [size]="13"></app-lucide-icon>
+                  {{ uni.location }}
+                  <span class="distance-pill" *ngIf="uni.distanceKm != null">{{ uni.distanceKm }} km</span>
+                </p>
+
+                <p class="match-explanation subtle" *ngIf="(uni.source === 'api' || uni.source === 'db') && uni.description">
+                  {{ uni.description }}
+                </p>
+
+                <p class="matched-program-line" *ngIf="uni.matchedProgram && uni.matchedProgram !== uni.career">
+                  <app-lucide-icon name="book-open" [size]="12"></app-lucide-icon>
+                  Programa: <strong>{{ uni.matchedProgram }}</strong> · afín a {{ uni.career }}
+                </p>
+
+                <div class="chips-row">
+                  <span class="mini-chip" *ngFor="let tag of uni.tags">{{ tag }}</span>
+                </div>
+
+                <div class="list-bottom-row">
+                  <div class="left-stats">
+                    <span class="rating-text" *ngIf="uni.rating">
+                      <app-lucide-icon name="star" [size]="13" color="#F97316" fill="#F97316"></app-lucide-icon>
+                      {{ uni.rating }}
+                    </span>
+                    <span class="match-badge" *ngIf="uni.matchPercentage != null">{{ uni.matchPercentage }}% match</span>
+                  </div>
+                  <span class="link-text">Ver detalles <app-lucide-icon name="chevron-right" [size]="13"></app-lucide-icon></span>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+
+          <!-- SUGERENCIAS SECUNDARIAS (las ~5 analizadas por la IA tras la mejor coincidencia) -->
+          <section class="all-recommendations-section" *ngIf="viewMode === 'explore' && secondarySuggestions.length > 0">
+            <div class="section-header space-between">
+              <h3>
+                <app-lucide-icon name="sparkles" [size]="16"></app-lucide-icon>
+                Sugerencias para ti
+              </h3>
+              <span class="section-count">{{ secondarySuggestions.length }}</span>
+            </div>
+            <div class="recommendations-list">
+              <ng-container *ngFor="let uni of secondarySuggestions">
+                <ng-container *ngTemplateOutlet="recommendedCard; context: { $implicit: uni }"></ng-container>
+              </ng-container>
+            </div>
+          </section>
+
+          <!-- MÁS OPCIONES (ranking determinista, sin análisis individual de IA) -->
+          <section class="all-recommendations-section" *ngIf="viewMode === 'explore' && remainingRecommended.length > 0">
+            <div class="section-header space-between">
+              <h3>Más opciones para tu perfil</h3>
+              <span class="section-count">{{ remainingRecommended.length }}</span>
+            </div>
+            <div class="recommendations-list">
+              <ng-container *ngFor="let uni of remainingRecommended">
+                <ng-container *ngTemplateOutlet="recommendedCard; context: { $implicit: uni }"></ng-container>
+              </ng-container>
+            </div>
+          </section>
+
+          <!-- GUARDADAS -->
+          <section class="all-recommendations-section" *ngIf="viewMode === 'saved' && filteredOtherUniversities.length > 0">
+            <div class="section-header space-between">
+              <h3>Universidades guardadas</h3>
+              <span class="section-count">{{ filteredOtherUniversities.length }}</span>
+            </div>
+            <div class="recommendations-list">
+              <ng-container *ngFor="let uni of filteredOtherUniversities">
+                <ng-container *ngTemplateOutlet="recommendedCard; context: { $implicit: uni }"></ng-container>
+              </ng-container>
             </div>
           </section>
 

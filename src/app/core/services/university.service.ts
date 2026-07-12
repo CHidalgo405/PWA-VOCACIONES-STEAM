@@ -23,6 +23,8 @@ export interface UniversityMatchItem {
    * del catálogo: "Ing. en Sistemas Computacionales" ≈ "Ingeniería en Software").
    */
   matchedProgram?: string;
+  /** true si la IA analizó este match individualmente (mejor coincidencia + sugerencias secundarias). */
+  aiAnalyzed?: boolean;
   /** Match real: baseScore determinista + ajuste acotado de la IA (±15). */
   matchScore: number;
   distanceKm: number;
