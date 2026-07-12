@@ -139,6 +139,9 @@
 
       <!-- SKELETONS (LOADING) -->
       <ng-container *ngIf="isLoading">
+        <div class="filter-loading" *ngIf="isDiscoveringNearby">
+          <span class="dot-pulse"></span> Buscando universidades cercanas… puede tardar unos segundos si es una zona nueva.
+        </div>
         <div class="skeleton-stack">
           <div class="uni-card-skeleton" *ngFor="let i of skeletonArray">
             <div class="skele-img shimmer"></div>
@@ -327,7 +330,11 @@
                 <app-lucide-icon name="map" [size]="16"></app-lucide-icon>
                 Universidades cerca de ti
               </h3>
-              <span class="section-caption">{{ filteredNearbyUniversities[0]?.source === 'db' ? 'Base Vocaciones STEAM' : 'Google Maps' }}</span>
+              <span class="section-caption">Base Vocaciones STEAM</span>
+            </div>
+            <div class="ai-provider-note" *ngIf="hasAiResearchedNearby">
+              <app-lucide-icon name="alert-circle" [size]="12"></app-lucide-icon>
+              Algunos datos de estas universidades fueron investigados con ayuda de IA y pueden contener errores.
             </div>
 
             <div class="recommendations-list">

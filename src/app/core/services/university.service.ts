@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
-import { University } from '../models/university.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 // ── Contrato del algoritmo A8 (POST /universities/match) ────────────────────
@@ -49,6 +48,8 @@ export interface DbNearbyUniversity {
   rating?: number;
   modality?: string;
   distanceKm: number;
+  /** true si algún campo fue completado/validado por IA (aiEnrichedAt presente) — para mostrar advertencia al alumno. */
+  aiEnrichedAt?: string | null;
 }
 
 export interface UniversityMatchResponse {
@@ -80,69 +81,18 @@ export class UniversityService {
   }
 
   /**
-   * Universidades de NUESTRA base cercanas a una coordenada, con los campos
-   * enriquecidos (programas/costo/modalidad). Se cruza con los resultados de
-   * Google Places para que las tarjetas "cerca de ti" muestren la info real
-   * de la BD y no solo lo que trae el mapa.
+   * "Cerca de ti" / mapa: BD propia + (si la zona tiene poca cobertura)
+   * descubrimiento en vivo en el servidor vía Google Places, validado y
+   * enriquecido con IA, y guardado para siempre — reemplaza la llamada
+   * directa a Places desde el navegador (searchNearbyUniversities). Puede
+   * tardar más en zonas nunca visitadas (~30-40s) mientras la IA valida los
+   * candidatos nuevos; en zonas ya cubiertas responde al instante.
    */
-  getNearbyFromDb(location: { lat: number; lng: number }, radiusKm: number): Observable<DbNearbyUniversity[]> {
-    return this.http.get<DbNearbyUniversity[]>(
-      `${environment.apiUrl}/universities/nearby?lat=${location.lat}&lng=${location.lng}&radiusKm=${radiusKm}`,
+  discoverNearby(location: { lat: number; lng: number }, radiusKm: number): Observable<DbNearbyUniversity[]> {
+    return this.http.post<DbNearbyUniversity[]>(
+      `${environment.apiUrl}/universities/nearby-discover`,
+      { lat: location.lat, lng: location.lng, radiusKm },
     );
   }
 
-  /**
-   * Busca universidades usando Google Maps Places API (New) vía REST
-   * @param mapInstance La instancia nativa de google.maps.Map (ya no es obligatoria para la nueva API, pero la mantenemos por compatibilidad de firma)
-   * @param location Coordenadas centrales para la búsqueda
-   * @param radius Radio en metros
-   */
-  searchNearbyUniversities(mapInstance: any, location: google.maps.LatLngLiteral, radius: number = 30000, keyword: string = 'universidad'): Observable<University[]> {
-    const url = 'https://places.googleapis.com/v1/places:searchNearby';
-    
-    // FieldMask para pedir solo los datos que necesitamos (optimiza costos y tiempo)
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'X-Goog-Api-Key': environment.googleMapsApiKey,
-      'X-Goog-FieldMask': 'places.displayName,places.location,places.photos,places.id,places.formattedAddress,places.rating,places.userRatingCount,places.regularOpeningHours'
-    });
-
-    const body = {
-      includedTypes: ["university"],
-      maxResultCount: 20,
-      locationRestriction: {
-        circle: {
-          center: {
-            latitude: location.lat,
-            longitude: location.lng
-          },
-          radius: radius
-        }
-      }
-    };
-
-    return this.http.post<any>(url, body, { headers }).pipe(
-      map(response => {
-        if (!response.places) {
-          return [];
-        }
-        
-        return response.places.map((place: any) => ({
-          id: place.id,
-          name: place.displayName?.text || 'Universidad sin nombre',
-          location: {
-            lat: place.location.latitude,
-            lng: place.location.longitude
-          },
-          address: place.formattedAddress,
-          rating: place.rating,
-          userRatingsTotal: place.userRatingCount,
-          logoUrl: place.photos && place.photos.length > 0 
-            ? `https://places.googleapis.com/v1/${place.photos[0].name}/media?maxHeightPx=800&maxWidthPx=800&key=${environment.googleMapsApiKey}`
-            : undefined,
-          isOpen: place.regularOpeningHours ? place.regularOpeningHours.openNow : undefined
-        }));
-      })
-    );
-  }
 }

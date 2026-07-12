@@ -172,11 +172,22 @@ export class UniversitiesMapComponent implements OnInit {
     }
   }
 
-  searchUniversities(mapInstance: google.maps.Map, location: google.maps.LatLngLiteral) {
+  searchUniversities(_mapInstance: google.maps.Map, location: google.maps.LatLngLiteral) {
     this.isSearching = true;
-    this.universityService.searchNearbyUniversities(mapInstance, location, 20000).subscribe({
-      next: (results) => {
-        this.universities = results;
+    // BD propia + (si hace falta) descubrimiento server-side vía Google Places
+    // validado/enriquecido con IA — ya no se llama Places directo desde aquí.
+    this.universityService.discoverNearby(location, 20).subscribe({
+      next: (rows) => {
+        this.universities = (rows || []).map((u) => ({
+          id: u.id,
+          name: u.name,
+          location: u.location
+            ? { lat: u.location.latitude, lng: u.location.longitude }
+            : location,
+          address: u.address,
+          contactUrl: u.website,
+          rating: u.rating,
+        }));
         this.isSearching = false;
       },
       error: (err) => {

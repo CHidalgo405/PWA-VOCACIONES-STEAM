@@ -34,7 +34,7 @@
             <h3 style="margin-top: 0; color: #333;">{{ selectedUniversity.name }}</h3>
             <p *ngIf="selectedUniversity.address" style="color: #666; font-size: 14px;">📍 {{ selectedUniversity.address }}</p>
             <p *ngIf="selectedUniversity.rating" style="color: #f5b041; font-weight: bold; margin-bottom: 5px;">
-              ⭐ {{ selectedUniversity.rating }} ({{ selectedUniversity.userRatingsTotal }} reseñas)
+              ⭐ {{ selectedUniversity.rating }}<ng-container *ngIf="selectedUniversity.userRatingsTotal"> ({{ selectedUniversity.userRatingsTotal }} reseñas)</ng-container>
             </p>
             <p *ngIf="selectedUniversity.isOpen !== undefined" 
                [style.color]="selectedUniversity.isOpen ? 'green' : 'red'" 
