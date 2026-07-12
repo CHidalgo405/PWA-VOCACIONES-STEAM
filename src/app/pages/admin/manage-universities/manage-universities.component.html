@@ -68,14 +68,14 @@
             Exportar JSON
           </span>
         </button>
-        <button class="btn-toolkit outline" (click)="triggerImportPicker(importFileInput)" [disabled]="isImporting()" title="Sube el .json ya editado a mano: ACTUALIZA por id, nunca crea universidades nuevas.">
+        <button class="btn-toolkit outline" (click)="triggerImportPicker(importFileInput)" [disabled]="isImporting()" title="Sube uno o varios .json ya editados a mano: ACTUALIZA por id, nunca crea universidades nuevas.">
           <span *ngIf="isImporting()">⏳ Importando...</span>
           <span *ngIf="!isImporting()">
             <app-lucide-icon name="folder-open" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
             Importar JSON
           </span>
         </button>
-        <input #importFileInput type="file" accept=".json,application/json" style="display: none;" (change)="onImportFileSelected($event)">
+        <input #importFileInput type="file" accept=".json,application/json" multiple style="display: none;" (change)="onImportFileSelected($event)">
       </div>
 
       <div class="action-group delete-group">

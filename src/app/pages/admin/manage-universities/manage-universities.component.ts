@@ -393,27 +393,39 @@ export class ManageUniversitiesComponent implements OnInit {
   }
 
   /**
-   * Reimporta el JSON exportado (ya editado a mano): ACTUALIZA por `id`,
-   * nunca crea universidades nuevas — para eso están los botones de
-   * descubrimiento. Filas sin `id` o con `id` que ya no existe se reportan
-   * como error individual sin tocar el resto del archivo.
+   * Reimporta uno o varios JSON exportados (ya editados a mano): ACTUALIZA
+   * por `id`, nunca crea universidades nuevas — para eso están los botones
+   * de descubrimiento. Se combinan todos los archivos seleccionados en un
+   * solo lote antes de enviarlo al backend. Filas sin `id` o con `id` que
+   * ya no existe se reportan como error individual sin tocar el resto.
    */
   async onImportFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
+    const files = input.files ? Array.from(input.files) : [];
+    if (!files.length) return;
 
-    let rows: any[];
-    try {
-      const text = await file.text();
-      const parsed = JSON.parse(text);
-      rows = Array.isArray(parsed) ? parsed : [parsed];
-    } catch (err) {
-      this.toastService.showToast('El archivo no es un JSON válido.', 'error', 'Importar JSON editado');
-      return;
+    const rows: any[] = [];
+    const fileErrors: string[] = [];
+    for (const file of files) {
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const parsedRows = Array.isArray(parsed) ? parsed : [parsed];
+        rows.push(...parsedRows);
+      } catch (err) {
+        fileErrors.push(file.name);
+      }
+    }
+
+    if (fileErrors.length) {
+      this.toastService.showToast(
+        `${fileErrors.length} archivo(s) no son JSON válido y se omitieron: ${fileErrors.join(', ')}.`,
+        'warning',
+        'Importar JSON editado',
+      );
     }
     if (!rows.length) {
-      this.toastService.showToast('El archivo no tiene universidades.', 'warning', 'Importar JSON editado');
+      this.toastService.showToast('No hay universidades para importar en los archivos seleccionados.', 'warning', 'Importar JSON editado');
       return;
     }
 
@@ -425,7 +437,7 @@ export class ManageUniversitiesComponent implements OnInit {
         const partes = [`${result.updated} actualizadas`];
         if (result.failed > 0) partes.push(`${result.failed} con error`);
         this.toastService.showToast(
-          `Importación: ${partes.join(', ')} (de ${rows.length} filas en el archivo).`,
+          `Importación: ${partes.join(', ')} (de ${rows.length} filas en ${files.length} archivo(s)).`,
           result.failed > 0 ? 'warning' : 'success',
           'Importar JSON editado',
         );
