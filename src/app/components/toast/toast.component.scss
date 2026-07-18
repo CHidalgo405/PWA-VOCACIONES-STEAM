@@ -255,7 +255,7 @@
 /* =========================================
    DARK THEME COMPATIBILITY
    ========================================= */
-body.dark-theme {
+:host-context(body.dark-theme) {
   .toast-card {
     box-shadow:
       0 12px 30px -5px rgba(0, 0, 0, 0.35),

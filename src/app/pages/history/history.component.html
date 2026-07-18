@@ -66,57 +66,36 @@
       </div>
     </div>
 
-    <!-- PREMIUM EMPTY STATE NO TEST -->
-    <div class="premium-empty-state-card fade-in" *ngIf="!isLoading && testHistory.length === 0">
-      
-      <div class="empty-card-content reverse-on-mobile">
-        <div class="empty-card-text-area">
-          <h2 class="empty-card-title">Aún no tienes tests <span class="text-cyan">completados</span></h2>
-          <p class="empty-card-desc">
-            Tu historial está vacío. Realiza tu primer test vocacional para empezar a guardar tu progreso y descubrir tu perfil STEAM.
-          </p>
-          
-          <div class="empty-card-actions">
-            <button class="btn-primary-rocket" routerLink="/evaluations">
-              Hacer test ahora <app-lucide-icon name="rocket" [size]="16" class="rocket-icon"></app-lucide-icon>
-            </button>
-            <button class="btn-secondary-rocket" routerLink="/career-simulator">
-              Explorar simuladores <app-lucide-icon name="gamepad-2" [size]="16" class="rocket-icon"></app-lucide-icon>
-            </button>
-          </div>
+    <app-empty-state
+      class="history-empty-state"
+      *ngIf="!isLoading && !loadError && testHistory.length === 0"
+      eyebrow="Tu recorrido comienza aquí"
+      title="Tu historial se construye con el primer test"
+      description="Completa una evaluación vocacional y guardaremos aquí tus resultados, cambios de perfil y recomendaciones para que puedas compararlos cuando quieras."
+      icon="history"
+      visual="history"
+      [details]="emptyHistoryDetails"
+      primaryLabel="Iniciar mi primer test"
+      primaryRoute="/evaluations"
+      secondaryLabel="Explorar simuladores"
+      secondaryRoute="/career-simulator"
+      secondaryIcon="gamepad-2"
+    ></app-empty-state>
 
-          <div class="empty-card-info">
-            <app-lucide-icon name="clock" [size]="14"></app-lucide-icon>
-            <span>Solo toma 8-10 minutos</span>
-          </div>
-        </div>
-
-        <div class="empty-card-image-area">
-          <img src="assets/history-illustration.png" alt="Aún no tienes tests completados" class="empty-illustration">
-        </div>
-      </div>
-
-      <!-- Bottom Features Row -->
-      <div class="empty-features-row four-cols">
-        <div class="feature-item">
-          <div class="feature-icon"><app-lucide-icon name="trending-up" [size]="20"></app-lucide-icon></div>
-          <span class="feature-text">Tu progreso,<br>organizado</span>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon"><app-lucide-icon name="clock" [size]="20"></app-lucide-icon></div>
-          <span class="feature-text">Historial de resultados<br>al instante</span>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon"><app-lucide-icon name="star" [size]="20"></app-lucide-icon></div>
-          <span class="feature-text">Recomendaciones<br>personalizadas</span>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon"><app-lucide-icon name="user" [size]="20"></app-lucide-icon></div>
-          <span class="feature-text">Descubre tu perfil<br>STEAM</span>
-        </div>
-      </div>
-
-    </div>
+    <app-empty-state
+      class="history-empty-state"
+      *ngIf="!isLoading && loadError"
+      eyebrow="Historial no disponible"
+      title="No pudimos cargar tus resultados"
+      [description]="loadError"
+      icon="alert-circle"
+      visual="search"
+      tone="orange"
+      [compact]="true"
+      primaryLabel="Intentar de nuevo"
+      primaryIcon="refresh-cw"
+      (primaryAction)="loadHistory()"
+    ></app-empty-state>
 
     <ng-container *ngIf="!isLoading && testHistory.length > 0">
       
@@ -144,19 +123,24 @@
         </div>
         
         <div class="card-title-row">
-          <div class="title-wrap" *ngIf="isRenaming !== latestTest.id" (click)="startRename(latestTest, $event)">
+          <div class="title-wrap" *ngIf="isRenaming !== latestTest.id">
             <h2>{{ latestTest.testName }}</h2>
-            <button class="btn-icon" title="Renombrar">
+            <button
+              class="btn-icon"
+              type="button"
+              (click)="startRename(latestTest, $event)"
+              aria-label="Renombrar el test más reciente"
+            >
               <app-lucide-icon name="pencil" [size]="16" color="#94A3B8"></app-lucide-icon>
             </button>
           </div>
           
           <div class="rename-input-wrap dark-mode" *ngIf="isRenaming === latestTest.id" (click)="$event.stopPropagation()">
-            <input type="text" [(ngModel)]="newTestName" (keyup.enter)="saveRename(latestTest, $event)" autofocus>
-            <button class="btn-icon save" (click)="saveRename(latestTest, $event)">
+            <input type="text" name="latestTestName" aria-label="Nuevo nombre del test" [(ngModel)]="newTestName" (keyup.enter)="saveRename(latestTest, $event)" autofocus>
+            <button class="btn-icon save" type="button" aria-label="Guardar nombre" (click)="saveRename(latestTest, $event)">
               <app-lucide-icon name="check" [size]="18" color="#4ADE80"></app-lucide-icon>
             </button>
-            <button class="btn-icon cancel" (click)="cancelRename($event)">
+            <button class="btn-icon cancel" type="button" aria-label="Cancelar cambio de nombre" (click)="cancelRename($event)">
               <app-lucide-icon name="x" [size]="18" color="#EF4444"></app-lucide-icon>
             </button>
           </div>
@@ -180,16 +164,15 @@
         
         <div class="card-footer">
           <a [routerLink]="['/test-result', latestTest.id]" class="link-cyan">Ver análisis completo &rarr;</a>
-          <button class="btn-delete" (click)="deleteTest(latestTest.id, $event)">
+          <button class="btn-delete" type="button" (click)="deleteTest(latestTest.id, $event)">
             <app-lucide-icon name="trash-2" [size]="16"></app-lucide-icon> Eliminar
           </button>
         </div>
       </div>
 
       <!-- TESTS ANTERIORES -->
-      <div class="section-title space-between" *ngIf="previousTests.length > 0">
+      <div class="section-title" *ngIf="previousTests.length > 0">
         <h3>Tests anteriores</h3>
-        <a href="#" class="link-cyan">Comparar todos</a>
       </div>
 
       <div class="previous-tests-list" *ngIf="previousTests.length > 0">
@@ -201,19 +184,24 @@
           
           <div class="card-content">
             <div class="card-top-row">
-              <div class="title-wrap" *ngIf="isRenaming !== test.id" (click)="startRename(test, $event)">
+              <div class="title-wrap" *ngIf="isRenaming !== test.id">
                 <h4>{{ test.testName }}</h4>
-                <button class="btn-icon" title="Renombrar">
+                <button
+                  class="btn-icon"
+                  type="button"
+                  (click)="startRename(test, $event)"
+                  [attr.aria-label]="'Renombrar ' + test.testName"
+                >
                   <app-lucide-icon name="pencil" [size]="14" color="#94A3B8"></app-lucide-icon>
                 </button>
               </div>
               
               <div class="rename-input-wrap" *ngIf="isRenaming === test.id" (click)="$event.stopPropagation()">
-                <input type="text" [(ngModel)]="newTestName" (keyup.enter)="saveRename(test, $event)" autofocus>
-                <button class="btn-icon save" (click)="saveRename(test, $event)">
+                <input type="text" [name]="'testName-' + test.id" aria-label="Nuevo nombre del test" [(ngModel)]="newTestName" (keyup.enter)="saveRename(test, $event)" autofocus>
+                <button class="btn-icon save" type="button" aria-label="Guardar nombre" (click)="saveRename(test, $event)">
                   <app-lucide-icon name="check" [size]="16" color="#16A34A"></app-lucide-icon>
                 </button>
-                <button class="btn-icon cancel" (click)="cancelRename($event)">
+                <button class="btn-icon cancel" type="button" aria-label="Cancelar cambio de nombre" (click)="cancelRename($event)">
                   <app-lucide-icon name="x" [size]="16" color="#DC2626"></app-lucide-icon>
                 </button>
               </div>
@@ -233,7 +221,7 @@
             
             <div class="card-footer">
               <a [routerLink]="['/test-result', test.id]" class="link-cyan">Ver detalles &rarr;</a>
-              <button class="btn-delete" (click)="deleteTest(test.id, $event)">
+              <button class="btn-delete" type="button" [attr.aria-label]="'Eliminar ' + test.testName" (click)="deleteTest(test.id, $event)">
                 <app-lucide-icon name="trash-2" [size]="16"></app-lucide-icon>
               </button>
             </div>

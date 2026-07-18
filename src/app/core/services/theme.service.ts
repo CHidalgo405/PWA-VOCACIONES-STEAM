@@ -56,16 +56,11 @@ export class ThemeService {
     this.applyTheme(isDark);
   }
 
-  /** Toggles between light and dark mode and reloads the page. */
+  /** Alterna el tema sin recargar ni perder el estado actual de la vista. */
   toggleTheme(): void {
     const newValue = !this.isDarkMode$.value;
     localStorage.setItem('app-theme', newValue ? 'dark' : 'light');
     this.applyTheme(newValue);
-    
-    // Recargar el navegador para forzar la actualización de componentes externos (ej. Mapas)
-    setTimeout(() => {
-      window.location.reload();
-    }, 100);
   }
 
   /** Returns the current dark-mode state synchronously. */
@@ -74,11 +69,11 @@ export class ThemeService {
   }
 
   private applyTheme(isDark: boolean): void {
-    if (isDark) {
-      document.body.classList.add(this.DARK_CLASS);
-    } else {
-      document.body.classList.remove(this.DARK_CLASS);
-    }
+    document.documentElement.classList.toggle(this.DARK_CLASS, isDark);
+    document.body.classList.toggle(this.DARK_CLASS, isDark);
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', isDark ? '#0A0A0A' : '#F8FAFC');
     this.isDarkMode$.next(isDark);
   }
 }

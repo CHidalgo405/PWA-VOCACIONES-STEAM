@@ -4,6 +4,8 @@
    DESIGN TOKENS — LIGHT MODE (Default)
    ========================================= */
 :root {
+  color-scheme: light;
+
   /* Brand colors (immutable) */
   --steam-blue: #07B1C9;
   --steam-orange: #F88718;
@@ -25,6 +27,10 @@
   --bg-surface: #FFFFFF;
   --bg-elevated: #F1F5F9;
   --bg-glass: rgba(255, 255, 255, 0.85);
+  --bg-primary: var(--bg-canvas);
+  --bg-secondary: var(--bg-surface);
+  --surface-card: var(--bg-surface);
+  --surface-bg: var(--bg-elevated);
 
   /* Glassmorphism Tokens (Light) */
   --bg-main: var(--bg-surface);
@@ -110,6 +116,10 @@ body.dark-theme {
   --card-bg: #0B1120;
 }
 
+html.dark-theme {
+  color-scheme: dark;
+}
+
 /* =========================================
    GLOBAL BASE STYLES
    ========================================= */
@@ -122,7 +132,44 @@ body {
   font-family: 'Poppins', 'Segoe UI', sans-serif;
   background-color: var(--bg-canvas);
   color: var(--text-primary);
-  transition: background-color 0.35s ease, color 0.35s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  touch-action: manipulation;
+}
+
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent-primary) 38%, transparent);
+  outline-offset: 3px;
+}
+
+:where(h1, h2, h3) {
+  text-wrap: balance;
+}
+
+:where(p) {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent-primary) 28%, transparent);
 }
 
 /* Animación de flotar para las imágenes */
@@ -252,6 +299,10 @@ body.dark-theme {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+
   .shimmer {
     animation: none;
   }

@@ -1,123 +1,129 @@
-/* Contenedor que asegura que el nav esté siempre encima de todo */
 .navbar-container {
   position: fixed;
-  bottom: 0;
-  left: 0;
+  inset: auto 0 0;
   width: 100%;
   z-index: 1000;
-  pointer-events: none; /* Permite hacer clic en cosas a los lados del dock en PC */
   display: flex;
   justify-content: center;
-  padding-bottom: 0; /* En móvil va pegado */
+  padding-bottom: env(safe-area-inset-bottom);
+  pointer-events: none;
 
-  /* TRANSICIÓN A PC (Escritorio) */
   @media (min-width: 1024px) {
-    padding-bottom: 30px; /* Lo elevamos del suelo en PC */
+    padding-bottom: 28px;
   }
 }
 
-/* El cuerpo del menú (La barra blanca) */
 .nav-dock {
-  pointer-events: auto; /* Reactivamos los clicks dentro del menú */
-  background: var(--bg-glass, rgba(255, 255, 255, 0.85)); /* Semitransparente */
-  backdrop-filter: blur(15px); /* Efecto cristal (Glassmorphism) */
-  box-shadow: 0 -5px 20px rgba(0,0,0,0.05), 0 5px 15px rgba(0,0,0,0.05);
-  border-top: 1px solid var(--border-light, rgba(255,255,255,0.5));
-  transition: background-color 0.35s ease, border-color 0.35s ease;
-  
-  /* DISEÑO MÓVIL (Por defecto) */
+  min-height: 68px;
   width: 100%;
-  height: 70px;
-  display: flex;
-  justify-content: space-around; /* Distribuir uniformemente */
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   align-items: center;
-  border-radius: 20px 20px 0 0; /* Curvas solo arriba */
-  padding: 0 10px;
+  padding: 6px 8px;
+  border: 1px solid var(--border-light);
+  border-width: 1px 0 0;
+  border-radius: 18px 18px 0 0;
+  background: var(--bg-glass);
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  pointer-events: auto;
+  transition:
+    background-color var(--duration-hover) ease,
+    border-color var(--duration-hover) ease;
 
-  /* DISEÑO PC (Floating Dock) */
   @media (min-width: 1024px) {
     width: auto;
-    min-width: 400px;
-    height: 75px;
-    border-radius: 40px; /* Cápsula completa */
-    padding: 0 20px;
-    gap: 20px;
-    border: 1px solid var(--border-light, rgba(255,255,255,0.4));
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    min-width: 520px;
+    min-height: 66px;
+    display: flex;
+    gap: 6px;
+    padding: 8px;
+    border-width: 1px;
+    border-radius: 999px;
+    box-shadow: 0 14px 42px rgba(15, 23, 42, 0.14);
   }
 }
 
-/* Cada botón individual */
 .nav-item {
+  min-width: 0;
+  min-height: 52px;
   display: flex;
-  flex-direction: row; /* Horizontal como en la imagen */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
-  color: var(--text-primary); /* Color oscuro inactivo */
-  transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
-  padding: 10px; /* Padding ajustado para inactivo */
-  border-radius: 30px; /* Forma de píldora */
+  gap: 3px;
+  padding: 6px 3px;
   overflow: hidden;
-  height: 48px; /* Altura fija para que la píldora se vea uniforme */
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--duration-tactile) var(--ease-out),
+    background-color var(--duration-hover) ease,
+    color var(--duration-hover) ease;
 
-  /* Icono */
   .icon-box {
+    width: 23px;
+    height: 23px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
-    /* Fix the size of the icon container */
-    width: 24px;
-    height: 24px;
-    color: var(--text-primary);
+    color: currentColor;
   }
 
-  /* Texto - Oculto por defecto usando max-width */
   .label {
-    font-size: 0.95rem;
-    font-weight: 500;
+    max-width: 100%;
+    overflow: hidden;
+    color: currentColor;
+    font-size: clamp(0.58rem, 2.5vw, 0.68rem);
+    font-weight: 650;
+    line-height: 1.1;
+    text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 0;
-    opacity: 0;
-    margin-left: 0;
-    transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
   }
 
-  /* --- ESTADO ACTIVO (Seleccionado) --- */
   &.active {
-    background-color: var(--primary-color, #07B1C9); /* Color principal de la marca */
-    padding: 10px 20px; /* Padding extendido para acomodar el texto */
-    
-    .icon-box {
-      color: #ffffff; /* Icono blanco cuando está activo */
-    }
+    background: color-mix(in srgb, var(--accent-primary) 13%, transparent);
+    color: #067486;
+  }
+
+  &.install-btn {
+    color: #067486;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  @media (min-width: 1024px) {
+    min-height: 48px;
+    flex: 0 0 auto;
+    flex-direction: row;
+    gap: 8px;
+    padding: 0 14px;
+    border-radius: 999px;
 
     .label {
-      color: #ffffff; /* Texto blanco cuando está activo */
-      max-width: 120px; /* Expande para mostrar el texto */
-      opacity: 1;
-      margin-left: 10px; /* Espacio entre icono y texto */
+      font-size: 0.8rem;
+    }
+
+    &.active {
+      background: #067486;
+      color: #fff;
     }
   }
+}
 
-  /* Install Button Special Styling */
-  &.install-btn {
-    cursor: pointer;
-    .icon-box {
-      color: var(--primary-color, #07B1C9); /* Siempre de color para resaltar */
-    }
-    
-    &:hover, &:active {
-      background-color: rgba(7, 177, 201, 0.1);
-      padding: 10px 20px;
-      .label {
-        color: var(--primary-color, #07B1C9);
-        max-width: 120px;
-        opacity: 1;
-        margin-left: 10px;
-      }
-    }
+@media (hover: hover) and (pointer: fine) {
+  .nav-item:hover {
+    background: color-mix(in srgb, var(--accent-primary) 9%, transparent);
+    color: #067486;
   }
 }
 
@@ -126,7 +132,7 @@
    ========================================= */
 :host-context(body.dark-theme) {
   .nav-dock {
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.2), 0 5px 15px rgba(0,0,0,0.15);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.28);
     border-top-color: rgba(55, 65, 81, 0.5);
 
     @media (min-width: 1024px) {
@@ -136,18 +142,15 @@
   }
 
   .nav-item {
-    color: var(--text-primary);
-    
-    .icon-box {
-      color: var(--text-primary);
-    }
+    color: var(--text-secondary);
     
     &.active {
-      /* En dark mode mantenemos el fondo de la marca y texto blanco */
-      background-color: var(--primary-color, #07B1C9);
-      
-      .icon-box, .label {
-        color: #ffffff;
+      background: color-mix(in srgb, var(--accent-secondary) 18%, transparent);
+      color: var(--accent-secondary);
+
+      @media (min-width: 1024px) {
+        background: #067486;
+        color: #fff;
       }
     }
   }

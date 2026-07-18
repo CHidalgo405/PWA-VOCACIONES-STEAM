@@ -528,27 +528,23 @@
           </section>
 
           <!-- EMPTY STATE BÚSQUEDA / GUARDADAS -->
-          <div class="premium-empty-state" *ngIf="filteredOtherUniversities.length === 0 && !showBestMatch && filteredNearbyUniversities.length === 0 && !(viewMode === 'explore' && hasBackgroundWork) && !(viewMode === 'saved' && (isLoadingSaved || savedLoadError))">
-            <div class="empty-visual">
-              <app-lucide-icon [name]="viewMode === 'saved' ? 'heart-off' : 'search'" [size]="52"></app-lucide-icon>
-            </div>
-            <ng-container *ngIf="viewMode === 'explore'">
-              <ng-container *ngIf="searchQuery; else noResultsWithoutSearch">
-                <h3>Sin resultados</h3>
-                <p>No encontramos universidades que coincidan con "{{ searchQuery }}".</p>
-              </ng-container>
-              <ng-template #noResultsWithoutSearch>
-                <h3>Aún no hay universidades en tu zona</h3>
-                <p>Prueba ampliar la distancia o elegir otra ciudad en los filtros de ubicación.</p>
-              </ng-template>
-            </ng-container>
-
-            <h3 *ngIf="viewMode === 'saved'">No hay guardadas</h3>
-            <p *ngIf="viewMode === 'saved'">Aún no has guardado ninguna universidad. Explora recomendaciones y añádelas a tus favoritos.</p>
-
-            <button class="btn-reset" *ngIf="viewMode === 'explore' && searchQuery" (click)="clearSearch()">Limpiar búsqueda</button>
-            <button class="btn-reset" *ngIf="viewMode === 'saved'" (click)="switchViewMode('explore')">Volver a explorar</button>
-          </div>
+          <app-empty-state
+            class="universities-empty-state"
+            *ngIf="filteredOtherUniversities.length === 0 && !showBestMatch && filteredNearbyUniversities.length === 0 && !(viewMode === 'explore' && hasBackgroundWork) && !(viewMode === 'saved' && (isLoadingSaved || savedLoadError))"
+            [eyebrow]="emptyUniversityEyebrow"
+            [title]="emptyUniversityTitle"
+            [description]="emptyUniversityDescription"
+            [icon]="emptyUniversityIcon"
+            [visual]="emptyUniversityVisual"
+            [tone]="emptyUniversityTone"
+            [compact]="true"
+            [primaryLabel]="emptyUniversityPrimaryLabel"
+            [primaryIcon]="emptyUniversityPrimaryIcon"
+            [secondaryLabel]="viewMode === 'explore' && !searchQuery.trim() ? 'Abrir mapa completo' : ''"
+            [secondaryRoute]="viewMode === 'explore' && !searchQuery.trim() ? '/mapa-universidades' : null"
+            secondaryIcon="map"
+            (primaryAction)="handleUniversityEmptyAction()"
+          ></app-empty-state>
 
         </ng-container>
       </ng-container>

@@ -213,26 +213,33 @@
             </button>
           </div>
 
-          <div
-            class="status-card empty"
-            *ngIf="
-              !isSearching &&
-              !isProcessing &&
-              isComplete &&
-              !searchError &&
-              !universities.length
-            "
-          >
-            <app-lucide-icon name="compass" [size]="20"></app-lucide-icon>
-            <div>
-              <strong>Aún no hay instituciones disponibles</strong>
-              <span
-                >Intenta nuevamente o vuelve a centrar la búsqueda en tu
-                ubicación.</span
-              >
-            </div>
-          </div>
         </div>
+
+        <app-empty-state
+          class="map-empty-state"
+          *ngIf="
+            !isSearching &&
+            !isProcessing &&
+            isComplete &&
+            !searchError &&
+            !universities.length
+          "
+          eyebrow="Zona explorada"
+          title="No encontramos universidades en este radio"
+          description="Puedes repetir la búsqueda con la información más reciente o volver a centrarla desde tu ubicación actual."
+          icon="building-2"
+          visual="campus"
+          tone="orange"
+          [compact]="true"
+          primaryLabel="Buscar de nuevo"
+          primaryIcon="refresh-cw"
+          [primaryDisabled]="!canRetrySearch"
+          secondaryLabel="Usar mi ubicación"
+          secondaryIcon="target"
+          [secondaryDisabled]="isLocating"
+          (primaryAction)="retrySearch()"
+          (secondaryAction)="getUserLocation()"
+        ></app-empty-state>
 
         <button
           class="location-fab"

@@ -12,9 +12,9 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.85rem 1.1rem;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--bg-glass);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 1px solid var(--border-color);
 
   .back-btn {
     display: inline-flex;
@@ -243,11 +243,4 @@ table.legal-table {
     cursor: pointer;
     &:hover { border-color: #07b1c9; color: #07b1c9; }
   }
-}
-
-/* Modo oscuro */
-:host-context(.dark-mode),
-:host-context([data-theme='dark']) {
-  .legal-topbar { background: rgba(15, 23, 42, 0.9); }
-  .legal-toc { background: rgba(30, 41, 59, 0.6); }
 }

@@ -5,15 +5,15 @@ import { VocationTestService, TestHistorySummary } from '../../core/services/tes
 import { ToastService } from '../../core/services/toast.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { withMinDuration } from '../../core/utils/with-min-duration';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../components/header/header.component';
+import { EmptyStateComponent } from '../../components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, RouterModule, DatePipe, LucideIconComponent, FormsModule, HeaderComponent],
+  imports: [CommonModule, RouterModule, DatePipe, LucideIconComponent, FormsModule, HeaderComponent, EmptyStateComponent],
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss']
 })
@@ -29,8 +29,15 @@ export class HistoryComponent implements OnInit {
   currentProfile: string = '';
   
   isLoading: boolean = true;
+  loadError: string | null = null;
   isRenaming: string | null = null;
   newTestName: string = '';
+
+  readonly emptyHistoryDetails = [
+    'Compara cómo evolucionan tus áreas STEAM.',
+    'Conserva tus resultados y recomendaciones en un solo lugar.',
+    'Retoma cualquier análisis cuando lo necesites.',
+  ];
 
   ngOnInit() {
     this.loadHistory();
@@ -38,6 +45,7 @@ export class HistoryComponent implements OnInit {
 
   loadHistory() {
     this.isLoading = true;
+    this.loadError = null;
     withMinDuration(this.testService.getTestHistory()).subscribe({
       next: (history) => {
         this.testHistory = history;
@@ -56,7 +64,7 @@ export class HistoryComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load history', err);
-        this.toastService.showToast('No se pudo cargar el historial de tests.', 'error');
+        this.loadError = 'No pudimos recuperar tus resultados. Revisa tu conexión e inténtalo de nuevo.';
         this.isLoading = false;
       }
     });

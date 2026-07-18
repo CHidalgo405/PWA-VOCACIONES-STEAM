@@ -21,6 +21,11 @@ import { inject } from '@angular/core';
 
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { HeaderComponent } from '../../components/header/header.component';
+import {
+  EmptyStateComponent,
+  EmptyStateTone,
+  EmptyStateVisual,
+} from '../../components/empty-state/empty-state.component';
 import { Router } from '@angular/router';
 import { GoogleMapsModule, GoogleMap } from '@angular/google-maps';
 import { GoogleMapsLoaderService } from '../../core/services/google-maps-loader.service';
@@ -140,6 +145,7 @@ interface DistanceOption {
     RouterModule,
     LucideIconComponent,
     HeaderComponent,
+    EmptyStateComponent,
     GoogleMapsModule,
     ScrollRevealDirective,
   ],
@@ -1794,6 +1800,64 @@ export class ExploreComponent implements OnInit, OnDestroy {
   clearSearch(): void {
     this.searchQuery = '';
     this.fitMapToResults();
+  }
+
+  get emptyUniversityEyebrow(): string {
+    if (this.viewMode === 'saved') return 'Tu colección';
+    return this.searchQuery.trim() ? 'Sin coincidencias' : 'Explora otra zona';
+  }
+
+  get emptyUniversityTitle(): string {
+    if (this.viewMode === 'saved') return 'Tu lista de universidades está lista para empezar';
+    if (this.searchQuery.trim()) return `No encontramos “${this.searchQuery.trim()}”`;
+    return 'No encontramos universidades con estos filtros';
+  }
+
+  get emptyUniversityDescription(): string {
+    if (this.viewMode === 'saved') {
+      return 'Guarda las instituciones que te interesan para compararlas y volver a su oferta educativa sin buscarlas de nuevo.';
+    }
+    if (this.searchQuery.trim()) {
+      return 'Prueba con el nombre de una institución, una ciudad o una carrera; también puedes limpiar la búsqueda para recuperar todas las opciones.';
+    }
+    return 'Amplía la distancia de búsqueda o cambia la ciudad para descubrir instituciones cercanas con oferta STEAM.';
+  }
+
+  get emptyUniversityTone(): EmptyStateTone {
+    if (this.viewMode === 'saved') return 'rose';
+    return this.searchQuery.trim() ? 'cyan' : 'orange';
+  }
+
+  get emptyUniversityVisual(): EmptyStateVisual {
+    if (this.viewMode === 'saved') return 'history';
+    return this.searchQuery.trim() ? 'search' : 'campus';
+  }
+
+  get emptyUniversityIcon(): string {
+    if (this.viewMode === 'saved') return 'heart';
+    return this.searchQuery.trim() ? 'search' : 'building-2';
+  }
+
+  get emptyUniversityPrimaryLabel(): string {
+    if (this.viewMode === 'saved') return 'Explorar universidades';
+    return this.searchQuery.trim() ? 'Limpiar búsqueda' : 'Ajustar distancia';
+  }
+
+  get emptyUniversityPrimaryIcon(): string {
+    if (this.viewMode === 'saved') return 'compass';
+    return this.searchQuery.trim() ? 'x' : 'map-pin';
+  }
+
+  handleUniversityEmptyAction(): void {
+    if (this.viewMode === 'saved') {
+      this.switchViewMode('explore');
+      return;
+    }
+    if (this.searchQuery.trim()) {
+      this.clearSearch();
+      return;
+    }
+    this.openDistanceQuestionnaire();
   }
 
   getMarkerOptions(uni: any): google.maps.MarkerOptions {

@@ -9,7 +9,7 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--duration-hover) ease;
 
   .btn-back {
     display: flex;
@@ -23,14 +23,15 @@
     color: var(--text-primary);
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      transform var(--duration-tactile) var(--ease-out),
+      background-color var(--duration-hover) ease,
+      border-color var(--duration-hover) ease,
+      color var(--duration-hover) ease;
     -webkit-tap-highlight-color: transparent;
     
-    &:hover, &:active {
-      background-color: var(--bg-elevated);
+    &:active {
       transform: scale(0.95);
-      border-color: #07B1C9;
-      color: #07B1C9;
     }
   }
 
@@ -48,6 +49,24 @@
     text-align: center;
     flex-grow: 1;
     letter-spacing: -0.01em;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-header .btn-back:hover {
+    background-color: var(--bg-elevated);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+  }
+}
+
+@media (max-width: 520px) {
+  .app-header {
+    padding: 1rem;
+
+    .header-title {
+      font-size: 1.05rem;
+    }
   }
 }
 

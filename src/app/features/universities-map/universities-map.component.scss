@@ -202,6 +202,15 @@ google-map {
   pointer-events: none;
 }
 
+.map-empty-state {
+  position: absolute;
+  z-index: 21;
+  top: 50%;
+  left: 50%;
+  width: min(520px, calc(100% - 32px));
+  transform: translate(-50%, -50%);
+}
+
 .status-card {
   width: fit-content;
   max-width: 100%;
@@ -592,6 +601,10 @@ google-map {
         margin-left: 29px;
       }
     }
+  }
+
+  .map-empty-state {
+    width: min(390px, calc(100% - 24px));
   }
 
   .map-error-panel {

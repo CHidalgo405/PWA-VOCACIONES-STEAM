@@ -1,0 +1,85 @@
+<section
+  class="empty-state"
+  [class.is-compact]="compact"
+  [class.tone-orange]="tone === 'orange'"
+  [class.tone-rose]="tone === 'rose'"
+  role="status"
+>
+  <div class="empty-copy">
+    <span class="empty-eyebrow">{{ eyebrow }}</span>
+    <h2>{{ title }}</h2>
+    <p>{{ description }}</p>
+
+    <ul class="empty-details" *ngIf="details.length">
+      <li *ngFor="let detail of details">
+        <span aria-hidden="true">
+          <app-lucide-icon name="check-circle-2" [size]="16"></app-lucide-icon>
+        </span>
+        {{ detail }}
+      </li>
+    </ul>
+
+    <div class="empty-actions" *ngIf="primaryLabel || secondaryLabel">
+      <a
+        *ngIf="primaryLabel && primaryRoute"
+        class="empty-action primary"
+        [routerLink]="primaryRoute"
+      >
+        <span>{{ primaryLabel }}</span>
+        <app-lucide-icon [name]="primaryIcon" [size]="17" aria-hidden="true"></app-lucide-icon>
+      </a>
+      <button
+        *ngIf="primaryLabel && !primaryRoute"
+        class="empty-action primary"
+        type="button"
+        [disabled]="primaryDisabled"
+        (click)="primaryAction.emit()"
+      >
+        <span>{{ primaryLabel }}</span>
+        <app-lucide-icon [name]="primaryIcon" [size]="17" aria-hidden="true"></app-lucide-icon>
+      </button>
+
+      <a
+        *ngIf="secondaryLabel && secondaryRoute"
+        class="empty-action secondary"
+        [routerLink]="secondaryRoute"
+      >
+        <span>{{ secondaryLabel }}</span>
+        <app-lucide-icon
+          *ngIf="secondaryIcon"
+          [name]="secondaryIcon"
+          [size]="16"
+          aria-hidden="true"
+        ></app-lucide-icon>
+      </a>
+      <button
+        *ngIf="secondaryLabel && !secondaryRoute"
+        class="empty-action secondary"
+        type="button"
+        [disabled]="secondaryDisabled"
+        (click)="secondaryAction.emit()"
+      >
+        <span>{{ secondaryLabel }}</span>
+        <app-lucide-icon
+          *ngIf="secondaryIcon"
+          [name]="secondaryIcon"
+          [size]="16"
+          aria-hidden="true"
+        ></app-lucide-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="empty-visual" [class]="'empty-visual visual-' + visual" aria-hidden="true">
+    <span class="orbit orbit-outer"></span>
+    <span class="orbit orbit-inner"></span>
+    <span class="steam-node node-science"></span>
+    <span class="steam-node node-technology"></span>
+    <span class="steam-node node-engineering"></span>
+    <span class="steam-node node-arts"></span>
+    <span class="steam-node node-math"></span>
+    <span class="empty-icon-shell">
+      <app-lucide-icon [name]="icon" [size]="compact ? 30 : 38"></app-lucide-icon>
+    </span>
+  </div>
+</section>

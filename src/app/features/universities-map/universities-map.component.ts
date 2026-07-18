@@ -24,6 +24,7 @@ import { ExploreCacheService } from '../../core/services/explore-cache.service';
 import { University } from '../../core/models/university.model';
 import { HeaderComponent } from '../../components/header/header.component';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
+import { EmptyStateComponent } from '../../components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-universities-map',
@@ -33,6 +34,7 @@ import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.co
     GoogleMapsModule,
     HeaderComponent,
     LucideIconComponent,
+    EmptyStateComponent,
   ],
   templateUrl: './universities-map.component.html',
   styleUrls: ['./universities-map.component.scss'],
@@ -95,6 +97,10 @@ export class UniversitiesMapComponent implements OnInit, OnDestroy {
   private locationRequestId = 0;
   private automaticRetryCount = 0;
   private destroyed = false;
+
+  get canRetrySearch(): boolean {
+    return !!this.currentLocation && !this.isOffline;
+  }
 
   private readonly onlineListener = () =>
     this.ngZone.run(() => this.handleOnline());

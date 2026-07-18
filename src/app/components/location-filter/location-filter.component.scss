@@ -1,5 +1,5 @@
 .location-filter-wrapper {
-  background: var(--surface-card);
+  background: var(--bg-surface);
   border: 1px solid var(--border-light);
   border-radius: 16px;
   padding: 20px;
@@ -35,10 +35,13 @@
       padding: 12px 16px;
       border: 1px solid var(--border-light);
       border-radius: 12px;
-      background: var(--surface-bg);
+      background: var(--bg-elevated);
       color: var(--text-primary);
       font-size: 1rem;
-      transition: all 0.2s ease;
+      transition:
+        border-color var(--duration-hover) ease,
+        box-shadow var(--duration-hover) ease,
+        background-color var(--duration-hover) ease;
 
       &:focus {
         outline: none;
@@ -56,7 +59,10 @@
       font-weight: 600;
       font-size: 0.95rem;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition:
+        transform var(--duration-tactile) var(--ease-out),
+        background-color var(--duration-hover) ease,
+        opacity var(--duration-hover) ease;
 
       &:hover:not(:disabled) {
         background: #0698ac;

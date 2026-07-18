@@ -1122,7 +1122,7 @@
 }
 
 /* --- DARK MODE EXPLICIT ADAPTATIONS --- */
-body.dark-theme {
+:host-context(body.dark-theme) {
   .modal-box {
     background: var(--bg-surface);
   }

@@ -1,35 +1,35 @@
 <nav class="navbar-container">
   <div class="nav-dock">
     
-    <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+    <a routerLink="/dashboard" routerLinkActive="active" ariaCurrentWhenActive="page" class="nav-item">
       <div class="icon-box">
         <app-lucide-icon name="home" [size]="20"></app-lucide-icon>
       </div>
       <span class="label">Inicio</span>
     </a>
 
-    <a routerLink="/explore" routerLinkActive="active" class="nav-item">
+    <a routerLink="/explore" routerLinkActive="active" ariaCurrentWhenActive="page" class="nav-item">
       <div class="icon-box">
         <app-lucide-icon name="compass" [size]="20"></app-lucide-icon>
       </div>
       <span class="label">Explorar</span>
     </a>
 
-    <a routerLink="/history" routerLinkActive="active" class="nav-item">
+    <a routerLink="/history" routerLinkActive="active" ariaCurrentWhenActive="page" class="nav-item">
       <div class="icon-box">
         <app-lucide-icon name="clock" [size]="20"></app-lucide-icon>
       </div>
       <span class="label">Historial</span>
     </a>
 
-    <a routerLink="/career-simulator" routerLinkActive="active" class="nav-item">
+    <a routerLink="/career-simulator" routerLinkActive="active" ariaCurrentWhenActive="page" class="nav-item">
       <div class="icon-box">
         <app-lucide-icon name="rocket" [size]="20"></app-lucide-icon>
       </div>
       <span class="label">Simulador</span>
     </a>
 
-    <a routerLink="/profile" routerLinkActive="active" class="nav-item">
+    <a routerLink="/profile" routerLinkActive="active" ariaCurrentWhenActive="page" class="nav-item">
       <div class="icon-box">
         <app-lucide-icon name="user" [size]="20"></app-lucide-icon>
       </div>
@@ -37,14 +37,17 @@
     </a>
 
     <!-- Install App Button -->
-    <a *ngIf="(pwaInstall.canInstall$ | async) || (pwaInstall.isIos$ | async)" 
-       (click)="pwaInstall.installApp()" 
-       class="nav-item install-btn">
+    <button
+      *ngIf="(pwaInstall.canInstall$ | async) || (pwaInstall.isIos$ | async)"
+      type="button"
+      (click)="pwaInstall.installApp()"
+      class="nav-item install-btn"
+    >
       <div class="icon-box">
         <app-lucide-icon name="download" [size]="20"></app-lucide-icon>
       </div>
       <span class="label">Instalar</span>
-    </a>
+    </button>
 
   </div>
 </nav>
