@@ -110,6 +110,9 @@ export class UniversityService {
           lat: String(location.lat),
           lng: String(location.lng),
           radiusKm: String(radiusKm),
+          // La pregunta inicial muestra el universo registrado completo de la
+          // región, no solo el límite corto usado por las tarjetas normales.
+          limit: '250',
         },
       },
     );
