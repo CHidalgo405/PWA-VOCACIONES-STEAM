@@ -51,7 +51,7 @@
             Limpiar genéricos
           </span>
         </button>
-        <button class="btn-toolkit enrich" (click)="runEnrichment()" [disabled]="isEnriching() || !universities().length" title="Lee el sitio oficial real de universidades con website pero sin programas/costo/modalidad, y completa esos datos con IA (Groq) — solo rellena huecos, nunca sobreescribe. Procesa un lote por clic; pulsa varias veces para avanzar. Tip: escribe una zona en el buscador (ej. 'Orizaba') para enriquecer solo esa zona.">
+        <button class="btn-toolkit enrich" (click)="runEnrichment()" [disabled]="isEnriching() || !universities().length" title="Verifica la oferta contra páginas oficiales y procesa hasta 12 universidades por clic en tandas paralelas. La oferta automática anterior se revalida; la oferta curada manualmente se conserva. Tip: escribe una zona en el buscador para acotar el lote.">
           <span *ngIf="isEnriching()">⏳ Enriqueciendo...</span>
           <span *ngIf="!isEnriching()">
             <app-lucide-icon name="brain" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
@@ -358,4 +358,3 @@
     </div>
   </div>
 </div>
-

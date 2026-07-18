@@ -38,7 +38,7 @@ export interface UniversityMatchItem {
   /** Fecha/periodo de examen de admisión, ficha o convocatoria (solo si el sitio oficial lo menciona explícitamente). */
   admissionDates?: string;
   /** Oferta educativa completa (no solo matchedCareer). */
-  steamPrograms?: { name: string; area: string }[];
+  steamPrograms?: { name: string; area: string; sourceUrl?: string }[];
   googleMapsData?: { rating?: number; address?: string };
   location?: { lat: number; lng: number };
   scoreAdjustmentReason?: string;
@@ -51,7 +51,7 @@ export interface DbNearbyUniversity {
   address?: string;
   website?: string;
   location?: { latitude: number; longitude: number };
-  steamPrograms?: { name: string; area: string }[];
+  steamPrograms?: { name: string; area: string; sourceUrl?: string }[];
   costTier?: CostTier;
   tuitionRange?: string;
   rating?: number;
@@ -59,8 +59,11 @@ export interface DbNearbyUniversity {
   /** Fecha/periodo de examen de admisión, ficha o convocatoria (solo si el sitio oficial lo menciona explícitamente). */
   admissionDates?: string;
   distanceKm: number;
-  /** true si algún campo fue completado/validado por IA (aiEnrichedAt presente) — para mostrar advertencia al alumno. */
+  /** Momento del último enriquecimiento que sí recuperó datos del sitio oficial. */
   aiEnrichedAt?: string | null;
+  /** complete/partial solo cuando el sitio oficial sí pudo leerse; failed no se presenta como enriquecido. */
+  aiEnrichmentStatus?: 'complete' | 'partial' | 'failed' | null;
+  programsVerifiedAt?: string | null;
 }
 
 export interface UniversityMatchResponse {
@@ -68,6 +71,8 @@ export interface UniversityMatchResponse {
   generatedAt: string;
   /** 'Groq' si la IA explicó los matches; 'deterministic' si se degradó. */
   aiProvider?: string;
+  aiAnalyzedCount?: number;
+  candidateCount?: number;
 }
 
 @Injectable({

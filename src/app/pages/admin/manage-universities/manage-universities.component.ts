@@ -274,12 +274,12 @@ export class ManageUniversitiesComponent implements OnInit {
   }
 
   /**
-   * Enriquece con IA (Groq) universidades que ya tienen `website` guardado
-   * pero les falta steamPrograms/costTier/tuitionRange/modality: el servidor
-   * lee el sitio oficial real y extrae solo lo que esté explícito en la
-   * página (no inventa). Se aplica directo sin revisión previa — solo
-   * rellena huecos, nunca sobreescribe un dato ya cargado a mano. Procesa
-   * un lote a la vez; pulsa varias veces para avanzar en el resto de la
+   * Enriquece con IA (Groq) universidades incompletas: el servidor resuelve
+   * su sitio oficial cuando hace falta, lee sus páginas y conserva solo
+   * carreras cuya mención literal se
+   * puede comprobar. Revalida la oferta automática anterior, respeta lo
+   * curado a mano y procesa hasta 12 universidades en tandas paralelas.
+   * Pulsa varias veces para avanzar en el resto de la
    * lista. Si hay texto en el buscador, se usa como filtro de zona (ej.
    * escribir "Orizaba" y pulsar el botón enriquece solo esa zona).
    */
@@ -298,9 +298,9 @@ export class ManageUniversitiesComponent implements OnInit {
         if (result.failed > 0) partes.push(`${result.failed} con error (sitio caído/bloqueado)`);
         const scope = filter ? ` (filtro: "${filter}")` : '';
         this.toastService.showToast(
-          `Enriquecimiento con IA${scope}: ${partes.join(', ')} (de ${result.processed} procesadas). Pulsa de nuevo para seguir con las siguientes.`,
+          `Verificación con IA${scope}: ${partes.join(', ')} (de ${result.processed} procesadas en paralelo). Pulsa de nuevo para seguir con las siguientes.`,
           result.failed > 0 ? 'warning' : 'success',
-          'Enriquecimiento con IA',
+          'Oferta académica verificada',
         );
       },
       error: (err) => {

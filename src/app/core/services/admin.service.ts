@@ -88,11 +88,15 @@ export interface AdminUniversity {
   address?: string;
   website?: string;
   location?: { latitude: number; longitude: number };
-  steamPrograms?: { name: string; area: string }[];
+  steamPrograms?: { name: string; area: string; sourceUrl?: string }[];
   costTier?: 'public' | 'affordable' | 'private-premium';
   tuitionRange?: string;
   rating?: number;
   modality?: string;
+  programsVerifiedAt?: string | null;
+  programsVerificationSource?: string | null;
+  aiEnrichmentStatus?: 'complete' | 'partial' | 'failed' | null;
+  aiEnrichmentError?: string | null;
 }
 
 @Injectable({
@@ -206,7 +210,7 @@ export class AdminService {
     return this.http.post<{ deleted: number; deletedNames: string[] }>(`${environment.apiUrl}/admin/universities/cleanup-junk`, {});
   }
 
-  /** Enriquece con IA (Groq) universidades con website pero sin steamPrograms/costTier/tuitionRange/modality. `filter` acota por nombre/dirección (ej. "Orizaba"). */
+  /** Verifica y enriquece en paralelo hasta 12 universidades contra sus sitios oficiales, resolviendo el sitio con Places si falta. */
   public enrichUniversitiesWithAi(limit?: number, filter?: string): Observable<EnrichUniversitiesResult> {
     return this.http.post<EnrichUniversitiesResult>(`${environment.apiUrl}/admin/universities/enrich`, { limit, filter });
   }

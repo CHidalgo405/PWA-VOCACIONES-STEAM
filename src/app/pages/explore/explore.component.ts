@@ -135,12 +135,15 @@ export class ExploreComponent implements OnInit, OnDestroy {
   isLoadingMatches = false;
   /** Origen del ranking: 'Groq' (IA activa) o 'deterministic'. */
   aiProvider: string | null = null;
+  aiAnalyzedCount = 0;
+  candidateCount = 0;
   /** true mientras el backend descubre/valida universidades nuevas en una zona sin cobertura (puede tardar ~30-40s). */
   isDiscoveringNearby = false;
 
   /** Claves de la última búsqueda ejecutada (dedupe de llamadas repetidas). */
   private lastMatchKey = '';
   private lastDbNearbyKey = '';
+  private matchRequestId = 0;
   private recommendationsRequested = false;
   private searchDebounceId: any = null;
   readonly distanceOptions = [10, 25, 50, 100];
@@ -436,17 +439,20 @@ export class ExploreComponent implements OnInit, OnDestroy {
    * distancia y costo + explicación de la IA. Los cambios de filtro re-piden
    * al instante porque el backend responde desde su caché sin re-llamar a la IA.
    */
-  loadApiMatches() {
+  loadApiMatches(forceRefresh = false) {
     if (!this.hasTakenTest) return;
     const location = this.userPosition || this.center;
 
     // Dedupe: misma ubicación (±100m) y mismos filtros → ya está pedido.
     const key = `${location.lat.toFixed(3)},${location.lng.toFixed(3)}|${this.maxDistanceKm}|${this.costPreference}`;
-    if (key === this.lastMatchKey) return;
+    if (!forceRefresh && key === this.lastMatchKey) return;
     this.lastMatchKey = key;
+    const requestId = ++this.matchRequestId;
 
     // Caché local: mismos filtros, misma zona y mismo test → cero red.
-    const cached = this.exploreCache.getMatches(key, this.testMarker);
+    const cached = forceRefresh
+      ? null
+      : this.exploreCache.getMatches(key, this.testMarker);
     if (cached && !cached.stale) {
       this.applyMatchResponse(cached.data);
       return;
@@ -461,10 +467,14 @@ export class ExploreComponent implements OnInit, OnDestroy {
       },
     }).subscribe({
       next: (res) => {
+        // Una respuesta iniciada antes del enriquecimiento de la zona no debe
+        // pisar la respuesta fresca que ya contiene la nueva oferta verificada.
+        if (requestId !== this.matchRequestId) return;
         this.exploreCache.setMatches(key, this.testMarker, res);
         this.applyMatchResponse(res);
       },
       error: (err) => {
+        if (requestId !== this.matchRequestId) return;
         console.error('Error en el matching de universidades (A8)', err);
         this.lastMatchKey = ''; // permitir reintento (p. ej. cambiando filtros)
         if (cached) {
@@ -483,6 +493,8 @@ export class ExploreComponent implements OnInit, OnDestroy {
   private applyMatchResponse(res: UniversityMatchResponse): void {
     this.apiMatches = (res.matches || []).map((m, index) => this.mapApiMatch(m, index));
     this.aiProvider = res.aiProvider ?? null;
+    this.aiAnalyzedCount = res.aiAnalyzedCount ?? this.apiMatches.filter((m) => m.aiAnalyzed).length;
+    this.candidateCount = res.candidateCount ?? this.apiMatches.length;
     this.isLoadingMatches = false;
     this.processData();
     this.fitMapToResults();
@@ -496,7 +508,9 @@ export class ExploreComponent implements OnInit, OnDestroy {
       location: m.googleMapsData?.address || 'Dirección no disponible',
       image: this.DEFAULT_IMAGES[index % this.DEFAULT_IMAGES.length],
       logo: index === 0 ? 'building' : 'graduation-cap',
-      tags: [m.matchedCareer, this.COST_TIER_LABELS[m.costTier] || m.costTier],
+      // El chip principal siempre es una carrera REAL de esta institución;
+      // matchedCareer es la recomendación del alumno y se muestra aparte.
+      tags: [m.matchedProgram || m.matchedCareer, this.COST_TIER_LABELS[m.costTier] || m.costTier],
       rating: m.googleMapsData?.rating ?? null,
       matchPercentage: m.matchScore,
       career: m.matchedCareer,
@@ -516,6 +530,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
       costTierLabel: this.COST_TIER_LABELS[m.costTier] || m.costTier,
       position: m.location ? { lat: m.location.lat, lng: m.location.lng } : null,
       source: 'api',
+      programs: m.steamPrograms || [],
     };
   }
 
@@ -597,6 +612,10 @@ export class ExploreComponent implements OnInit, OnDestroy {
         this.processData();
         this.finishLoading();
         this.fitMapToResults();
+        // nearby-discover puede haber verificado/guardado carreras nuevas.
+        // Recalcular A8 después evita que el primer matching (que arrancó en
+        // paralelo) use el catálogo vacío de antes del enriquecimiento.
+        this.loadApiMatches(true);
       },
       error: (err) => {
         console.error('No se pudieron cargar universidades cercanas:', err);
@@ -640,14 +659,19 @@ export class ExploreComponent implements OnInit, OnDestroy {
       costTier: u.costTier,
       costTierLabel: u.costTier ? (this.COST_TIER_LABELS[u.costTier] || u.costTier) : undefined,
       source: 'db',
+      programs,
       /** Presente si el backend completó/validó este registro con IA (findOrDiscoverNearby) — dispara el aviso al alumno. */
       aiEnrichedAt: u.aiEnrichedAt || null,
+      aiEnrichmentStatus: u.aiEnrichmentStatus || null,
+      programsVerifiedAt: u.programsVerifiedAt || null,
     };
   }
 
   /** true si alguna universidad visible "cerca de ti" fue investigada/completada con IA — dispara el aviso al alumno. */
   get hasAiResearchedNearby(): boolean {
-    return this.filteredNearbyUniversities.some((u) => !!u.aiEnrichedAt);
+    return this.filteredNearbyUniversities.some(
+      (u) => u.aiEnrichmentStatus === 'complete' || u.aiEnrichmentStatus === 'partial',
+    );
   }
 
   /** Encuadra la cámara del mapa para mostrar usuario + resultados visibles (respeta la búsqueda activa). */
@@ -803,19 +827,17 @@ export class ExploreComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Sugerencias secundarias: las ~5 siguientes a la mejor coincidencia, que
-   * son las que la IA analizó individualmente (el backend solo manda a la IA
-   * la mejor + 5 para no gastar tokens ni degradar el análisis).
+   * Sugerencias secundarias que sí recibieron análisis individual de IA.
    */
   get secondarySuggestions(): any[] {
     if (this.viewMode !== 'explore') return [];
-    return this.filteredOtherUniversities.slice(0, 5);
+    return this.filteredOtherUniversities.filter((uni) => uni.aiAnalyzed);
   }
 
   /** El resto de coincidencias (ranking determinista, sin análisis individual de IA). */
   get remainingRecommended(): any[] {
     if (this.viewMode !== 'explore') return [];
-    return this.filteredOtherUniversities.slice(5);
+    return this.filteredOtherUniversities.filter((uni) => !uni.aiAnalyzed);
   }
 
   get showBestMatch() {
