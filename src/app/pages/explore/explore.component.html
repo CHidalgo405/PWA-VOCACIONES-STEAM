@@ -86,11 +86,13 @@
           <div class="filter-loading" *ngIf="isLoadingMatches">
             <span class="dot-pulse"></span> Actualizando coincidencias…
           </div>
-          <div class="ai-provider-note" *ngIf="!isLoadingMatches && aiProvider" [class.degraded]="aiProvider === 'deterministic'">
-            <app-lucide-icon [name]="aiProvider === 'deterministic' ? 'alert-circle' : 'sparkles'" [size]="12"></app-lucide-icon>
-            {{ aiProvider === 'deterministic'
-                ? 'IA no disponible: ranking por datos duros'
-                : aiAnalyzedCount + ' de ' + candidateCount + ' opciones analizadas con IA (' + aiProvider + ')' }}
+          <div class="ai-provider-note" *ngIf="!isLoadingMatches && aiProvider" [class.degraded]="aiProvider === 'deterministic' && !aiProcessing">
+            <app-lucide-icon [name]="aiProcessing ? 'sparkles' : (aiProvider === 'deterministic' ? 'alert-circle' : 'sparkles')" [size]="12"></app-lucide-icon>
+            {{ aiProcessing
+                ? 'Ranking inicial listo; la IA está afinando ' + aiAnalyzedCount + ' de ' + candidateCount + ' opciones. Se actualizará automáticamente.'
+                : aiProvider === 'deterministic'
+                  ? 'IA no disponible: ranking por datos duros'
+                  : aiAnalyzedCount + ' de ' + candidateCount + ' opciones analizadas con IA (' + aiProvider + ')' }}
           </div>
         </div>
       </div>
@@ -359,8 +361,17 @@
             </div>
           </section>
 
+          <!-- COBERTURA EN PREPARACIÓN: la vista queda utilizable y se refresca sola. -->
+          <div class="no-matches-note" *ngIf="viewMode === 'explore' && !isLoadingMatches && isDiscoveringNearby && apiMatches.length === 0">
+            <app-lucide-icon name="sparkles" [size]="19"></app-lucide-icon>
+            <div>
+              <strong>Estamos verificando la oferta universitaria de esta zona.</strong>
+              <p>Puedes permanecer en esta pantalla: las coincidencias aparecerán automáticamente, sin cerrar sesión ni volver a entrar.</p>
+            </div>
+          </div>
+
           <!-- SIN COINCIDENCIAS A8 (pero con test hecho) -->
-          <div class="no-matches-note" *ngIf="viewMode === 'explore' && !isLoadingMatches && apiMatches.length === 0">
+          <div class="no-matches-note" *ngIf="viewMode === 'explore' && !isLoadingMatches && !isDiscoveringNearby && apiMatches.length === 0">
             <app-lucide-icon name="compass" [size]="19"></app-lucide-icon>
             <div>
               <strong>Aún no hay coincidencias exactas en tu zona.</strong>

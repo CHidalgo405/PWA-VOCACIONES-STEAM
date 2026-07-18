@@ -137,6 +137,8 @@ export class ExploreComponent implements OnInit, OnDestroy {
   aiProvider: string | null = null;
   aiAnalyzedCount = 0;
   candidateCount = 0;
+  /** El ranking determinista ya está visible y la IA sigue afinándolo. */
+  aiProcessing = false;
   /** true mientras el backend descubre/valida universidades nuevas en una zona sin cobertura (puede tardar ~30-40s). */
   isDiscoveringNearby = false;
 
@@ -144,6 +146,9 @@ export class ExploreComponent implements OnInit, OnDestroy {
   private lastMatchKey = '';
   private lastDbNearbyKey = '';
   private matchRequestId = 0;
+  private aiRefreshTimer: ReturnType<typeof setTimeout> | null = null;
+  private aiRefreshAttempts = 0;
+  private readonly MAX_AI_REFRESH_ATTEMPTS = 30;
   private recommendationsRequested = false;
   private searchDebounceId: any = null;
   readonly distanceOptions = [10, 25, 50, 100];
@@ -194,6 +199,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     document.body.classList.remove('explore-modal-open');
     if (this.searchDebounceId) clearTimeout(this.searchDebounceId);
+    this.cancelAiRefresh();
   }
 
   ngOnInit() {
@@ -436,16 +442,19 @@ export class ExploreComponent implements OnInit, OnDestroy {
 
   /**
    * Pide a la API el matching de universidades (A8): match duro por programa,
-   * distancia y costo + explicación de la IA. Los cambios de filtro re-piden
-   * al instante porque el backend responde desde su caché sin re-llamar a la IA.
+   * distancia y costo + explicación de la IA. El radio recalcula de inmediato
+   * la lista determinista y la IA la afina en segundo plano; costo reutiliza caché.
    */
-  loadApiMatches(forceRefresh = false) {
+  loadApiMatches(forceRefresh = false, silent = false) {
     if (!this.hasTakenTest) return;
     const location = this.userPosition || this.center;
 
     // Dedupe: misma ubicación (±100m) y mismos filtros → ya está pedido.
     const key = `${location.lat.toFixed(3)},${location.lng.toFixed(3)}|${this.maxDistanceKm}|${this.costPreference}`;
     if (!forceRefresh && key === this.lastMatchKey) return;
+    if (key !== this.lastMatchKey || (forceRefresh && !silent)) {
+      this.cancelAiRefresh();
+    }
     this.lastMatchKey = key;
     const requestId = ++this.matchRequestId;
 
@@ -454,11 +463,11 @@ export class ExploreComponent implements OnInit, OnDestroy {
       ? null
       : this.exploreCache.getMatches(key, this.testMarker);
     if (cached && !cached.stale) {
-      this.applyMatchResponse(cached.data);
+      this.applyMatchResponse(cached.data, key);
       return;
     }
 
-    this.isLoadingMatches = true;
+    if (!silent) this.isLoadingMatches = true;
     this.universityService.matchUniversities({
       userLocation: { lat: location.lat, lng: location.lng },
       filters: {
@@ -471,15 +480,19 @@ export class ExploreComponent implements OnInit, OnDestroy {
         // pisar la respuesta fresca que ya contiene la nueva oferta verificada.
         if (requestId !== this.matchRequestId) return;
         this.exploreCache.setMatches(key, this.testMarker, res);
-        this.applyMatchResponse(res);
+        this.applyMatchResponse(res, key);
       },
       error: (err) => {
         if (requestId !== this.matchRequestId) return;
         console.error('Error en el matching de universidades (A8)', err);
+        if (silent && this.aiProcessing) {
+          this.scheduleAiRefresh(key);
+          return;
+        }
         this.lastMatchKey = ''; // permitir reintento (p. ej. cambiando filtros)
         if (cached) {
           // Vencido pero utilizable: mejor que nada cuando no hay internet.
-          this.applyMatchResponse(cached.data);
+          this.applyMatchResponse(cached.data, key);
         } else {
           this.apiMatches = [];
           this.isLoadingMatches = false;
@@ -490,14 +503,45 @@ export class ExploreComponent implements OnInit, OnDestroy {
   }
 
   /** Aplica una respuesta de matching (de la red o del caché) a la vista. */
-  private applyMatchResponse(res: UniversityMatchResponse): void {
+  private applyMatchResponse(res: UniversityMatchResponse, key: string): void {
     this.apiMatches = (res.matches || []).map((m, index) => this.mapApiMatch(m, index));
     this.aiProvider = res.aiProvider ?? null;
     this.aiAnalyzedCount = res.aiAnalyzedCount ?? this.apiMatches.filter((m) => m.aiAnalyzed).length;
     this.candidateCount = res.candidateCount ?? this.apiMatches.length;
+    this.aiProcessing = res.aiProcessing ?? false;
     this.isLoadingMatches = false;
+    // El listado determinista ya es útil; no se mantiene toda la pantalla en
+    // skeleton mientras Groq termina el ajuste fino en segundo plano.
+    this.finishLoading();
     this.processData();
     this.fitMapToResults();
+    if (this.aiProcessing) {
+      this.scheduleAiRefresh(key);
+    } else {
+      this.cancelAiRefresh();
+    }
+  }
+
+  private scheduleAiRefresh(key: string): void {
+    if (
+      this.aiRefreshTimer ||
+      this.aiRefreshAttempts >= this.MAX_AI_REFRESH_ATTEMPTS ||
+      key !== this.lastMatchKey
+    ) {
+      return;
+    }
+    this.aiRefreshTimer = setTimeout(() => {
+      this.aiRefreshTimer = null;
+      if (key !== this.lastMatchKey) return;
+      this.aiRefreshAttempts++;
+      this.loadApiMatches(true, true);
+    }, 5000);
+  }
+
+  private cancelAiRefresh(): void {
+    if (this.aiRefreshTimer) clearTimeout(this.aiRefreshTimer);
+    this.aiRefreshTimer = null;
+    this.aiRefreshAttempts = 0;
   }
 
   /** Convierte un UniversityMatchItem de la API al modelo de tarjeta de la vista. */

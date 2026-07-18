@@ -86,36 +86,36 @@ export class ExploreCacheService {
   }
 
   // ── Matches A8 ─────────────────────────────────────────────────────────────
-  // Los stores llevan sufijo de versión (_v4): cada vez que el motor de
+  // Los stores llevan sufijo de versión (_v5): cada vez que el motor de
   // matching/enriquecimiento cambia de forma significativa, bump la versión
   // acá para purgar de inmediato lo cacheado con la lógica vieja — no hace
   // falta migrar ni borrar entradas una a una, simplemente quedan huérfanas.
   // El TTL de 24h (abajo) es la red de seguridad para cuando se nos olvide.
 
   getMatches(key: string, testMarker: string): CacheHit<UniversityMatchResponse> | null {
-    const entry = this.readStore<UniversityMatchResponse>('explore_matches_v4')[key];
+    const entry = this.readStore<UniversityMatchResponse>('explore_matches_v5')[key];
     if (!entry || entry.testMarker !== testMarker) return null;
     return { data: entry.data, stale: Date.now() - entry.savedAt > MATCHES_TTL_MS };
   }
 
   setMatches(key: string, testMarker: string, data: UniversityMatchResponse): void {
-    const store = this.readStore<UniversityMatchResponse>('explore_matches_v4');
+    const store = this.readStore<UniversityMatchResponse>('explore_matches_v5');
     store[key] = { savedAt: Date.now(), testMarker, data };
-    this.writeStore('explore_matches_v4', this.prune(store));
+    this.writeStore('explore_matches_v5', this.prune(store));
   }
 
   // ── "Cerca de ti" (BD propia + descubrimiento server-side) ────────────────
 
   getPlaces(key: string): CacheHit<any[]> | null {
-    const entry = this.readStore<any[]>('explore_places_v4')[key];
+    const entry = this.readStore<any[]>('explore_places_v5')[key];
     if (!entry) return null;
     return { data: entry.data, stale: Date.now() - entry.savedAt > PLACES_TTL_MS };
   }
 
   setPlaces(key: string, data: any[]): void {
-    const store = this.readStore<any[]>('explore_places_v4');
+    const store = this.readStore<any[]>('explore_places_v5');
     store[key] = { savedAt: Date.now(), data };
-    this.writeStore('explore_places_v4', this.prune(store));
+    this.writeStore('explore_places_v5', this.prune(store));
   }
 
   // ── Preferencia de ubicación y última ubicación conocida ─────────────────

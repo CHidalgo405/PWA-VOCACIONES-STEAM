@@ -9,7 +9,7 @@ export type CostTier = 'public' | 'affordable' | 'private-premium';
 export type CostPreference = 'public' | 'affordable' | 'any';
 
 export interface UniversityMatchFilters {
-  /** 10 | 25 | 50 | 100 km — se aplican sobre el caché del backend, sin IA. */
+  /** Radio que limita las candidatas antes de calcular y afinar el ranking. */
   maxDistanceKm: number;
   costPreference: CostPreference;
 }
@@ -73,6 +73,8 @@ export interface UniversityMatchResponse {
   aiProvider?: string;
   aiAnalyzedCount?: number;
   candidateCount?: number;
+  /** true mientras el backend termina el análisis IA sin bloquear la respuesta inicial. */
+  aiProcessing?: boolean;
 }
 
 @Injectable({
