@@ -98,6 +98,23 @@ export class UniversityService {
     );
   }
 
+  /** Vista previa de la base actual; no dispara descubrimiento ni llamadas a IA. */
+  getNearbyUniversities(
+    location: { lat: number; lng: number },
+    radiusKm: number,
+  ): Observable<DbNearbyUniversity[]> {
+    return this.http.get<DbNearbyUniversity[]>(
+      `${environment.apiUrl}/universities/nearby`,
+      {
+        params: {
+          lat: String(location.lat),
+          lng: String(location.lng),
+          radiusKm: String(radiusKm),
+        },
+      },
+    );
+  }
+
   /**
    * "Cerca de ti" / mapa: BD propia + (si la zona tiene poca cobertura)
    * descubrimiento en vivo en el servidor vía Google Places, validado y

@@ -16,6 +16,11 @@ export interface LocationPreference {
   cityId?: string;
 }
 
+export interface SearchRadiusPreference {
+  radiusKm: 10 | 30 | 50;
+  savedAt: number;
+}
+
 /** Último perfil de test conocido, para poder servir Explorar sin red. */
 export interface ExploreTestMeta {
   hasTakenTest: boolean;
@@ -134,6 +139,29 @@ export class ExploreCacheService {
 
   setLastLocation(loc: { lat: number; lng: number }): void {
     this.writeJson('explore_last_location', loc);
+  }
+
+  // ── Radio elegido por centro de búsqueda ─────────────────────────────────
+
+  getSearchRadiusPreference(locationKey: string): SearchRadiusPreference | null {
+    const preferences = this.readJson<Record<string, SearchRadiusPreference>>(
+      'explore_radius_preferences_v1',
+    ) || {};
+    const preference = preferences[locationKey];
+    return preference && [10, 30, 50].includes(preference.radiusKm)
+      ? preference
+      : null;
+  }
+
+  setSearchRadiusPreference(
+    locationKey: string,
+    radiusKm: 10 | 30 | 50,
+  ): void {
+    const preferences = this.readJson<Record<string, SearchRadiusPreference>>(
+      'explore_radius_preferences_v1',
+    ) || {};
+    preferences[locationKey] = { radiusKm, savedAt: Date.now() };
+    this.writeJson('explore_radius_preferences_v1', preferences);
   }
 
   // ── Último test conocido (para modo offline) ─────────────────────────────

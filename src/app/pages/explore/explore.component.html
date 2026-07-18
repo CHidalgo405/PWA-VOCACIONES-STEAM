@@ -36,7 +36,7 @@
         </p>
       </div>
 
-      <!-- Filtros A8: ubicación, distancia y costo (instantáneos, sobre el caché del backend) -->
+      <!-- Filtros A8: el radio define candidatas; costo reutiliza el caché. -->
       <div class="filters-bar" *ngIf="viewMode === 'explore' && hasTakenTest">
         <div class="filter-group">
           <span class="filter-label">
@@ -61,10 +61,13 @@
           <div class="filter-chips">
             <button
               class="filter-chip"
-              *ngFor="let km of distanceOptions"
-              [class.active]="maxDistanceKm === km"
-              (click)="setDistanceFilter(km)">
-              {{ km }} km
+              *ngFor="let option of distanceOptions"
+              [class.active]="maxDistanceKm === option.km"
+              (click)="setDistanceFilter(option.km)">
+              {{ option.km }} km
+            </button>
+            <button class="range-details-btn" (click)="openDistanceQuestionnaire()">
+              Ver rango
             </button>
           </div>
         </div>
@@ -530,6 +533,104 @@
     {{ mobileView === 'list' ? 'Ver mapa' : 'Ver lista' }}
   </button>
 
+</div>
+
+<!-- ELECCIÓN DE RADIO: aparece antes de iniciar búsqueda/matching pesado. -->
+<div
+  class="distance-questionnaire-overlay"
+  *ngIf="isDistanceQuestionnaireOpen"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="distance-question-title"
+  (click)="closeDistanceQuestionnaire()">
+  <section class="distance-questionnaire-card" (click)="$event.stopPropagation()">
+    <header class="distance-questionnaire-header">
+      <div class="distance-questionnaire-icon">
+        <app-lucide-icon name="map-pin" [size]="24"></app-lucide-icon>
+      </div>
+      <div>
+        <span class="distance-step-label">Antes de buscar universidades</span>
+        <h2 id="distance-question-title">¿Qué tan lejos considerarías estudiar?</h2>
+        <p>Analizaremos instituciones alrededor de {{ distanceContextLabel }}.</p>
+      </div>
+      <button
+        class="distance-close-btn"
+        *ngIf="distanceSelectionConfirmed"
+        (click)="closeDistanceQuestionnaire()"
+        aria-label="Cerrar selección de distancia">
+        <app-lucide-icon name="x" [size]="18"></app-lucide-icon>
+      </button>
+    </header>
+
+    <div class="distance-options-grid">
+      <button
+        class="distance-option-card"
+        *ngFor="let option of distanceOptions"
+        [class.selected]="pendingDistanceKm === option.km"
+        (click)="selectDistanceOption(option.km)">
+        <span class="distance-option-radio">
+          <span *ngIf="pendingDistanceKm === option.km"></span>
+        </span>
+        <span class="distance-option-copy">
+          <span class="distance-option-heading">
+            <strong>{{ option.km }} km · {{ option.title }}</strong>
+            <span class="recommended-pill" *ngIf="option.recommended">Recomendado</span>
+          </span>
+          <span>{{ option.description }}</span>
+          <small *ngIf="!isLoadingDistancePreview">
+            {{ distanceOptionCount(option.km) }} instituciones registradas actualmente
+          </small>
+          <small *ngIf="isLoadingDistancePreview">Consultando instituciones…</small>
+        </span>
+      </button>
+    </div>
+
+    <div class="distance-preview-panel">
+      <div class="distance-preview-heading">
+        <div>
+          <span>Instituciones dentro de {{ pendingDistanceKm }} km</span>
+          <strong *ngIf="!isLoadingDistancePreview">
+            {{ distancePreviewForSelection.length }} registradas ·
+            {{ verifiedDistancePreviewCount }} con oferta STEAM verificada
+          </strong>
+        </div>
+        <app-lucide-icon name="building" [size]="18"></app-lucide-icon>
+      </div>
+
+      <div class="distance-preview-loading" *ngIf="isLoadingDistancePreview">
+        <span class="dot-pulse"></span> Preparando la lista de referencia…
+      </div>
+
+      <div class="distance-preview-list" *ngIf="!isLoadingDistancePreview && distancePreviewForSelection.length">
+        <div class="distance-preview-row" *ngFor="let university of distancePreviewForSelection">
+          <div>
+            <strong>{{ university.name }}</strong>
+            <span>{{ university.distanceKm | number:'1.1-1' }} km</span>
+          </div>
+          <span class="verification-pill" [class.pending]="!university.steamPrograms?.length">
+            {{ university.steamPrograms?.length ? 'Oferta verificada' : 'Pendiente de verificar' }}
+          </span>
+        </div>
+      </div>
+
+      <p class="distance-preview-empty" *ngIf="!isLoadingDistancePreview && !distancePreviewForSelection.length">
+        Todavía no hay instituciones registradas en este radio. Al confirmar intentaremos ampliar la cobertura.
+      </p>
+      <p class="distance-preview-note">
+        El matching final utiliza únicamente instituciones con carreras compatibles y oferta verificada; las pendientes se investigan al confirmar.
+      </p>
+    </div>
+
+    <footer class="distance-questionnaire-footer">
+      <button class="distance-cancel-btn" *ngIf="distanceSelectionConfirmed" (click)="closeDistanceQuestionnaire()">
+        Cancelar
+      </button>
+      <button class="distance-confirm-btn" (click)="confirmDistanceSelection()">
+        Analizar universidades en {{ pendingDistanceKm }} km
+        <app-lucide-icon name="arrow-right" [size]="17"></app-lucide-icon>
+      </button>
+    </footer>
+  </section>
 </div>
 
 

@@ -46,6 +46,15 @@ const DARK_MAP_STYLE: google.maps.MapTypeStyle[] = [
   { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#334155' }] },
 ];
 
+type SearchRadiusKm = 10 | 30 | 50;
+
+interface DistanceOption {
+  km: SearchRadiusKm;
+  title: string;
+  description: string;
+  recommended?: boolean;
+}
+
 @Component({
   selector: 'app-explore',
   standalone: true,
@@ -145,15 +154,44 @@ export class ExploreComponent implements OnInit, OnDestroy {
   /** Claves de la última búsqueda ejecutada (dedupe de llamadas repetidas). */
   private lastMatchKey = '';
   private lastDbNearbyKey = '';
+  private nearbyRequestId = 0;
   private matchRequestId = 0;
   private aiRefreshTimer: ReturnType<typeof setTimeout> | null = null;
   private aiRefreshAttempts = 0;
   private readonly MAX_AI_REFRESH_ATTEMPTS = 30;
   private recommendationsRequested = false;
   private searchDebounceId: any = null;
-  readonly distanceOptions = [10, 25, 50, 100];
-  maxDistanceKm = 50;
+  readonly distanceOptions: DistanceOption[] = [
+    {
+      km: 10,
+      title: 'Cerca de mí',
+      description: 'Zona urbana y campus cercanos; ideal para traslados cotidianos cortos.',
+    },
+    {
+      km: 30,
+      title: 'Ciudad y alrededores',
+      description: 'Incluye municipios cercanos y ofrece un buen equilibrio entre variedad y traslado.',
+      recommended: true,
+    },
+    {
+      km: 50,
+      title: 'Región ampliada',
+      description: 'Más alternativas, considerando trayectos largos o una posible mudanza.',
+    },
+  ];
+  maxDistanceKm: SearchRadiusKm = 30;
   costPreference: CostPreference = 'any';
+
+  // ── Pregunta inicial de radio + vista previa de instituciones ─────────────
+  isDistanceQuestionnaireOpen = false;
+  isLoadingDistancePreview = false;
+  pendingDistanceKm: SearchRadiusKm = 30;
+  distancePreviewUniversities: DbNearbyUniversity[] = [];
+  distanceSelectionConfirmed = false;
+  private distanceLocationKey = '';
+  private forceDistanceConfirmation = false;
+  private distancePreviewRequestId = 0;
+  private locationReady = false;
 
   // ── Ubicación manual (ciudad) o automática (GPS/IP) ────────────────────────
   /** 'auto' = GPS/IP; 'city' = el usuario eligió una ciudad manualmente. */
@@ -216,6 +254,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
       this.userPosition = { lat: prefCity.lat, lng: prefCity.lng };
       this.center = this.userPosition;
       this.zoom = 12;
+      this.locationReady = true;
     } else {
       // Arrancamos sobre la última ubicación conocida mientras llega el GPS.
       const last = this.exploreCache.getLastLocation();
@@ -248,8 +287,12 @@ export class ExploreComponent implements OnInit, OnDestroy {
       .catch(err => {
         console.error('No se pudo cargar Google Maps en ExploreComponent:', err);
         // Sin el script de Maps (p. ej. offline) la lista aún puede servirse desde caché.
-        this.loadApiMatches();
-        this.triggerPlacesSearch();
+        if (this.locationMode === 'city') {
+          this.loadApiMatches();
+          this.triggerPlacesSearch();
+        } else {
+          this.getUserLocation();
+        }
       });
 
     this.authService.currentUser$.subscribe(user => {
@@ -262,6 +305,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
 
   getUserLocation() {
     this.isLocating = true;
+    this.locationReady = false;
 
     // Función de respaldo robusta si falla la geolocalización nativa (Muy común en Safari)
     const runIpFallback = async (reason: string) => {
@@ -274,6 +318,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
             const userLocation = { lat: data.latitude, lng: data.longitude };
             this.center = userLocation;
             this.userPosition = userLocation;
+            this.locationReady = true;
             this.zoom = 13;
             this.exploreCache.setLastLocation(userLocation);
             if (this.googleMap) {
@@ -300,6 +345,8 @@ export class ExploreComponent implements OnInit, OnDestroy {
           if (!success) {
             this.ngZone.run(() => {
               this.isLocating = false;
+              this.userPosition = this.center;
+              this.locationReady = true;
               this.loadApiMatches();
               this.triggerPlacesSearch();
             });
@@ -317,6 +364,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
             };
             this.center = userLocation;
             this.userPosition = userLocation;
+            this.locationReady = true;
             this.zoom = 13;
             this.exploreCache.setLastLocation(userLocation);
 
@@ -334,6 +382,8 @@ export class ExploreComponent implements OnInit, OnDestroy {
           if (!success) {
             this.ngZone.run(() => {
               this.isLocating = false;
+              this.userPosition = this.center;
+              this.locationReady = true;
               this.toastService.showToast('No pudimos obtener tu ubicación. Puedes elegir una ciudad en los filtros.', 'info');
               this.loadApiMatches();
               this.triggerPlacesSearch(); // Fallback a la ubicación por defecto
@@ -347,6 +397,8 @@ export class ExploreComponent implements OnInit, OnDestroy {
         if (!success) {
           this.ngZone.run(() => {
             this.isLocating = false;
+            this.userPosition = this.center;
+            this.locationReady = true;
             this.loadApiMatches();
             this.triggerPlacesSearch();
           });
@@ -438,6 +490,154 @@ export class ExploreComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ── Elección inicial del radio de búsqueda ────────────────────────────────
+
+  private ensureDistanceSelection(): boolean {
+    if (!this.locationReady) return false;
+    const key = this.currentDistanceLocationKey();
+    if (this.distanceSelectionConfirmed && this.distanceLocationKey === key) {
+      return true;
+    }
+    if (this.isDistanceQuestionnaireOpen && this.distanceLocationKey === key) {
+      return false;
+    }
+
+    this.distanceLocationKey = key;
+    const saved = this.forceDistanceConfirmation
+      ? null
+      : this.exploreCache.getSearchRadiusPreference(key);
+    if (saved) {
+      this.maxDistanceKm = saved.radiusKm;
+      this.pendingDistanceKm = saved.radiusKm;
+      this.distanceSelectionConfirmed = true;
+      return true;
+    }
+
+    this.distanceSelectionConfirmed = false;
+    this.pendingDistanceKm = 30;
+    this.openDistanceQuestionnaire();
+    // La pregunta reemplaza al skeleton inicial; aún no se inicia ningún
+    // descubrimiento ni matching pesado hasta que el alumno confirme.
+    this.finishLoading();
+    return false;
+  }
+
+  private currentDistanceLocationKey(): string {
+    if (this.locationMode === 'city' && this.selectedCityId) {
+      return `city:${this.selectedCityId}`;
+    }
+    const location = this.userPosition || this.center;
+    // Dos decimales toleran el pequeño movimiento normal del GPS sin volver
+    // a preguntar en cada visita, pero distinguen un cambio real de zona.
+    return `auto:${location.lat.toFixed(2)},${location.lng.toFixed(2)}`;
+  }
+
+  openDistanceQuestionnaire(): void {
+    if (!this.locationReady) return;
+    this.distanceLocationKey = this.currentDistanceLocationKey();
+    this.pendingDistanceKm = this.distanceSelectionConfirmed
+      ? this.maxDistanceKm
+      : 30;
+    this.isDistanceQuestionnaireOpen = true;
+    this.loadDistancePreview();
+  }
+
+  closeDistanceQuestionnaire(): void {
+    // En el primer ingreso el radio es obligatorio; cuando se abrió desde
+    // los filtros sí se puede cerrar conservando la elección anterior.
+    if (!this.distanceSelectionConfirmed) return;
+    this.isDistanceQuestionnaireOpen = false;
+  }
+
+  selectDistanceOption(km: SearchRadiusKm): void {
+    this.pendingDistanceKm = km;
+  }
+
+  confirmDistanceSelection(): void {
+    const wasConfirmed = this.distanceSelectionConfirmed;
+    const changed = !wasConfirmed || this.maxDistanceKm !== this.pendingDistanceKm;
+    this.maxDistanceKm = this.pendingDistanceKm;
+    this.distanceSelectionConfirmed = true;
+    this.forceDistanceConfirmation = false;
+    this.isDistanceQuestionnaireOpen = false;
+    this.exploreCache.setSearchRadiusPreference(
+      this.distanceLocationKey,
+      this.maxDistanceKm,
+    );
+    if (!changed) return;
+
+    this.cancelAiRefresh();
+    this.lastMatchKey = '';
+    this.lastDbNearbyKey = '';
+    this.matchRequestId++;
+    this.nearbyRequestId++;
+    this.apiMatches = [];
+    this.nearbyUniversities = [];
+    this.processData();
+    this.isLoading = true;
+    this.loadStartedAt = Date.now();
+    this.loadApiMatches();
+    this.triggerPlacesSearch();
+  }
+
+  private resetDistanceSelection(forceConfirmation: boolean): void {
+    this.distanceSelectionConfirmed = false;
+    this.forceDistanceConfirmation = forceConfirmation;
+    this.isDistanceQuestionnaireOpen = false;
+    this.distanceLocationKey = '';
+    this.distancePreviewUniversities = [];
+    this.distancePreviewRequestId++;
+    this.cancelAiRefresh();
+    this.lastMatchKey = '';
+    this.lastDbNearbyKey = '';
+    this.matchRequestId++;
+    this.nearbyRequestId++;
+  }
+
+  private loadDistancePreview(): void {
+    const requestId = ++this.distancePreviewRequestId;
+    const location = this.userPosition || this.center;
+    this.isLoadingDistancePreview = true;
+    this.universityService.getNearbyUniversities(location, 50).subscribe({
+      next: (rows) => {
+        if (requestId !== this.distancePreviewRequestId) return;
+        this.distancePreviewUniversities = rows || [];
+        this.isLoadingDistancePreview = false;
+      },
+      error: (error) => {
+        if (requestId !== this.distancePreviewRequestId) return;
+        console.error('No se pudo cargar la vista previa del radio:', error);
+        this.distancePreviewUniversities = [];
+        this.isLoadingDistancePreview = false;
+      },
+    });
+  }
+
+  get distancePreviewForSelection(): DbNearbyUniversity[] {
+    return this.distancePreviewUniversities.filter(
+      (university) => university.distanceKm <= this.pendingDistanceKm,
+    );
+  }
+
+  get verifiedDistancePreviewCount(): number {
+    return this.distancePreviewForSelection.filter(
+      (university) => !!university.steamPrograms?.length,
+    ).length;
+  }
+
+  distanceOptionCount(km: SearchRadiusKm): number {
+    return this.distancePreviewUniversities.filter(
+      (university) => university.distanceKm <= km,
+    ).length;
+  }
+
+  get distanceContextLabel(): string {
+    if (this.locationMode === 'city' && this.selectedCityId) {
+      return this.exploreCache.getCityById(this.selectedCityId)?.name || 'la ciudad elegida';
+    }
+    return 'tu ubicación actual';
+  }
+
   // ── A8: matching real desde la API ─────────────────────────────────────────
 
   /**
@@ -447,6 +647,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
    */
   loadApiMatches(forceRefresh = false, silent = false) {
     if (!this.hasTakenTest) return;
+    if (!this.ensureDistanceSelection()) return;
     const location = this.userPosition || this.center;
 
     // Dedupe: misma ubicación (±100m) y mismos filtros → ya está pedido.
@@ -578,9 +779,13 @@ export class ExploreComponent implements OnInit, OnDestroy {
     };
   }
 
-  setDistanceFilter(km: number) {
+  setDistanceFilter(km: SearchRadiusKm) {
     if (this.maxDistanceKm === km) return;
     this.maxDistanceKm = km;
+    this.pendingDistanceKm = km;
+    if (this.distanceLocationKey) {
+      this.exploreCache.setSearchRadiusPreference(this.distanceLocationKey, km);
+    }
     this.loadApiMatches();
     // El radio de Places también depende de la distancia elegida
     this.triggerPlacesSearch();
@@ -598,6 +803,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
    * compartirla o quiere explorar otra ciudad). La elección se persiste.
    */
   setLocationChoice(choice: string) {
+    this.resetDistanceSelection(true);
     if (choice === 'auto') {
       this.locationMode = 'auto';
       this.selectedCityId = null;
@@ -616,6 +822,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
     const cityLocation = { lat: city.lat, lng: city.lng };
     this.userPosition = cityLocation;
     this.center = cityLocation;
+    this.locationReady = true;
     this.zoom = 12;
     if (this.googleMap?.googleMap) {
       this.googleMap.panTo(cityLocation);
@@ -636,6 +843,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
   triggerPlacesSearch(_attempt = 0) {
     // Procedemos si ya tomamos el test
     if (!this.hasTakenTest) return;
+    if (!this.ensureDistanceSelection()) return;
 
     // Fallback: usar el default si no hay ubicación de usuario
     const locationToUse = this.userPosition || this.center;
@@ -647,10 +855,12 @@ export class ExploreComponent implements OnInit, OnDestroy {
     const key = `${locationToUse.lat.toFixed(3)},${locationToUse.lng.toFixed(3)}|${radiusKm}`;
     if (key === this.lastDbNearbyKey) return;
     this.lastDbNearbyKey = key;
+    const requestId = ++this.nearbyRequestId;
 
     this.isDiscoveringNearby = true;
     this.universityService.discoverNearby(locationToUse, radiusKm).subscribe({
       next: (rows) => {
+        if (requestId !== this.nearbyRequestId) return;
         this.isDiscoveringNearby = false;
         this.nearbyUniversities = (rows || []).map((u, i) => this.mapDbNearby(u, i));
         this.processData();
@@ -662,6 +872,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
         this.loadApiMatches(true);
       },
       error: (err) => {
+        if (requestId !== this.nearbyRequestId) return;
         console.error('No se pudieron cargar universidades cercanas:', err);
         this.isDiscoveringNearby = false;
         this.lastDbNearbyKey = ''; // permitir reintento en la próxima búsqueda
