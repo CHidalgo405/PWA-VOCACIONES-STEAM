@@ -77,8 +77,24 @@ export interface UniversityMatchResponse {
   aiProcessing?: boolean;
 }
 
+/** Snapshot progresivo del descubrimiento/enriquecimiento de una zona. */
+export interface NearbyDiscoveryResponse {
+  universities: DbNearbyUniversity[];
+  /** true mientras el backend continúa trabajando sin bloquear la petición. */
+  processing: boolean;
+  /** false si la zona aún necesita otra ronda automática de cobertura. */
+  complete?: boolean;
+  coverageCount: number;
+  verifiedCount: number;
+  startedAt?: string;
+  updatedAt: string;
+  /** Momento a partir del cual conviene solicitar la siguiente ronda. */
+  retryAt?: string;
+  error?: string;
+}
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UniversityService {
   private http = inject(HttpClient);
@@ -126,11 +142,14 @@ export class UniversityService {
    * tardar más en zonas nunca visitadas (~30-40s) mientras la IA valida los
    * candidatos nuevos; en zonas ya cubiertas responde al instante.
    */
-  discoverNearby(location: { lat: number; lng: number }, radiusKm: number): Observable<DbNearbyUniversity[]> {
-    return this.http.post<DbNearbyUniversity[]>(
+  discoverNearby(
+    location: { lat: number; lng: number },
+    radiusKm: number,
+    forceRefresh = false,
+  ): Observable<NearbyDiscoveryResponse> {
+    return this.http.post<NearbyDiscoveryResponse>(
       `${environment.apiUrl}/universities/nearby-discover`,
-      { lat: location.lat, lng: location.lng, radiusKm },
+      { lat: location.lat, lng: location.lng, radiusKm, forceRefresh },
     );
   }
-
 }

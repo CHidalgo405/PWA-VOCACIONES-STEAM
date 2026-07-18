@@ -61,8 +61,9 @@
           <div class="filter-chips">
             <button
               class="filter-chip"
-              *ngFor="let option of distanceOptions"
+              *ngFor="let option of distanceOptions; trackBy: trackDistanceOption"
               [class.active]="maxDistanceKm === option.km"
+              [attr.aria-pressed]="maxDistanceKm === option.km"
               (click)="setDistanceFilter(option.km)">
               {{ option.km }} km
             </button>
@@ -80,16 +81,17 @@
               class="filter-chip"
               *ngFor="let opt of costOptions"
               [class.active]="costPreference === opt.value"
+              [attr.aria-pressed]="costPreference === opt.value"
               (click)="setCostFilter(opt.value)">
               {{ opt.label }}
             </button>
           </div>
         </div>
         <div class="status-row">
-          <div class="filter-loading" *ngIf="isLoadingMatches">
+          <div class="filter-loading" *ngIf="isLoadingMatches || isRefreshingMatches">
             <span class="dot-pulse"></span> Actualizando coincidencias…
           </div>
-          <div class="ai-provider-note" *ngIf="!isLoadingMatches && aiProvider" [class.degraded]="aiProvider === 'deterministic' && !aiProcessing">
+          <div class="ai-provider-note" *ngIf="!isLoadingMatches && !isRefreshingMatches && aiProvider" [class.degraded]="aiProvider === 'deterministic' && !aiProcessing">
             <app-lucide-icon [name]="aiProcessing ? 'sparkles' : (aiProvider === 'deterministic' ? 'alert-circle' : 'sparkles')" [size]="12"></app-lucide-icon>
             {{ aiProcessing
                 ? 'Ranking inicial listo; la IA está afinando ' + aiAnalyzedCount + ' de ' + candidateCount + ' opciones. Se actualizará automáticamente.'
@@ -142,13 +144,62 @@
         </ng-template>
       </section>
 
+      <!-- Estado único y persistente: anuncia caché, progreso, errores y actualización automática. -->
+      <section
+        class="data-load-status"
+        *ngIf="showLoadStatus"
+        [class.tone-loading]="loadStatusTone === 'loading'"
+        [class.tone-cached]="loadStatusTone === 'cached'"
+        [class.tone-error]="loadStatusTone === 'error'"
+        [class.tone-ready]="loadStatusTone === 'ready'"
+        [attr.aria-busy]="hasBackgroundWork"
+        aria-live="polite"
+        role="status">
+        <div class="data-load-icon" [class.spinning]="loadStatusTone === 'loading'">
+          <app-lucide-icon
+            [name]="loadStatusTone === 'error' ? 'alert-circle' : loadStatusTone === 'ready' ? 'check-circle-2' : loadStatusTone === 'cached' ? 'save' : 'refresh-cw'"
+            [size]="20">
+          </app-lucide-icon>
+        </div>
+        <div class="data-load-copy">
+          <strong>{{ loadStatusTitle }}</strong>
+          <p>{{ loadStatusDetail }}</p>
+          <div class="load-progress" *ngIf="hasBackgroundWork">
+            <span [class.done]="hasUniversityData">Datos disponibles</span>
+            <i></i>
+            <span [class.active]="isDiscoveringNearby" [class.done]="!isDiscoveringNearby && nearbyCoverageCount > 0">Oferta verificada</span>
+            <i></i>
+            <span [class.active]="aiProcessing" [class.done]="!aiProcessing && aiAnalyzedCount > 0">Ranking afinado</span>
+          </div>
+          <small *ngIf="lastDataUpdatedAt && !hasBackgroundWork">
+            Actualizado {{ lastDataUpdatedAt | date:'shortTime' }}
+          </small>
+        </div>
+        <button
+          class="status-retry-btn"
+          *ngIf="(matchLoadError || nearbyLoadError || aiPollingPaused || nearbyPollingPaused) && !isOffline"
+          (click)="retryUniversityLoading()">
+          Reintentar
+        </button>
+      </section>
+
+      <div class="mobile-map-load-error" *ngIf="hasTakenTest && mapLoadError">
+        <app-lucide-icon name="map" [size]="18"></app-lucide-icon>
+        <span>La lista está disponible, pero el mapa no cargó.</span>
+        <button (click)="retryMapLoading()" [disabled]="isOffline">Reintentar</button>
+      </div>
+
       <!-- SKELETONS (LOADING) -->
-      <ng-container *ngIf="isLoading">
-        <div class="filter-loading" *ngIf="isDiscoveringNearby">
-          <span class="dot-pulse"></span> Buscando universidades cercanas… puede tardar unos segundos si es una zona nueva.
+      <ng-container *ngIf="showInitialUniversitySkeleton">
+        <div class="initial-loading-copy" role="status" aria-live="polite">
+          <span class="dot-pulse"></span>
+          <div>
+            <strong>{{ isLoadingProfile ? 'Preparando tu perfil' : isLocating ? 'Confirmando tu ubicación' : 'Preparando universidades' }}</strong>
+            <p>{{ isLoadingProfile ? 'Recuperamos tus preferencias y resultados guardados.' : 'Mostraremos las primeras tarjetas en cuanto estén disponibles.' }}</p>
+          </div>
         </div>
         <div class="skeleton-stack">
-          <div class="uni-card-skeleton" *ngFor="let i of skeletonArray">
+          <div class="uni-card-skeleton" *ngFor="let i of skeletonArray; trackBy: trackByIndex">
             <div class="skele-img shimmer"></div>
             <div class="skele-body">
               <div class="shimmer skele-title"></div>
@@ -159,10 +210,19 @@
         </div>
       </ng-container>
 
-      <ng-container *ngIf="!isLoading">
+      <ng-container *ngIf="!showInitialUniversitySkeleton">
+
+        <div class="inline-error-state" *ngIf="profileLoadError && !hasTakenTest" role="alert">
+          <app-lucide-icon name="alert-circle" [size]="24"></app-lucide-icon>
+          <div>
+            <strong>No pudimos recuperar tu perfil vocacional</strong>
+            <p>Revisa tu conexión y vuelve a intentarlo; no necesitas recargar la página.</p>
+          </div>
+          <button (click)="retryProfileLoading()">Reintentar</button>
+        </div>
 
         <!-- EMPTY STATE NO TEST -->
-        <div class="empty-hero-card fade-in" *ngIf="!hasTakenTest">
+        <div class="empty-hero-card fade-in" *ngIf="!hasTakenTest && !profileLoadError">
           <div class="empty-hero-content">
             <div class="empty-hero-text">
               <h2>Descubre tu <span class="text-accent">camino</span></h2>
@@ -215,7 +275,7 @@
               </h3>
             </div>
 
-            <div class="best-match-card animate-on-scroll" (click)="openUniversityDetail(bestMatchUniversity)" appScrollReveal>
+            <div class="best-match-card animate-on-scroll" role="button" tabindex="0" (click)="openUniversityDetail(bestMatchUniversity)" (keydown.enter)="openUniversityDetail(bestMatchUniversity)" (keydown.space)="openUniversityDetail(bestMatchUniversity); $event.preventDefault()" appScrollReveal>
               <div class="card-icon-area">
                 <div class="icon-circle">
                   <app-lucide-icon [name]="bestMatchUniversity.logo || 'building'" [size]="30"></app-lucide-icon>
@@ -264,7 +324,7 @@
 
           <!-- Tarjeta reusable de recomendada/guardada -->
           <ng-template #recommendedCard let-uni>
-            <div class="recommended-list-card animate-on-scroll" (click)="openUniversityDetail(uni)" appScrollReveal>
+            <div class="recommended-list-card animate-on-scroll" role="button" tabindex="0" (click)="openUniversityDetail(uni)" (keydown.enter)="openUniversityDetail(uni)" (keydown.space)="openUniversityDetail(uni); $event.preventDefault()" appScrollReveal>
 
               <div class="list-card-icon">
                 <div class="square-icon-bg">
@@ -332,7 +392,7 @@
               <span class="section-count">{{ secondarySuggestions.length }}</span>
             </div>
             <div class="recommendations-list">
-              <ng-container *ngFor="let uni of secondarySuggestions">
+              <ng-container *ngFor="let uni of secondarySuggestions; trackBy: trackUniversity">
                 <ng-container *ngTemplateOutlet="recommendedCard; context: { $implicit: uni }"></ng-container>
               </ng-container>
             </div>
@@ -345,20 +405,35 @@
               <span class="section-count">{{ remainingRecommended.length }}</span>
             </div>
             <div class="recommendations-list">
-              <ng-container *ngFor="let uni of remainingRecommended">
+              <ng-container *ngFor="let uni of remainingRecommended; trackBy: trackUniversity">
                 <ng-container *ngTemplateOutlet="recommendedCard; context: { $implicit: uni }"></ng-container>
               </ng-container>
             </div>
           </section>
 
           <!-- GUARDADAS -->
+          <section class="saved-loading-state" *ngIf="viewMode === 'saved' && isLoadingSaved" role="status" aria-live="polite">
+            <div class="compact-row-skeleton" *ngFor="let i of skeletonArray; trackBy: trackByIndex">
+              <span class="shimmer"></span><span class="shimmer"></span>
+            </div>
+          </section>
+
+          <div class="inline-error-state compact" *ngIf="viewMode === 'saved' && savedLoadError" role="alert">
+            <app-lucide-icon name="alert-circle" [size]="21"></app-lucide-icon>
+            <div>
+              <strong>No pudimos cargar tus universidades guardadas</strong>
+              <p>Las recomendaciones siguen disponibles.</p>
+            </div>
+            <button (click)="retrySavedUniversities()">Reintentar</button>
+          </div>
+
           <section class="all-recommendations-section" *ngIf="viewMode === 'saved' && filteredOtherUniversities.length > 0">
             <div class="section-header space-between">
               <h3>Universidades guardadas</h3>
               <span class="section-count">{{ filteredOtherUniversities.length }}</span>
             </div>
             <div class="recommendations-list">
-              <ng-container *ngFor="let uni of filteredOtherUniversities">
+              <ng-container *ngFor="let uni of filteredOtherUniversities; trackBy: trackUniversity">
                 <ng-container *ngTemplateOutlet="recommendedCard; context: { $implicit: uni }"></ng-container>
               </ng-container>
             </div>
@@ -374,7 +449,7 @@
           </div>
 
           <!-- SIN COINCIDENCIAS A8 (pero con test hecho) -->
-          <div class="no-matches-note" *ngIf="viewMode === 'explore' && !isLoadingMatches && !isDiscoveringNearby && apiMatches.length === 0">
+          <div class="no-matches-note" *ngIf="viewMode === 'explore' && !isLoadingMatches && !isLoadingNearby && !isDiscoveringNearby && !isRefreshingNearby && apiMatches.length === 0">
             <app-lucide-icon name="compass" [size]="19"></app-lucide-icon>
             <div>
               <strong>Aún no hay coincidencias exactas en tu zona.</strong>
@@ -397,7 +472,7 @@
             </div>
 
             <div class="recommendations-list">
-              <div class="recommended-list-card animate-on-scroll" *ngFor="let uni of filteredNearbyUniversities" (click)="openUniversityDetail(uni)" appScrollReveal>
+              <div class="recommended-list-card animate-on-scroll" *ngFor="let uni of filteredNearbyUniversities; trackBy: trackUniversity" role="button" tabindex="0" (click)="openUniversityDetail(uni)" (keydown.enter)="openUniversityDetail(uni)" (keydown.space)="openUniversityDetail(uni); $event.preventDefault()" appScrollReveal>
                 <div class="list-card-icon">
                   <div class="square-icon-bg neutral">
                     <app-lucide-icon [name]="uni.logo || 'graduation-cap'" [size]="26"></app-lucide-icon>
@@ -444,11 +519,16 @@
                   </div>
                 </div>
               </div>
+
+              <div class="nearby-inline-skeleton" *ngIf="isDiscoveringNearby || isRefreshingNearby" aria-hidden="true">
+                <span class="shimmer"></span>
+                <div><span class="shimmer"></span><span class="shimmer"></span></div>
+              </div>
             </div>
           </section>
 
           <!-- EMPTY STATE BÚSQUEDA / GUARDADAS -->
-          <div class="premium-empty-state" *ngIf="filteredOtherUniversities.length === 0 && !showBestMatch && filteredNearbyUniversities.length === 0">
+          <div class="premium-empty-state" *ngIf="filteredOtherUniversities.length === 0 && !showBestMatch && filteredNearbyUniversities.length === 0 && !(viewMode === 'explore' && hasBackgroundWork) && !(viewMode === 'saved' && (isLoadingSaved || savedLoadError))">
             <div class="empty-visual">
               <app-lucide-icon [name]="viewMode === 'saved' ? 'heart-off' : 'search'" [size]="52"></app-lucide-icon>
             </div>
@@ -499,7 +579,7 @@
 
           <!-- Recommended Universities Markers -->
           <map-marker
-            *ngFor="let uni of mapMarkers"
+            *ngFor="let uni of mapMarkers; trackBy: trackUniversity"
             [position]="uni.position"
             [title]="uni.name"
             [options]="getMarkerOptions(uni)"
@@ -519,6 +599,26 @@
         <button class="location-fab" (click)="getUserLocation()" [class.locating]="isLocating" title="Mi ubicación" aria-label="Centrar el mapa en mi ubicación">
           <app-lucide-icon name="target" [size]="20" color="#07B1C9"></app-lucide-icon>
         </button>
+      </div>
+    </div>
+
+    <div class="explore-map-column map-placeholder-column" *ngIf="hasTakenTest && !isApiLoaded">
+      <div class="map-sticky-wrapper map-loading-state" [class.has-error]="mapLoadError" role="status" aria-live="polite">
+        <ng-container *ngIf="!mapLoadError; else mapErrorState">
+          <div class="map-skeleton-grid"></div>
+          <div class="map-loading-card">
+            <span class="dot-pulse"></span>
+            <div><strong>Preparando el mapa</strong><p>La lista ya puede usarse mientras termina de cargar.</p></div>
+          </div>
+        </ng-container>
+        <ng-template #mapErrorState>
+          <div class="map-error-card">
+            <app-lucide-icon name="map" [size]="28"></app-lucide-icon>
+            <strong>El mapa no está disponible</strong>
+            <p>Tus universidades siguen visibles en la lista.</p>
+            <button (click)="retryMapLoading()" [disabled]="isOffline">Reintentar mapa</button>
+          </div>
+        </ng-template>
       </div>
     </div>
 
@@ -562,11 +662,13 @@
       </button>
     </header>
 
-    <div class="distance-options-grid">
+    <div class="distance-options-grid" role="radiogroup" aria-label="Radio de búsqueda de universidades">
       <button
         class="distance-option-card"
-        *ngFor="let option of distanceOptions"
+        *ngFor="let option of distanceOptions; trackBy: trackDistanceOption"
         [class.selected]="pendingDistanceKm === option.km"
+        role="radio"
+        [attr.aria-checked]="pendingDistanceKm === option.km"
         (click)="selectDistanceOption(option.km)">
         <span class="distance-option-radio">
           <span *ngIf="pendingDistanceKm === option.km"></span>
@@ -600,9 +702,17 @@
       <div class="distance-preview-loading" *ngIf="isLoadingDistancePreview">
         <span class="dot-pulse"></span> Preparando la lista de referencia…
       </div>
+      <div class="distance-preview-refreshing" *ngIf="isRefreshingDistancePreview">
+        <span class="dot-pulse"></span> Mostrando datos guardados mientras actualizamos…
+      </div>
 
-      <div class="distance-preview-list" *ngIf="!isLoadingDistancePreview && distancePreviewForSelection.length">
-        <div class="distance-preview-row" *ngFor="let university of distancePreviewForSelection">
+      <div class="distance-preview-error" *ngIf="distancePreviewError && !isLoadingDistancePreview" role="alert">
+        <span>No pudimos consultar la vista previa, pero puedes elegir el radio y continuar.</span>
+        <button (click)="retryDistancePreview()">Reintentar</button>
+      </div>
+
+      <div class="distance-preview-list" *ngIf="!isLoadingDistancePreview && !distancePreviewError && distancePreviewForSelection.length">
+        <div class="distance-preview-row" *ngFor="let university of distancePreviewForSelection; trackBy: trackUniversity">
           <div>
             <strong>{{ university.name }}</strong>
             <span>{{ university.distanceKm | number:'1.1-1' }} km</span>
@@ -613,7 +723,7 @@
         </div>
       </div>
 
-      <p class="distance-preview-empty" *ngIf="!isLoadingDistancePreview && !distancePreviewForSelection.length">
+      <p class="distance-preview-empty" *ngIf="!isLoadingDistancePreview && !distancePreviewError && !distancePreviewForSelection.length">
         Todavía no hay instituciones registradas en este radio. Al confirmar intentaremos ampliar la cobertura.
       </p>
       <p class="distance-preview-note">

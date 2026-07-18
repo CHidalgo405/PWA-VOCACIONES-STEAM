@@ -1,6 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
-import { UniversityMatchResponse } from './university.service';
+import {
+  DbNearbyUniversity,
+  NearbyDiscoveryResponse,
+  UniversityMatchResponse,
+} from './university.service';
 
 /** Ciudad seleccionable manualmente como centro de búsqueda (sin GPS). */
 export interface CityOption {
@@ -37,7 +41,8 @@ interface CacheEntry<T> {
 
 export interface CacheHit<T> {
   data: T;
-  /** true si superó el TTL: solo usable como respaldo cuando falla la red. */
+  savedAt: number;
+  /** true si superó el TTL: se muestra primero y luego se revalida en background. */
   stale: boolean;
 }
 
@@ -91,36 +96,62 @@ export class ExploreCacheService {
   }
 
   // ── Matches A8 ─────────────────────────────────────────────────────────────
-  // Los stores llevan sufijo de versión (_v5): cada vez que el motor de
+  // Los stores llevan sufijo de versión (_v6): cada vez que el motor de
   // matching/enriquecimiento cambia de forma significativa, bump la versión
   // acá para purgar de inmediato lo cacheado con la lógica vieja — no hace
   // falta migrar ni borrar entradas una a una, simplemente quedan huérfanas.
   // El TTL de 24h (abajo) es la red de seguridad para cuando se nos olvide.
 
   getMatches(key: string, testMarker: string): CacheHit<UniversityMatchResponse> | null {
-    const entry = this.readStore<UniversityMatchResponse>('explore_matches_v5')[key];
+    const entry = this.readStore<UniversityMatchResponse>('explore_matches_v6')[key];
     if (!entry || entry.testMarker !== testMarker) return null;
-    return { data: entry.data, stale: Date.now() - entry.savedAt > MATCHES_TTL_MS };
+    return {
+      data: entry.data,
+      savedAt: entry.savedAt,
+      stale: Date.now() - entry.savedAt > MATCHES_TTL_MS,
+    };
   }
 
   setMatches(key: string, testMarker: string, data: UniversityMatchResponse): void {
-    const store = this.readStore<UniversityMatchResponse>('explore_matches_v5');
+    const store = this.readStore<UniversityMatchResponse>('explore_matches_v6');
     store[key] = { savedAt: Date.now(), testMarker, data };
-    this.writeStore('explore_matches_v5', this.prune(store));
+    this.writeStore('explore_matches_v6', this.prune(store));
   }
 
   // ── "Cerca de ti" (BD propia + descubrimiento server-side) ────────────────
 
-  getPlaces(key: string): CacheHit<any[]> | null {
-    const entry = this.readStore<any[]>('explore_places_v5')[key];
+  getPlaces(key: string): CacheHit<NearbyDiscoveryResponse> | null {
+    const entry = this.readStore<NearbyDiscoveryResponse>('explore_places_v6')[key];
     if (!entry) return null;
-    return { data: entry.data, stale: Date.now() - entry.savedAt > PLACES_TTL_MS };
+    return {
+      data: entry.data,
+      savedAt: entry.savedAt,
+      stale: Date.now() - entry.savedAt > PLACES_TTL_MS,
+    };
   }
 
-  setPlaces(key: string, data: any[]): void {
-    const store = this.readStore<any[]>('explore_places_v5');
+  setPlaces(key: string, data: NearbyDiscoveryResponse): void {
+    const store = this.readStore<NearbyDiscoveryResponse>('explore_places_v6');
     store[key] = { savedAt: Date.now(), data };
-    this.writeStore('explore_places_v5', this.prune(store));
+    this.writeStore('explore_places_v6', this.prune(store));
+  }
+
+  // ── Vista previa del cuestionario de radio ───────────────────────────────
+
+  getNearbyPreview(key: string): CacheHit<DbNearbyUniversity[]> | null {
+    const entry = this.readStore<DbNearbyUniversity[]>('explore_nearby_preview_v1')[key];
+    if (!entry) return null;
+    return {
+      data: entry.data,
+      savedAt: entry.savedAt,
+      stale: Date.now() - entry.savedAt > PLACES_TTL_MS,
+    };
+  }
+
+  setNearbyPreview(key: string, data: DbNearbyUniversity[]): void {
+    const store = this.readStore<DbNearbyUniversity[]>('explore_nearby_preview_v1');
+    store[key] = { savedAt: Date.now(), data };
+    this.writeStore('explore_nearby_preview_v1', this.prune(store));
   }
 
   // ── Preferencia de ubicación y última ubicación conocida ─────────────────

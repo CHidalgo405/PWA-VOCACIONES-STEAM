@@ -1,71 +1,329 @@
 <div class="map-page-wrapper">
-  <app-header title="Mapa de Universidades" [showBack]="true" backRoute="/explore"></app-header>
+  <app-header
+    title="Mapa de Universidades"
+    [showBack]="true"
+    backRoute="/explore"
+  ></app-header>
 
-  <div class="map-container">
-    <div class="map-header-text">
-      <h2>Mapa de Universidades STEAM</h2>
-      <p>Encuentra las instituciones que ofrecen carreras STEAM cerca de ti.</p>
-    </div>
-
-  <ng-container *ngIf="isApiLoaded; else loading">
-    <div class="map-view-area">
-      <google-map #googleMap [options]="mapOptions" [center]="center" [zoom]="zoom" height="70vh" width="100%">
-        
-        <!-- Marcador de la ubicación del usuario (punto azul) -->
-        <map-marker 
-          *ngIf="userPosition && userMarkerIcon"
-          [position]="userPosition"
-          [options]="{ icon: userMarkerIcon }"
-          title="Tú estás aquí"
-        ></map-marker>
-
-        <!-- Iterar sobre las universidades obtenidas de Google Places -->
-        <map-marker 
-          *ngFor="let uni of universities" 
-          #marker="mapMarker"
-          [position]="getMarkerPosition(uni.location)"
-          [title]="uni.name"
-          (mapClick)="openInfoWindow(marker, uni)"
-        ></map-marker>
-
-        <!-- Info Window interactivo para las universidades -->
-        <map-info-window>
-          <div *ngIf="selectedUniversity" class="info-window-content">
-            <h3 style="margin-top: 0; color: #333;">{{ selectedUniversity.name }}</h3>
-            <p *ngIf="selectedUniversity.address" style="color: #666; font-size: 14px;">📍 {{ selectedUniversity.address }}</p>
-            <p *ngIf="selectedUniversity.rating" style="color: #f5b041; font-weight: bold; margin-bottom: 5px;">
-              ⭐ {{ selectedUniversity.rating }}<ng-container *ngIf="selectedUniversity.userRatingsTotal"> ({{ selectedUniversity.userRatingsTotal }} reseñas)</ng-container>
-            </p>
-            <p *ngIf="selectedUniversity.isOpen !== undefined" 
-               [style.color]="selectedUniversity.isOpen ? 'green' : 'red'" 
-               style="font-size: 13px;">
-              {{ selectedUniversity.isOpen ? '🟢 Abierto ahora' : '🔴 Cerrado ahora' }}
-            </p>
-          </div>
-        </map-info-window>
-
-      </google-map>
-
-      <!-- Indicador de carga cuando busca universidades -->
-      <div *ngIf="isSearching" class="searching-overlay">
-        <div class="spinner"></div>
-        <p>Buscando universidades cercanas...</p>
+  <main class="map-container">
+    <header class="map-header-text">
+      <div>
+        <span class="eyebrow"
+          >Exploración regional · {{ searchRadiusKm }} km</span
+        >
+        <h1>Mapa de Universidades STEAM</h1>
+        <p>
+          Consulta instituciones cercanas mientras su oferta educativa se
+          verifica automáticamente.
+        </p>
       </div>
-
-      <!-- Botón flotante para mi ubicación -->
-      <button class="location-fab" (click)="getUserLocation()" [class.locating]="isLocating" title="Mi ubicación">
-        <app-lucide-icon name="target" [size]="24" color="#07B1C9"></app-lucide-icon>
+      <button
+        class="refresh-button"
+        type="button"
+        (click)="refreshUniversities()"
+        [disabled]="isOffline || isSearching || isRefreshing"
+        aria-label="Actualizar universidades de esta zona"
+      >
+        <app-lucide-icon name="refresh-cw" [size]="17"></app-lucide-icon>
+        <span>{{ isRefreshing ? "Actualizando…" : "Actualizar" }}</span>
       </button>
-    </div>
-  </ng-container>
+    </header>
 
-  <!-- Skeleton del mapa (mismas dimensiones que el mapa real: 70vh) -->
-  <ng-template #loading>
-    <div class="map-skeleton" aria-hidden="true">
-      <div class="shimmer sk-map-canvas"></div>
-      <span class="shimmer sk-map-fab"></span>
+    <section
+      class="coverage-summary"
+      *ngIf="universities.length || coverageCount"
+    >
+      <div class="summary-item">
+        <strong>{{ coverageCount || universities.length }}</strong>
+        <span>instituciones encontradas</span>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-item verified">
+        <strong>{{ verifiedCount }}</strong>
+        <span>con oferta verificada</span>
+      </div>
+      <div class="summary-meta">
+        <span class="source-pill" [class.cache]="showingCachedData">
+          {{
+            showingCachedData
+              ? "Disponible localmente"
+              : "Información actualizada"
+          }}
+        </span>
+        <small *ngIf="lastUpdatedLabel"
+          >Actualizado a las {{ lastUpdatedLabel }}</small
+        >
+      </div>
+    </section>
+
+    <div
+      class="connection-notice offline"
+      *ngIf="isOffline"
+      role="status"
+      aria-live="polite"
+    >
+      <app-lucide-icon name="alert-circle" [size]="18"></app-lucide-icon>
+      <div>
+        <strong>Estás sin conexión</strong>
+        <span *ngIf="universities.length"
+          >Puedes seguir consultando las universidades guardadas en este
+          dispositivo.</span
+        >
+        <span *ngIf="!universities.length"
+          >Reconectaremos la búsqueda automáticamente cuando vuelva
+          internet.</span
+        >
+      </div>
     </div>
-  </ng-template>
-  </div>
+
+    <ng-container *ngIf="isApiLoaded; else mapUnavailable">
+      <section
+        class="map-view-area"
+        [attr.aria-busy]="isSearching || isRefreshing || isProcessing"
+      >
+        <google-map
+          #googleMap
+          [options]="mapOptions"
+          [center]="center"
+          [zoom]="zoom"
+          height="70vh"
+          width="100%"
+          (mapInitialized)="onMapInitialized()"
+        >
+          <map-marker
+            *ngIf="userPosition && userMarkerIcon"
+            [position]="userPosition"
+            [options]="{ icon: userMarkerIcon }"
+            title="Tú estás aquí"
+          >
+          </map-marker>
+
+          <map-marker
+            *ngFor="
+              let university of universities;
+              trackBy: trackByUniversityId
+            "
+            #marker="mapMarker"
+            [position]="getMarkerPosition(university.location)"
+            [title]="university.name"
+            (mapClick)="openInfoWindow(marker, university)"
+          >
+          </map-marker>
+
+          <map-info-window>
+            <article *ngIf="selectedUniversity" class="info-window-content">
+              <h3>{{ selectedUniversity.name }}</h3>
+              <p *ngIf="selectedUniversity.address" class="info-address">
+                <span aria-hidden="true">📍</span>
+                {{ selectedUniversity.address }}
+              </p>
+              <p *ngIf="selectedUniversity.rating" class="info-rating">
+                <span aria-hidden="true">★</span>
+                {{ selectedUniversity.rating }}
+              </p>
+              <div
+                class="info-programs"
+                *ngIf="selectedUniversity.programs?.length"
+              >
+                <strong>Oferta STEAM registrada</strong>
+                <span>{{
+                  selectedUniversity.programs!.slice(0, 3).join(" · ")
+                }}</span>
+              </div>
+              <a
+                *ngIf="selectedUniversity.contactUrl"
+                class="info-link"
+                [href]="selectedUniversity.contactUrl"
+                target="_blank"
+                rel="noopener"
+              >
+                Visitar sitio oficial
+              </a>
+            </article>
+          </map-info-window>
+        </google-map>
+
+        <div class="map-status-stack" aria-live="polite">
+          <div class="status-card locating" *ngIf="isLocating">
+            <span class="spinner small"></span>
+            <span>Obteniendo tu ubicación…</span>
+          </div>
+
+          <div
+            class="status-card searching"
+            *ngIf="isSearching && !universities.length"
+          >
+            <span class="spinner"></span>
+            <div>
+              <strong>Buscando universidades en {{ searchRadiusKm }} km</strong>
+              <span>Mostraremos cada resultado en cuanto esté disponible.</span>
+            </div>
+          </div>
+
+          <div
+            class="status-card processing"
+            *ngIf="(isRefreshing || isProcessing) && universities.length"
+          >
+            <span class="spinner small"></span>
+            <div>
+              <strong>{{
+                isProcessing
+                  ? "Verificando oferta educativa"
+                  : "Actualizando la zona"
+              }}</strong>
+              <span
+                >Los {{ universities.length }} marcadores actuales permanecen
+                disponibles.</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="status-card pending"
+            *ngIf="
+              !isSearching &&
+              !isRefreshing &&
+              !isProcessing &&
+              !isComplete &&
+              !searchError
+            "
+          >
+            <app-lucide-icon name="clock" [size]="18"></app-lucide-icon>
+            <div>
+              <strong>Seguiremos ampliando esta zona</strong>
+              <span
+                >Los resultados actuales ya están disponibles y la siguiente
+                revisión se hará sola.</span
+              >
+            </div>
+          </div>
+
+          <div class="status-card error" *ngIf="searchError && !isOffline">
+            <app-lucide-icon name="alert-circle" [size]="18"></app-lucide-icon>
+            <div>
+              <strong>No se pudo completar la actualización</strong>
+              <span>{{ searchError }}</span>
+            </div>
+            <button
+              type="button"
+              (click)="retrySearch()"
+              [disabled]="isSearching || isRefreshing"
+            >
+              Reintentar
+            </button>
+          </div>
+
+          <div
+            class="status-card empty"
+            *ngIf="
+              !isSearching &&
+              !isProcessing &&
+              isComplete &&
+              !searchError &&
+              !universities.length
+            "
+          >
+            <app-lucide-icon name="compass" [size]="20"></app-lucide-icon>
+            <div>
+              <strong>Aún no hay instituciones disponibles</strong>
+              <span
+                >Intenta nuevamente o vuelve a centrar la búsqueda en tu
+                ubicación.</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <button
+          class="location-fab"
+          type="button"
+          (click)="getUserLocation()"
+          [class.locating]="isLocating"
+          [disabled]="isLocating"
+          title="Mi ubicación"
+          aria-label="Buscar desde mi ubicación actual"
+        >
+          <app-lucide-icon
+            name="target"
+            [size]="22"
+            color="#07B1C9"
+          ></app-lucide-icon>
+        </button>
+      </section>
+    </ng-container>
+
+    <ng-template #mapUnavailable>
+      <section
+        class="map-skeleton"
+        *ngIf="isMapLoading; else mapError"
+        aria-busy="true"
+        aria-label="Cargando Google Maps"
+      >
+        <div class="shimmer sk-map-canvas"></div>
+        <div class="map-loading-copy">
+          <span class="spinner"></span>
+          <div>
+            <strong>Preparando el mapa</strong>
+            <span *ngIf="universities.length"
+              >Ya recuperamos {{ universities.length }} universidades del
+              almacenamiento local.</span
+            >
+            <span *ngIf="!universities.length"
+              >Buscando tu zona y preparando los marcadores…</span
+            >
+          </div>
+        </div>
+        <span class="shimmer sk-map-fab"></span>
+      </section>
+
+      <ng-template #mapError>
+        <section class="map-error-panel" role="alert">
+          <div class="map-error-icon">
+            <app-lucide-icon name="map" [size]="27"></app-lucide-icon>
+          </div>
+          <div class="map-error-copy">
+            <span class="eyebrow">El listado sigue disponible</span>
+            <h2>No pudimos mostrar Google Maps</h2>
+            <p>{{ mapLoadError }}</p>
+            <button
+              type="button"
+              (click)="retryMapLoad()"
+              [disabled]="isOffline || isMapLoading"
+            >
+              <app-lucide-icon name="refresh-cw" [size]="16"></app-lucide-icon>
+              Reintentar mapa
+            </button>
+          </div>
+
+          <div class="cached-university-list" *ngIf="universities.length">
+            <article
+              *ngFor="
+                let university of universities | slice: 0 : 8;
+                trackBy: trackByUniversityId
+              "
+            >
+              <div>
+                <strong>{{ university.name }}</strong>
+                <span>{{
+                  university.address || "Dirección pendiente de confirmar"
+                }}</span>
+              </div>
+              <a
+                *ngIf="university.contactUrl"
+                [href]="university.contactUrl"
+                target="_blank"
+                rel="noopener"
+                aria-label="Abrir sitio oficial"
+              >
+                <app-lucide-icon
+                  name="external-link"
+                  [size]="16"
+                ></app-lucide-icon>
+              </a>
+            </article>
+          </div>
+        </section>
+      </ng-template>
+    </ng-template>
+  </main>
 </div>
-
