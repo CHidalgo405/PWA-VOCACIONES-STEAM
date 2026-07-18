@@ -1,159 +1,70 @@
 <app-admin-sidebar></app-admin-sidebar>
 
-<div class="admin-layout-content">
-  
+<main class="admin-layout-content" id="main-content">
   <header class="page-header">
     <div>
       <h1>Monitoreo de IA</h1>
-      <p>Supervisa las recomendaciones generadas por inteligencia artificial.</p>
+      <p>Audita disponibilidad, costo técnico y fallos de las operaciones A8.</p>
     </div>
-    <div class="api-status-badge">
-      <span class="pulse-dot"></span>
-      API {{ apiHealth.status }}
+    <div class="api-status-badge" [class.degraded]="apiHealth.status !== 'Operativo'">
+      <span class="pulse-dot" aria-hidden="true"></span>
+      {{ apiHealth.status }}
     </div>
   </header>
 
-  <div class="health-grid">
-    <div class="health-card">
-      <span class="label">Tasa de Éxito</span>
-      <ng-container *ngIf="isLoading"><div class="skeleton skeleton-text" style="width: 80px; height: 32px; margin-top: 5px;"></div></ng-container>
-      <span class="value success" *ngIf="!isLoading">{{ apiHealth.successRate }}</span>
-    </div>
-    <div class="health-card">
-      <span class="label">Latencia Promedio</span>
-      <ng-container *ngIf="isLoading"><div class="skeleton skeleton-text" style="width: 80px; height: 32px; margin-top: 5px;"></div></ng-container>
-      <span class="value" *ngIf="!isLoading">{{ apiHealth.latency }}</span>
-    </div>
-    <div class="health-card">
-      <span class="label">Tokens Consumidos</span>
-      <ng-container *ngIf="isLoading"><div class="skeleton skeleton-text" style="width: 80px; height: 32px; margin-top: 5px;"></div></ng-container>
-      <span class="value" *ngIf="!isLoading">{{ apiHealth.tokensUsed }}</span>
-    </div>
-  </div>
+  <section class="health-grid" aria-label="Métricas de inteligencia artificial">
+    <article class="health-card"><span class="label">Tasa de Éxito</span><span class="value success" *ngIf="!isLoading">{{ apiHealth.successRate }}</span><div class="skeleton skeleton-text" *ngIf="isLoading" aria-hidden="true"></div></article>
+    <article class="health-card"><span class="label">Latencia Promedio</span><span class="value" *ngIf="!isLoading">{{ apiHealth.latency }}</span><div class="skeleton skeleton-text" *ngIf="isLoading" aria-hidden="true"></div></article>
+    <article class="health-card"><span class="label">Tokens Consumidos</span><span class="value" *ngIf="!isLoading">{{ apiHealth.tokensUsed }}</span><div class="skeleton skeleton-text" *ngIf="isLoading" aria-hidden="true"></div></article>
+  </section>
 
-  <div class="table-card">
-    
-    <div class="toolbar">
-      <h2 *ngIf="!selectedLog">Últimas Consultas</h2>
+  <section class="table-card" aria-labelledby="ai-log-title">
+    <div class="toolbar"><div><h2 id="ai-log-title">Últimas Operaciones</h2><p>Los prompts y respuestas no se almacenan para proteger datos del estudiante.</p></div><button type="button" class="btn-secondary" (click)="fetchLogs()" [disabled]="isLoading">Actualizar</button></div>
 
-      <div class="action-bar" *ngIf="selectedLog">
-        <span class="selection-count">Log {{ selectedLog.id }} seleccionado</span>
-        <div class="action-buttons">
-          <button class="btn-action edit" (click)="viewDetails()"><app-lucide-icon name="eye" [size]="14"></app-lucide-icon> Ver Detalles Raw</button>
-          <button class="btn-action close" (click)="selectLog(selectedLog)"><app-lucide-icon name="x" [size]="14"></app-lucide-icon></button>
-        </div>
-      </div>
+    <div class="empty-state" *ngIf="errorMessage && !isLoading" role="alert">
+      <app-lucide-icon name="alert-triangle" [size]="42" color="#e74c3c" aria-hidden="true"></app-lucide-icon>
+      <h3>Error de Conexión</h3><p>{{ errorMessage }}</p><button type="button" class="btn-primary" (click)="fetchLogs()">Reintentar</button>
     </div>
 
-    <!-- Error State -->
-    <div class="empty-state" *ngIf="errorMessage && !isLoading" style="text-align: center; padding: 40px;">
-      <app-lucide-icon name="alert-triangle" [size]="48" color="#e74c3c"></app-lucide-icon>
-      <h3 style="margin-top: 15px;">Error de conexión</h3>
-      <p style="color: #7F8C8D; margin-bottom: 20px;">{{ errorMessage }}</p>
-      <button class="btn-primary" (click)="fetchLogs()">Reintentar</button>
-    </div>
-
-    <!-- Loading Skeletons for Table -->
-    <div class="table-responsive" *ngIf="isLoading">
-      <table>
-        <thead>
-          <tr>
-            <th>ID / Fecha</th>
-            <th>Estudiante</th>
-            <th>Perfil Detectado</th>
-            <th>Latencia</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let i of [1,2,3,4,5]">
-            <td><div class="skeleton skeleton-text" style="width: 100px; height: 16px;"></div><div class="skeleton skeleton-text" style="width: 140px; height: 12px; margin-top: 5px;"></div></td>
-            <td><div class="skeleton skeleton-text" style="width: 120px; height: 16px;"></div></td>
-            <td><div class="skeleton skeleton-text" style="width: 150px; height: 24px; border-radius: 12px;"></div></td>
-            <td><div class="skeleton skeleton-text" style="width: 60px; height: 24px; border-radius: 12px;"></div></td>
-            <td><div class="skeleton skeleton-text" style="width: 80px; height: 16px;"></div></td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="table-responsive" *ngIf="isLoading" aria-busy="true">
+      <table><tbody><tr *ngFor="let item of [1,2,3,4,5]" aria-hidden="true"><td colspan="7"><div class="skeleton skeleton-text" style="height: 40px;"></div></td></tr></tbody></table>
     </div>
 
     <div class="table-responsive" *ngIf="!isLoading && !errorMessage">
       <table>
-        <thead>
-          <tr>
-            <th>ID / Fecha</th>
-            <th>Estudiante</th>
-            <th>Perfil Detectado</th>
-            <th>Latencia</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
+        <thead><tr><th scope="col">Fecha</th><th scope="col">Operación</th><th scope="col">Proveedor</th><th scope="col">Latencia</th><th scope="col">Tokens</th><th scope="col">Estado</th><th scope="col">Detalle</th></tr></thead>
         <tbody>
-          <tr *ngIf="logs.length === 0">
-            <td colspan="5" style="text-align: center; padding: 40px;">No hay consultas recientes registradas.</td>
-          </tr>
-          <tr *ngFor="let log of logs" 
-              (click)="selectLog(log)" 
-              [class.selected]="selectedLog?.id === log.id">
-            
-            <td>
-              <strong>{{ log.id }}</strong><br>
-              <span class="text-muted" style="font-size: 0.8rem;">{{ log.date | date:'dd MMM yyyy, hh:mm a' }}</span>
-            </td>
-            <td>{{ log.studentName }}</td>
-            <td><span class="role-badge">{{ log.detectedProfile }}</span></td>
+          <tr *ngIf="logs.length === 0"><td colspan="7" class="empty-cell">Todavía no hay operaciones de IA registradas.</td></tr>
+          <tr *ngFor="let log of logs">
+            <td><strong>{{ log.date | date:'dd MMM yyyy' }}</strong><br><span class="text-muted">{{ log.date | date:'HH:mm:ss' }}</span></td>
+            <td><span class="role-badge">{{ log.detectedProfile || 'A8 · Universidades' }}</span><small class="student-name">{{ log.studentName }}</small></td>
+            <td translate="no">{{ log.provider || 'Groq' }}</td>
             <td><span class="latency-badge">{{ log.latency }}</span></td>
-            <td>
-              <span class="status-dot" [class.active]="log.status === 'Éxito'" [class.error]="log.status === 'Error'"></span>
-              {{ log.status }}
-            </td>
+            <td>{{ (log.tokensConsumed || 0) | number:'1.0-0':'es-MX' }}</td>
+            <td><span class="status-dot" [class.active]="log.status === 'Éxito'" [class.error]="log.status === 'Error'"></span>{{ log.status }}</td>
+            <td><button type="button" class="detail-button" (click)="viewDetails(log)" [attr.aria-label]="'Ver detalle del log ' + log.id"><app-lucide-icon name="eye" [size]="15" aria-hidden="true"></app-lucide-icon></button></td>
           </tr>
         </tbody>
       </table>
     </div>
-  </div>
+  </section>
+</main>
 
-</div>
-
-<div class="modal-overlay" *ngIf="isModalOpen">
-  <div class="modal-box modal-large">
-    
-    <div class="modal-header">
-      <h2>Detalles de la Consulta: {{ selectedLog?.id }}</h2>
-      <button class="btn-close-modal" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
-    </div>
-
+<div class="modal-overlay" *ngIf="isModalOpen && selectedLog">
+  <section class="modal-box" role="dialog" aria-modal="true" aria-labelledby="ai-log-detail-title">
+    <header class="modal-header"><div><h2 id="ai-log-detail-title">Detalle de Operación</h2><code>{{ selectedLog.id }}</code></div><button type="button" class="btn-close-modal" (click)="closeModal()" aria-label="Cerrar detalle"><app-lucide-icon name="x" [size]="20" aria-hidden="true"></app-lucide-icon></button></header>
     <div class="modal-body">
-      
-      <div class="log-meta">
-        <p><strong>Usuario:</strong> {{ selectedLog?.studentName }}</p>
-        <p><strong>Fecha:</strong> {{ selectedLog?.date | date:'dd MMM yyyy, hh:mm a' }}</p>
-        <p><strong>Estado:</strong> 
-          <span [style.color]="selectedLog?.status === 'Éxito' ? '#2ecc71' : '#e74c3c'">
-            {{ selectedLog?.status }}
-          </span>
-        </p>
-      </div>
-
-      <div class="code-section">
-        <label>Prompt Enviado (Input)</label>
-        <div class="terminal-block">
-          <code>{{ selectedLog?.prompt }}</code>
-        </div>
-      </div>
-
-      <div class="code-section" style="margin-top: 20px;">
-        <label>Respuesta de la IA (Output Raw)</label>
-        <div class="terminal-block json-block" [class.error-block]="selectedLog?.status === 'Error'">
-          <pre><code>{{ selectedLog?.response }}</code></pre>
-        </div>
-      </div>
-
+      <dl class="log-detail-grid">
+        <div><dt>Fecha</dt><dd>{{ selectedLog.date | date:'dd MMM yyyy, HH:mm:ss' }}</dd></div>
+        <div><dt>Proveedor</dt><dd translate="no">{{ selectedLog.provider || 'Groq' }}</dd></div>
+        <div><dt>Latencia</dt><dd>{{ selectedLog.latency }}</dd></div>
+        <div><dt>Tokens</dt><dd>{{ (selectedLog.tokensConsumed || 0) | number:'1.0-0':'es-MX' }}</dd></div>
+        <div><dt>Estado</dt><dd>{{ selectedLog.status }}</dd></div>
+        <div><dt>Operación</dt><dd>{{ selectedLog.detectedProfile || 'Matching de universidades' }}</dd></div>
+      </dl>
+      <div class="error-detail" *ngIf="selectedLog.errorMessage"><strong>Error Registrado</strong><p>{{ selectedLog.errorMessage }}</p></div>
+      <div class="privacy-note" *ngIf="!selectedLog.errorMessage"><app-lucide-icon name="shield-check" [size]="18" aria-hidden="true"></app-lucide-icon><p>La operación terminó correctamente. El sistema conserva métricas, no el contenido del prompt ni la respuesta.</p></div>
     </div>
-
-    <div class="modal-footer">
-      <button class="btn-secondary" (click)="closeModal()">Cerrar</button>
-    </div>
-
-  </div>
+    <footer class="modal-footer"><button type="button" class="btn-secondary" (click)="closeModal()">Cerrar</button></footer>
+  </section>
 </div>

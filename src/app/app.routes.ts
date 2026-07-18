@@ -42,6 +42,7 @@ export const routes: Routes = [
   { path: 'admin/test', loadComponent: () => import('./pages/admin/manage-test/manage-test.component').then(m => m.ManageTestComponent), canActivate: [authGuard, adminGuard] },
   { path: 'admin/simulators', loadComponent: () => import('./pages/admin/manage-simulators/manage-simulators.component').then(m => m.ManageSimulatorsComponent), canActivate: [authGuard, adminGuard] },
   { path: 'admin/calibration', loadComponent: () => import('./pages/admin/manage-calibration/manage-calibration.component').then(m => m.ManageCalibrationComponent), canActivate: [authGuard, adminGuard] },
+  { path: 'admin/catalogs', loadComponent: () => import('./pages/admin/manage-catalogs/manage-catalogs.component').then(m => m.ManageCatalogsComponent), canActivate: [authGuard, adminGuard] },
   { path: 'admin/universities', loadComponent: () => import('./pages/admin/manage-universities/manage-universities.component').then(m => m.ManageUniversitiesComponent), canActivate: [authGuard, adminGuard] },
   { path: 'admin/ai-logs', loadComponent: () => import('./pages/admin/ai-logs/ai-logs.component').then(m => m.AiLogsComponent), canActivate: [authGuard, adminGuard] },
   { path: 'admin/settings', loadComponent: () => import('./pages/admin/settings/settings.component').then(m => m.SettingsComponent), canActivate: [authGuard, adminGuard] },

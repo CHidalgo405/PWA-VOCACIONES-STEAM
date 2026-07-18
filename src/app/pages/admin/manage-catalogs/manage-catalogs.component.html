@@ -1,0 +1,95 @@
+<app-admin-sidebar></app-admin-sidebar>
+
+<main class="admin-layout-content catalog-page" id="main-content">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Motor Determinista · A6 + A7</span>
+      <h1>Catálogos Vocacionales</h1>
+      <p>Edita la materia prima que convierte un perfil STEAM en vocaciones, carreras y narrativa.</p>
+    </div>
+    <button type="button" class="btn-primary" *ngIf="activeTab !== 'axes'" (click)="openCreate()">
+      <app-lucide-icon name="plus" [size]="16" aria-hidden="true"></app-lucide-icon>
+      {{ activeTab === 'vocations' ? 'Nueva Vocación' : 'Nueva Carrera' }}
+    </button>
+  </header>
+
+  <nav class="catalog-tabs" aria-label="Tipos de catálogo">
+    <button type="button" [class.active]="activeTab === 'vocations'" (click)="switchTab('vocations')"><span>A6</span> Vocaciones <strong>{{ vocations.length }}</strong></button>
+    <button type="button" [class.active]="activeTab === 'careers'" (click)="switchTab('careers')"><span>A7</span> Carreras <strong>{{ careers.length }}</strong></button>
+    <button type="button" [class.active]="activeTab === 'axes'" (click)="switchTab('axes')"><span>RG</span> Narrativa STEAM <strong>{{ axisMeta.length }}</strong></button>
+  </nav>
+
+  <section class="axis-filter" *ngIf="activeTab !== 'axes'" aria-label="Filtrar por eje STEAM">
+    <button type="button" [class.active]="filterAxis === ''" (click)="filterAxis = ''">Todos</button>
+    <button type="button" *ngFor="let axis of axes" [class.active]="filterAxis === axis.value" [attr.data-axis]="axis.value" (click)="filterAxis = axis.value">
+      <span>{{ axis.letter }}</span>{{ axis.label }}
+    </button>
+  </section>
+
+  <div class="error-panel" *ngIf="errorMessage" role="alert">{{ errorMessage }} <button type="button" (click)="load()">Reintentar</button></div>
+  <div class="loading-grid" *ngIf="isLoading" aria-busy="true"><div *ngFor="let item of [1,2,3,4,5,6]" aria-hidden="true"></div></div>
+
+  <section class="catalog-grid" *ngIf="!isLoading && activeTab === 'vocations'" aria-label="Vocaciones A6">
+    <article class="catalog-card" *ngFor="let item of filteredVocations" [attr.data-axis]="item.axis">
+      <header><span class="axis-mark">{{ axisLetter(item.axis) }}</span><span>{{ axisLabel(item.axis) }}</span></header>
+      <h2>{{ item.name }}</h2>
+      <p>{{ item.description }}</p>
+      <div class="token-list"><span *ngFor="let skill of item.skills">{{ skill }}</span></div>
+      <footer><button type="button" (click)="openVocation(item)">Editar</button><button type="button" class="delete" (click)="deleteVocation(item)" [attr.aria-label]="'Eliminar ' + item.name"><app-lucide-icon name="trash-2" [size]="15" aria-hidden="true"></app-lucide-icon></button></footer>
+    </article>
+  </section>
+
+  <section class="catalog-grid" *ngIf="!isLoading && activeTab === 'careers'" aria-label="Carreras A7">
+    <article class="catalog-card" *ngFor="let item of filteredCareers" [attr.data-axis]="item.axis">
+      <header><span class="axis-mark">{{ axisLetter(item.axis) }}</span><span>{{ axisLabel(item.axis) }}</span></header>
+      <h2>{{ item.careerName }}</h2>
+      <p>{{ item.studyPlanHighlights.join(' · ') || 'Sin plan de estudios resumido' }}</p>
+      <div class="simulator-link" [class.missing]="!item.relatedSimulatorSlug"><app-lucide-icon name="gamepad-2" [size]="14" aria-hidden="true"></app-lucide-icon>{{ item.relatedSimulatorSlug || 'Sin simulador vinculado' }}</div>
+      <div class="token-list"><span *ngFor="let field of item.careerFields">{{ field }}</span></div>
+      <footer><button type="button" (click)="openCareer(item)">Editar</button><button type="button" class="delete" (click)="deleteCareer(item)" [attr.aria-label]="'Eliminar ' + item.careerName"><app-lucide-icon name="trash-2" [size]="15" aria-hidden="true"></app-lucide-icon></button></footer>
+    </article>
+  </section>
+
+  <section class="axis-grid" *ngIf="!isLoading && activeTab === 'axes'" aria-label="Narrativa por eje STEAM">
+    <article *ngFor="let item of axisMeta" [attr.data-axis]="item.axis">
+      <span class="axis-letter">{{ axisLetter(item.axis) }}</span>
+      <div><span class="axis-name">{{ item.label }}</span><h2>{{ item.archetype }}</h2><p>{{ item.strengthDesc }}</p><div class="token-list"><span *ngFor="let style of item.workStyle">{{ style }}</span></div></div>
+      <button type="button" (click)="openAxis(item)" [attr.aria-label]="'Editar narrativa de ' + item.label"><app-lucide-icon name="pencil" [size]="16" aria-hidden="true"></app-lucide-icon></button>
+    </article>
+  </section>
+</main>
+
+<div class="modal-overlay" *ngIf="isModalOpen">
+  <section class="editor-modal" role="dialog" aria-modal="true" aria-labelledby="catalog-editor-title">
+    <header><div><span class="eyebrow">Fuente de Verdad del Motor</span><h2 id="catalog-editor-title">{{ editId ? 'Editar' : 'Crear' }} {{ activeTab === 'vocations' ? 'Vocación A6' : activeTab === 'careers' ? 'Carrera A7' : 'Narrativa de Eje' }}</h2></div><button type="button" (click)="closeModal()" aria-label="Cerrar editor"><app-lucide-icon name="x" [size]="20" aria-hidden="true"></app-lucide-icon></button></header>
+
+    <div class="form-grid" *ngIf="activeTab === 'vocations'">
+      <label>Nombre<input name="vocationName" type="text" autocomplete="off" [(ngModel)]="vocationForm.name" placeholder="Nombre de la vocación…"></label>
+      <label>Eje STEAM<select name="vocationAxis" [(ngModel)]="vocationForm.axis"><option *ngFor="let axis of axes" [value]="axis.value">{{ axis.label }}</option></select></label>
+      <label class="full">Descripción<textarea name="vocationDescription" [(ngModel)]="vocationForm.description" rows="4" placeholder="Qué hace y qué aporta esta vocación…"></textarea></label>
+      <label class="full">Habilidades Separadas por Coma<input name="vocationSkills" type="text" autocomplete="off" [(ngModel)]="vocationForm.skillsText" placeholder="Análisis, comunicación, prototipado…"></label>
+      <label>Icono Lucide<input name="vocationIcon" type="text" autocomplete="off" [(ngModel)]="vocationForm.icon" placeholder="sparkles…"></label>
+    </div>
+
+    <div class="form-grid" *ngIf="activeTab === 'careers'">
+      <label>Nombre de la Carrera<input name="careerName" type="text" autocomplete="off" [(ngModel)]="careerForm.careerName" placeholder="Ingeniería de Software…"></label>
+      <label>Eje STEAM<select name="careerAxis" [(ngModel)]="careerForm.axis"><option *ngFor="let axis of axes" [value]="axis.value">{{ axis.label }}</option></select></label>
+      <label class="full">Temas del Plan de Estudios<input name="careerHighlights" type="text" autocomplete="off" [(ngModel)]="careerForm.highlightsText" placeholder="Algoritmos, bases de datos, arquitectura…"></label>
+      <label class="full">Campos Laborales<input name="careerFields" type="text" autocomplete="off" [(ngModel)]="careerForm.fieldsText" placeholder="Cloud, fintech, consultoría…"></label>
+      <label>Slug del Simulador<input name="careerSimulator" type="text" autocomplete="off" [(ngModel)]="careerForm.relatedSimulatorSlug" placeholder="ciberseguridad…"></label>
+      <label>Icono Lucide<input name="careerIcon" type="text" autocomplete="off" [(ngModel)]="careerForm.icon" placeholder="graduation-cap…"></label>
+    </div>
+
+    <div class="form-grid" *ngIf="activeTab === 'axes'">
+      <label>Etiqueta<input name="axisLabel" type="text" autocomplete="off" [(ngModel)]="axisForm.label"></label>
+      <label>Adjetivo<input name="axisAdjective" type="text" autocomplete="off" [(ngModel)]="axisForm.adjective"></label>
+      <label>Arquetipo<input name="axisArchetype" type="text" autocomplete="off" [(ngModel)]="axisForm.archetype"></label>
+      <label>Icono<input name="axisIcon" type="text" autocomplete="off" [(ngModel)]="axisForm.icon"></label>
+      <label class="full">Título de Fortaleza<input name="axisStrengthTitle" type="text" autocomplete="off" [(ngModel)]="axisForm.strengthTitle"></label>
+      <label class="full">Descripción de Fortaleza<textarea name="axisStrengthDesc" [(ngModel)]="axisForm.strengthDesc" rows="4"></textarea></label>
+      <label class="full">Estilos de Trabajo Separados por Coma<input name="axisWorkStyle" type="text" autocomplete="off" [(ngModel)]="axisForm.workStyleText"></label>
+    </div>
+
+    <footer><button type="button" class="secondary" (click)="closeModal()">Cancelar</button><button type="button" class="primary" (click)="save()" [disabled]="isSaving">{{ isSaving ? 'Guardando…' : 'Guardar Cambios' }}</button></footer>
+  </section>
+</div>

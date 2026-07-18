@@ -7,7 +7,7 @@
       <h1>Resumen del Sistema</h1>
       <p>Métricas principales de Vocaciones STEAM.</p>
     </div>
-    <button class="btn-export" (click)="exportDashboardPdf()"><app-lucide-icon name="download" [size]="16" style="margin-right: 5px;"></app-lucide-icon> Exportar PDF</button>
+    <button type="button" class="btn-export" (click)="exportDashboardPdf()"><app-lucide-icon name="download" [size]="16" style="margin-right: 5px;"></app-lucide-icon> Exportar PDF</button>
   </header>
 
   <div class="kpi-grid">
@@ -82,11 +82,9 @@
         <thead>
           <tr>
             <th>Estudiante</th>
-            <th>Institución</th>
             <th>Perfil STEAM</th>
             <th>Fecha</th>
             <th>Estado</th>
-            <th style="text-align: center;">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -100,17 +98,11 @@
                 </div>
               </div>
             </td>
-            <td>{{ user.institution }}</td>
             <td><span class="badge" [ngClass]="user.profile | lowercase">{{ user.profile }}</span></td>
             <td>{{ user.date }}</td>
             <td>
               <span class="status-dot" [class.done]="user.status === 'Completado'"></span>
               {{ user.status }}
-            </td>
-            <td style="text-align: center;">
-              <button class="btn-action-pdf" (click)="downloadStudentPdf(user)" title="Descargar Reporte Vocacional">
-                <app-lucide-icon name="file-text" [size]="16" color="#07B1C9"></app-lucide-icon>
-              </button>
             </td>
           </tr>
         </tbody>
@@ -118,17 +110,6 @@
     </div>
   </div>
 
-
-  <!-- Template oculto para PDF individual de alumnos (OFF-SCREEN) -->
-  <div id="pdf-report-template-wrapper" style="position: absolute; left: -9999px; top: 0;">
-    <app-pdf-report-template 
-      [dominantTraits]="selectedStudentPdf.dominantTraits"
-      [description]="selectedStudentPdf.description"
-      [greeting]="selectedStudentPdf.greeting"
-      [steamAreas]="selectedStudentPdf.steamAreas"
-      [recommendations]="selectedStudentPdf.recommendations">
-    </app-pdf-report-template>
-  </div>
 
   <!-- Template oculto para Reporte de Gestión Admin (OFF-SCREEN) -->
   <div id="admin-report-template-wrapper" style="position: absolute; left: -9999px; top: 0;">

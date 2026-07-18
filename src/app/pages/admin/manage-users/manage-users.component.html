@@ -1,8 +1,8 @@
 <app-admin-sidebar></app-admin-sidebar>
 
-<div class="admin-layout-content">
+<main class="admin-layout-content" id="main-content">
 
-  <div class="toast-message" [class.show]="showToast"
+  <div class="toast-message" [class.show]="showToast" aria-live="polite"
     style="position: fixed; top: 20px; right: 20px; background: #2C3E50; color: white; padding: 15px 25px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.3s ease, margin-top 0.3s ease; opacity: 0; pointer-events: none;"
     [style.opacity]="showToast ? '1' : '0'">
     {{ toastMessage }}
@@ -13,16 +13,18 @@
       <h1>Gestión de Usuarios</h1>
       <p>Administra accesos y permisos del sistema.</p>
     </div>
-    <button class="btn-primary" (click)="openModal('create')">+ Nuevo Usuario</button>
+    <button type="button" class="btn-primary" (click)="openModal('create')">+ Nuevo Usuario</button>
   </header>
 
   <!-- BÚSQUEDA REDISEÑADA -->
   <div class="premium-search-container">
     <div class="search-input-wrapper">
       <span class="search-icon"><app-lucide-icon name="search" [size]="18"></app-lucide-icon></span>
-      <input type="text" placeholder="Buscar por nombre o email..." [(ngModel)]="searchTerm">
+      <label class="sr-only" for="user-search">Buscar usuarios</label>
+      <input id="user-search" name="userSearch" type="search" autocomplete="off" placeholder="Buscar por nombre o email…" [(ngModel)]="searchTerm">
     </div>
-    <select [(ngModel)]="filterRole" class="search-select">
+    <label class="sr-only" for="user-role-filter">Filtrar por rol</label>
+    <select id="user-role-filter" name="userRoleFilter" [(ngModel)]="filterRole" class="search-select">
       <option value="">Todos los Roles</option>
       <option value="Estudiante">Estudiante</option>
       <option value="Admin">Admin</option>
@@ -40,15 +42,15 @@
       </div>
 
       <div class="action-bar-full" *ngIf="selectedUsers.length > 0">
-        <button class="btn-action edit flex-1" *ngIf="selectedUsers.length === 1" (click)="openModal('edit')"
+        <button type="button" class="btn-action edit flex-1" *ngIf="selectedUsers.length === 1" (click)="openModal('edit')"
           [disabled]="isSubmitting"><app-lucide-icon name="pencil" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Editar</button>
-        <button class="btn-action moderate flex-1" *ngIf="selectedUsers.length === 1" (click)="openSuspensionModal(selectedUsers[0])"
+        <button type="button" class="btn-action moderate flex-1" *ngIf="selectedUsers.length === 1" (click)="openSuspensionModal(selectedUsers[0])"
           [disabled]="isSubmitting"><app-lucide-icon name="shield" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Moderar</button>
-        <button class="btn-action delete flex-1" (click)="deleteSelectedUsers()" [disabled]="isSubmitting">
+        <button type="button" class="btn-action delete flex-1" (click)="deleteSelectedUsers()" [disabled]="isSubmitting">
           <span *ngIf="isSubmitting">⏳</span>
           <span *ngIf="!isSubmitting"><app-lucide-icon name="trash-2" [size]="16" style="margin-right: 4px;"></app-lucide-icon></span> Eliminar
         </button>
-        <button class="btn-action close flex-none" (click)="clearSelection()" [disabled]="isSubmitting"><app-lucide-icon name="x" [size]="16"></app-lucide-icon></button>
+        <button type="button" class="btn-action close flex-none" (click)="clearSelection()" [disabled]="isSubmitting" aria-label="Limpiar selección"><app-lucide-icon name="x" [size]="16" aria-hidden="true"></app-lucide-icon></button>
       </div>
 
     </div>
@@ -58,20 +60,20 @@
         <thead>
           <tr>
             <th style="width: 40px; text-align: center;"><app-lucide-icon name="check" [size]="16" style="display: block; margin: 0 auto;"></app-lucide-icon></th>
-            <th class="sortable" (click)="sortBy('fullname')">
-              Nombre <app-lucide-icon [name]="sortIcon('fullname')" [size]="13"></app-lucide-icon>
+            <th><button type="button" class="sortable-button" (click)="sortBy('fullname')">
+              Nombre <app-lucide-icon [name]="sortIcon('fullname')" [size]="13"></app-lucide-icon></button>
             </th>
-            <th class="sortable" (click)="sortBy('email')">
-              Email <app-lucide-icon [name]="sortIcon('email')" [size]="13"></app-lucide-icon>
+            <th><button type="button" class="sortable-button" (click)="sortBy('email')">
+              Email <app-lucide-icon [name]="sortIcon('email')" [size]="13"></app-lucide-icon></button>
             </th>
-            <th class="sortable" (click)="sortBy('role')">
-              Rol <app-lucide-icon [name]="sortIcon('role')" [size]="13"></app-lucide-icon>
+            <th><button type="button" class="sortable-button" (click)="sortBy('role')">
+              Rol <app-lucide-icon [name]="sortIcon('role')" [size]="13"></app-lucide-icon></button>
             </th>
-            <th class="sortable" (click)="sortBy('createdAt')">
-              Registro <app-lucide-icon [name]="sortIcon('createdAt')" [size]="13"></app-lucide-icon>
+            <th><button type="button" class="sortable-button" (click)="sortBy('createdAt')">
+              Registro <app-lucide-icon [name]="sortIcon('createdAt')" [size]="13"></app-lucide-icon></button>
             </th>
-            <th class="sortable" (click)="sortBy('isEmailVerified')">
-              Estado <app-lucide-icon [name]="sortIcon('isEmailVerified')" [size]="13"></app-lucide-icon>
+            <th><button type="button" class="sortable-button" (click)="sortBy('isEmailVerified')">
+              Estado <app-lucide-icon [name]="sortIcon('isEmailVerified')" [size]="13"></app-lucide-icon></button>
             </th>
           </tr>
         </thead>
@@ -94,18 +96,16 @@
 
         <tbody *ngIf="!isLoading">
           <!-- RESULTADOS REALES -->
-          <tr *ngFor="let u of paginatedUsers" (click)="toggleUserSelection(u, $event)" [class.selected]="isSelected(u)"
-            style="cursor: pointer;">
+          <tr *ngFor="let u of paginatedUsers" [class.selected]="isSelected(u)">
             <td style="text-align: center;">
-              <input type="checkbox" [checked]="isSelected(u)"
+              <input type="checkbox" [checked]="isSelected(u)" [attr.aria-label]="'Seleccionar ' + u.fullname"
                 (click)="$event.stopPropagation(); toggleUserSelection(u, $event)"
                 style="cursor: pointer; width: 16px; height: 16px;">
             </td>
             <td>
-              <a href="javascript:void(0)" (click)="$event.stopPropagation(); openModal('view', u, $event)"
-                style="color: var(--primary-color); text-decoration: none; font-weight: bold;">
+              <button type="button" class="user-detail-link" (click)="openModal('view', u, $event)">
                 {{ u.fullname }}
-              </a>
+              </button>
             </td>
             <td>{{ u.email }}</td>
             <td><span class="role-badge">{{ u.role === 'admin' ? 'Admin' : 'Estudiante' }}</span></td>
@@ -124,16 +124,16 @@
         <div class="empty-icon"><app-lucide-icon name="user-search" [size]="48" color="#bdc3c7"></app-lucide-icon></div>
         <h3>No se encontraron usuarios</h3>
         <p>No hay estudiantes ni administradores que coincidan con tu búsqueda actual.</p>
-        <button class="btn-secondary" style="margin-top: 15px;" (click)="searchTerm = ''; filterRole = ''">Limpiar Filtros</button>
+        <button type="button" class="btn-secondary" style="margin-top: 15px;" (click)="searchTerm = ''; filterRole = ''">Limpiar Filtros</button>
       </div>
     </div>
 
     <!-- PAGINACIÓN PREMIUM -->
     <div class="premium-pagination">
       <div class="items-per-page-premium">
-        <label>Mostrar</label>
+        <label for="users-per-page">Mostrar</label>
         <div class="select-wrapper">
-          <select [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">
+          <select id="users-per-page" name="usersPerPage" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">
             <option *ngFor="let option of itemsPerPageOptions" [value]="option">{{ option }}</option>
           </select>
         </div>
@@ -144,10 +144,10 @@
       </div>
 
       <div class="pagination-actions">
-        <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" class="btn-pagination">
+        <button type="button" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" class="btn-pagination">
           <span class="icon">&#8592;</span> Anterior
         </button>
-        <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages" class="btn-pagination">
+        <button type="button" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages" class="btn-pagination">
           Siguiente <span class="icon">&#8594;</span>
         </button>
       </div>
@@ -155,7 +155,7 @@
 
   </div>
 
-</div>
+</main>
 
 <!-- OVERLAY DE CONFIRMACIÓN PARA CAMBIOS SIN GUARDAR -->
 <div class="custom-alert-overlay" *ngIf="showUnsavedOverlay">
@@ -166,14 +166,14 @@
       Tienes datos sin guardar que se perderán si continúas. ¿Qué deseas hacer?
     </p>
     <div style="display: flex; gap: 10px; width: 100%; justify-content: center;">
-      <button class="btn-action close" (click)="cancelUnsavedChanges()" style="background: #f5f5f5;">Cancelar</button>
-      <button class="btn-action delete" (click)="confirmUnsavedChanges()" style="background: #fbdbd8;">Perder
+      <button type="button" class="btn-action close" (click)="cancelUnsavedChanges()" style="background: #f5f5f5;">Cancelar</button>
+      <button type="button" class="btn-action delete" (click)="confirmUnsavedChanges()" style="background: #fbdbd8;">Perder
         cambios</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="isModalOpen">
+<div class="modal-overlay" *ngIf="isModalOpen" role="presentation">
 
   <!-- Flechas de Navegación (visibles en view y edit) -->
   <button type="button" *ngIf="modalMode !== 'create'" (click)="previousUser()" [disabled]="viewedUserIndex <= 0"
@@ -183,12 +183,12 @@
 
   <div class="modal-box" [class.view-mode]="modalMode === 'view' || modalMode === 'edit'">
 
-    <button class="btn-close-modal-floating" (click)="closeModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
+    <button type="button" class="btn-close-modal-floating" (click)="closeModal()" aria-label="Cerrar detalle de usuario"><app-lucide-icon name="x" [size]="20" aria-hidden="true"></app-lucide-icon></button>
 
     <!-- SIDEBAR DEL MODAL (En View y Edit Mode) -->
     <div class="modal-sidebar" *ngIf="modalMode === 'view' || modalMode === 'edit'">
       <div class="avatar-container">
-        <img *ngIf="userForm.avatarUrl" [src]="userForm.avatarUrl" alt="Avatar">
+        <img *ngIf="userForm.avatarUrl" [src]="userForm.avatarUrl" alt="" width="80" height="80">
         <div *ngIf="!userForm.avatarUrl" class="avatar-placeholder">
           {{ userForm.nombre.charAt(0) | uppercase }}{{ userForm.apellidos.charAt(0) | uppercase }}
         </div>
@@ -197,16 +197,10 @@
       <p class="sidebar-role">{{ userForm.role === 'admin' ? 'Administrador' : 'Estudiante' }}</p>
 
       <div class="sidebar-menu">
-        <button class="menu-item active">
+        <div class="menu-item active">
           <app-lucide-icon [name]="modalMode === 'edit' ? 'pencil' : 'user'" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
           {{ modalMode === 'edit' ? 'Editando' : 'Detalles de Cuenta' }}
-        </button>
-        <button class="menu-item" *ngIf="userForm.role === 'student'">
-          <app-lucide-icon name="bar-chart-3" [size]="16" style="margin-right: 6px;"></app-lucide-icon> Progreso STEAM
-        </button>
-        <button class="menu-item">
-          <app-lucide-icon name="settings" [size]="16" style="margin-right: 6px;"></app-lucide-icon> Preferencias
-        </button>
+        </div>
       </div>
 
       <!-- Botón de volver a vista (solo en edit) -->
@@ -230,24 +224,24 @@
           <div class="form-grid">
             <!-- Nombres -->
             <div class="input-group">
-              <label>Nombre <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
-              <input type="text" name="nombre" [(ngModel)]="userForm.nombre" (ngModelChange)="onFormChange()"
+              <label for="admin-user-name">Nombre <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
+              <input id="admin-user-name" type="text" name="nombre" autocomplete="given-name" [(ngModel)]="userForm.nombre" (ngModelChange)="onFormChange()"
                 placeholder="Nombre" [readonly]="modalMode === 'view'" required maxlength="50"
                 pattern="^(?!.*(.)\\1{3})[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s,.'-]{2,50}$" #nombreModel="ngModel"
                 [ngClass]="{'invalid-input': nombreModel.invalid && nombreModel.touched && modalMode !== 'view'}">
             </div>
 
             <div class="input-group">
-              <label>Apellidos <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
-              <input type="text" name="apellidos" [(ngModel)]="userForm.apellidos" (ngModelChange)="onFormChange()"
+              <label for="admin-user-lastname">Apellidos <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
+              <input id="admin-user-lastname" type="text" name="apellidos" autocomplete="family-name" [(ngModel)]="userForm.apellidos" (ngModelChange)="onFormChange()"
                 placeholder="Apellidos" [readonly]="modalMode === 'view'" required maxlength="50"
                 pattern="^(?!.*(.)\\1{3})[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s,.'-]{2,50}$" #apellidoModel="ngModel"
                 [ngClass]="{'invalid-input': apellidoModel.invalid && apellidoModel.touched && modalMode !== 'view'}">
             </div>
 
             <div class="input-group full-width">
-              <label>Email <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
-              <input type="email" name="email" [(ngModel)]="userForm.email" (ngModelChange)="onFormChange()"
+              <label for="admin-user-email">Email <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
+              <input id="admin-user-email" type="email" name="email" autocomplete="email" [(ngModel)]="userForm.email" (ngModelChange)="onFormChange()"
                 placeholder="nombre@ejemplo.com" [readonly]="modalMode === 'view'" required maxlength="100"
                 pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$" #emailModel="ngModel"
                 [ngClass]="{'invalid-input': emailModel.invalid && emailModel.touched && modalMode !== 'view'}">
@@ -261,6 +255,11 @@
               </div>
 
               <div class="input-group">
+                <label>Rol de Acceso</label>
+                <div class="readonly-value">{{ userForm.role === 'admin' ? 'Administrador' : 'Estudiante' }}</div>
+              </div>
+
+              <div class="input-group">
                 <label>Estado de Verificación</label>
                 <div class="readonly-value">
                   <span class="status-dot" [class.active]="userForm.isEmailVerified"></span>
@@ -274,45 +273,56 @@
               </div>
             </ng-container>
 
-            <!-- Campos extra en modo Edit (readonly) -->
-            <ng-container *ngIf="modalMode === 'edit'">
-              <div class="input-group">
-                <label>Estado de Verificación</label>
-                <div class="readonly-value">
-                  <span class="status-dot" [class.active]="userForm.isEmailVerified"></span>
-                  {{ userForm.isEmailVerified ? 'Correo Verificado' : 'Pendiente' }}
-                </div>
-              </div>
-
-              <div class="input-group">
-                <label>Fecha de Registro</label>
-                <div class="readonly-value">{{ userForm.createdAt | date:'mediumDate' }}</div>
-              </div>
-            </ng-container>
-
-            <!-- Contraseñas (Solo Create/Edit) -->
+            <!-- Controles administrativos reales -->
             <ng-container *ngIf="modalMode !== 'view'">
               <div class="input-group">
-                <label>Contraseña <span *ngIf="modalMode === 'create'" style="color: red;">*</span></label>
+                <label for="admin-user-title">Título</label>
+                <input id="admin-user-title" type="text" name="title" [(ngModel)]="userForm.title"
+                  (ngModelChange)="onFormChange()" autocomplete="off" placeholder="Explorador STEAM…" maxlength="80">
+              </div>
+
+              <div class="input-group">
+                <label for="admin-user-role">Rol de Acceso</label>
+                <select id="admin-user-role" name="role" [(ngModel)]="userForm.role" (ngModelChange)="onFormChange()">
+                  <option value="student">Estudiante</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+
+              <label class="verification-control full-width">
+                <input type="checkbox" name="isEmailVerified" [(ngModel)]="userForm.isEmailVerified" (ngModelChange)="onFormChange()">
+                <span><strong>Correo Verificado</strong><small>Permite iniciar sesión sin completar un OTP pendiente.</small></span>
+              </label>
+
+              <div class="input-group" *ngIf="modalMode === 'edit'">
+                <label>Fecha de Registro</label>
+                <div class="readonly-value">{{ userForm.createdAt | date:'mediumDate' }}</div>
+              </div>
+            </ng-container>
+
+            <!-- Contraseña temporal solo al crear -->
+            <ng-container *ngIf="modalMode === 'create'">
+              <div class="input-group">
+                <label for="admin-user-password">Contraseña <span *ngIf="modalMode === 'create'" style="color: red;">*</span></label>
                 <div class="input-with-icon">
-                  <input [type]="showPassword ? 'text' : 'password'" name="password" [(ngModel)]="userForm.password"
+                  <input id="admin-user-password" [type]="showPassword ? 'text' : 'password'" name="password" autocomplete="new-password" [(ngModel)]="userForm.password"
                     (ngModelChange)="onFormChange()" placeholder="••••••••" minlength="8" maxlength="30"
                     [required]="modalMode === 'create'">
-                  <span class="icon-eye" (click)="togglePasswordVisibility('pass')" style="cursor: pointer; display: flex;">
+                  <button type="button" class="icon-eye" (click)="togglePasswordVisibility('pass')" aria-label="Mostrar u ocultar contraseña">
                     <app-lucide-icon [name]="showPassword ? 'eye' : 'eye-off'" [size]="16"></app-lucide-icon>
-                  </span>
+                  </button>
                 </div>
               </div>
 
               <div class="input-group">
-                <label>Repetir contraseña <span *ngIf="modalMode === 'create'" style="color: red;">*</span></label>
+                <label for="admin-user-confirm-password">Repetir contraseña <span *ngIf="modalMode === 'create'" style="color: red;">*</span></label>
                 <div class="input-with-icon">
-                  <input [type]="showConfirmPassword ? 'text' : 'password'" name="confirmPassword"
+                  <input id="admin-user-confirm-password" [type]="showConfirmPassword ? 'text' : 'password'" name="confirmPassword" autocomplete="new-password"
                     [(ngModel)]="userForm.confirmPassword" (ngModelChange)="onFormChange()" placeholder="••••••••"
                     minlength="8" maxlength="30" [required]="modalMode === 'create'">
-                  <span class="icon-eye" (click)="togglePasswordVisibility('confirm')" style="cursor: pointer; display: flex;">
+                  <button type="button" class="icon-eye" (click)="togglePasswordVisibility('confirm')" aria-label="Mostrar u ocultar confirmación de contraseña">
                     <app-lucide-icon [name]="showConfirmPassword ? 'eye' : 'eye-off'" [size]="16"></app-lucide-icon>
-                  </span>
+                  </button>
                 </div>
               </div>
             </ng-container>
@@ -355,7 +365,7 @@
   <div class="modal-box suspension-box" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h2><app-lucide-icon name="shield" [size]="20" style="margin-right: 8px; vertical-align: middle;"></app-lucide-icon> Moderar cuenta</h2>
-        <button type="button" class="btn-close-modal" (click)="closeSuspensionModal()"><app-lucide-icon name="x" [size]="20"></app-lucide-icon></button>
+        <button type="button" class="btn-close-modal" (click)="closeSuspensionModal()" aria-label="Cerrar moderación"><app-lucide-icon name="x" [size]="20" aria-hidden="true"></app-lucide-icon></button>
       </div>
 
       <div class="suspension-body">
@@ -385,9 +395,9 @@
 
         <!-- Motivo (suspensión y baneo) -->
         <div class="field-group" *ngIf="suspensionAction !== 'reactivate'">
-          <label>Motivo <span class="optional">(se le mostrará al usuario)</span></label>
-          <textarea [(ngModel)]="suspensionReason" rows="3"
-            placeholder="Ej. Incumplimiento de los términos de uso."></textarea>
+          <label for="suspension-reason">Motivo <span class="optional">(se le mostrará al usuario)</span></label>
+          <textarea id="suspension-reason" name="suspensionReason" [(ngModel)]="suspensionReason" rows="3"
+            placeholder="Ej. Incumplimiento de los términos de uso…"></textarea>
         </div>
 
         <p class="reactivate-note" *ngIf="suspensionAction === 'reactivate'">
@@ -400,7 +410,7 @@
         <button type="button" class="btn-primary"
           [class.danger]="suspensionAction !== 'reactivate'"
           (click)="applySuspension()" [disabled]="isSuspending">
-          <span *ngIf="isSuspending">⏳ Aplicando...</span>
+          <span *ngIf="isSuspending">⏳ Aplicando…</span>
           <span *ngIf="!isSuspending">
             {{ suspensionAction === 'reactivate' ? 'Reactivar cuenta' : (suspensionAction === 'ban' ? 'Banear cuenta' : 'Suspender cuenta') }}
           </span>

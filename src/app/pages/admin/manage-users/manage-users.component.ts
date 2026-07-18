@@ -5,7 +5,6 @@ import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-s
 import { AdminService, AdminUser, SuspensionAction } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
-import { AuthService } from '../../../core/services/auth.service';
 import { catchError } from 'rxjs/operators';
 import { of, forkJoin } from 'rxjs';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
@@ -149,7 +148,6 @@ export class ManageUsersComponent implements OnInit {
   constructor(
     private adminService: AdminService, 
     private toastService: ToastService, 
-    private authService: AuthService,
     private dialogService: DialogService
   ) {}
 
@@ -419,7 +417,10 @@ export class ManageUsersComponent implements OnInit {
 
     const payload = {
       fullname: `${this.userForm.nombre.trim()} ${this.userForm.apellidos.trim()}`,
-      email: this.userForm.email.trim()
+      email: this.userForm.email.trim(),
+      role: this.userForm.role as 'student' | 'admin',
+      title: this.userForm.title.trim(),
+      isEmailVerified: this.userForm.isEmailVerified,
     };
 
     if (this.modalMode === 'edit') {
@@ -438,11 +439,11 @@ export class ManageUsersComponent implements OnInit {
         }
       });
     } else {
-      this.authService.register(payload.email, payload.fullname, this.userForm.password).subscribe({
+      this.adminService.createUser({ ...payload, password: this.userForm.password }).subscribe({
         next: (res) => {
           this.isSubmitting = false;
           this.isFormDirty = false;
-          this.displayToast('Usuario creado exitosamente. Se le ha enviado el código OTP.');
+          this.displayToast('Usuario creado y listo para iniciar sesión.');
           this.isModalOpen = false;
           this.loadUsers();
         },
@@ -460,7 +461,7 @@ export class ManageUsersComponent implements OnInit {
     const count = this.selectedUsers.length;
     const msg = count > 1
       ? `¿Estás seguro de eliminar a los ${count} usuarios seleccionados?`
-      : `¿Estás seguro de eliminar a ${this.selectedUsers[0].nombre}?`;
+      : `¿Estás seguro de eliminar a ${this.selectedUsers[0].fullname}?`;
 
     const confirmed = await this.dialogService.confirm(
       'Eliminar Usuarios',

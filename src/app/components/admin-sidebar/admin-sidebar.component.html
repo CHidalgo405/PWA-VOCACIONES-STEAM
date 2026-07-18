@@ -1,21 +1,21 @@
-<button class="mobile-toggle-btn" (click)="toggleMenu()">
+<button type="button" class="mobile-toggle-btn" (click)="toggleMenu()" aria-label="Abrir navegación administrativa">
   <app-lucide-icon name="menu" [size]="18" style="margin-right: 8px;"></app-lucide-icon> Menú Admin
 </button>
 
-<div class="sidebar-overlay" [class.active]="isMobileMenuOpen" (click)="closeMenu()"></div>
+<button type="button" class="sidebar-overlay" [class.active]="isMobileMenuOpen" (click)="closeMenu()" aria-label="Cerrar navegación administrativa"></button>
 
 <aside class="admin-sidebar" [class.open]="isMobileMenuOpen">
 
   <div class="sidebar-header">
-    <img src="logo.svg" alt="Vocaciones STEAM Logo" class="admin-brand-logo">
-    <h2>Admin Panel</h2>
-    <button class="close-btn" (click)="closeMenu()"><app-lucide-icon name="x" [size]="24"></app-lucide-icon></button>
+    <img src="logo.svg" alt="" width="32" height="32" class="admin-brand-logo">
+    <h2>Control STEAM</h2>
+    <button type="button" class="close-btn" (click)="closeMenu()" aria-label="Cerrar menú"><app-lucide-icon name="x" [size]="24" aria-hidden="true"></app-lucide-icon></button>
   </div>
 
   <nav class="sidebar-nav">
     <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
       <span class="icon"><app-lucide-icon name="bar-chart-3" [size]="20"></app-lucide-icon></span>
-      <span class="label">Dashboard</span>
+      <span class="label">Resumen</span>
     </a>
 
     <a routerLink="/admin/users" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
@@ -38,6 +38,11 @@
       <span class="label">Calibración</span>
     </a>
 
+    <a routerLink="/admin/catalogs" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
+      <span class="icon"><app-lucide-icon name="library-big" [size]="20" aria-hidden="true"></app-lucide-icon></span>
+      <span class="label">Catálogos A6/A7</span>
+    </a>
+
     <a routerLink="/admin/universities" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
       <span class="icon"><app-lucide-icon name="building-2" [size]="20"></app-lucide-icon></span>
       <span class="label">Universidades</span>
@@ -50,16 +55,16 @@
 
     <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
       <span class="icon"><app-lucide-icon name="settings" [size]="20"></app-lucide-icon></span>
-      <span class="label">Configuración</span>
+      <span class="label">Torre de Control</span>
     </a>
 
     <!-- Botón de instalación PWA -->
-    <a *ngIf="(pwaInstall.canInstall$ | async) || (pwaInstall.isIos$ | async)" 
+    <button type="button" *ngIf="(pwaInstall.canInstall$ | async) || (pwaInstall.isIos$ | async)"
        (click)="pwaInstall.installApp(); closeMenu()" 
-       class="nav-item install-btn" style="cursor: pointer;">
+       class="nav-item install-btn">
       <span class="icon"><app-lucide-icon name="download" [size]="20"></app-lucide-icon></span>
       <span class="label" style="font-weight: 700; color: var(--steam-blue);">Instalar App</span>
-    </a>
+    </button>
   </nav>
 
   <div class="sidebar-footer">
@@ -71,10 +76,10 @@
       <span class="icon"><app-lucide-icon name="layout-dashboard" [size]="20"></app-lucide-icon></span>
       <span class="label">Ir a la App</span>
     </a>
-    <a (click)="logout()" class="nav-item logout" style="cursor: pointer;">
+    <button type="button" (click)="logout()" class="nav-item logout">
       <span class="icon"><app-lucide-icon name="log-out" [size]="20"></app-lucide-icon></span>
       <span class="label">Cerrar Sesión</span>
-    </a>
+    </button>
   </div>
 
 </aside>

@@ -1,288 +1,213 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { AdminService } from '../../../core/services/admin.service';
-import { ToastService } from '../../../core/services/toast.service';
 import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
-import { CareerSimulatorData, SimulatorStep, SimulatorStepOption } from '../../../core/models/career-simulator.models';
-import { forkJoin } from 'rxjs';
+import {
+  AdminService,
+  AdminSimulator,
+  SteamAxis,
+} from '../../../core/services/admin.service';
 import { DialogService } from '../../../core/services/dialog.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { SimulatorStep } from '../../../core/models/career-simulator.models';
+
+interface SimulatorForm {
+  slug: string;
+  careerName: string;
+  steamArea: SteamAxis;
+  estimatedDurationMinutes: number;
+  difficulty: string;
+  status: 'activo' | 'inactivo';
+  colorToken: string;
+  icon: string;
+  shortDescription: string;
+  tagsText: string;
+  completionBadge: string;
+  steps: SimulatorStep[];
+}
+
+const STEAM_AREAS: Array<{ value: SteamAxis; label: string; emoji: string }> = [
+  { value: 'ciencia', label: 'Ciencia', emoji: '🔬' },
+  { value: 'tecnologia', label: 'Tecnología', emoji: '💻' },
+  { value: 'ingenieria', label: 'Ingeniería', emoji: '🏗️' },
+  { value: 'artes', label: 'Artes', emoji: '🎨' },
+  { value: 'matematicas', label: 'Matemáticas', emoji: '🧮' },
+];
 
 @Component({
   selector: 'app-manage-simulators',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent, LucideIconComponent],
+  imports: [CommonModule, FormsModule, AdminSidebarComponent, LucideIconComponent],
   templateUrl: './manage-simulators.component.html',
-  styleUrls: ['./manage-simulators.component.scss']
+  styleUrls: ['./manage-simulators.component.scss'],
 })
 export class ManageSimulatorsComponent implements OnInit {
   private adminService = inject(AdminService);
-  private toastService = inject(ToastService);
-  private router = inject(Router);
-  private dialogService = inject(DialogService);
+  private toast = inject(ToastService);
+  private dialog = inject(DialogService);
 
-  // State Signals
-  public simulators = signal<any[]>([]);
-  public isLoading = signal<boolean>(false);
-  public isSubmitting = signal<boolean>(false);
-  public isModalOpen = signal<boolean>(false);
-  public modalMode = signal<'create' | 'edit' | 'view'>('view');
-  
-  // Search and filter
-  public searchTerm = '';
-  public filterArea = '';
-  public activeTab = signal<number>(0); // Step tab active index
+  readonly areas = STEAM_AREAS;
+  readonly stepTypes = [
+    { label: 'Contexto', type: 'CONTEXT' },
+    { label: 'Análisis', type: 'DATA_ANALYSIS' },
+    { label: 'Dilema', type: 'TRADEOFF_DECISION' },
+    { label: 'Sorpresa', type: 'SURPRISE_REVEAL' },
+    { label: 'Resultado', type: 'REALITY_CHECK' },
+    { label: 'Reflexión', type: 'EMOTIONAL_REFLECTION' },
+  ] as const;
 
-  // Form State
-  public currentSimulatorId = '';
-  public formModel = {
-    careerId: '',
-    careerName: '',
-    description: '',
-    steamAreaName: 'Tecnología' as 'Ciencia' | 'Tecnología' | 'Ingeniería' | 'Artes' | 'Matemáticas',
-    areaClass: 'steam-tecnologia',
-    areaEmoji: '💻',
-    steps: [] as SimulatorStep[]
-  };
+  simulators = signal<AdminSimulator[]>([]);
+  isLoading = signal(false);
+  isSubmitting = signal(false);
+  isModalOpen = signal(false);
+  modalMode = signal<'create' | 'edit' | 'view'>('view');
+  activeTab = signal(-1);
 
-  // Helper for tab names
-  public stepTypes = [
-    { label: '1. Contexto', type: 'CONTEXT' },
-    { label: '2. Análisis', type: 'DATA_ANALYSIS' },
-    { label: '3. Dilema', type: 'TRADEOFF_DECISION' },
-    { label: '4. Sorpresa', type: 'SURPRISE_REVEAL' },
-    { label: '5. IA Feedback', type: 'AI_FEEDBACK' },
-    { label: '6. Reflexión', type: 'EMOTIONAL_REFLECTION' }
-  ];
+  searchTerm = '';
+  filterArea: SteamAxis | '' = '';
+  filterStatus: 'activo' | 'inactivo' | '' = '';
+  sortColumn: 'careerName' | 'steamArea' | 'updatedAt' = 'careerName';
+  sortDirection: 'asc' | 'desc' = 'asc';
+  currentSimulatorId = '';
+  formModel = this.emptyForm();
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadSimulators();
   }
 
-  public loadSimulators() {
+  loadSimulators(): void {
     this.isLoading.set(true);
     this.adminService.getAdminSimulators().subscribe({
       next: (data) => {
         this.simulators.set(data);
         this.isLoading.set(false);
       },
-      error: (err) => {
-        console.error('Error loading simulators:', err);
-        this.toastService.showToast('No se pudieron cargar los simuladores del servidor.', 'error', 'Error');
+      error: (error) => {
         this.isLoading.set(false);
-      }
+        this.toast.showToast(
+          error.error?.message || 'No se pudieron cargar los simuladores.',
+          'error',
+        );
+      },
     });
   }
 
-  // Pre-filled template steps complying with 6 steps rule
-  private createDefaultSteps(careerId: string): SimulatorStep[] {
-    const cid = careerId || 'new_sim';
-    return [
-      { id: `${cid}_step_1_context`, type: 'CONTEXT', title: 'Contexto del Reto', content: '' },
-      { 
-        id: `${cid}_step_2_data`, 
-        type: 'DATA_ANALYSIS', 
-        title: 'Análisis de Datos', 
-        content: '', 
-        options: [
-          { id: `${cid}_opt_d1`, text: 'Opción A', steamTraitWeight: { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 } },
-          { id: `${cid}_opt_d2`, text: 'Opción B', steamTraitWeight: { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 } }
-        ] 
-      },
-      { 
-        id: `${cid}_step_3_tradeoff`, 
-        type: 'TRADEOFF_DECISION', 
-        title: 'Decisión Crítica', 
-        content: '', 
-        options: [
-          { id: `${cid}_opt_t1`, text: 'Acción Rápida', steamTraitWeight: { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 } },
-          { id: `${cid}_opt_t2`, text: 'Acción Segura', steamTraitWeight: { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 } }
-        ] 
-      },
-      { id: `${cid}_step_4_surprise`, type: 'SURPRISE_REVEAL', title: 'Revelación Realista', content: '' },
-      { id: `${cid}_step_5_ai`, type: 'AI_FEEDBACK', title: 'Evaluación del Sistema', content: 'Procesando tu razonamiento lógico y decisiones estratégicas...' },
-      { 
-        id: `${cid}_step_6_emotional`, 
-        type: 'EMOTIONAL_REFLECTION', 
-        title: 'Reflexión Final', 
-        content: '¿Cómo te sentiste ante este reto de toma de decisiones?', 
-        options: [
-          { id: `${cid}_emo_1`, text: '1 - Muy abrumada/o', steamTraitWeight: { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 } },
-          { id: `${cid}_emo_2`, text: '2 - Estresada/o pero resolutivo', steamTraitWeight: { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 } },
-          { id: `${cid}_emo_3`, text: '3 - Neutral', steamTraitWeight: { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 } },
-          { id: `${cid}_emo_4`, text: '4 - Cómoda/o', steamTraitWeight: { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 } },
-          { id: `${cid}_emo_5`, text: '5 - En mi elemento', steamTraitWeight: { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 } }
-        ] 
-      }
-    ];
-  }
-
-  public openModal(mode: 'create' | 'edit' | 'view', sim?: any) {
+  openModal(mode: 'create' | 'edit' | 'view', simulator?: AdminSimulator): void {
     this.modalMode.set(mode);
-    this.activeTab.set(0);
-
+    this.activeTab.set(-1);
     if (mode === 'create') {
       this.currentSimulatorId = '';
+      this.formModel = this.emptyForm();
+    } else if (simulator) {
+      this.currentSimulatorId = simulator.id;
       this.formModel = {
-        careerId: '',
-        careerName: '',
-        description: '',
-        steamAreaName: 'Tecnología',
-        areaClass: 'steam-tecnologia',
-        areaEmoji: '💻',
-        steps: this.createDefaultSteps('new_sim')
+        slug: simulator.slug,
+        careerName: simulator.careerName,
+        steamArea: simulator.steamArea,
+        estimatedDurationMinutes: simulator.estimatedDurationMinutes,
+        difficulty: simulator.difficulty,
+        status: simulator.status,
+        colorToken: simulator.colorToken,
+        icon: simulator.icon,
+        shortDescription: simulator.shortDescription,
+        tagsText: (simulator.tags || []).join(', '),
+        completionBadge: String(simulator.completionConfig?.['badge'] || ''),
+        steps: this.normalizeSteps(simulator.slug, simulator.steps),
       };
-    } else if (sim) {
-      this.currentSimulatorId = sim.id;
-      // Map existing simulator to form model
-      this.formModel = {
-        careerId: sim.careerId || sim.id,
-        careerName: sim.careerName,
-        description: sim.description,
-        steamAreaName: sim.steamAreaName || 'Tecnología',
-        areaClass: sim.areaClass || this.inferAreaClass(sim.steamAreaName),
-        areaEmoji: sim.areaEmoji || this.inferAreaEmoji(sim.steamAreaName),
-        steps: JSON.parse(JSON.stringify(sim.steps || [])) // deep copy
-      };
-      
-      // If for some reason the simulator doesn't have 6 steps, fill them in
-      if (this.formModel.steps.length < 6) {
-        const defaults = this.createDefaultSteps(this.formModel.careerId);
-        for (let i = this.formModel.steps.length; i < 6; i++) {
-          this.formModel.steps.push(defaults[i]);
-        }
-      }
     }
-    
     this.isModalOpen.set(true);
   }
 
-  public closeModal() {
-    this.isModalOpen.set(false);
+  closeModal(): void {
+    if (!this.isSubmitting()) this.isModalOpen.set(false);
   }
 
-  public onAreaChange() {
-    this.formModel.areaClass = this.inferAreaClass(this.formModel.steamAreaName);
-    this.formModel.areaEmoji = this.inferAreaEmoji(this.formModel.steamAreaName);
-  }
-
-  private inferAreaClass(steamAreaName: string): string {
-    const area = (steamAreaName || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    if (area.includes('ciencia')) return 'steam-ciencia';
-    if (area.includes('tecnologia')) return 'steam-tecnologia';
-    if (area.includes('ingenieria')) return 'steam-ingenieria';
-    if (area.includes('arte')) return 'steam-arte';
-    if (area.includes('matematica')) return 'steam-matematicas';
-    return 'steam-tecnologia';
-  }
-
-  private inferAreaEmoji(steamAreaName: string): string {
-    const area = (steamAreaName || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    if (area.includes('ciencia')) return '🔬';
-    if (area.includes('tecnologia')) return '💻';
-    if (area.includes('ingenieria')) return '🏗️';
-    if (area.includes('arte')) return '🎨';
-    if (area.includes('matematica')) return '🧮';
-    return '💻';
-  }
-
-  // Options CRUD inside steps
-  public addOption(stepIndex: number) {
+  addOption(stepIndex: number): void {
     const step = this.formModel.steps[stepIndex];
-    if (!step.options) step.options = [];
-    
-    const count = step.options.length + 1;
+    step.options ??= [];
     step.options.push({
-      id: `${this.formModel.careerId || 'new'}_opt_${stepIndex}_${Date.now()}`,
-      text: `Nueva Opción ${count}`,
-      steamTraitWeight: { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 }
+      id: `${this.formModel.slug || 'new'}_${stepIndex}_${Date.now()}`,
+      text: '',
+      steamTraitWeight: this.emptyWeights(),
     });
   }
 
-  public removeOption(stepIndex: number, optionIndex: number) {
-    const step = this.formModel.steps[stepIndex];
-    if (step.options) {
-      step.options.splice(optionIndex, 1);
-    }
+  removeOption(stepIndex: number, optionIndex: number): void {
+    this.formModel.steps[stepIndex].options?.splice(optionIndex, 1);
   }
 
-  // Save changes
-  public saveSimulator() {
-    if (!this.formModel.careerId || !this.formModel.careerName) {
-      this.toastService.showToast('El ID y Nombre son campos requeridos.', 'warning', 'Advertencia');
+  saveSimulator(): void {
+    const error = this.validateForm();
+    if (error) {
+      this.toast.showToast(error, 'error');
       return;
     }
-
-    this.isSubmitting.set(true);
-
-    const payload = {
-      ...this.formModel,
-      steps: this.formModel.steps.map((s, idx) => {
-        // Enforce correct order of types
-        s.type = this.stepTypes[idx].type as any;
-        return s;
-      })
+    const payload: Partial<AdminSimulator> = {
+      slug: this.formModel.slug,
+      careerName: this.formModel.careerName.trim(),
+      steamArea: this.formModel.steamArea,
+      estimatedDurationMinutes: Number(this.formModel.estimatedDurationMinutes),
+      difficulty: this.formModel.difficulty.trim(),
+      status: this.formModel.status,
+      colorToken: this.formModel.colorToken.trim(),
+      icon: this.formModel.icon.trim(),
+      shortDescription: this.formModel.shortDescription.trim(),
+      tags: this.formModel.tagsText
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+      steps: this.formModel.steps.map((step, index) => ({
+        ...step,
+        type: this.stepTypes[index].type,
+      })),
+      completionConfig: this.formModel.completionBadge.trim()
+        ? { badge: this.formModel.completionBadge.trim() }
+        : null,
     };
 
-    if (this.modalMode() === 'create') {
-      this.adminService.createSimulator(payload).subscribe({
-        next: () => {
-          this.toastService.showToast('Simulador creado exitosamente.', 'success', 'Éxito');
-          this.loadSimulators();
-          this.isModalOpen.set(false);
-          this.isSubmitting.set(false);
-        },
-        error: (err) => {
-          console.error('Error creating simulator:', err);
-          this.toastService.showToast('No se pudo crear el simulador.', 'error', 'Error');
-          this.isSubmitting.set(false);
-        }
-      });
-    } else {
-      this.adminService.updateSimulator(this.currentSimulatorId, payload).subscribe({
-        next: () => {
-          this.toastService.showToast('Simulador actualizado exitosamente.', 'success', 'Éxito');
-          this.loadSimulators();
-          this.isModalOpen.set(false);
-          this.isSubmitting.set(false);
-        },
-        error: (err) => {
-          console.error('Error updating simulator:', err);
-          this.toastService.showToast('No se pudo actualizar el simulador.', 'error', 'Error');
-          this.isSubmitting.set(false);
-        }
-      });
-    }
+    this.isSubmitting.set(true);
+    const request = this.modalMode() === 'create'
+      ? this.adminService.createSimulator(payload)
+      : this.adminService.updateSimulator(this.currentSimulatorId, payload);
+    request.subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.isModalOpen.set(false);
+        this.toast.showToast(
+          this.modalMode() === 'create' ? 'Simulador creado.' : 'Simulador actualizado.',
+          'success',
+        );
+        this.loadSimulators();
+      },
+      error: (error) => {
+        this.isSubmitting.set(false);
+        this.toast.showToast(
+          error.error?.message || 'No se pudo guardar el simulador.',
+          'error',
+        );
+      },
+    });
   }
 
-  public async deleteSimulator(sim: any) {
-    const confirmed = await this.dialogService.confirm(
+  async deleteSimulator(simulator: AdminSimulator): Promise<void> {
+    const confirmed = await this.dialog.confirm(
       'Eliminar Simulador',
-      `¿Estás seguro de que deseas eliminar el simulador "${sim.careerName}"?`,
-      { confirmText: 'Sí, eliminar', isDanger: true }
+      `Se eliminará “${simulator.careerName}” y dejará de estar disponible en la app.`,
+      { confirmText: 'Eliminar simulador', isDanger: true },
     );
-    
-    if (confirmed) {
-      this.isLoading.set(true);
-      this.adminService.deleteSimulator(sim.id).subscribe({
-        next: () => {
-          this.toastService.showToast('Simulador eliminado exitosamente.', 'success', 'Éxito');
-          this.loadSimulators();
-        },
-        error: (err) => {
-          console.error('Error deleting simulator:', err);
-          this.toastService.showToast('No se pudo eliminar el simulador.', 'error', 'Error');
-          this.isLoading.set(false);
-        }
-      });
-    }
+    if (!confirmed) return;
+    this.adminService.deleteSimulator(simulator.id).subscribe({
+      next: () => {
+        this.toast.showToast('Simulador eliminado.', 'success');
+        this.loadSimulators();
+      },
+      error: (error) => this.toast.showToast(
+        error.error?.message || 'No se pudo eliminar el simulador.',
+        'error',
+      ),
+    });
   }
-
-  // --- ORDENAMIENTO ---
-  sortColumn: 'careerName' | 'steamAreaName' = 'careerName';
-  sortDirection: 'asc' | 'desc' = 'asc';
 
   sortBy(column: typeof this.sortColumn): void {
     if (this.sortColumn === column) {
@@ -298,23 +223,98 @@ export class ManageSimulatorsComponent implements OnInit {
     return this.sortDirection === 'asc' ? 'arrow-up' : 'arrow-down';
   }
 
-  // Filter helper
-  public get filteredSimulatorsList() {
-    const filtered = this.simulators().filter(sim => {
-      const matchSearch = sim.careerName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                          (sim.careerId || sim.id).toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchArea = !this.filterArea || sim.steamAreaName === this.filterArea;
-      return matchSearch && matchArea;
-    });
+  get filteredSimulatorsList(): AdminSimulator[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    const direction = this.sortDirection === 'asc' ? 1 : -1;
+    return this.simulators()
+      .filter((simulator) =>
+        (!term || simulator.careerName.toLowerCase().includes(term) || simulator.slug.includes(term)) &&
+        (!this.filterArea || simulator.steamArea === this.filterArea) &&
+        (!this.filterStatus || simulator.status === this.filterStatus),
+      )
+      .sort((a, b) => String(a[this.sortColumn] || '').localeCompare(
+        String(b[this.sortColumn] || ''),
+        'es-MX',
+      ) * direction);
+  }
 
-    const col = this.sortColumn;
-    const dir = this.sortDirection === 'asc' ? 1 : -1;
-    return filtered.sort((a, b) => {
-      const valA = String(a[col] ?? '').toLowerCase();
-      const valB = String(b[col] ?? '').toLowerCase();
-      if (valA < valB) return -1 * dir;
-      if (valA > valB) return 1 * dir;
-      return 0;
+  areaLabel(axis: SteamAxis): string {
+    return this.areas.find((area) => area.value === axis)?.label || axis;
+  }
+
+  areaEmoji(axis: SteamAxis): string {
+    return this.areas.find((area) => area.value === axis)?.emoji || '🧭';
+  }
+
+  private emptyForm(): SimulatorForm {
+    const slug = 'nuevo-simulador';
+    return {
+      slug: '',
+      careerName: '',
+      steamArea: 'tecnologia',
+      estimatedDurationMinutes: 15,
+      difficulty: 'Intermedia',
+      status: 'inactivo',
+      colorToken: '#07B1C9',
+      icon: 'briefcase-business',
+      shortDescription: '',
+      tagsText: '',
+      completionBadge: '',
+      steps: this.createDefaultSteps(slug),
+    };
+  }
+
+  private normalizeSteps(slug: string, steps: any[]): SimulatorStep[] {
+    const defaults = this.createDefaultSteps(slug);
+    return defaults.map((fallback, index) => {
+      const source = steps?.[index] || {};
+      return {
+        ...fallback,
+        ...source,
+        type: this.stepTypes[index].type,
+        options: Array.isArray(source.options)
+          ? source.options.map((option: any) => ({
+              ...option,
+              steamTraitWeight: { ...this.emptyWeights(), ...(option.steamTraitWeight || {}) },
+            }))
+          : fallback.options,
+      } as SimulatorStep;
     });
+  }
+
+  private createDefaultSteps(slug: string): SimulatorStep[] {
+    const option = (suffix: string) => ({
+      id: `${slug}_${suffix}`,
+      text: '',
+      steamTraitWeight: this.emptyWeights(),
+    });
+    return [
+      { id: `${slug}_context`, type: 'CONTEXT', title: 'Contexto del reto', content: '' },
+      { id: `${slug}_analysis`, type: 'DATA_ANALYSIS', title: 'Análisis de información', content: '', options: [option('analysis_a'), option('analysis_b')] },
+      { id: `${slug}_decision`, type: 'TRADEOFF_DECISION', title: 'Decisión crítica', content: '', options: [option('decision_a'), option('decision_b')] },
+      { id: `${slug}_surprise`, type: 'SURPRISE_REVEAL', title: 'Giro del escenario', content: '' },
+      { id: `${slug}_result`, type: 'REALITY_CHECK', title: 'Resultado de afinidad', content: 'El sistema calculará la afinidad a partir de las decisiones.' },
+      { id: `${slug}_reflection`, type: 'EMOTIONAL_REFLECTION', title: 'Reflexión final', content: '¿Cómo te sentiste al resolver el reto?', options: [option('reflection_a'), option('reflection_b')] },
+    ];
+  }
+
+  private emptyWeights() {
+    return { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 };
+  }
+
+  private validateForm(): string | null {
+    if (!this.formModel.slug.trim() || !this.formModel.careerName.trim()) {
+      return 'El slug y el nombre de carrera son obligatorios.';
+    }
+    if (!this.formModel.shortDescription.trim()) return 'Agrega una descripción breve.';
+    if (this.formModel.steps.length !== 6) return 'El simulador debe conservar exactamente 6 pasos.';
+    for (let index = 0; index < this.formModel.steps.length; index++) {
+      const step = this.formModel.steps[index];
+      if (!step.title?.trim()) return `Agrega el título del paso ${index + 1}.`;
+      if ([1, 2, 5].includes(index) && (step.options?.length || 0) < 2) {
+        return `El paso ${index + 1} necesita al menos 2 opciones.`;
+      }
+    }
+    return null;
   }
 }

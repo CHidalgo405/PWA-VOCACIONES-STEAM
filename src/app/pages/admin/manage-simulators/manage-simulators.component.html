@@ -1,41 +1,45 @@
 <app-admin-sidebar></app-admin-sidebar>
 
-<div class="admin-layout-content">
-
+<main class="admin-layout-content" id="main-content">
   <header class="page-header">
     <div>
-      <h1>Gestión de Simuladores</h1>
-      <p>Administra los retos prácticos y decisiones de carrera interactivos.</p>
+      <span class="page-eyebrow">Contenido interactivo</span>
+      <h1>Simuladores de Carrera</h1>
+      <p>Controla qué retos están publicados y edita su recorrido completo de 6 pasos.</p>
     </div>
-    <div class="header-actions">
-      <button class="btn-primary" (click)="openModal('create')">
-        <app-lucide-icon name="plus" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
-        Nuevo Simulador
-      </button>
-    </div>
+    <button type="button" class="btn-primary" (click)="openModal('create')">
+      <app-lucide-icon name="plus" [size]="16" aria-hidden="true"></app-lucide-icon>
+      Crear Simulador
+    </button>
   </header>
 
-  <!-- BÚSQUEDA Y FILTRADO -->
-  <div class="premium-search-container">
+  <section class="premium-search-container" aria-label="Filtros de simuladores">
     <div class="search-input-wrapper">
-      <span class="search-icon"><app-lucide-icon name="search" [size]="18"></app-lucide-icon></span>
-      <input type="text" placeholder="Buscar por nombre o ID de carrera..." [(ngModel)]="searchTerm">
+      <span class="search-icon" aria-hidden="true"><app-lucide-icon name="search" [size]="18"></app-lucide-icon></span>
+      <label class="sr-only" for="simulator-search">Buscar simulador</label>
+      <input id="simulator-search" name="simulatorSearch" type="search" autocomplete="off"
+        placeholder="Buscar por nombre o slug…" [(ngModel)]="searchTerm">
     </div>
-    <select [(ngModel)]="filterArea" class="search-select">
-      <option value="">Todas las Áreas STEAM</option>
-      <option value="Ciencia">🔬 Ciencia</option>
-      <option value="Tecnología">💻 Tecnología</option>
-      <option value="Ingeniería">🏗️ Ingeniería</option>
-      <option value="Artes">🎨 Artes</option>
-      <option value="Matemáticas">🧮 Matemáticas</option>
+    <label class="sr-only" for="simulator-area">Área STEAM</label>
+    <select id="simulator-area" name="simulatorArea" [(ngModel)]="filterArea" class="search-select">
+      <option value="">Todas las áreas</option>
+      <option *ngFor="let area of areas" [value]="area.value">{{ area.emoji }} {{ area.label }}</option>
     </select>
-  </div>
+    <label class="sr-only" for="simulator-status">Estado</label>
+    <select id="simulator-status" name="simulatorStatus" [(ngModel)]="filterStatus" class="search-select">
+      <option value="">Todos los estados</option>
+      <option value="activo">Publicado</option>
+      <option value="inactivo">Borrador</option>
+    </select>
+  </section>
 
-  <!-- TABLA DE SIMULADORES -->
-  <div class="table-card" style="display: flex; flex-direction: column;">
+  <section class="table-card" aria-labelledby="simulator-list-title">
     <div class="toolbar">
       <div class="toolbar-header">
-        <h2>Listado de Simuladores Activos</h2>
+        <div>
+          <h2 id="simulator-list-title">{{ filteredSimulatorsList.length }} Simuladores</h2>
+          <p>Los borradores nunca aparecen en la app del estudiante.</p>
+        </div>
       </div>
     </div>
 
@@ -43,214 +47,178 @@
       <table>
         <thead>
           <tr>
-            <th>Icono</th>
-            <th class="sortable" (click)="sortBy('careerName')">
-              Carrera / Simulador <app-lucide-icon [name]="sortIcon('careerName')" [size]="13"></app-lucide-icon>
-            </th>
-            <th>ID (Slug)</th>
-            <th class="sortable" (click)="sortBy('steamAreaName')">
-              Área STEAM <app-lucide-icon [name]="sortIcon('steamAreaName')" [size]="13"></app-lucide-icon>
-            </th>
-            <th>Pasos</th>
-            <th style="text-align: center;">Acciones</th>
+            <th scope="col">Carrera</th>
+            <th scope="col"><button type="button" class="sort-button" (click)="sortBy('careerName')">Nombre <app-lucide-icon [name]="sortIcon('careerName')" [size]="13"></app-lucide-icon></button></th>
+            <th scope="col"><button type="button" class="sort-button" (click)="sortBy('steamArea')">Área <app-lucide-icon [name]="sortIcon('steamArea')" [size]="13"></app-lucide-icon></button></th>
+            <th scope="col">Duración</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Integridad</th>
+            <th scope="col" class="actions-column">Acciones</th>
           </tr>
         </thead>
-        <tbody *ngIf="isLoading()">
-          <tr *ngFor="let i of [1, 2, 3]" class="skeleton-row">
-            <td><div class="shimmer" style="width: 24px; height: 24px; border-radius: 50%;"></div></td>
-            <td><div class="shimmer" style="width: 200px; height: 16px; border-radius: 4px;"></div></td>
-            <td><div class="shimmer" style="width: 120px; height: 16px; border-radius: 4px;"></div></td>
-            <td><div class="shimmer" style="width: 80px; height: 20px; border-radius: 12px;"></div></td>
-            <td><div class="shimmer" style="width: 30px; height: 16px; border-radius: 4px;"></div></td>
-            <td><div class="shimmer" style="width: 100px; height: 32px; border-radius: 6px; margin: 0 auto;"></div></td>
+        <tbody *ngIf="isLoading()" aria-busy="true">
+          <tr *ngFor="let item of [1, 2, 3]" aria-hidden="true">
+            <td colspan="7"><div class="shimmer" style="height: 44px; border-radius: 8px;"></div></td>
           </tr>
         </tbody>
-
         <tbody *ngIf="!isLoading()">
-          <tr *ngFor="let sim of filteredSimulatorsList" style="cursor: pointer;" (click)="openModal('view', sim)">
-            <td style="font-size: 1.5rem; width: 60px; text-align: center;">{{ sim.areaEmoji || '💻' }}</td>
+          <tr *ngFor="let simulator of filteredSimulatorsList">
+            <td class="simulator-mark"><span aria-hidden="true">{{ areaEmoji(simulator.steamArea) }}</span></td>
             <td>
-              <strong class="simulator-name">{{ sim.careerName }}</strong>
-              <p class="simulator-desc-preview">{{ sim.description }}</p>
+              <button type="button" class="row-title" (click)="openModal('view', simulator)">{{ simulator.careerName }}</button>
+              <code>{{ simulator.slug }}</code>
             </td>
-            <td><code>{{ sim.careerId || sim.id }}</code></td>
+            <td><span class="badge" [ngClass]="simulator.steamArea">{{ areaLabel(simulator.steamArea) }}</span></td>
+            <td>{{ simulator.estimatedDurationMinutes }} min</td>
+            <td><span class="status-pill" [class.active]="simulator.status === 'activo'">{{ simulator.status === 'activo' ? 'Publicado' : 'Borrador' }}</span></td>
+            <td><span class="steps-count-badge" [class.invalid]="simulator.steps.length !== 6">{{ simulator.steps.length }} / 6 pasos</span></td>
             <td>
-              <span class="badge" [ngClass]="sim.steamAreaName.toLowerCase()
-                .normalize('NFD').replace('í', 'i').replace('á', 'a').replace('é', 'e').replace('ó', 'o')">
-                {{ sim.steamAreaName }}
-              </span>
-            </td>
-            <td><span class="steps-count-badge">{{ sim.steps?.length || 6 }} / 6</span></td>
-            <td>
-              <div class="actions-wrapper" (click)="$event.stopPropagation();">
-                <button class="btn-action edit" (click)="openModal('edit', sim)">
-                  <app-lucide-icon name="pencil" [size]="14"></app-lucide-icon>
+              <div class="actions-wrapper">
+                <button type="button" class="btn-action edit" (click)="openModal('edit', simulator)" [attr.aria-label]="'Editar ' + simulator.careerName">
+                  <app-lucide-icon name="pencil" [size]="14" aria-hidden="true"></app-lucide-icon>
                 </button>
-                <button class="btn-action delete" (click)="deleteSimulator(sim)">
-                  <app-lucide-icon name="trash-2" [size]="14"></app-lucide-icon>
+                <button type="button" class="btn-action delete" (click)="deleteSimulator(simulator)" [attr.aria-label]="'Eliminar ' + simulator.careerName">
+                  <app-lucide-icon name="trash-2" [size]="14" aria-hidden="true"></app-lucide-icon>
                 </button>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
-
-      <!-- ESTADO VACÍO -->
       <div *ngIf="!isLoading() && filteredSimulatorsList.length === 0" class="empty-state-card">
-        <div class="empty-icon"><app-lucide-icon name="folder-open" [size]="48" color="#bdc3c7"></app-lucide-icon></div>
-        <h3>No hay simuladores disponibles</h3>
-        <p>No se encontraron simuladores activos en la base de datos.</p>
+        <app-lucide-icon name="search-x" [size]="42" color="#94a3b8" aria-hidden="true"></app-lucide-icon>
+        <h3>No hay coincidencias</h3>
+        <p>Ajusta la búsqueda o crea el primer simulador de esta categoría.</p>
       </div>
     </div>
-  </div>
-</div>
+  </section>
+</main>
 
-<!-- MODAL FORMULARIO CRUD -->
-<div class="modal-overlay" *ngIf="isModalOpen()">
-  <div class="modal-box view-mode">
-    <button class="btn-close-modal-floating" (click)="closeModal()">
-      <app-lucide-icon name="x" [size]="20"></app-lucide-icon>
+<div class="modal-overlay" *ngIf="isModalOpen()" role="presentation">
+  <section class="modal-box view-mode" role="dialog" aria-modal="true" aria-labelledby="simulator-modal-title">
+    <button type="button" class="btn-close-modal-floating" (click)="closeModal()" aria-label="Cerrar editor">
+      <app-lucide-icon name="x" [size]="20" aria-hidden="true"></app-lucide-icon>
     </button>
 
-    <!-- SIDEBAR DEL MODAL -->
-    <div class="modal-sidebar">
-      <div class="sim-preview-emoji">
-        {{ formModel.areaEmoji || '💻' }}
-      </div>
+    <aside class="modal-sidebar" aria-label="Secciones del simulador">
+      <div class="sim-preview-emoji" aria-hidden="true">{{ areaEmoji(formModel.steamArea) }}</div>
       <h3 class="sidebar-name">{{ formModel.careerName || 'Nuevo Simulador' }}</h3>
-      <p class="sidebar-id"><code>ID: {{ formModel.careerId || 'pendiente' }}</code></p>
-      
+      <p class="sidebar-id"><code>{{ formModel.slug || 'slug pendiente' }}</code></p>
       <div class="sidebar-menu">
-        <button class="menu-item" [class.active]="activeTab() === -1" (click)="activeTab.set(-1)">
-          <app-lucide-icon name="settings" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
-          Ajustes Generales
-        </button>
-        <div class="steps-heading">PASOS DEL RETO (6)</div>
-        <button *ngFor="let step of stepTypes; let i = index" 
-                class="menu-item step-item" 
-                [class.active]="activeTab() === i"
-                (click)="activeTab.set(i)">
-          <span class="step-num">{{ i + 1 }}</span>
-          <span class="step-lbl">{{ formModel.steps[i] ? formModel.steps[i].title : step.label }}</span>
+        <button type="button" class="menu-item" [class.active]="activeTab() === -1" (click)="activeTab.set(-1)">Datos Generales</button>
+        <div class="steps-heading">RECORRIDO · 6 PASOS</div>
+        <button type="button" *ngFor="let definition of stepTypes; let index = index" class="menu-item step-item"
+          [class.active]="activeTab() === index" (click)="activeTab.set(index)">
+          <span class="step-num">{{ index + 1 }}</span>
+          <span class="step-lbl">{{ formModel.steps[index].title || definition.label }}</span>
         </button>
       </div>
-    </div>
+    </aside>
 
-    <!-- CONTENIDO DEL FORMULARIO -->
     <div class="modal-content-area">
-      <div class="modal-header">
-        <h2>
-          {{ modalMode() === 'create' ? 'Crear Nuevo Simulador' :
-             (modalMode() === 'edit' ? 'Editar Simulador' : 'Ver Simulador') }}
-        </h2>
-      </div>
+      <header class="modal-header">
+        <div>
+          <span class="page-eyebrow">{{ modalMode() === 'view' ? 'Vista de solo lectura' : 'Editor conectado a PostgreSQL' }}</span>
+          <h2 id="simulator-modal-title">{{ modalMode() === 'create' ? 'Crear Simulador' : modalMode() === 'edit' ? 'Editar Simulador' : 'Detalle del Simulador' }}</h2>
+        </div>
+      </header>
 
       <div class="modal-body">
-        <!-- SECCIÓN 0: AJUSTES GENERALES -->
         <div *ngIf="activeTab() === -1" class="tab-content fade-in">
           <div class="form-grid">
             <div class="input-group">
-              <label>ID / Slug del Simulador <span *ngIf="modalMode() !== 'view'" style="color: red;">*</span></label>
-              <input type="text" [(ngModel)]="formModel.careerId" placeholder="ej. software-engineering" 
-                     [readonly]="modalMode() !== 'create'" required>
+              <label for="sim-slug">Slug</label>
+              <input id="sim-slug" name="slug" type="text" autocomplete="off" [(ngModel)]="formModel.slug" placeholder="ingenieria-software…" [readonly]="modalMode() !== 'create'">
             </div>
-            
             <div class="input-group">
-              <label>Nombre de la Carrera <span *ngIf="modalMode() !== 'view'" style="color: red;">*</span></label>
-              <input type="text" [(ngModel)]="formModel.careerName" placeholder="ej. Ingeniería de Software" 
-                     [readonly]="modalMode() === 'view'" required>
+              <label for="sim-name">Nombre de la Carrera</label>
+              <input id="sim-name" name="careerName" type="text" autocomplete="off" [(ngModel)]="formModel.careerName" placeholder="Ingeniería de Software…" [readonly]="modalMode() === 'view'">
             </div>
-
             <div class="input-group full-width">
-              <label>Descripción / Premisa Vocacional <span *ngIf="modalMode() !== 'view'" style="color: red;">*</span></label>
-              <textarea [(ngModel)]="formModel.description" placeholder="Describe brevemente el rol y reto en esta simulación..." 
-                        [readonly]="modalMode() === 'view'" rows="3" required></textarea>
+              <label for="sim-description">Descripción Breve</label>
+              <textarea id="sim-description" name="shortDescription" [(ngModel)]="formModel.shortDescription" placeholder="Explica el reto que vivirá el estudiante…" [readonly]="modalMode() === 'view'" rows="3"></textarea>
             </div>
-
             <div class="input-group">
-              <label>Área STEAM Dominante</label>
-              <select [(ngModel)]="formModel.steamAreaName" (change)="onAreaChange()" [disabled]="modalMode() === 'view'">
-                <option value="Ciencia">🔬 Ciencia</option>
-                <option value="Tecnología">💻 Tecnología</option>
-                <option value="Ingeniería">🏗️ Ingeniería</option>
-                <option value="Artes">🎨 Artes</option>
-                <option value="Matemáticas">🧮 Matemáticas</option>
+              <label for="sim-area">Área STEAM</label>
+              <select id="sim-area" name="steamArea" [(ngModel)]="formModel.steamArea" [disabled]="modalMode() === 'view'">
+                <option *ngFor="let area of areas" [value]="area.value">{{ area.emoji }} {{ area.label }}</option>
               </select>
             </div>
-
             <div class="input-group">
-              <label>Icono / Emoji Representativo</label>
-              <input type="text" [(ngModel)]="formModel.areaEmoji" placeholder="ej. 💻" [readonly]="modalMode() === 'view'">
+              <label for="sim-status">Estado de Publicación</label>
+              <select id="sim-status" name="status" [(ngModel)]="formModel.status" [disabled]="modalMode() === 'view'">
+                <option value="activo">Publicado</option>
+                <option value="inactivo">Borrador</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="sim-duration">Duración Estimada</label>
+              <input id="sim-duration" name="duration" type="number" inputmode="numeric" min="1" max="120" [(ngModel)]="formModel.estimatedDurationMinutes" [readonly]="modalMode() === 'view'">
+            </div>
+            <div class="input-group">
+              <label for="sim-difficulty">Dificultad</label>
+              <select id="sim-difficulty" name="difficulty" [(ngModel)]="formModel.difficulty" [disabled]="modalMode() === 'view'">
+                <option value="Inicial">Inicial</option><option value="Intermedia">Intermedia</option><option value="Avanzada">Avanzada</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="sim-icon">Icono Lucide</label>
+              <input id="sim-icon" name="icon" type="text" autocomplete="off" [(ngModel)]="formModel.icon" placeholder="briefcase-business…" [readonly]="modalMode() === 'view'">
+            </div>
+            <div class="input-group">
+              <label for="sim-color">Color</label>
+              <input id="sim-color" name="colorToken" type="text" autocomplete="off" [(ngModel)]="formModel.colorToken" placeholder="#07B1C9…" [readonly]="modalMode() === 'view'">
+            </div>
+            <div class="input-group full-width">
+              <label for="sim-tags">Etiquetas Separadas por Coma</label>
+              <input id="sim-tags" name="tags" type="text" autocomplete="off" [(ngModel)]="formModel.tagsText" placeholder="lógica, equipo, datos…" [readonly]="modalMode() === 'view'">
+            </div>
+            <div class="input-group full-width">
+              <label for="sim-badge">Insignia de Finalización</label>
+              <input id="sim-badge" name="completionBadge" type="text" autocomplete="off" [(ngModel)]="formModel.completionBadge" placeholder="Explorador de Datos…" [readonly]="modalMode() === 'view'">
             </div>
           </div>
         </div>
 
-        <!-- SECCIONES 1 AL 6: EDICIÓN DE PASOS -->
-        <div *ngFor="let step of formModel.steps; let idx = index">
-          <div *ngIf="activeTab() === idx" class="tab-content fade-in">
+        <div *ngFor="let step of formModel.steps; let index = index">
+          <div *ngIf="activeTab() === index" class="tab-content fade-in">
             <div class="step-editor-header">
-              <span class="step-type-badge">{{ stepTypes[idx].type }}</span>
-              <h3>Paso {{ idx + 1 }} — {{ stepTypes[idx].label }}</h3>
+              <span class="step-type-badge" translate="no">{{ stepTypes[index].type }}</span>
+              <h3>Paso {{ index + 1 }} · {{ stepTypes[index].label }}</h3>
             </div>
-
             <div class="form-grid">
               <div class="input-group full-width">
-                <label>Título del Paso <span *ngIf="modalMode() !== 'view'" style="color: red;">*</span></label>
-                <input type="text" [(ngModel)]="step.title" placeholder="ej. Contexto del Brote" [readonly]="modalMode() === 'view'" required>
+                <label [for]="'step-title-' + index">Título</label>
+                <input [id]="'step-title-' + index" [name]="'stepTitle' + index" type="text" autocomplete="off" [(ngModel)]="step.title" placeholder="Título del paso…" [readonly]="modalMode() === 'view'">
               </div>
-
               <div class="input-group full-width">
-                <label>Descripción / Contenido Principal <span *ngIf="modalMode() !== 'view'" style="color: red;">*</span></label>
-                <textarea [(ngModel)]="step.content" placeholder="Escribe el texto descriptivo, instrucciones o preguntas de este paso..." 
-                          [readonly]="modalMode() === 'view'" rows="5" required></textarea>
+                <label [for]="'step-content-' + index">Contenido o Pregunta</label>
+                <textarea [id]="'step-content-' + index" [name]="'stepContent' + index" [(ngModel)]="step.content" placeholder="Texto que verá el estudiante…" [readonly]="modalMode() === 'view'" rows="5"></textarea>
               </div>
             </div>
 
-            <!-- TABLAS/OPCIONES SI APLICA (DATA_ANALYSIS, TRADEOFF_DECISION, EMOTIONAL_REFLECTION) -->
-            <div class="options-container" *ngIf="step.type === 'DATA_ANALYSIS' || step.type === 'TRADEOFF_DECISION' || step.type === 'EMOTIONAL_REFLECTION'">
+            <div class="options-container" *ngIf="[1, 2, 5].includes(index)">
               <div class="options-header">
-                <h4>Opciones de Decisión</h4>
-                <button type="button" class="btn-action edit" *ngIf="modalMode() !== 'view'" (click)="addOption(idx)">
-                  + Añadir Opción
-                </button>
+                <div><h4>Opciones de Decisión</h4><p>Los pesos alimentan el cálculo determinista de afinidad.</p></div>
+                <button type="button" class="btn-action edit" *ngIf="modalMode() !== 'view'" (click)="addOption(index)">Añadir Opción</button>
               </div>
-
               <div class="options-list">
-                <div class="option-card" *ngFor="let opt of step.options; let optIdx = index">
+                <div class="option-card" *ngFor="let option of step.options; let optionIndex = index">
                   <div class="option-card-header">
-                    <span>Opción {{ optIdx + 1 }}</span>
-                    <button type="button" class="btn-delete-opt" *ngIf="modalMode() !== 'view'" (click)="removeOption(idx, optIdx)">
-                      <app-lucide-icon name="trash" [size]="14"></app-lucide-icon>
+                    <span>Opción {{ optionIndex + 1 }}</span>
+                    <button type="button" class="btn-delete-opt" *ngIf="modalMode() !== 'view'" (click)="removeOption(index, optionIndex)" [attr.aria-label]="'Eliminar opción ' + (optionIndex + 1)">
+                      <app-lucide-icon name="trash" [size]="14" aria-hidden="true"></app-lucide-icon>
                     </button>
                   </div>
-                  
                   <div class="option-inputs">
                     <div class="input-group full-width">
-                      <label>Texto de la Opción</label>
-                      <input type="text" [(ngModel)]="opt.text" placeholder="Texto que leerá el estudiante..." [readonly]="modalMode() === 'view'">
+                      <label [for]="'option-' + index + '-' + optionIndex">Texto</label>
+                      <input [id]="'option-' + index + '-' + optionIndex" [name]="'option' + index + optionIndex" type="text" autocomplete="off" [(ngModel)]="option.text" placeholder="Respuesta posible…" [readonly]="modalMode() === 'view'">
                     </div>
-
-                    <!-- Traits Weights (Except for EMOTIONAL_REFLECTION steps to keep it clean) -->
-                    <div class="weights-grid" *ngIf="step.type !== 'EMOTIONAL_REFLECTION'">
-                      <div class="weight-input">
-                        <span class="trait-label ciencia">C</span>
-                        <input type="number" [(ngModel)]="opt.steamTraitWeight!.ciencia" [readonly]="modalMode() === 'view'" min="0" max="10">
-                      </div>
-                      <div class="weight-input">
-                        <span class="trait-label tecnologia">T</span>
-                        <input type="number" [(ngModel)]="opt.steamTraitWeight!.tecnologia" [readonly]="modalMode() === 'view'" min="0" max="10">
-                      </div>
-                      <div class="weight-input">
-                        <span class="trait-label ingenieria">I</span>
-                        <input type="number" [(ngModel)]="opt.steamTraitWeight!.ingenieria" [readonly]="modalMode() === 'view'" min="0" max="10">
-                      </div>
-                      <div class="weight-input">
-                        <span class="trait-label artes">A</span>
-                        <input type="number" [(ngModel)]="opt.steamTraitWeight!.artes" [readonly]="modalMode() === 'view'" min="0" max="10">
-                      </div>
-                      <div class="weight-input">
-                        <span class="trait-label matematicas">M</span>
-                        <input type="number" [(ngModel)]="opt.steamTraitWeight!.matematicas" [readonly]="modalMode() === 'view'" min="0" max="10">
+                    <div class="weights-grid" *ngIf="index !== 5">
+                      <div class="weight-input" *ngFor="let area of areas">
+                        <label [for]="'weight-' + area.value + '-' + index + '-' + optionIndex" class="trait-label" [ngClass]="area.value">{{ area.label.charAt(0) }}</label>
+                        <input [id]="'weight-' + area.value + '-' + index + '-' + optionIndex" [name]="'weight' + area.value + index + optionIndex" type="number" inputmode="numeric" min="0" max="10" [(ngModel)]="$any(option.steamTraitWeight)[area.value]" [readonly]="modalMode() === 'view'">
                       </div>
                     </div>
                   </div>
@@ -261,15 +229,12 @@
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="closeModal()">
-          {{ modalMode() === 'view' ? 'Cerrar' : 'Cancelar' }}
-        </button>
+      <footer class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeModal()">{{ modalMode() === 'view' ? 'Cerrar' : 'Cancelar' }}</button>
         <button type="button" class="btn-primary" *ngIf="modalMode() !== 'view'" (click)="saveSimulator()" [disabled]="isSubmitting()">
-          <span *ngIf="isSubmitting()">⏳ Guardando...</span>
-          <span *ngIf="!isSubmitting()">Guardar Simulador</span>
+          {{ isSubmitting() ? 'Guardando…' : 'Guardar Simulador' }}
         </button>
-      </div>
+      </footer>
     </div>
-  </div>
+  </section>
 </div>

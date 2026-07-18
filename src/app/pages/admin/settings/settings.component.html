@@ -1,139 +1,121 @@
 <app-admin-sidebar></app-admin-sidebar>
 
-<div class="admin-layout-content">
-
+<main class="admin-layout-content control-room" id="main-content">
   <header class="page-header">
     <div>
-      <h1>Configuración del Sistema</h1>
-      <p>Ajustes globales, integraciones y mantenimiento.</p>
+      <span class="eyebrow">Operación en Tiempo Real</span>
+      <h1>Torre de Control</h1>
+      <p>Una lectura conectada de la app, las APIs, PostgreSQL, el motor vocacional y sus integraciones.</p>
     </div>
-    <button class="btn-primary" (click)="saveSettings()" [disabled]="isSubmitting || !settingsForm.valid">
-      <span *ngIf="isSubmitting">⏳ Procesando...</span>
-      <span *ngIf="!isSubmitting"><app-lucide-icon name="save" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Guardar Cambios</span>
+    <button type="button" class="refresh-button" (click)="loadOverview()" [disabled]="isLoading" aria-label="Actualizar estado del sistema">
+      <app-lucide-icon name="refresh-cw" [size]="17" aria-hidden="true"></app-lucide-icon>
+      {{ isLoading ? 'Consultando…' : 'Actualizar' }}
     </button>
   </header>
 
-  <div class="toast-message" [class.show]="showSuccessToast"
-    style="position: fixed; top: 20px; right: 20px; background: #2C3E50; color: white; padding: 15px 25px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.3s ease, margin-top 0.3s ease; opacity: 0; pointer-events: none;"
-    [style.opacity]="showSuccessToast ? '1' : '0'">
-    {{ toastMessage || '✅ ¡Configuración guardada exitosamente!' }}
+  <div class="error-panel" *ngIf="errorMessage && !isLoading" role="alert">
+    <app-lucide-icon name="circle-alert" [size]="22" aria-hidden="true"></app-lucide-icon>
+    <div><strong>No hay telemetría disponible</strong><p>{{ errorMessage }}</p></div>
+    <button type="button" (click)="loadOverview()">Reintentar</button>
   </div>
 
-  <form #settingsForm="ngForm" (ngSubmit)="saveSettings()" class="settings-grid">
+  <ng-container *ngIf="isLoading">
+    <div class="summary-grid" aria-busy="true">
+      <div class="summary-card skeleton" *ngFor="let item of [1, 2, 3, 4]" aria-hidden="true"></div>
+    </div>
+  </ng-container>
 
-    <div class="settings-card">
-      <div class="card-header">
-        <span class="icon"><app-lucide-icon name="building" [size]="20"></app-lucide-icon></span>
-        <h2>General</h2>
-      </div>
-      <div class="card-body">
+  <ng-container *ngIf="overview && !isLoading">
+    <section class="summary-grid" aria-label="Resumen operativo">
+      <article class="summary-card primary">
+        <span class="summary-label">Servicios Disponibles</span>
+        <strong>{{ availableCount }}<small>/ {{ overview.services.length }}</small></strong>
+        <span>{{ operationalCount }} verificados · {{ configuredCount }} configurados</span>
+      </article>
+      <article class="summary-card">
+        <span class="summary-label">Base de Datos</span>
+        <strong>{{ formatBytes(overview.database.sizeBytes) }}</strong>
+        <span>{{ overview.database.connections }} conexiones · {{ overview.database.latencyMs }} ms</span>
+      </article>
+      <article class="summary-card">
+        <span class="summary-label">Uptime de la API</span>
+        <strong>{{ formatUptime(overview.environment.uptimeSeconds) }}</strong>
+        <span translate="no">Node {{ overview.environment.nodeVersion }}</span>
+      </article>
+      <article class="summary-card" [class.attention]="issueCount > 0">
+        <span class="summary-label">Frentes por Atender</span>
+        <strong>{{ issueCount }}</strong>
+        <span>{{ issueCount ? 'Revisa integridad de datos' : 'Sin hallazgos' }}</span>
+      </article>
+    </section>
 
-        <div class="input-group">
-          <label>Nombre de la Aplicación <span style="color: red;">*</span></label>
-          <input type="text" name="appName" [(ngModel)]="settings.appName" required maxlength="50"
-            pattern="^(?!.*(.)\1{4})[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s,.'-]{3,50}$" #appNameModel="ngModel"
-            [ngClass]="{'invalid-input': appNameModel.invalid && appNameModel.touched}">
-          <small *ngIf="appNameModel.invalid && appNameModel.touched" style="color: red;">Ingresa un nombre válido (3-50
-            caracteres, sin repetir en exceso).</small>
+    <div class="operations-grid">
+      <section class="panel service-panel" aria-labelledby="services-title">
+        <div class="panel-heading">
+          <div><span class="section-index">01</span><h2 id="services-title">Cadena de Servicios</h2></div>
+          <span class="observed-at">{{ overview.generatedAt | date:'dd MMM, HH:mm:ss' }}</span>
         </div>
-
-        <div class="input-group">
-          <label>Correo de Soporte Técnico <span style="color: red;">*</span></label>
-          <input type="email" name="supportEmail" [(ngModel)]="settings.supportEmail" required maxlength="100"
-            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" #emailModel="ngModel"
-            [ngClass]="{'invalid-input': emailModel.invalid && emailModel.touched}">
-          <small *ngIf="emailModel.invalid && emailModel.touched" style="color: red;">Ingresa un correo electrónico
-            válido.</small>
+        <div class="service-rail">
+          <article class="service-row" *ngFor="let service of overview.services; let last = last" [class.last]="last">
+            <span class="rail-node" [ngClass]="service.status">
+              <app-lucide-icon [name]="statusIcon(service)" [size]="14" aria-hidden="true"></app-lucide-icon>
+            </span>
+            <div class="service-copy">
+              <div><strong>{{ service.name }}</strong><span class="service-status" [ngClass]="service.status">{{ statusLabel(service) }}</span></div>
+              <p>{{ service.detail }}</p>
+            </div>
+            <span class="latency" *ngIf="service.latencyMs !== null">{{ service.latencyMs }} ms</span>
+          </article>
         </div>
+      </section>
 
-        <div class="input-group">
-          <label>Zona Horaria del Sistema <span style="color: red;">*</span></label>
-          <select name="timezone" [(ngModel)]="settings.timezone" required>
-            <option value="America/Mexico_City">Ciudad de México / Centro (UTC-6)</option>
-            <option value="America/Cancun">Cancún / Este (UTC-5)</option>
-            <option value="America/Tijuana">Tijuana / Pacífico (UTC-8)</option>
-          </select>
+      <section class="panel" aria-labelledby="integrity-title">
+        <div class="panel-heading"><div><span class="section-index">02</span><h2 id="integrity-title">Integridad de Datos</h2></div></div>
+        <div class="quality-list">
+          <article [class.warning]="overview.quality.orphanOptions > 0">
+            <div><strong>{{ overview.quality.orphanOptions }}</strong><span>Opciones Huérfanas</span></div>
+            <button type="button" *ngIf="overview.quality.orphanOptions > 0" (click)="cleanupOrphanOptions()" [disabled]="isRunningAction">Corregir</button>
+          </article>
+          <article [class.critical]="overview.quality.invalidSimulators > 0"><div><strong>{{ overview.quality.invalidSimulators }}</strong><span>Simuladores Inválidos</span></div></article>
+          <article [class.warning]="overview.quality.failedUniversityEnrichments > 0"><div><strong>{{ overview.quality.failedUniversityEnrichments }}</strong><span>Enriquecimientos Fallidos</span></div></article>
+          <article [class.warning]="overview.quality.unverifiedUniversities > 0"><div><strong>{{ overview.quality.unverifiedUniversities }}</strong><span>Universidades sin Verificar</span></div></article>
+          <article [class.warning]="overview.quality.legacyProfiles > 0"><div><strong>{{ overview.quality.legacyProfiles }}</strong><span>Perfiles Legacy</span></div></article>
+          <article [class.warning]="overview.quality.unverifiedUsers > 0"><div><strong>{{ overview.quality.unverifiedUsers }}</strong><span>Correos sin Verificar</span></div></article>
         </div>
-
-      </div>
+      </section>
     </div>
 
-    <div class="settings-card">
-      <div class="card-header">
-        <span class="icon"><app-lucide-icon name="brain" [size]="20"></app-lucide-icon></span>
-        <h2>Motor de Inteligencia Artificial</h2>
+    <section class="panel data-panel" aria-labelledby="data-title">
+      <div class="panel-heading">
+        <div><span class="section-index">03</span><h2 id="data-title">Inventario de PostgreSQL</h2></div>
+        <span class="database-name" translate="no">{{ overview.database.name }}</span>
       </div>
-      <div class="card-body">
-
-        <div class="input-group">
-          <label>Proveedor de IA <span style="color: red;">*</span></label>
-          <select name="aiProvider" [(ngModel)]="settings.aiProvider" required>
-            <option value="groq">Groq</option>
-            <option value="openai">OpenAI GPT-4</option>
-            <option value="claude">Anthropic Claude</option>
-          </select>
-        </div>
-
-        <div class="input-group">
-          <label>API Key (Secreta) <span style="color: red;">*</span></label>
-          <input type="password" name="apiKey" [(ngModel)]="settings.apiKey" placeholder="Ingresa tu clave de API"
-            required minlength="10" maxlength="100" #apiKeyModel="ngModel"
-            [ngClass]="{'invalid-input': apiKeyModel.invalid && apiKeyModel.touched}">
-          <small *ngIf="apiKeyModel.invalid && apiKeyModel.touched" style="color: red;">La API Key es obligatoria y debe
-            tener al menos 10 caracteres.</small>
-          <small class="help-text">Nunca compartas esta clave. Se encriptará en la base de datos.</small>
-        </div>
-
-        <div class="input-group">
-          <label>Temperatura (Creatividad): {{ settings.aiTemperature }}</label>
-          <div class="range-slider-container">
-            <span>0.0 (Preciso)</span>
-            <input type="range" name="aiTemperature" min="0" max="1" step="0.1" [(ngModel)]="settings.aiTemperature">
-            <span>1.0 (Creativo)</span>
-          </div>
-        </div>
-
+      <div class="data-grid">
+        <article *ngFor="let entry of countEntries()">
+          <strong>{{ entry.value | number:'1.0-0':'es-MX' }}</strong>
+          <span>{{ entry.label }}</span>
+        </article>
       </div>
-    </div>
+    </section>
 
-    <div class="settings-card full-width-card">
-      <div class="card-header">
-        <span class="icon"><app-lucide-icon name="shield" [size]="20"></app-lucide-icon></span>
-        <h2>Sistema y Mantenimiento</h2>
+    <section class="panel maintenance-panel" aria-labelledby="maintenance-title">
+      <div class="panel-heading"><div><span class="section-index">04</span><h2 id="maintenance-title">Mantenimiento Seguro</h2></div></div>
+      <div class="maintenance-row">
+        <div>
+          <strong>Vaciar Caché de Coincidencias</strong>
+          <p>Elimina {{ overview.counts['universityCache'] || 0 }} resultados A8 almacenados y OTP vencidos. No borra usuarios, tests ni universidades.</p>
+        </div>
+        <button type="button" class="danger-button" (click)="clearCache()" [disabled]="isRunningAction">
+          <app-lucide-icon name="trash-2" [size]="16" aria-hidden="true"></app-lucide-icon>
+          {{ isRunningAction ? 'Procesando…' : 'Vaciar Caché' }}
+        </button>
       </div>
-      <div class="card-body system-toggles">
+    </section>
 
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <strong>Permitir Nuevos Registros</strong>
-            <p>Si se desactiva, nadie podrá crear cuentas nuevas desde la app.</p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" name="enableSignups" [(ngModel)]="settings.enableSignups">
-            <span class="slider round"></span>
-          </label>
-        </div>
-
-        <div class="toggle-row warning-row">
-          <div class="toggle-info">
-            <strong>Modo Mantenimiento</strong>
-            <p>Bloquea el acceso a todos los estudiantes mostrando una pantalla de "Regresamos pronto".</p>
-          </div>
-          <label class="switch">
-            <input type="checkbox" name="maintenanceMode" [(ngModel)]="settings.maintenanceMode">
-            <span class="slider round warning-slider"></span>
-          </label>
-        </div>
-
-        <div class="danger-zone">
-          <h3>Zona de Peligro</h3>
-          <p>Estas acciones no se pueden deshacer fácilmente.</p>
-          <button class="btn-danger-outline" (click)="clearCache()"><app-lucide-icon name="trash-2" [size]="16" style="margin-right: 4px;"></app-lucide-icon> Limpiar Caché del Sistema</button>
-        </div>
-
-      </div>
-    </div>
-
-  </form>
-
-</div>
+    <footer class="runtime-footer">
+      <span>Entorno: <strong translate="no">{{ overview.environment.nodeEnv }}</strong></span>
+      <span>Commit: <strong translate="no">{{ overview.environment.commit || 'no disponible' }}</strong></span>
+      <span>Telemetría generada por la API; ninguna llave secreta se expone.</span>
+    </footer>
+  </ng-container>
+</main>

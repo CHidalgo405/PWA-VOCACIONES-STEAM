@@ -18,7 +18,7 @@
     font-weight: 600;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-    transition: all 0.2s;
+    transition: border-color 0.2s, color 0.2s;
     &:hover { border-color: var(--steam-blue); color: var(--steam-blue); }
   }
 }
@@ -156,7 +156,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
+      transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
       color: #07B1C9;
 
       &:hover {

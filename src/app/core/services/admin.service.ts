@@ -12,6 +12,9 @@ export interface AdminUser {
   level: number;
   isEmailVerified: boolean;
   createdAt: string;
+  updatedAt?: string;
+  avatarUrl?: string | null;
+  settings?: Record<string, unknown>;
   // Moderación
   isBanned?: boolean;
   suspendedUntil?: string | null;
@@ -70,8 +73,9 @@ export interface RecentLogItem {
   detectedProfile: string;
   latency: string;
   status: string;
-  prompt?: string;
-  response?: string;
+  provider?: string;
+  tokensConsumed?: number;
+  errorMessage?: string | null;
 }
 
 export interface AiLogsStatsResponse {
@@ -79,6 +83,97 @@ export interface AiLogsStatsResponse {
   averageLatency: string;
   totalTokens: string;
   recentLogs: RecentLogItem[];
+}
+
+export type SteamAxis = 'ciencia' | 'tecnologia' | 'ingenieria' | 'artes' | 'matematicas';
+
+export interface AdminSimulator {
+  id: string;
+  slug: string;
+  careerName: string;
+  steamArea: SteamAxis;
+  estimatedDurationMinutes: number;
+  difficulty: string;
+  status: 'activo' | 'inactivo';
+  colorToken: string;
+  icon: string;
+  shortDescription: string;
+  tags: string[];
+  steps: any[];
+  completionConfig?: Record<string, unknown> | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface SystemServiceStatus {
+  id: string;
+  name: string;
+  status: 'operational' | 'configured' | 'degraded' | 'unconfigured';
+  latencyMs: number | null;
+  detail: string;
+}
+
+export interface SystemOverview {
+  generatedAt: string;
+  environment: {
+    nodeEnv: string;
+    nodeVersion: string;
+    commit: string | null;
+    uptimeSeconds: number;
+  };
+  services: SystemServiceStatus[];
+  database: {
+    name: string;
+    sizeBytes: number;
+    connections: number;
+    latencyMs: number;
+  };
+  counts: Record<string, number>;
+  quality: {
+    orphanOptions: number;
+    invalidSimulators: number;
+    inactiveSimulators: number;
+    unverifiedUniversities: number;
+    failedUniversityEnrichments: number;
+    legacyProfiles: number;
+    unverifiedUsers: number;
+  };
+}
+
+export interface VocationCatalogItem {
+  id: string;
+  axis: SteamAxis;
+  name: string;
+  description: string;
+  skills: string[];
+  icon: string;
+}
+
+export interface CareerCatalogItem {
+  id: string;
+  axis: SteamAxis;
+  careerName: string;
+  studyPlanHighlights: string[];
+  careerFields: string[];
+  relatedSimulatorSlug?: string | null;
+  icon: string;
+}
+
+export interface AxisMetaItem {
+  axis: SteamAxis;
+  label: string;
+  adjective: string;
+  icon: string;
+  archetype: string;
+  strengthTitle: string;
+  strengthDesc: string;
+  workStyle: string[];
+}
+
+export interface AdminCatalogs {
+  vocations: VocationCatalogItem[];
+  careers: CareerCatalogItem[];
+  axisMeta: AxisMetaItem[];
 }
 
 /** Candidata para el algoritmo A8 (matching de universidades). */
@@ -115,6 +210,17 @@ export class AdminService {
     return this.http.get<AdminUser[]>(`${environment.apiUrl}/users`);
   }
 
+  createUser(data: {
+    email: string;
+    fullname: string;
+    password: string;
+    role: 'student' | 'admin';
+    title?: string;
+    isEmailVerified?: boolean;
+  }): Observable<AdminUser> {
+    return this.http.post<AdminUser>(`${environment.apiUrl}/users`, data);
+  }
+
   updateUser(id: string, data: Partial<AdminUser>): Observable<AdminUser> {
     return this.http.put<AdminUser>(`${environment.apiUrl}/users/${id}`, data);
   }
@@ -136,19 +242,19 @@ export class AdminService {
 
   // --- ADMINISTRACIÓN DEL TEST VOCACIONAL ---
   getAllQuestions(): Observable<AdminTestQuestion[]> {
-    return this.http.get<AdminTestQuestion[]>(`${environment.apiUrl}/tests/questions`);
+    return this.http.get<AdminTestQuestion[]>(`${environment.apiUrl}/admin/questions`);
   }
 
   createQuestion(question: Partial<AdminTestQuestion>): Observable<AdminTestQuestion> {
-    return this.http.post<AdminTestQuestion>(`${environment.apiUrl}/tests/questions`, question);
+    return this.http.post<AdminTestQuestion>(`${environment.apiUrl}/admin/questions`, question);
   }
 
   updateQuestion(id: string, question: Partial<AdminTestQuestion>): Observable<AdminTestQuestion> {
-    return this.http.put<AdminTestQuestion>(`${environment.apiUrl}/tests/questions/${id}`, question);
+    return this.http.put<AdminTestQuestion>(`${environment.apiUrl}/admin/questions/${id}`, question);
   }
 
   deleteQuestion(id: string): Observable<any> {
-    return this.http.delete(`${environment.apiUrl}/tests/questions/${id}`);
+    return this.http.delete(`${environment.apiUrl}/admin/questions/${id}`);
   }
 
   // --- MONITOREO IA ---
@@ -157,20 +263,69 @@ export class AdminService {
   }
 
   // --- ADMINISTRACIÓN DE SIMULADORES ---
-  public getAdminSimulators(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/career-simulators`);
+  public getAdminSimulators(): Observable<AdminSimulator[]> {
+    return this.http.get<AdminSimulator[]>(`${environment.apiUrl}/admin/career-simulators`);
   }
 
-  public createSimulator(simulator: any): Observable<any> {
-    return this.http.post<any>(`${environment.apiUrl}/career-simulators`, simulator);
+  public createSimulator(simulator: Partial<AdminSimulator>): Observable<AdminSimulator> {
+    return this.http.post<AdminSimulator>(`${environment.apiUrl}/admin/career-simulators`, simulator);
   }
 
-  public updateSimulator(id: string, simulator: any): Observable<any> {
-    return this.http.put<any>(`${environment.apiUrl}/career-simulators/${id}`, simulator);
+  public updateSimulator(id: string, simulator: Partial<AdminSimulator>): Observable<AdminSimulator> {
+    return this.http.put<AdminSimulator>(`${environment.apiUrl}/admin/career-simulators/${id}`, simulator);
   }
 
   public deleteSimulator(id: string): Observable<any> {
-    return this.http.delete<any>(`${environment.apiUrl}/career-simulators/${id}`);
+    return this.http.delete<any>(`${environment.apiUrl}/admin/career-simulators/${id}`);
+  }
+
+  // --- OPERACIÓN DEL SISTEMA ---
+  getSystemOverview(): Observable<SystemOverview> {
+    return this.http.get<SystemOverview>(`${environment.apiUrl}/admin/system/overview`);
+  }
+
+  clearOperationalCache(): Observable<{
+    universityMatchCacheDeleted: number;
+    expiredOtpCodesDeleted: number;
+  }> {
+    return this.http.delete<any>(`${environment.apiUrl}/admin/system/cache`);
+  }
+
+  cleanupOrphanOptions(): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(`${environment.apiUrl}/admin/system/orphan-options`);
+  }
+
+  // --- CATÁLOGOS A6/A7 ---
+  getCatalogs(): Observable<AdminCatalogs> {
+    return this.http.get<AdminCatalogs>(`${environment.apiUrl}/admin/careers-catalog`);
+  }
+
+  createVocation(data: Partial<VocationCatalogItem>): Observable<VocationCatalogItem> {
+    return this.http.post<VocationCatalogItem>(`${environment.apiUrl}/admin/careers-catalog/vocations`, data);
+  }
+
+  updateVocation(id: string, data: Partial<VocationCatalogItem>): Observable<VocationCatalogItem> {
+    return this.http.put<VocationCatalogItem>(`${environment.apiUrl}/admin/careers-catalog/vocations/${id}`, data);
+  }
+
+  deleteVocation(id: string): Observable<{ success: boolean }> {
+    return this.http.delete<any>(`${environment.apiUrl}/admin/careers-catalog/vocations/${id}`);
+  }
+
+  createCareer(data: Partial<CareerCatalogItem>): Observable<CareerCatalogItem> {
+    return this.http.post<CareerCatalogItem>(`${environment.apiUrl}/admin/careers-catalog/careers`, data);
+  }
+
+  updateCareer(id: string, data: Partial<CareerCatalogItem>): Observable<CareerCatalogItem> {
+    return this.http.put<CareerCatalogItem>(`${environment.apiUrl}/admin/careers-catalog/careers/${id}`, data);
+  }
+
+  deleteCareer(id: string): Observable<{ success: boolean }> {
+    return this.http.delete<any>(`${environment.apiUrl}/admin/careers-catalog/careers/${id}`);
+  }
+
+  updateAxisMeta(axis: SteamAxis, data: Partial<AxisMetaItem>): Observable<AxisMetaItem> {
+    return this.http.put<AxisMetaItem>(`${environment.apiUrl}/admin/careers-catalog/axis-meta/${axis}`, data);
   }
 
   // --- ADMINISTRACIÓN DE UNIVERSIDADES (candidatas de A8) ---

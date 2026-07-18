@@ -25,6 +25,42 @@ p { margin: 5px 0 0; color: var(--text-secondary, #7F8C8D); }
   }
 }
 
+.toolbar p,
+.student-name {
+  display: block;
+  margin: 4px 0 0;
+  color: var(--text-secondary, #71808a);
+  font-size: 0.76rem;
+}
+
+.detail-button,
+.btn-close-modal {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--border-color, #dce5ea);
+  border-radius: 9px;
+  background: var(--bg-surface, #fff);
+  color: var(--steam-blue, #07b1c9);
+  cursor: pointer;
+}
+
+.empty-cell { padding: 40px !important; text-align: center; }
+.api-status-badge.degraded { color: #c92a2a; }
+.modal-overlay { overscroll-behavior: contain; }
+.log-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0; }
+.log-detail-grid > div { padding: 13px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 10px; background: var(--bg-elevated, #f8fafb); }
+.log-detail-grid dt { color: var(--text-secondary); font-size: .7rem; font-weight: 750; text-transform: uppercase; }
+.log-detail-grid dd { margin: 6px 0 0; font-weight: 700; }
+.error-detail, .privacy-note { margin-top: 16px; padding: 15px; border-radius: 10px; }
+.error-detail { border: 1px solid rgba(232,55,45,.3); background: rgba(232,55,45,.07); color: #c92a2a; }
+.error-detail p, .privacy-note p { margin: 5px 0 0; }
+.privacy-note { display: flex; gap: 10px; align-items: flex-start; border: 1px solid rgba(77,176,70,.3); background: rgba(77,176,70,.07); color: var(--text-primary); }
+:is(button):focus-visible { outline: 3px solid rgba(7,177,201,.38); outline-offset: 2px; }
+
+@media (max-width: 640px) { .log-detail-grid { grid-template-columns: 1fr; } }
+
 @keyframes pulseDot {
   to { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
 }

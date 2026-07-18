@@ -59,17 +59,13 @@ export class AiLogsComponent implements OnInit {
     });
   }
 
-  selectLog(log: RecentLogItem) {
-    this.selectedLog = this.selectedLog?.id === log.id ? null : log;
-  }
-
-  viewDetails() {
-    if (this.selectedLog) {
-      this.isModalOpen = true;
-    }
+  viewDetails(log: RecentLogItem) {
+    this.selectedLog = log;
+    this.isModalOpen = true;
   }
 
   closeModal() {
     this.isModalOpen = false;
+    this.selectedLog = null;
   }
 }

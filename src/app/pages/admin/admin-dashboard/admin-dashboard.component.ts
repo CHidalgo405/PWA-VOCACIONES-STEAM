@@ -4,11 +4,8 @@ import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-s
 import { BaseChartDirective } from 'ng2-charts'; // Importante para la gráfica
 import { ChartConfiguration } from 'chart.js';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
-import { PdfReportTemplateComponent } from '../../../components/pdf-report-template/pdf-report-template.component';
 import { AdminReportTemplateComponent } from '../../../components/admin-report-template/admin-report-template.component';
 import { RouterModule } from '@angular/router';
-import { SteamArea } from '../../test-result/test-result.component';
-import { UniversityRecommendation } from '../../../core/services/test.service';
 import { inject } from '@angular/core';
 import { ToastService } from '../../../core/services/toast.service';
 import { AdminService, AdminStats } from '../../../core/services/admin.service';
@@ -21,7 +18,7 @@ interface Alert { type: 'warning' | 'success' | 'info'; text: string; }
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, AdminSidebarComponent, BaseChartDirective, LucideIconComponent, PdfReportTemplateComponent, AdminReportTemplateComponent],
+  imports: [CommonModule, RouterModule, AdminSidebarComponent, BaseChartDirective, LucideIconComponent, AdminReportTemplateComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
@@ -53,7 +50,7 @@ export class AdminDashboardComponent implements OnInit {
   hasProfileData = false;
 
   // 3. Actividad reciente (usuarios recién registrados + su último test)
-  recentUsers: { name: string; email: string; institution: string; profile: string; date: string; status: string }[] = [];
+  recentUsers: { name: string; email: string; profile: string; date: string; status: string }[] = [];
 
   // 4. Alertas derivadas de datos reales
   alerts: Alert[] = [];
@@ -96,7 +93,6 @@ export class AdminDashboardComponent implements OnInit {
     this.recentUsers = (stats.recentUsers || []).map((u) => ({
       name: u.fullname,
       email: u.email,
-      institution: '—',
       profile: u.dominantTraits || 'Sin test',
       date: this.relativeDate(u.createdAt),
       status: u.hasTest ? 'Completado' : 'Pendiente',
@@ -130,15 +126,6 @@ export class AdminDashboardComponent implements OnInit {
     if (diffD < 30) return `Hace ${diffD} días`;
     return new Date(iso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
   }
-
-  // Data for individual student PDF
-  selectedStudentPdf: any = {
-    dominantTraits: '',
-    description: '',
-    greeting: '',
-    steamAreas: [] as SteamArea[],
-    recommendations: [] as UniversityRecommendation[]
-  };
 
   async exportDashboardPdf() {
     this.toastService.showToast('Generando reporte ejecutivo...', 'info', 'Descargando PDF');
@@ -186,71 +173,4 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  async downloadStudentPdf(user: any) {
-    this.toastService.showToast(
-      `Generando reporte vocacional para ${user.name}...`,
-      'info',
-      'Reporte Estudiante'
-    );
-
-    // 1. Mockup data for the student (In real app, fetch from API)
-    this.selectedStudentPdf = {
-      dominantTraits: user.profile,
-      greeting: `Hola, ${user.name}`,
-      description: `Basado en el análisis de IA para ${user.name}, se ha detectado un fuerte perfil orientado a ${user.profile}. Posee habilidades analíticas y de resolución de problemas que se alinean perfectamente con las demandas del área STEAM actual.`,
-      steamAreas: [
-        { label: user.profile, percentage: 95, icon: 'star', gradientStart: '#07B1C9' },
-        { label: 'Tecnología', percentage: 80, icon: 'cpu', gradientStart: '#6366F1' },
-        { label: 'Ciencia', percentage: 70, icon: 'flask-conical', gradientStart: '#10b981' }
-      ] as any[],
-      recommendations: [
-        { suggestedMajor: `Ingeniería en ${user.profile}`, name: 'Universidad Politécnica', location: 'Ciudad de México', matchReason: 'Alta afinidad con el perfil analítico detectado.' }
-      ] as any[]
-    };
-
-    // 2. Wait for template to update
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // 3. Generate PDF
-    try {
-      const pdfTemplate = document.getElementById('pdf-report-template-wrapper') as HTMLElement;
-      if (!pdfTemplate) throw new Error('No PDF template found');
-
-      const canvas = await html2canvas(pdfTemplate, {
-        scale: 3,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#FFFFFF',
-        width: 800
-      });
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = pageWidth / imgWidth;
-      const totalPdfHeight = imgHeight * ratio;
-
-      let heightLeft = totalPdfHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, totalPdfHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - totalPdfHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, totalPdfHeight);
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save(`Reporte_STEAM_${user.name.replace(/\s+/g, '_')}.pdf`);
-      this.toastService.showToast('Reporte individual generado con éxito.', 'success');
-    } catch (error) {
-      console.error('Error generating student PDF:', error);
-      this.toastService.showToast('No se pudo generar el reporte individual.', 'error');
-    }
-  }
 }

@@ -38,9 +38,10 @@ $sidebar-width-mobile: 280px;
   background: rgba(0,0,0,0.4);
   backdrop-filter: blur(3px);
   z-index: 998;
+  border: 0;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s ease;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
 
   &.active {
     opacity: 1;
@@ -124,7 +125,12 @@ $sidebar-width-mobile: 280px;
   color: var(--text-muted, #7F8C8D);
   font-weight: 600;
   font-size: 0.95rem;
-  transition: all 0.2s ease;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
 
   .icon { font-size: 1.2rem; transition: transform 0.2s; }
 
@@ -145,6 +151,17 @@ $sidebar-width-mobile: 280px;
     color: #e74c3c;
     &:hover { background: rgba(231, 76, 60, 0.1); }
   }
+}
+
+.nav-item:focus-visible,
+.mobile-toggle-btn:focus-visible,
+.close-btn:focus-visible {
+  outline: 3px solid rgba(7, 177, 201, 0.38);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
 }
 
 .sidebar-footer {
