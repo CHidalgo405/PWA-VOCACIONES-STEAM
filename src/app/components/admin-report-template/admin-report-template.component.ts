@@ -52,18 +52,25 @@ import { CommonModule } from '@angular/common';
           <div class="status-summary-box">
             <div class="section-title">Estado del Ecosistema</div>
             <div class="status-list">
-              <div class="status-item warning">
-                <span class="status-icon">⚠️</span>
+              <div class="status-item success">
+                <span class="status-icon">🗄️</span>
                 <div>
-                  <strong>Base de Datos</strong>
-                  <p>Capacidad al 85%. Recomendado mantenimiento preventivo.</p>
+                  <strong>Persistencia</strong>
+                  <p>Los datos se almacenan en PostgreSQL. Consulta la Torre de Control para conocer su estado en tiempo real.</p>
                 </div>
               </div>
               <div class="status-item success">
-                <span class="status-icon">✅</span>
+                <span class="status-icon">🧭</span>
                 <div>
-                  <strong>Motor de IA</strong>
-                  <p>Estado Operacional: Óptimo. Latencia promedio < 1.2s.</p>
+                  <strong>Motor vocacional</strong>
+                  <p>Cálculo determinista y explicable para el perfil A1–A7.</p>
+                </div>
+              </div>
+              <div class="status-item success">
+                <span class="status-icon">✨</span>
+                <div>
+                  <strong>IA para universidades</strong>
+                  <p>Uso acotado al refinamiento A8. Consulta Monitoreo de IA para conocer sus métricas reales.</p>
                 </div>
               </div>
             </div>
@@ -77,7 +84,6 @@ import { CommonModule } from '@angular/common';
             <thead>
               <tr>
                 <th>Estudiante</th>
-                <th>Institución</th>
                 <th>Perfil Detectado</th>
                 <th>Fecha</th>
                 <th>Estado</th>
@@ -89,7 +95,6 @@ import { CommonModule } from '@angular/common';
                   <div class="user-name">{{ user.name }}</div>
                   <div class="user-email">{{ user.email }}</div>
                 </td>
-                <td>{{ user.institution }}</td>
                 <td><span class="profile-tag">{{ user.profile }}</span></td>
                 <td>{{ user.date }}</td>
                 <td>{{ user.status }}</td>
