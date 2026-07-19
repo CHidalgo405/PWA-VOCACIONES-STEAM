@@ -1,38 +1,34 @@
 <div class="auth-wrapper">
   <div class="ambient-glow glow-1"></div>
   <div class="ambient-glow glow-2"></div>
-  
+
   <div class="register-card">
-    
     <!-- Imagen / Ilustración (Desktop side) -->
     <div class="register-image-side">
       <div class="arch-shape"></div>
-      <img src="assets/register-illustration.png" alt="Register 3D Avatar" class="avatar-img">
+      <img src="assets/register-illustration.png" alt="Register 3D Avatar" class="avatar-img" />
     </div>
 
     <!-- Formulario (Main view) -->
     <div class="register-form-side">
-      
       <!-- LOGO DE MARCA EXCLUSIVO PARA MÓVIL Y DESKTOP HEADER -->
       <div class="auth-brand-header">
-        <img src="logo.svg" alt="Vocaciones STEAM Logo" class="app-brand-logo">
+        <img src="logo.svg" alt="Vocaciones STEAM Logo" class="app-brand-logo" />
         <h1 class="logo-brand-title">Vocaciones <span class="logo-brand-sub">STEAM</span></h1>
       </div>
 
       <ng-container *ngIf="!isVerificationStep">
-        
         <div class="form-header">
           <h2>Crea tu cuenta</h2>
           <p class="form-subtitle">Comienza tu viaje vocacional y potencia tu futuro STEAM.</p>
         </div>
 
         <form (ngSubmit)="onSubmit()">
-          
           <div class="input-group">
             <label for="fullname">Nombre Completo</label>
             <div class="input-wrapper">
               <app-lucide-icon name="user" [size]="18" class="input-icon"></app-lucide-icon>
-              <input type="text" id="fullname" name="fullname" [(ngModel)]="fullname" placeholder="Ingresa tu nombre" required>
+              <input type="text" id="fullname" name="fullname" [(ngModel)]="fullname" placeholder="Ingresa tu nombre" required />
             </div>
           </div>
 
@@ -40,7 +36,7 @@
             <label for="email">Correo Institucional / Personal</label>
             <div class="input-wrapper">
               <app-lucide-icon name="mail" [size]="18" class="input-icon"></app-lucide-icon>
-              <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="correo@ejemplo.com" required>
+              <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="correo@ejemplo.com" required />
             </div>
           </div>
 
@@ -48,8 +44,7 @@
             <label for="password">Crear Contraseña</label>
             <div class="input-wrapper">
               <app-lucide-icon name="lock" [size]="18" class="input-icon"></app-lucide-icon>
-              <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password"
-                placeholder="Mínimo 8 caracteres" required>
+              <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password" placeholder="Mínimo 8 caracteres" required />
               <button type="button" class="btn-toggle-password" (click)="togglePasswordVisibility()" title="Mostrar/ocultar contraseña">
                 <app-lucide-icon *ngIf="!showPassword" name="eye-off" [size]="18" class="eye-icon"></app-lucide-icon>
                 <app-lucide-icon *ngIf="showPassword" name="eye" [size]="18" class="eye-icon"></app-lucide-icon>
@@ -59,14 +54,14 @@
 
           <div class="options-row-flex">
             <label class="remember-label-checkbox">
-              <input type="checkbox" name="rememberMe" [(ngModel)]="rememberMe">
+              <input type="checkbox" name="rememberMe" [(ngModel)]="rememberMe" />
               <span class="custom-checkbox-text">Recordarme</span>
             </label>
           </div>
 
           <!-- Aceptación OBLIGATORIA de documentos legales -->
           <label class="legal-consent-row">
-            <input type="checkbox" name="acceptedTerms" [(ngModel)]="acceptedTerms">
+            <input type="checkbox" name="acceptedTerms" [(ngModel)]="acceptedTerms" />
             <span class="legal-consent-text">
               He leído y acepto el
               <a routerLink="/legal/privacidad" target="_blank" rel="noopener">Aviso de Privacidad</a>
@@ -86,15 +81,17 @@
 
           <div class="social-login-row">
             <button type="button" class="btn-google-pill" (click)="simularLoginGoogle($event)">
-              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" class="google-logo-svg">
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" class="google-logo-svg" />
               <span>Continuar con Google</span>
             </button>
           </div>
-
         </form>
 
         <div class="bottom-redirect-row">
-          <p>¿Ya tienes cuenta? <a routerLink="/login" class="signup-redirect-link">Inicia sesión</a></p>
+          <p>
+            ¿Ya tienes cuenta?
+            <a routerLink="/login" class="signup-redirect-link">Inicia sesión</a>
+          </p>
         </div>
       </ng-container>
 
@@ -106,28 +103,30 @@
           </div>
           <h2>Código de Verificación</h2>
           <p class="verify-desc-text">
-            Hemos enviado un código de activación a:<br>
+            Hemos enviado un código de activación a:<br />
             <span class="highlight-email">{{ email }}</span>
           </p>
         </div>
 
         <div class="otp-input-container">
-          <input type="text" [(ngModel)]="verificationCode" maxlength="6" class="otp-fields-input" placeholder="000000" style="text-transform: uppercase;" />
+          <input type="text" [(ngModel)]="verificationCode" maxlength="6" class="otp-fields-input" placeholder="000000" style="text-transform: uppercase" />
         </div>
 
-        <button (click)="onVerifyOTP()" class="premium-submit-button" style="margin-top: 10px;" [disabled]="isVerifying">
+        <button (click)="onVerifyOTP()" class="premium-submit-button" style="margin-top: 10px" [disabled]="isVerifying">
           <span *ngIf="isVerifying" class="btn-spinner"></span>
           <span *ngIf="!isVerifying">Verificar Código</span>
         </button>
 
-        <div class="bottom-redirect-row" style="margin-top: 24px;">
-          <p>
-            ¿No recibiste el correo? Revisa Spam o
-            <a href="javascript:void(0)" (click)="isVerificationStep = false; password = ''; verificationCode = ''" class="signup-redirect-link">intenta registrarte otra vez</a>.
-          </p>
+        <div class="bottom-redirect-row" style="margin-top: 24px">
+          <p>¿No recibiste el correo? Revisa Spam o solicita uno nuevo.</p>
+          <button type="button" class="otp-link-button" (click)="resendVerificationCode()" [disabled]="isResending || resendCooldown > 0">
+            <span *ngIf="isResending">Enviando…</span>
+            <span *ngIf="!isResending && resendCooldown > 0">Reenviar en {{ resendCooldown }}s</span>
+            <span *ngIf="!isResending && resendCooldown === 0">Reenviar código</span>
+          </button>
+          <button type="button" class="otp-link-button secondary" (click)="editRegistrationEmail()">Cambiar correo</button>
         </div>
       </ng-container>
-
     </div>
   </div>
 </div>

@@ -49,7 +49,7 @@ export class AuthService {
   // currentUser subject to react to user changes
   private currentUserSubject = new BehaviorSubject<Usuario | null>(this.getCurrentUser());
   public currentUser$ = this.currentUserSubject.asObservable();
-  
+
   // State signal for modern Angular reactivity
   public currentUserSig = signal<Usuario | null>(this.getCurrentUser());
 
@@ -67,7 +67,15 @@ export class AuthService {
   // ---------------------------------------------------------
 
   register(email: string, fullname: string, password: string): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/auth/register`, { email, fullname, password });
+    return this.http.post(`${environment.apiUrl}/auth/register`, {
+      email,
+      fullname,
+      password
+    });
+  }
+
+  resendRegistrationOtp(email: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/resend-registration-otp`, { email });
   }
 
   verifyOtp(email: string, code: string, purpose: 'register' | 'recovery'): Observable<any> {
@@ -96,12 +104,18 @@ export class AuthService {
 
   // Se solicita la recuperación (Reemplazado Firebase por llamada API HTTP Real)
   forgotPassword(email: string): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/auth/forgot-password`, { email });
+    return this.http.post(`${environment.apiUrl}/auth/forgot-password`, {
+      email
+    });
   }
 
   // Se restablece la contraseña usando el OTP
   resetPassword(email: string, code: string, newPassword: string): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/auth/reset-password`, { email, code, newPassword });
+    return this.http.post(`${environment.apiUrl}/auth/reset-password`, {
+      email,
+      code,
+      newPassword
+    });
   }
 
   loginWithGoogle() {
@@ -161,33 +175,43 @@ export class AuthService {
    * El interceptor llama a este método cuando detecta un 401 o un access
    * token expirado. Actualiza ambos tokens en localStorage automáticamente.
    */
-  refreshAccessToken(): Observable<{ accessToken: string; refreshToken?: string }> {
+  refreshAccessToken(): Observable<{
+    accessToken: string;
+    refreshToken?: string;
+  }> {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) return throwError(() => new Error('No hay refresh token disponible.'));
 
-    return this.http.post<any>(
-      `${environment.apiUrl}/auth/refresh`,
-      {},
-      { headers: new HttpHeaders({ Authorization: `Bearer ${refreshToken}` }) }
-    ).pipe(
-      // Reintento ante fallos TRANSITORIOS (red caída o servidor reiniciándose):
-      // hasta 2 reintentos con backoff. Un 401/403 (refresh token inválido) NO
-      // se reintenta: se propaga de inmediato para que el interceptor decida.
-      retry({
-        count: 2,
-        delay: (error: HttpErrorResponse, retryCount: number) => {
-          const transient = error.status === 0 || error.status >= 500;
-          if (!transient) return throwError(() => error);
-          return timer(retryCount * 800);
-        },
-      }),
-      tap((res: any) => {
-        if (res.accessToken) localStorage.setItem(this.TOKEN_KEY, res.accessToken);
-        if (res.refreshToken) localStorage.setItem(this.REFRESH_TOKEN_KEY, res.refreshToken);
-        if (res.user) this.setCurrentUser(this.mapServerUser(res.user));
-      }),
-      map((res: any) => ({ accessToken: res.accessToken, refreshToken: res.refreshToken }))
-    );
+    return this.http
+      .post<any>(
+        `${environment.apiUrl}/auth/refresh`,
+        {},
+        {
+          headers: new HttpHeaders({ Authorization: `Bearer ${refreshToken}` })
+        }
+      )
+      .pipe(
+        // Reintento ante fallos TRANSITORIOS (red caída o servidor reiniciándose):
+        // hasta 2 reintentos con backoff. Un 401/403 (refresh token inválido) NO
+        // se reintenta: se propaga de inmediato para que el interceptor decida.
+        retry({
+          count: 2,
+          delay: (error: HttpErrorResponse, retryCount: number) => {
+            const transient = error.status === 0 || error.status >= 500;
+            if (!transient) return throwError(() => error);
+            return timer(retryCount * 800);
+          }
+        }),
+        tap((res: any) => {
+          if (res.accessToken) localStorage.setItem(this.TOKEN_KEY, res.accessToken);
+          if (res.refreshToken) localStorage.setItem(this.REFRESH_TOKEN_KEY, res.refreshToken);
+          if (res.user) this.setCurrentUser(this.mapServerUser(res.user));
+        }),
+        map((res: any) => ({
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken
+        }))
+      );
   }
 
   /** Convierte la respuesta del servidor al modelo interno Usuario. */
@@ -208,7 +232,7 @@ export class AuthService {
       phone: user.phone,
       location: user.location,
       github: user.github,
-      linkedin: user.linkedin,
+      linkedin: user.linkedin
     };
   }
 
@@ -225,7 +249,7 @@ export class AuthService {
       { id: 'gaming_habits', status: 'available' },
       { id: 'physical_hobbies', status: 'available' },
       { id: 'digital_consumption', status: 'available' },
-      { id: 'everyday_mechanics', status: 'available' },
+      { id: 'everyday_mechanics', status: 'available' }
     ];
   }
 
@@ -261,7 +285,6 @@ export class AuthService {
 
     this.setCurrentUser(user);
   }
-
 
   logout() {
     this.clearSession();

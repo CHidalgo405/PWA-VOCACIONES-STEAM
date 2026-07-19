@@ -21,7 +21,7 @@
   opacity: 0.08;
   z-index: 1;
   pointer-events: none;
-  
+
   &.glow-1 {
     top: -10%;
     left: -10%;
@@ -29,7 +29,7 @@
     height: 350px;
     background: var(--steam-blue);
   }
-  
+
   &.glow-2 {
     bottom: -10%;
     right: -10%;
@@ -54,8 +54,10 @@
   flex-direction: column;
   box-sizing: border-box;
   animation: staggerSlideUp 0.9s var(--ease-out) both;
-  transition: background-color 0.35s ease, border-color 0.35s ease;
-  
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease;
+
   @media (min-width: 900px) {
     max-width: 880px;
     flex-direction: row; /* Normal row so illustration is on left */
@@ -75,7 +77,7 @@
   box-sizing: border-box;
   overflow: hidden;
   transition: background-color 0.35s ease;
-  
+
   .arch-shape {
     position: absolute;
     bottom: -40px;
@@ -86,7 +88,7 @@
     z-index: 1;
     transition: background-color 0.35s ease;
   }
-  
+
   .avatar-img {
     position: relative;
     z-index: 2;
@@ -95,7 +97,7 @@
     margin-bottom: 0;
     animation: float 6s ease-in-out infinite;
   }
-  
+
   @media (min-width: 900px) {
     display: flex;
     flex: 1;
@@ -113,7 +115,7 @@
   flex-direction: column;
   justify-content: center;
   transition: background-color 0.35s ease;
-  
+
   @media (min-width: 900px) {
     padding: 48px 56px;
   }
@@ -125,20 +127,20 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 24px;
-  
+
   .app-brand-logo {
     width: 40px;
     height: 40px;
     object-fit: contain;
   }
-  
+
   .logo-brand-title {
     font-size: 1.15rem;
     font-weight: 800;
     color: var(--text-primary);
     margin: 0;
     letter-spacing: -0.02em;
-    
+
     .logo-brand-sub {
       color: var(--steam-blue);
       font-weight: 400;
@@ -149,7 +151,7 @@
 /* --- FORM HEADER & PROSE --- */
 .form-header {
   margin-bottom: 24px;
-  
+
   h2 {
     font-size: 1.5rem;
     font-weight: 800;
@@ -157,7 +159,7 @@
     margin: 0 0 6px 0;
     letter-spacing: -0.02em;
   }
-  
+
   .form-subtitle {
     font-size: 0.85rem;
     color: var(--text-secondary);
@@ -170,7 +172,7 @@
 /* --- INPUT FIELDS --- */
 .input-group {
   margin-bottom: 18px;
-  
+
   label {
     display: block;
     margin-bottom: 6px;
@@ -180,13 +182,13 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
   }
-  
+
   .input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
     width: 100%;
-    
+
     .input-icon {
       position: absolute;
       left: 14px;
@@ -194,7 +196,7 @@
       transition: color var(--duration-hover) var(--ease-out);
       pointer-events: none;
     }
-    
+
     input {
       width: 100%;
       padding: 12px 16px 12px 42px;
@@ -206,24 +208,24 @@
       transition: all var(--duration-hover) var(--ease-out);
       box-sizing: border-box;
       font-family: inherit;
-      
+
       &::placeholder {
         color: var(--text-muted);
         opacity: 0.55;
       }
-      
+
       &:focus {
         outline: none;
         border-color: var(--steam-blue);
         box-shadow: 0 0 0 3px rgba(7, 177, 201, 0.1);
         background-color: var(--bg-surface);
-        
+
         ~ .input-icon {
           color: var(--steam-blue);
         }
       }
     }
-    
+
     .btn-toggle-password {
       position: absolute;
       right: 14px;
@@ -234,11 +236,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      
+
       .eye-icon {
         color: var(--text-muted);
         transition: color var(--duration-hover) var(--ease-out);
-        
+
         &:hover {
           color: var(--text-primary);
         }
@@ -255,7 +257,7 @@
   margin-bottom: 24px;
   width: 100%;
   box-sizing: border-box;
-  
+
   .remember-label-checkbox {
     display: flex;
     align-items: center;
@@ -264,7 +266,7 @@
     color: var(--text-secondary);
     cursor: pointer;
     user-select: none;
-    
+
     input {
       margin: 0 8px 0 0;
       accent-color: var(--steam-blue);
@@ -279,7 +281,7 @@
 .premium-submit-button {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, var(--steam-blue) 0%, #0E9AA7 100%);
+  background: linear-gradient(135deg, var(--steam-blue) 0%, #0e9aa7 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -294,7 +296,7 @@
   box-shadow: 0 4px 15px rgba(7, 177, 201, 0.2);
   transition: all var(--duration-hover) var(--ease-out);
   font-family: inherit;
-  
+
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(:disabled) {
       transform: translateY(-1.5px);
@@ -302,11 +304,11 @@
       filter: brightness(1.05);
     }
   }
-  
+
   &:active:not(:disabled) {
     transform: scale(0.975);
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -319,7 +321,7 @@
 .divider-text-line {
   text-align: center;
   margin: 20px 0;
-  
+
   span {
     color: var(--text-muted);
     font-size: 0.75rem;
@@ -328,17 +330,22 @@
     letter-spacing: 0.05em;
     position: relative;
     display: inline-block;
-    
-    &::before, &::after {
-      content: "";
+
+    &::before,
+    &::after {
+      content: '';
       position: absolute;
       top: 50%;
       height: 1px;
       width: 32px;
       background: var(--border-color);
     }
-    &::before { left: -42px; }
-    &::after { right: -42px; }
+    &::before {
+      left: -42px;
+    }
+    &::after {
+      right: -42px;
+    }
   }
 }
 
@@ -362,19 +369,19 @@
   box-sizing: border-box;
   transition: all var(--duration-hover) var(--ease-out);
   font-family: inherit;
-  
+
   .google-logo-svg {
     width: 18px;
     height: 18px;
     margin-right: 10px;
   }
-  
+
   span {
     color: var(--text-primary);
     font-weight: 600;
     font-size: 0.88rem;
   }
-  
+
   @media (hover: hover) and (pointer: fine) {
     &:hover {
       background: var(--bg-surface);
@@ -383,7 +390,7 @@
       box-shadow: var(--shadow-sm);
     }
   }
-  
+
   &:active {
     transform: scale(0.985);
   }
@@ -392,30 +399,52 @@
 /* --- REDIRECT ROW --- */
 .bottom-redirect-row {
   text-align: center;
-  
+
   p {
     font-size: 0.85rem;
     color: var(--text-secondary);
     margin: 0;
     font-weight: 500;
   }
-  
+
   .signup-redirect-link {
     color: var(--steam-blue);
     font-weight: 700;
     text-decoration: none;
     margin-left: 2px;
-    
+
     &:hover {
       text-decoration: underline;
     }
   }
 }
 
+.otp-link-button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--steam-blue);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 6px 8px;
+
+  &.secondary {
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  &:disabled {
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
+}
+
 /* --- OTP TWO STEP LAYOUTS --- */
 .verify-header-layout {
   text-align: center;
-  
+
   .icon-pulse-badge {
     width: 60px;
     height: 60px;
@@ -428,13 +457,13 @@
     border: 1px solid rgba(7, 177, 201, 0.12);
     animation: pulseGlow 2s infinite;
   }
-  
+
   .verify-desc-text {
     font-size: 0.86rem;
     color: var(--text-secondary);
     line-height: 1.5;
   }
-  
+
   .highlight-email {
     color: var(--steam-blue);
     font-weight: 700;
@@ -464,12 +493,12 @@
   transition: all var(--duration-hover) var(--ease-out);
   box-sizing: border-box;
   font-family: monospace;
-  
+
   &::placeholder {
     opacity: 0.25;
     letter-spacing: 8px;
   }
-  
+
   &:focus {
     border-color: var(--steam-blue);
     background-color: var(--bg-surface);
@@ -490,13 +519,21 @@
 }
 
 @keyframes spin {
-  100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulseGlow {
-  0% { box-shadow: 0 0 0 0 rgba(7, 177, 201, 0.25); }
-  70% { box-shadow: 0 0 0 10px rgba(7, 177, 201, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(7, 177, 201, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(7, 177, 201, 0.25);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(7, 177, 201, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(7, 177, 201, 0);
+  }
 }
 /* Consentimiento legal obligatorio */
 .legal-consent-row {
@@ -506,7 +543,7 @@
   margin: 0.25rem 0 1.1rem;
   cursor: pointer;
 
-  input[type="checkbox"] {
+  input[type='checkbox'] {
     margin-top: 3px;
     width: 16px;
     height: 16px;
@@ -524,7 +561,9 @@
       color: #07b1c9;
       font-weight: 600;
       text-decoration: none;
-      &:hover { text-decoration: underline; }
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 }
