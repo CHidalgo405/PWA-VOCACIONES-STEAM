@@ -156,26 +156,13 @@
     <div class="options-list">
       <button
         class="option-btn"
-        *ngFor="let option of currentQuestion?.options; let i = index"
+        *ngFor="let option of currentQuestion?.options"
         [class.is-selected]="selectedOptionId === option.id"
-        [class.option-a]="i === 0"
-        [class.option-b]="i === 1"
-        [class.option-c]="i === 2"
-        [class.option-d]="i === 3"
         (click)="selectOption(option.id)"
         type="button"
       >
-        <!-- Letter chip -->
-        <span class="option-letter">{{ option.letter || "ABCD"[i] }}</span>
-
-        <!-- Text content -->
         <span class="option-body">
           <span class="option-main-text">{{ option.text }}</span>
-          <!-- Se oculta el steamTrait para evitar sesgos en el usuario -->
-          <!-- <span class="option-trait">
-            <span class="trait-dot"></span>
-            {{ option.steamTrait }}
-          </span> -->
         </span>
 
         <!-- Selection checkmark -->

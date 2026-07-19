@@ -279,11 +279,13 @@ export class TestResultComponent implements OnInit {
     this.showAnswersModal = false;
   }
 
-  getAnswerText(questionId: string, letter: string): string {
+  getAnswerText(questionId: string, answerValue: string): string {
     const q = this.allQuestions.find(x => x.id === questionId);
-    if (!q) return letter;
-    const opt = q.options.find(o => o.letter === letter);
-    return opt ? opt.text : letter;
+    if (!q) return answerValue;
+    const opt = q.options.find(
+      option => option.id === answerValue || option.letter === answerValue,
+    );
+    return opt ? opt.text : answerValue;
   }
 
   // ── PDF ──

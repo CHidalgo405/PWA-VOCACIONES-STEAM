@@ -432,46 +432,34 @@ p {
       line-height: 1.4;
     }
 
-    /* BADGES DE COLORES STEAM */
-    .badge {
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .question-configuration {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
 
-      &.ciencia {
-        background: rgba(7, 177, 201, 0.15);
-        color: #07B1C9;
+      .response-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-primary, #334155);
+        font-size: 0.85rem;
+        font-weight: 650;
       }
 
-      &.tecnología {
-        background: rgba(16, 185, 129, 0.15);
-        color: #10b981;
-      }
+      .readiness-status {
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: rgba(22, 163, 74, 0.1);
+        color: #15803d;
+        font-size: 0.72rem;
+        font-weight: 700;
 
-      &.ingeniería {
-        background: rgba(77, 176, 70, 0.15);
-        color: #4DB046;
+        &.needs-review {
+          background: rgba(217, 119, 6, 0.12);
+          color: #b45309;
+        }
       }
-
-      &.artes {
-        background: rgba(248, 135, 24, 0.15);
-        color: #F88718;
-      }
-
-      &.matemáticas {
-        background: rgba(232, 55, 45, 0.15);
-        color: #E8372D;
-      }
-
-      &.secondary {
-        background: var(--bg-elevated, #f0f0f0);
-        color: var(--text-secondary, #7F8C8D);
-      }
-
-      /* Gris para secundarios */
     }
 
     .status-dot {
@@ -725,26 +713,28 @@ p {
     max-width: 200px;
   }
 
-  .sidebar-traits {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: center;
+  .sidebar-summary {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 2px 8px;
+    width: 100%;
     margin-bottom: 14px;
+    padding: 10px 12px;
+    border: 1px solid #dbe5ec;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #475569;
 
-    .sidebar-trait-badge {
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
+    strong {
+      color: #1e293b;
+      font-size: 0.85rem;
+    }
 
-      &.ciencia    { background: rgba(7,177,201,0.15); color: #07B1C9; }
-      &.tecnologia { background: rgba(16,185,129,0.15); color: #10b981; }
-      &.ingenieria { background: rgba(77,176,70,0.15); color: #4DB046; }
-      &.artes      { background: rgba(248,135,24,0.15); color: #F88718; }
-      &.matematicas{ background: rgba(232,55,45,0.15); color: #E8372D; }
+    span {
+      grid-column: 2;
+      color: #64748b;
+      font-size: 0.7rem;
     }
   }
 
@@ -861,27 +851,14 @@ p {
 
   &:hover { border-color: #cbd5e1; }
 
-  .option-letter-badge {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 1rem;
-    color: white;
-    flex-shrink: 0;
-    background: #94a3b8;
-
-    &.ciencia    { background: #07B1C9; }
-    &.tecnologia { background: #10b981; }
-    &.ingenieria { background: #4DB046; }
-    &.artes      { background: #F88718; }
-    &.matematicas{ background: #E8372D; }
-  }
-
   .option-fields { flex: 1; }
+}
+
+.options-help {
+  margin: -4px 0 12px;
+  color: var(--text-secondary, #64748b);
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 
 /* Botón añadir opción */

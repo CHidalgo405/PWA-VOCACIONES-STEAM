@@ -422,7 +422,7 @@ export class VocationalProfileService {
 
   /**
    * Corre A1→A7 en la API con las respuestas del test teórico
-   * ({ questionId: letra }) y persiste el resultado en el historial.
+   * ({ questionId: optionId }) y persiste el resultado en el historial.
    */
   computeProfileRemote(
     theoreticalAnswers: Record<string, string>,

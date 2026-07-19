@@ -6,7 +6,8 @@ import { environment } from '../../../environments/environment';
 export interface Option {
   id: string;
   text: string;
-  letter: string;
+  /** Referencia histórica. Las respuestas nuevas se identifican por `id`. */
+  letter?: string;
   steamTrait: string;
 }
 

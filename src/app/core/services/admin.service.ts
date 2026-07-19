@@ -54,7 +54,8 @@ export interface AdminStats {
 export interface AdminTestOption {
   id?: string;
   text: string;
-  letter: string;
+  /** Referencia histórica asignada por la API; no se edita en el panel. */
+  letter?: string;
   steamTrait: string;
 }
 

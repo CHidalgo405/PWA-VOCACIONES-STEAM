@@ -35,7 +35,7 @@
   </header>
 
   <div class="balance-panel">
-    <h3>Balance del Test (Activas)</h3>
+    <h3>Cobertura de puntuación (preguntas activas)</h3>
     <div class="balance-grid" [class.has-active-filter]="filterTrait !== ''">
       <div class="balance-card ciencia clickable-card" [class.active-filter]="filterTrait === 'ciencia'"
         (click)="toggleCategoryFilter('ciencia')">
@@ -72,7 +72,7 @@
       <input type="text" placeholder="Buscar por palabra clave..." [(ngModel)]="searchTerm">
     </div>
     <select [(ngModel)]="filterTrait" (change)="currentPage = 1" class="search-select">
-      <option value="">Todas las Aptitudes</option>
+      <option value="">Todos los ejes internos</option>
       <option *ngFor="let trait of traitOptions" [value]="trait.value">{{ trait.label }}</option>
     </select>
   </div>
@@ -105,7 +105,7 @@
           <tr>
             <th style="width: 40px; text-align: center;"><app-lucide-icon name="check" [size]="16" style="display: block; margin: 0 auto;"></app-lucide-icon></th>
             <th style="width: 50%;">Pregunta (Orden)</th>
-            <th>Aptitudes STEAM Evaluadas</th>
+            <th>Configuración</th>
             <th>Estado</th>
           </tr>
         </thead>
@@ -148,11 +148,14 @@
             </td>
 
             <td>
-              <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                <span *ngFor="let opt of q.options" class="badge {{ opt.steamTrait }}" [title]="opt.text">
-                  {{ opt.letter }} ({{ opt.steamTrait }})
+              <div class="question-configuration">
+                <span class="response-count">
+                  <app-lucide-icon name="list-checks" [size]="15"></app-lucide-icon>
+                  {{ getOptionCount(q) }} respuestas
                 </span>
-                <span *ngIf="!q.options || q.options.length === 0" class="text-muted">Sin opciones</span>
+                <span class="readiness-status" [class.needs-review]="!isQuestionReady(q)">
+                  {{ isQuestionReady(q) ? 'Lista para publicar' : 'Necesita revisión' }}
+                </span>
               </div>
             </td>
             <td (click)="toggleStatus(q, $event)" class="clickable-status" title="Clic para alternar estado">
@@ -225,12 +228,10 @@
 
       <p class="sidebar-question-preview">{{ questionForm.text | slice:0:80 }}{{ questionForm.text?.length > 80 ? '...' : '' }}</p>
 
-      <!-- Badges de aptitudes STEAM de las opciones -->
-      <div class="sidebar-traits">
-        <span *ngFor="let opt of questionForm.options" class="sidebar-trait-badge {{ opt.steamTrait }}">
-          {{ opt.letter }}. {{ opt.steamTrait | titlecase }}
-        </span>
-        <span *ngIf="!questionForm.options || questionForm.options.length === 0" style="color: #94a3b8; font-size: 0.85rem;">Sin opciones</span>
+      <div class="sidebar-summary">
+        <app-lucide-icon name="list-checks" [size]="18"></app-lucide-icon>
+        <strong>{{ questionForm.options?.length || 0 }} respuestas</strong>
+        <span>Se muestran en orden aleatorio</span>
       </div>
 
       <!-- Estado visual -->
@@ -244,7 +245,6 @@
           <app-lucide-icon [name]="modalMode === 'edit' ? 'pencil' : 'clipboard-list'" [size]="16" style="margin-right: 6px;"></app-lucide-icon>
           {{ modalMode === 'edit' ? 'Editando' : 'Detalles' }}
         </button>
-        <button class="menu-item">📊 Estadísticas</button>
       </div>
 
       <!-- Botón volver a vista (solo edit) -->
@@ -289,17 +289,11 @@
                 <label style="margin: 0;">Opciones de Respuesta <span *ngIf="modalMode !== 'view'" style="color: red;">*</span></label>
                 <button *ngIf="modalMode !== 'view'" type="button" class="btn-add-option" (click)="addOption()">+ Añadir Opción</button>
               </div>
+              <p class="options-help">Las opciones se presentan aleatoriamente. El área de puntuación es interna y nunca se muestra al estudiante.</p>
 
               <div *ngFor="let opt of questionForm.options; let i = index" class="option-card">
-                <div class="option-letter-badge {{ opt.steamTrait }}">{{ opt.letter }}</div>
                 <div class="option-fields">
                   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <div style="flex: 0 0 70px;">
-                      <label style="font-size: 0.75rem;">Letra</label>
-                      <input type="text" [(ngModel)]="opt.letter" name="letter_{{i}}"
-                        (ngModelChange)="onFormChange()" [readonly]="modalMode === 'view'"
-                        maxlength="3" required style="text-align: center; text-transform: uppercase; padding: 8px;">
-                    </div>
                     <div style="flex: 2; min-width: 160px;">
                       <label style="font-size: 0.75rem;">Texto de la opción</label>
                       <input type="text" [(ngModel)]="opt.text" name="optText_{{i}}"
@@ -307,7 +301,7 @@
                         placeholder="Ej: Me gusta programar..." required>
                     </div>
                     <div style="flex: 1; min-width: 140px;">
-                      <label style="font-size: 0.75rem;">Aptitud STEAM</label>
+                      <label style="font-size: 0.75rem;">Área de puntuación (interna)</label>
                       <select [(ngModel)]="opt.steamTrait" name="trait_{{i}}"
                         (ngModelChange)="onFormChange()" [disabled]="modalMode === 'view'" required>
                         <option *ngFor="let t of traitOptions" [value]="t.value">{{ t.label }}</option>

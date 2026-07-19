@@ -82,8 +82,14 @@ export class EvaluationsComponent implements OnInit {
         }),
       ),
     ).subscribe((data) => {
-      // Clonamos y barajamos el array para que el orden sea aleatorio en cada intento
-      this.questions = this.shuffleArray([...data]);
+      // Preguntas y respuestas se barajan de forma independiente para reducir
+      // sesgos de posición. El ID de la opción conserva su significado.
+      this.questions = this.shuffleArray(
+        data.map((question) => ({
+          ...question,
+          options: this.shuffleArray([...(question.options || [])]),
+        })),
+      );
       if (!this.loadingError && this.questions.length === 0) {
         this.loadingError =
           'El test no tiene preguntas disponibles en este momento.';
@@ -156,12 +162,7 @@ export class EvaluationsComponent implements OnInit {
       (o) => o.id === this.selectedOptionId,
     );
     if (selectedOption) {
-      // The backend expects the letter (e.g., "A", "B", "C") instead of the internal ID
-      const optionIndex = currentQ.options.indexOf(selectedOption);
-      const optionLetter =
-        selectedOption.letter || ['A', 'B', 'C', 'D', 'E'][optionIndex];
-
-      this.userAnswers[currentQ.id.toString()] = optionLetter;
+      this.userAnswers[currentQ.id.toString()] = selectedOption.id;
 
       const tagKey = selectedOption.steamTrait
         .toLowerCase()

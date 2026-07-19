@@ -21,7 +21,7 @@ export class ManageTestComponent implements OnInit {
   // --- DATOS REALES ---
   questions: AdminTestQuestion[] = [];
 
-  // Rasgos STEAM para las opciones y filtros
+  // Ejes internos que determinan a qué área aporta cada respuesta.
   traitOptions = [
     { value: 'ciencia', label: 'Ciencia' },
     { value: 'tecnologia', label: 'Tecnología' },
@@ -85,7 +85,7 @@ export class ManageTestComponent implements OnInit {
     order: 1, 
     status: 'activo', 
     options: [
-      { text: '', letter: 'A', steamTrait: 'ciencia' }
+      { text: '', steamTrait: 'ciencia' }
     ] 
   };
 
@@ -159,7 +159,6 @@ export class ManageTestComponent implements OnInit {
       options: (q.options || []).map((o: any) => ({
         ...(o.id ? { id: o.id } : {}),
         text: o.text,
-        letter: o.letter,
         steamTrait: o.steamTrait
       })),
       status: newStatus
@@ -199,8 +198,8 @@ export class ManageTestComponent implements OnInit {
         order: this.filteredQuestionsList.length + 1, 
         status: 'activo', 
         options: [
-          { text: '', letter: 'A', steamTrait: 'ciencia' },
-          { text: '', letter: 'B', steamTrait: 'tecnologia' }
+          { text: '', steamTrait: 'ciencia' },
+          { text: '', steamTrait: 'tecnologia' }
         ] 
       };
       this.viewedQuestionIndex = -1;
@@ -214,16 +213,14 @@ export class ManageTestComponent implements OnInit {
       order: q.order || 1,
       status: q.status === 'activo' ? 'activo' : 'inactivo',
       options: q.options && q.options.length > 0 ? q.options.map((o: any) => ({ ...o })) : [
-        { text: '', letter: 'A', steamTrait: 'ciencia' }
+        { text: '', steamTrait: 'ciencia' }
       ]
     };
     this.isFormDirty = false;
   }
 
   addOption() {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const nextLetter = letters[this.questionForm.options.length % 26];
-    this.questionForm.options.push({ text: '', letter: nextLetter, steamTrait: 'ciencia' });
+    this.questionForm.options.push({ text: '', steamTrait: 'ciencia' });
     this.onFormChange();
   }
 
@@ -310,8 +307,8 @@ export class ManageTestComponent implements OnInit {
     
     // Clean up options before sending (ensure text and traits are set)
     const formattedOptions = this.questionForm.options.map((opt: any) => ({
+      ...(opt.id ? { id: opt.id } : {}),
       text: opt.text.trim(),
-      letter: opt.letter.trim().toUpperCase() || 'A',
       steamTrait: opt.steamTrait
     }));
 
@@ -424,5 +421,26 @@ export class ManageTestComponent implements OnInit {
       if (q.status !== 'activo') return sum;
       return sum + (q.options || []).filter(o => o.steamTrait === traitValue).length;
     }, 0);
+  }
+
+  getOptionCount(question: AdminTestQuestion): number {
+    return question.options?.length || 0;
+  }
+
+  isQuestionReady(question: AdminTestQuestion): boolean {
+    const options = question.options || [];
+    const uniqueTexts = new Set(
+      options.map(option => option.text.trim().toLocaleLowerCase('es')),
+    );
+    return (
+      question.text.trim().length > 0 &&
+      options.length >= 2 &&
+      uniqueTexts.size === options.length &&
+      options.every(
+        option =>
+          option.text.trim().length > 0 &&
+          this.traitOptions.some(trait => trait.value === option.steamTrait),
+      )
+    );
   }
 }

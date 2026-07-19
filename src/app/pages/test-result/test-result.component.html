@@ -395,7 +395,6 @@
               <h3 class="qa-question-text">{{ q.text }}</h3>
               <div class="qa-answer-badge">
                 <app-lucide-icon name="check-circle" [size]="15" color="#07B1C9" style="margin-right:8px; flex-shrink: 0;"></app-lucide-icon>
-                <span class="qa-answer-letter">{{ testAnswers[q.id.toString()] || '?' }})</span>
                 <span class="qa-answer-text">{{ getAnswerText(q.id.toString(), testAnswers[q.id.toString()]) }}</span>
               </div>
             </div>
