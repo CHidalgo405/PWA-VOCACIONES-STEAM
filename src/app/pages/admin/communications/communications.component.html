@@ -1,0 +1,277 @@
+<app-admin-sidebar></app-admin-sidebar>
+
+<main class="admin-layout-content" id="main-content">
+  <header class="page-header">
+    <div>
+      <h1>Comunicaciones</h1>
+      <p>Responde soporte, lanza campañas y audita entregas push/correo.</p>
+    </div>
+    <button
+      type="button"
+      class="refresh-btn"
+      (click)="loadData()"
+      [disabled]="isLoading"
+    >
+      <app-lucide-icon name="refresh-cw" [size]="17"></app-lucide-icon>
+      Actualizar
+    </button>
+  </header>
+
+  <section class="metrics-grid">
+    <article>
+      <span>Tickets abiertos</span><strong>{{ openTickets }}</strong>
+    </article>
+    <article>
+      <span>Campañas enviadas</span><strong>{{ campaigns.length }}</strong>
+    </article>
+    <article>
+      <span>Éxito de entregas</span><strong>{{ deliverySuccessRate }}%</strong>
+    </article>
+  </section>
+
+  <div class="error-state" *ngIf="errorMessage" role="alert">
+    {{ errorMessage }}
+    <button type="button" (click)="loadData()">Reintentar</button>
+  </div>
+
+  <nav class="tabs" *ngIf="!errorMessage">
+    <button
+      type="button"
+      [class.active]="activeTab === 'support'"
+      (click)="activeTab = 'support'"
+    >
+      Tickets de soporte
+    </button>
+    <button
+      type="button"
+      [class.active]="activeTab === 'campaigns'"
+      (click)="activeTab = 'campaigns'"
+    >
+      Campañas y entregas
+    </button>
+  </nav>
+
+  <section class="panel" *ngIf="activeTab === 'support' && !errorMessage">
+    <div class="panel-header">
+      <div>
+        <h2>Bandeja de soporte</h2>
+        <p>Los adjuntos y respuestas están persistidos en PostgreSQL.</p>
+      </div>
+    </div>
+    <div class="loading-state" *ngIf="isLoading">Cargando tickets…</div>
+    <div class="empty-state" *ngIf="!isLoading && !tickets.length">
+      No hay tickets registrados.
+    </div>
+    <div class="ticket-table" *ngIf="!isLoading && tickets.length">
+      <button
+        type="button"
+        class="ticket-row"
+        *ngFor="let ticket of tickets"
+        (click)="selectTicket(ticket)"
+      >
+        <span>
+          <strong>{{ ticket.reference }}</strong>
+          <small>{{ ticket.user?.fullname }} · {{ ticket.user?.email }}</small>
+        </span>
+        <span>
+          <strong>{{ ticket.subject }}</strong>
+          <small>{{ ticket.createdAt | date: "dd MMM yyyy, HH:mm" }}</small>
+        </span>
+        <span class="status" [ngClass]="ticket.status">
+          {{ statusLabel(ticket.status) }}
+        </span>
+        <app-lucide-icon name="chevron-right" [size]="18"></app-lucide-icon>
+      </button>
+    </div>
+  </section>
+
+  <section
+    class="campaign-layout"
+    *ngIf="activeTab === 'campaigns' && !errorMessage"
+  >
+    <form
+      class="panel campaign-form"
+      (ngSubmit)="sendCampaign()"
+      #campaignNgForm="ngForm"
+    >
+      <div class="panel-header">
+        <div>
+          <h2>Nueva campaña</h2>
+          <p>
+            Solo se contacta a usuarios que aceptaron esa categoría y canal.
+          </p>
+        </div>
+      </div>
+      <label>
+        Título
+        <input
+          name="title"
+          [(ngModel)]="campaignForm.title"
+          required
+          minlength="3"
+          maxlength="120"
+        />
+      </label>
+      <label>
+        Mensaje
+        <textarea
+          name="message"
+          [(ngModel)]="campaignForm.message"
+          required
+          minlength="10"
+          maxlength="2000"
+          rows="5"
+        ></textarea>
+      </label>
+      <label>
+        Destino dentro de la app
+        <input
+          name="url"
+          [(ngModel)]="campaignForm.url"
+          maxlength="500"
+          placeholder="/dashboard"
+        />
+      </label>
+      <label>
+        Categoría
+        <select name="category" [(ngModel)]="campaignForm.category">
+          <option value="new_careers">Nuevas carreras y simuladores</option>
+          <option value="community">Comunidad</option>
+          <option value="marketing">Marketing (consentimiento separado)</option>
+          <option value="service">Aviso de servicio</option>
+        </select>
+      </label>
+      <div class="channels">
+        <label>
+          <input type="checkbox" name="push" [(ngModel)]="campaignForm.push" />
+          Web Push
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="email"
+            [(ngModel)]="campaignForm.email"
+          />
+          Correo
+        </label>
+      </div>
+      <button
+        class="primary-btn"
+        type="submit"
+        [disabled]="!campaignNgForm.valid || isSendingCampaign"
+      >
+        {{ isSendingCampaign ? "Procesando…" : "Enviar campaña ahora" }}
+      </button>
+      <p class="feedback" *ngIf="feedbackMessage">{{ feedbackMessage }}</p>
+    </form>
+
+    <div class="panel history-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Historial</h2>
+          <p>Resultados reales del proveedor por campaña.</p>
+        </div>
+      </div>
+      <article class="campaign-item" *ngFor="let campaign of campaigns">
+        <div>
+          <strong>{{ campaign.title }}</strong>
+          <small>
+            {{ campaign.createdAt | date: "dd MMM yyyy, HH:mm" }} ·
+            {{ campaign.channels.join(" + ") }}
+          </small>
+        </div>
+        <div class="campaign-numbers">
+          <span>{{ campaign.delivered }} entregas</span>
+          <span [class.failed]="campaign.failed"
+            >{{ campaign.failed }} fallos</span
+          >
+        </div>
+      </article>
+      <div class="empty-state" *ngIf="!campaigns.length">
+        No hay campañas todavía.
+      </div>
+
+      <h3 class="delivery-title">Últimas entregas</h3>
+      <article
+        class="delivery-item"
+        *ngFor="let delivery of deliveries | slice: 0 : 20"
+      >
+        <span
+          class="delivery-dot"
+          [class.failed]="delivery.status !== 'delivered'"
+        ></span>
+        <div>
+          <strong>{{ delivery.type }} · {{ delivery.channel }}</strong>
+          <small>
+            {{ delivery.recipient || "Sin destinatario" }} ·
+            {{ delivery.createdAt | date: "dd MMM, HH:mm" }}
+          </small>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<div class="modal-overlay" *ngIf="selectedTicket" (click)="closeTicket()">
+  <section
+    class="ticket-dialog"
+    role="dialog"
+    aria-modal="true"
+    (click)="$event.stopPropagation()"
+  >
+    <header>
+      <div>
+        <span>{{ selectedTicket.reference }}</span>
+        <h2>{{ selectedTicket.subject }}</h2>
+      </div>
+      <button type="button" (click)="closeTicket()" aria-label="Cerrar">
+        <app-lucide-icon name="x" [size]="20"></app-lucide-icon>
+      </button>
+    </header>
+    <div class="requester">
+      {{ selectedTicket.user?.fullname }} · {{ selectedTicket.user?.email }}
+    </div>
+    <p class="original-message">{{ selectedTicket.message }}</p>
+    <button
+      type="button"
+      class="attachment-button"
+      *ngIf="selectedTicket.hasAttachment"
+      (click)="downloadAttachment(selectedTicket)"
+    >
+      <app-lucide-icon name="download" [size]="15"></app-lucide-icon>
+      {{ selectedTicket.attachmentName }}
+    </button>
+    <label>
+      Estado
+      <select [(ngModel)]="ticketStatus">
+        <option value="open">Abierto</option>
+        <option value="in_review">En revisión</option>
+        <option value="resolved">Resuelto</option>
+        <option value="closed">Cerrado</option>
+      </select>
+    </label>
+    <label>
+      Respuesta al usuario
+      <textarea
+        [(ngModel)]="ticketReply"
+        rows="6"
+        maxlength="5000"
+        placeholder="Escribe una respuesta clara y accionable..."
+      ></textarea>
+    </label>
+    <p class="feedback" *ngIf="feedbackMessage">{{ feedbackMessage }}</p>
+    <footer>
+      <button type="button" class="secondary-btn" (click)="closeTicket()">
+        Cerrar
+      </button>
+      <button
+        type="button"
+        class="primary-btn"
+        (click)="saveTicket()"
+        [disabled]="isSavingTicket"
+      >
+        {{ isSavingTicket ? "Guardando…" : "Guardar y notificar" }}
+      </button>
+    </footer>
+  </section>
+</div>

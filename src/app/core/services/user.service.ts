@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
   private http = inject(HttpClient);
@@ -25,7 +25,10 @@ export class UserService {
     return this.http.put(`${environment.apiUrl}/users/profile`, data);
   }
 
-  updatePassword(data: { currentPassword: string; newPassword: string }): Observable<any> {
+  updatePassword(data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Observable<any> {
     return this.http.put(`${environment.apiUrl}/users/password`, data);
   }
 
@@ -33,9 +36,21 @@ export class UserService {
     return this.http.put(`${environment.apiUrl}/users/settings`, settings);
   }
 
+  deleteOwnAccount(data: {
+    confirmation: string;
+    password?: string;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(
+      `${environment.apiUrl}/users/delete-account`,
+      data,
+    );
+  }
+
   /** Registra en la API la aceptación del Aviso de Privacidad y los Términos. */
   acceptTerms(version: string): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/users/accept-terms`, { version });
+    return this.http.post(`${environment.apiUrl}/users/accept-terms`, {
+      version,
+    });
   }
 
   // --- SAVED UNIVERSITIES (FAVORITES) ---
@@ -52,15 +67,22 @@ export class UserService {
     longitude?: number;
     rating?: number;
   }): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/users/saved-universities`, data);
+    return this.http.post(
+      `${environment.apiUrl}/users/saved-universities`,
+      data,
+    );
   }
 
   getSavedUniversities(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/users/saved-universities`);
+    return this.http.get<any[]>(
+      `${environment.apiUrl}/users/saved-universities`,
+    );
   }
 
   deleteSavedUniversity(id: string | number): Observable<any> {
-    return this.http.delete(`${environment.apiUrl}/users/saved-universities/${id}`);
+    return this.http.delete(
+      `${environment.apiUrl}/users/saved-universities/${id}`,
+    );
   }
 
   // --- SAVED COURSES (FAVORITES) ---

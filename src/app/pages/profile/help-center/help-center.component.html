@@ -1,51 +1,114 @@
 <div class="page-container">
-  <app-header title="Centro de Ayuda" [showBack]="true" backRoute="/profile"></app-header>
+  <app-header
+    title="Centro de Ayuda"
+    [showBack]="true"
+    backRoute="/profile"
+  ></app-header>
 
   <div class="page-content">
     <div class="manage-profile-wrapper">
-      
-      <!-- HERO SEARCH -->
       <div class="help-hero">
         <h2>¿Cómo podemos ayudarte?</h2>
         <div class="search-bar">
-          <app-lucide-icon name="search" [size]="18" color="var(--text-muted)"></app-lucide-icon>
-          <input type="text" [(ngModel)]="searchQuery" placeholder="Busca artículos, guías...">
+          <app-lucide-icon
+            name="search"
+            [size]="18"
+            color="var(--text-muted)"
+          ></app-lucide-icon>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            placeholder="Busca por tema, error o función..."
+            aria-label="Buscar en el centro de ayuda"
+          />
         </div>
       </div>
 
-      <!-- CATEGORIES GRID -->
-      <div class="categories-grid">
-        <div class="category-card" *ngFor="let cat of categories">
+      <div class="categories-grid" aria-label="Categorías de ayuda">
+        <button
+          type="button"
+          class="category-card"
+          *ngFor="let cat of categories"
+          [class.active]="activeCategory === cat.id"
+          [attr.aria-pressed]="activeCategory === cat.id"
+          (click)="selectCategory(cat.id)"
+        >
           <div class="cat-icon-wrap">
-            <app-lucide-icon [name]="cat.icon" [size]="24" color="var(--steam-blue)"></app-lucide-icon>
+            <app-lucide-icon
+              [name]="cat.icon"
+              [size]="24"
+              color="var(--steam-blue)"
+            ></app-lucide-icon>
           </div>
           <h4>{{ cat.title }}</h4>
           <p>{{ cat.desc }}</p>
-        </div>
+        </button>
       </div>
 
-      <!-- FAQ SECTION -->
       <div class="faq-section mt-4">
-        <h3 class="section-title">Preguntas Frecuentes</h3>
-        
-        <div class="faq-accordion">
-          <div class="faq-item" *ngFor="let faq of faqs; let i = index" [class.open]="faq.isOpen" (click)="toggleFaq(i)">
-            <div class="faq-question">
+        <div class="faq-header">
+          <h3 class="section-title">Preguntas Frecuentes</h3>
+          <button
+            type="button"
+            *ngIf="activeCategory || searchQuery"
+            (click)="clearFilters()"
+          >
+            Limpiar filtros
+          </button>
+        </div>
+
+        <div class="faq-accordion" *ngIf="filteredFaqs.length; else noResults">
+          <article
+            class="faq-item"
+            *ngFor="let faq of filteredFaqs"
+            [class.open]="faq.isOpen"
+          >
+            <button
+              type="button"
+              class="faq-question"
+              (click)="toggleFaq(faq)"
+              [attr.aria-expanded]="faq.isOpen"
+            >
               <span>{{ faq.question }}</span>
-              <app-lucide-icon [name]="faq.isOpen ? 'chevron-up' : 'chevron-down'" [size]="20" color="var(--text-muted)"></app-lucide-icon>
-            </div>
+              <app-lucide-icon
+                [name]="faq.isOpen ? 'chevron-up' : 'chevron-down'"
+                [size]="20"
+                color="var(--text-muted)"
+              ></app-lucide-icon>
+            </button>
             <div class="faq-answer" *ngIf="faq.isOpen">
               <p>{{ faq.answer }}</p>
+              <button
+                *ngIf="faq.action"
+                type="button"
+                class="danger-link"
+                (click)="openFaqAction(faq, $event)"
+              >
+                Abrir eliminación de cuenta
+              </button>
             </div>
-          </div>
+          </article>
         </div>
+
+        <ng-template #noResults>
+          <div class="no-results">
+            <app-lucide-icon name="search" [size]="36"></app-lucide-icon>
+            <h4>No encontramos artículos</h4>
+            <p>Prueba otra búsqueda o crea un ticket para recibir ayuda.</p>
+            <button type="button" (click)="goToContact()">
+              Contactar soporte
+            </button>
+          </div>
+        </ng-template>
       </div>
 
-      <!-- CONTACT CTA -->
       <div class="contact-cta-card mt-4">
         <div class="cta-content">
           <h4>¿No encontraste lo que buscabas?</h4>
-          <p>Nuestro equipo de soporte técnico está listo para ayudarte con tu problema.</p>
+          <p>
+            Crea un ticket real, adjunta evidencia y consulta aquí la respuesta
+            del equipo.
+          </p>
         </div>
         <button class="btn-primary-block mt-2" (click)="goToContact()">
           <app-lucide-icon name="headphones" [size]="18"></app-lucide-icon>
@@ -53,6 +116,70 @@
         </button>
       </div>
 
+      <div class="danger-zone mt-4">
+        <div>
+          <span class="danger-eyebrow">Zona de peligro</span>
+          <h3>Eliminar mi cuenta</h3>
+          <p>Elimina definitivamente tu información y cierra la sesión.</p>
+        </div>
+        <button type="button" (click)="showDeletePanel = true">
+          Eliminar cuenta
+        </button>
+      </div>
     </div>
   </div>
+</div>
+
+<div
+  class="delete-overlay"
+  *ngIf="showDeletePanel"
+  (click)="closeDeletePanel()"
+>
+  <section
+    class="delete-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="delete-account-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="danger-icon">
+      <app-lucide-icon name="trash-2" [size]="26"></app-lucide-icon>
+    </div>
+    <h2 id="delete-account-title">Eliminar cuenta definitivamente</h2>
+    <p>
+      Se borrarán perfil, historial, calibraciones, simulaciones, archivos de
+      soporte, cachés y suscripciones. Esta acción no se puede deshacer.
+    </p>
+
+    <label>
+      Contraseña actual
+      <input
+        type="password"
+        [(ngModel)]="deletePassword"
+        autocomplete="current-password"
+        placeholder="No se requiere para cuentas de Google"
+      />
+    </label>
+    <label>
+      Escribe <strong>ELIMINAR</strong> para confirmar
+      <input type="text" [(ngModel)]="deleteConfirmation" autocomplete="off" />
+    </label>
+
+    <p class="delete-error" *ngIf="deleteError" role="alert">
+      {{ deleteError }}
+    </p>
+    <div class="delete-actions">
+      <button type="button" class="cancel" (click)="closeDeletePanel()">
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="confirm-delete"
+        (click)="deleteAccount()"
+        [disabled]="deleteConfirmation !== 'ELIMINAR' || isDeleting"
+      >
+        {{ isDeleting ? "Eliminando…" : "Eliminar definitivamente" }}
+      </button>
+    </div>
+  </section>
 </div>

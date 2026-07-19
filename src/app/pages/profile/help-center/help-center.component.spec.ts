@@ -1,23 +1,30 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
+import { UserService } from '../../../core/services/user.service';
 import { HelpCenterComponent } from './help-center.component';
 
 describe('HelpCenterComponent', () => {
-  let component: HelpCenterComponent;
-  let fixture: ComponentFixture<HelpCenterComponent>;
+  it('filters FAQs by search text and clickable category', () => {
+    TestBed.configureTestingModule({
+      imports: [HelpCenterComponent],
+      providers: [
+        { provide: Router, useValue: { navigate: jasmine.createSpy() } },
+        { provide: UserService, useValue: {} },
+        { provide: AuthService, useValue: {} },
+      ],
+    });
+    const component =
+      TestBed.createComponent(HelpCenterComponent).componentInstance;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [HelpCenterComponent]
-    })
-    .compileComponents();
+    component.searchQuery = 'ubicación';
+    expect(component.filteredFaqs.length).toBe(1);
+    expect(component.filteredFaqs[0].question).toContain('mapa');
 
-    fixture = TestBed.createComponent(HelpCenterComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    component.searchQuery = '';
+    component.selectCategory('account');
+    expect(
+      component.filteredFaqs.every((faq) => faq.category === 'account'),
+    ).toBeTrue();
   });
 });

@@ -1,84 +1,190 @@
 <div class="page-container">
-  <app-header title="Contactar Soporte" [showBack]="true" backRoute="/profile"></app-header>
+  <app-header
+    title="Contactar Soporte"
+    [showBack]="true"
+    backRoute="/profile"
+  ></app-header>
 
   <div class="page-content">
     <div class="manage-profile-wrapper">
-      
       <div class="form-section">
         <h3 class="section-title">Nuevo Ticket de Soporte</h3>
         <form (ngSubmit)="submitTicket()" #supportForm="ngForm">
-          
           <div class="ios-form-group">
-            
             <div class="ios-input-row border-bottom">
-              <div class="row-icon"><app-lucide-icon name="list" [size]="18"></app-lucide-icon></div>
-              <select name="category" [(ngModel)]="contactForm.category" required>
-                <option value="" disabled selected>Selecciona una categoría</option>
-                <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.label }}</option>
+              <div class="row-icon">
+                <app-lucide-icon name="list" [size]="18"></app-lucide-icon>
+              </div>
+              <select
+                name="category"
+                [(ngModel)]="contactForm.category"
+                required
+              >
+                <option value="" disabled>Selecciona una categoría</option>
+                <option *ngFor="let cat of categories" [value]="cat.value">
+                  {{ cat.label }}
+                </option>
               </select>
             </div>
 
             <div class="ios-input-row border-bottom">
-              <div class="row-icon"><app-lucide-icon name="message-square" [size]="18"></app-lucide-icon></div>
-              <input type="text" name="subject" [(ngModel)]="contactForm.subject" required placeholder="Asunto breve">
+              <div class="row-icon">
+                <app-lucide-icon
+                  name="message-square"
+                  [size]="18"
+                ></app-lucide-icon>
+              </div>
+              <input
+                type="text"
+                name="subject"
+                [(ngModel)]="contactForm.subject"
+                required
+                minlength="5"
+                maxlength="140"
+                placeholder="Asunto breve"
+              />
             </div>
 
-            <div class="ios-input-row" style="align-items: flex-start; padding-top: 12px; padding-bottom: 12px;">
-              <div class="row-icon" style="margin-top: 2px;"><app-lucide-icon name="align-left" [size]="18"></app-lucide-icon></div>
-              <textarea name="message" [(ngModel)]="contactForm.message" required placeholder="Describe tu problema con detalle..." rows="5" style="flex: 1; border: none; background: transparent; resize: none; font-size: 0.95rem; outline: none; font-family: inherit; color: var(--text-primary);"></textarea>
+            <div class="ios-input-row message-row">
+              <div class="row-icon">
+                <app-lucide-icon
+                  name="align-left"
+                  [size]="18"
+                ></app-lucide-icon>
+              </div>
+              <textarea
+                name="message"
+                [(ngModel)]="contactForm.message"
+                required
+                minlength="20"
+                maxlength="5000"
+                placeholder="Describe tu problema con detalle..."
+                rows="5"
+              ></textarea>
             </div>
           </div>
 
-          <!-- Attachment -->
           <div class="attachment-area mt-2">
-            <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" accept="image/*, .pdf">
-            <div class="attachment-btn" (click)="fileInput.click()" *ngIf="!contactForm.attachment">
+            <input
+              type="file"
+              #fileInput
+              (change)="onFileSelected($event)"
+              hidden
+              accept="image/jpeg,image/png,image/webp,application/pdf"
+            />
+            <button
+              type="button"
+              class="attachment-btn"
+              (click)="fileInput.click()"
+              *ngIf="!contactForm.attachment"
+            >
               <app-lucide-icon name="paperclip" [size]="16"></app-lucide-icon>
-              <span>Adjuntar archivo o captura</span>
-            </div>
+              <span>Adjuntar imagen o PDF · máximo 5 MB</span>
+            </button>
             <div class="attachment-preview" *ngIf="contactForm.attachment">
-              <app-lucide-icon name="file" [size]="16" color="var(--steam-blue)"></app-lucide-icon>
+              <app-lucide-icon
+                name="file"
+                [size]="16"
+                color="var(--steam-blue)"
+              ></app-lucide-icon>
               <span class="file-name">{{ contactForm.attachment.name }}</span>
-              <button type="button" class="btn-remove-file" (click)="removeAttachment()">
+              <button
+                type="button"
+                class="btn-remove-file"
+                (click)="removeAttachment()"
+                aria-label="Quitar archivo"
+              >
                 <app-lucide-icon name="x" [size]="14"></app-lucide-icon>
               </button>
             </div>
           </div>
 
           <div class="footer-actions mt-4">
-            <button type="submit" class="btn-primary-block bg-orange" [disabled]="!supportForm.form.valid || isSubmitting">
-              <app-lucide-icon name="send" [size]="18" *ngIf="!isSubmitting"></app-lucide-icon>
+            <button
+              type="submit"
+              class="btn-primary-block bg-orange"
+              [disabled]="!supportForm.form.valid || isSubmitting"
+            >
+              <app-lucide-icon
+                name="send"
+                [size]="18"
+                *ngIf="!isSubmitting"
+              ></app-lucide-icon>
               <span *ngIf="isSubmitting" class="spinner-mini"></span>
-              <span style="margin-left: 8px;" *ngIf="!isSubmitting">Enviar Mensaje</span>
+              <span *ngIf="!isSubmitting">Crear ticket</span>
             </button>
           </div>
         </form>
       </div>
 
-      <!-- Tickets Anteriores -->
-      <div class="form-section mt-4" *ngIf="pastTickets.length > 0">
-        <h3 class="section-title">Tickets Recientes</h3>
-        <div class="tickets-list">
-          <div class="ticket-card" *ngFor="let ticket of pastTickets">
+      <div class="form-section mt-4">
+        <div class="ticket-section-header">
+          <h3 class="section-title">Tus Tickets</h3>
+          <button
+            type="button"
+            (click)="loadTickets()"
+            [disabled]="isLoadingTickets"
+          >
+            Actualizar
+          </button>
+        </div>
+
+        <div class="ticket-state" *ngIf="isLoadingTickets" aria-live="polite">
+          <span class="spinner-mini dark"></span> Consultando soporte…
+        </div>
+        <div
+          class="ticket-state error"
+          *ngIf="ticketsError && !isLoadingTickets"
+        >
+          <p>{{ ticketsError }}</p>
+          <button type="button" (click)="loadTickets()">Reintentar</button>
+        </div>
+        <div
+          class="ticket-state"
+          *ngIf="!isLoadingTickets && !ticketsError && !pastTickets.length"
+        >
+          Todavía no has creado tickets de soporte.
+        </div>
+
+        <div class="tickets-list" *ngIf="!isLoadingTickets && !ticketsError">
+          <article class="ticket-card" *ngFor="let ticket of pastTickets">
             <div class="ticket-header">
-              <span class="ticket-id">{{ ticket.id }}</span>
-              <span class="ticket-status" [class.closed]="ticket.status === 'Cerrado'" [class.open]="ticket.status === 'Abierto'">
-                {{ ticket.status }}
+              <span class="ticket-id">{{ ticket.reference }}</span>
+              <span class="ticket-status" [ngClass]="ticket.status">
+                {{ statusLabel(ticket.status) }}
               </span>
             </div>
             <h4 class="ticket-subject">{{ ticket.subject }}</h4>
-            <span class="ticket-date">{{ ticket.date }}</span>
-          </div>
+            <p class="ticket-message">{{ ticket.message }}</p>
+            <button
+              *ngIf="ticket.hasAttachment"
+              type="button"
+              class="ticket-attachment"
+              (click)="downloadAttachment(ticket)"
+            >
+              <app-lucide-icon name="download" [size]="15"></app-lucide-icon>
+              {{ ticket.attachmentName }}
+            </button>
+            <div class="support-reply" *ngIf="ticket.adminReply">
+              <strong>Respuesta del equipo</strong>
+              <p>{{ ticket.adminReply }}</p>
+            </div>
+            <time class="ticket-date" [attr.datetime]="ticket.createdAt">
+              {{ ticket.createdAt | date: "dd MMM yyyy, HH:mm" }}
+            </time>
+          </article>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATIONS -->
-  <div class="toast-message-premium" [class.show]="showToast">
+  <div class="toast-message-premium" [class.show]="showToast" role="status">
     <div class="toast-content-wrapper">
-      <app-lucide-icon name="info" [size]="16" color="#07B1C9"></app-lucide-icon>
+      <app-lucide-icon
+        name="info"
+        [size]="16"
+        color="#07B1C9"
+      ></app-lucide-icon>
       <span class="toast-text">{{ toastMessage }}</span>
     </div>
   </div>

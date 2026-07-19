@@ -18,8 +18,14 @@
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .section-title {
@@ -31,8 +37,12 @@
   margin: 0 0 16px 16px;
 }
 
-.mt-4 { margin-top: 2rem; }
-.mt-2 { margin-top: 1rem; }
+.mt-4 {
+  margin-top: 2rem;
+}
+.mt-2 {
+  margin-top: 1rem;
+}
 
 /* --- Form Groups (iOS Style) --- */
 .ios-form-group {
@@ -64,7 +74,8 @@
     color: var(--text-muted);
   }
 
-  input, select {
+  input,
+  select {
     flex: 1;
     border: none;
     background: transparent;
@@ -77,6 +88,26 @@
     &::placeholder {
       color: var(--text-muted);
     }
+  }
+
+  &.message-row {
+    align-items: flex-start;
+    padding-block: 12px;
+
+    .row-icon {
+      margin-top: 2px;
+    }
+  }
+
+  textarea {
+    flex: 1;
+    border: 0;
+    outline: 0;
+    resize: vertical;
+    min-height: 110px;
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
   }
 }
 
@@ -96,10 +127,58 @@
   background: rgba(7, 177, 201, 0.1);
   border-radius: 8px;
   cursor: pointer;
+  border: 0;
   transition: background 0.2s;
 
   &:hover {
     background: rgba(7, 177, 201, 0.2);
+  }
+}
+
+.ticket-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  .section-title {
+    margin-bottom: 0;
+  }
+
+  button {
+    border: 0;
+    background: transparent;
+    color: var(--steam-blue);
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+.ticket-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 24px;
+  border: 1px dashed var(--border-color);
+  border-radius: 14px;
+  color: var(--text-secondary);
+
+  &.error {
+    flex-direction: column;
+    color: var(--steam-red);
+
+    p {
+      margin: 0;
+    }
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 9px 14px;
+      background: var(--steam-blue);
+      color: white;
+      cursor: pointer;
+    }
   }
 }
 
@@ -111,7 +190,7 @@
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  
+
   .file-name {
     font-size: 0.85rem;
     color: var(--text-primary);
@@ -130,8 +209,10 @@
     align-items: center;
     justify-content: center;
     padding: 2px;
-    
-    &:hover { color: var(--steam-red); }
+
+    &:hover {
+      color: var(--steam-red);
+    }
   }
 }
 
@@ -171,11 +252,20 @@
 
         &.closed {
           background: rgba(52, 199, 89, 0.15);
-          color: var(--steam-green, #34C759);
+          color: var(--steam-green, #34c759);
         }
         &.open {
           background: rgba(7, 177, 201, 0.15);
           color: var(--steam-blue);
+        }
+        &.in_review {
+          background: rgba(248, 135, 24, 0.14);
+          color: var(--steam-orange);
+        }
+        &.resolved,
+        &.closed {
+          background: rgba(52, 199, 89, 0.15);
+          color: var(--steam-green, #34c759);
         }
       }
     }
@@ -191,6 +281,47 @@
       font-size: 0.8rem;
       color: var(--text-secondary);
     }
+
+    .ticket-message {
+      margin: 0 0 10px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+  }
+}
+
+.ticket-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  margin-bottom: 12px;
+  padding: 7px 10px;
+  border: 1px solid rgba(7, 177, 201, 0.25);
+  border-radius: 8px;
+  background: rgba(7, 177, 201, 0.08);
+  color: var(--steam-blue);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.support-reply {
+  margin: 10px 0 12px;
+  padding: 12px;
+  border-left: 3px solid var(--steam-blue);
+  border-radius: 8px;
+  background: rgba(7, 177, 201, 0.07);
+  color: var(--text-primary);
+
+  strong {
+    font-size: 0.82rem;
+  }
+  p {
+    margin: 5px 0 0;
+    line-height: 1.55;
+    white-space: pre-wrap;
   }
 }
 
@@ -236,14 +367,21 @@
 .spinner-mini {
   width: 20px;
   height: 20px;
-  border: 3px solid rgba(255,255,255,0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
+.spinner-mini.dark {
+  border-color: rgba(7, 177, 201, 0.25);
+  border-top-color: var(--steam-blue);
+}
+
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* --- Toast --- */
@@ -256,7 +394,7 @@
   border: 1px solid var(--border-color);
   padding: 14px 24px;
   border-radius: 100px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   opacity: 0;
   visibility: hidden;

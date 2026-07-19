@@ -15,11 +15,22 @@
 
 .manage-profile-wrapper {
   animation: fadeUp 0.4s ease forwards;
+
+  &.loading {
+    opacity: 0.65;
+    pointer-events: none;
+  }
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .page-description {
@@ -32,6 +43,59 @@
 
 .form-section {
   margin-bottom: 30px;
+}
+
+.push-device-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 28px;
+  padding: 17px;
+  border: 1px solid rgba(7, 177, 201, 0.25);
+  border-radius: 16px;
+  background: rgba(7, 177, 201, 0.07);
+
+  > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  strong {
+    color: var(--text-primary);
+  }
+  span {
+    color: var(--text-secondary);
+    font-size: 0.83rem;
+  }
+}
+
+.device-actions {
+  display: flex;
+  gap: 8px;
+
+  button {
+    min-height: 38px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--steam-blue);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+
+    &.secondary {
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
 }
 
 .section-title {
@@ -85,9 +149,27 @@
     justify-content: center;
     align-items: center;
 
-    &.bg-blue-light { background: rgba(7, 177, 201, 0.15); }
-    &.bg-orange-light { background: rgba(248, 135, 24, 0.15); }
-    &.bg-green-light { background: rgba(52, 199, 89, 0.15); }
+    &.bg-blue-light {
+      background: rgba(7, 177, 201, 0.15);
+    }
+    &.bg-orange-light {
+      background: rgba(248, 135, 24, 0.15);
+    }
+    &.bg-green-light {
+      background: rgba(52, 199, 89, 0.15);
+    }
+    &.purple {
+      background: rgba(139, 92, 246, 0.1);
+    }
+    &.red {
+      background: rgba(244, 63, 94, 0.1);
+    }
+    &.green {
+      background: rgba(52, 199, 89, 0.1);
+    }
+    &.gray {
+      background: rgba(107, 114, 128, 0.1);
+    }
   }
 
   .row-text {
@@ -115,7 +197,7 @@
   width: 46px;
   height: 28px;
 
-  input { 
+  input {
     opacity: 0;
     width: 0;
     height: 0;
@@ -124,9 +206,12 @@
   .apple-slider {
     position: absolute;
     cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background-color: var(--border-color);
-    transition: .3s;
+    transition: 0.3s;
     border-radius: 34px;
 
     &:before {
@@ -137,14 +222,14 @@
       left: 2px;
       bottom: 2px;
       background-color: white;
-      transition: .3s;
+      transition: 0.3s;
       border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
   }
 
   input:checked + .apple-slider {
-    background-color: var(--steam-green, #34C759);
+    background-color: var(--steam-green, #34c759);
   }
 
   input:checked + .apple-slider:before {
@@ -152,7 +237,9 @@
   }
 }
 
-.mt-4 { margin-top: 2rem; }
+.mt-4 {
+  margin-top: 2rem;
+}
 
 /* Buttons */
 .btn-primary-block {
@@ -189,14 +276,16 @@
 .spinner-mini {
   width: 20px;
   height: 20px;
-  border: 3px solid rgba(255,255,255,0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* --- Toast --- */
@@ -209,7 +298,7 @@
   border: 1px solid var(--border-color);
   padding: 14px 24px;
   border-radius: 100px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
@@ -219,6 +308,14 @@
     transform: translateX(-50%) translateY(0);
     opacity: 1;
     visibility: visible;
+  }
+
+  &.error {
+    border-color: rgba(232, 55, 45, 0.35);
+
+    app-lucide-icon {
+      color: var(--steam-red);
+    }
   }
 
   .toast-content-wrapper {
@@ -231,5 +328,21 @@
     color: var(--text-primary);
     font-weight: 600;
     font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .push-device-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .device-actions {
+    width: 100%;
+  }
+  .device-actions button {
+    flex: 1;
+  }
+  .ios-toggle-row .row-text .row-desc {
+    max-width: 190px;
   }
 }

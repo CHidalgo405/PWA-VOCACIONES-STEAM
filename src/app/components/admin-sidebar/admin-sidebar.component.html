@@ -1,85 +1,221 @@
-<button type="button" class="mobile-toggle-btn" (click)="toggleMenu()" aria-label="Abrir navegación administrativa">
-  <app-lucide-icon name="menu" [size]="18" style="margin-right: 8px;"></app-lucide-icon> Menú Admin
+<button
+  type="button"
+  class="mobile-toggle-btn"
+  (click)="toggleMenu()"
+  aria-label="Abrir navegación administrativa"
+>
+  <app-lucide-icon
+    name="menu"
+    [size]="18"
+    style="margin-right: 8px"
+  ></app-lucide-icon>
+  Menú Admin
 </button>
 
-<button type="button" class="sidebar-overlay" [class.active]="isMobileMenuOpen" (click)="closeMenu()" aria-label="Cerrar navegación administrativa"></button>
+<button
+  type="button"
+  class="sidebar-overlay"
+  [class.active]="isMobileMenuOpen"
+  (click)="closeMenu()"
+  aria-label="Cerrar navegación administrativa"
+></button>
 
 <aside class="admin-sidebar" [class.open]="isMobileMenuOpen">
-
   <div class="sidebar-header">
-    <img src="logo.svg" alt="" width="32" height="32" class="admin-brand-logo">
+    <img
+      src="logo.svg"
+      alt=""
+      width="32"
+      height="32"
+      class="admin-brand-logo"
+    />
     <h2>Control STEAM</h2>
-    <button type="button" class="close-btn" (click)="closeMenu()" aria-label="Cerrar menú"><app-lucide-icon name="x" [size]="24" aria-hidden="true"></app-lucide-icon></button>
+    <button
+      type="button"
+      class="close-btn"
+      (click)="closeMenu()"
+      aria-label="Cerrar menú"
+    >
+      <app-lucide-icon
+        name="x"
+        [size]="24"
+        aria-hidden="true"
+      ></app-lucide-icon>
+    </button>
   </div>
 
   <nav class="sidebar-nav">
-    <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon"><app-lucide-icon name="bar-chart-3" [size]="20"></app-lucide-icon></span>
+    <a
+      routerLink="/admin/dashboard"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeMenu()"
+    >
+      <span class="icon"
+        ><app-lucide-icon name="bar-chart-3" [size]="20"></app-lucide-icon
+      ></span>
       <span class="label">Resumen</span>
     </a>
 
-    <a routerLink="/admin/users" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon"><app-lucide-icon name="users" [size]="20"></app-lucide-icon></span>
+    <a
+      routerLink="/admin/users"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeMenu()"
+    >
+      <span class="icon"
+        ><app-lucide-icon name="users" [size]="20"></app-lucide-icon
+      ></span>
       <span class="label">Usuarios</span>
     </a>
 
-    <a routerLink="/admin/test" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon"><app-lucide-icon name="clipboard-list" [size]="20"></app-lucide-icon></span>
+    <a
+      routerLink="/admin/test"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeMenu()"
+    >
+      <span class="icon"
+        ><app-lucide-icon name="clipboard-list" [size]="20"></app-lucide-icon
+      ></span>
       <span class="label">Test Vocacional</span>
     </a>
 
-    <a routerLink="/admin/simulators" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon"><app-lucide-icon name="gamepad-2" [size]="20"></app-lucide-icon></span>
+    <a
+      routerLink="/admin/simulators"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeMenu()"
+    >
+      <span class="icon"
+        ><app-lucide-icon name="gamepad-2" [size]="20"></app-lucide-icon
+      ></span>
       <span class="label">Simuladores</span>
     </a>
 
-    <a routerLink="/admin/calibration" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon"><app-lucide-icon name="layers" [size]="20"></app-lucide-icon></span>
+    <a
+      routerLink="/admin/calibration"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeMenu()"
+    >
+      <span class="icon"
+        ><app-lucide-icon name="layers" [size]="20"></app-lucide-icon
+      ></span>
       <span class="label">Calibración</span>
     </a>
 
-    <a routerLink="/admin/catalogs" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon"><app-lucide-icon name="library-big" [size]="20" aria-hidden="true"></app-lucide-icon></span>
+    <a
+      routerLink="/admin/catalogs"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeMenu()"
+    >
+      <span class="icon"
+        ><app-lucide-icon
+          name="library-big"
+          [size]="20"
+          aria-hidden="true"
+        ></app-lucide-icon
+      ></span>
       <span class="label">Catálogos A6/A7</span>
     </a>
 
-    <a routerLink="/admin/universities" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon"><app-lucide-icon name="building-2" [size]="20"></app-lucide-icon></span>
+    <a
+      routerLink="/admin/universities"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeMenu()"
+    >
+      <span class="icon"
+        ><app-lucide-icon name="building-2" [size]="20"></app-lucide-icon
+      ></span>
       <span class="label">Universidades</span>
     </a>
 
-    <a routerLink="/admin/ai-logs" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon"><app-lucide-icon name="bot" [size]="20"></app-lucide-icon></span>
+    <a
+      routerLink="/admin/ai-logs"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeMenu()"
+    >
+      <span class="icon"
+        ><app-lucide-icon name="bot" [size]="20"></app-lucide-icon
+      ></span>
       <span class="label">Monitoreo IA</span>
     </a>
 
-    <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item" (click)="closeMenu()">
-      <span class="icon"><app-lucide-icon name="settings" [size]="20"></app-lucide-icon></span>
+    <a
+      routerLink="/admin/communications"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeMenu()"
+    >
+      <span class="icon"
+        ><app-lucide-icon name="message-square" [size]="20"></app-lucide-icon
+      ></span>
+      <span class="label">Comunicaciones</span>
+    </a>
+
+    <a
+      routerLink="/admin/settings"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeMenu()"
+    >
+      <span class="icon"
+        ><app-lucide-icon name="settings" [size]="20"></app-lucide-icon
+      ></span>
       <span class="label">Torre de Control</span>
     </a>
 
     <!-- Botón de instalación PWA -->
-    <button type="button" *ngIf="(pwaInstall.canInstall$ | async) || (pwaInstall.isIos$ | async)"
-       (click)="pwaInstall.installApp(); closeMenu()" 
-       class="nav-item install-btn">
-      <span class="icon"><app-lucide-icon name="download" [size]="20"></app-lucide-icon></span>
-      <span class="label" style="font-weight: 700; color: var(--steam-blue);">Instalar App</span>
+    <button
+      type="button"
+      *ngIf="(pwaInstall.canInstall$ | async) || (pwaInstall.isIos$ | async)"
+      (click)="pwaInstall.installApp(); closeMenu()"
+      class="nav-item install-btn"
+    >
+      <span class="icon"
+        ><app-lucide-icon name="download" [size]="20"></app-lucide-icon
+      ></span>
+      <span class="label" style="font-weight: 700; color: var(--steam-blue)"
+        >Instalar App</span
+      >
     </button>
   </nav>
 
   <div class="sidebar-footer">
-    <button type="button" class="nav-item theme-toggle" (click)="toggleDarkMode()" style="cursor: pointer; width: 100%; margin-bottom: 5px;">
-      <span class="icon"><app-lucide-icon [name]="isDark ? 'sun' : 'moon'" [size]="20"></app-lucide-icon></span>
-      <span class="label">{{ isDark ? 'Modo Claro' : 'Modo Oscuro' }}</span>
+    <button
+      type="button"
+      class="nav-item theme-toggle"
+      (click)="toggleDarkMode()"
+      style="cursor: pointer; width: 100%; margin-bottom: 5px"
+    >
+      <span class="icon"
+        ><app-lucide-icon
+          [name]="isDark ? 'sun' : 'moon'"
+          [size]="20"
+        ></app-lucide-icon
+      ></span>
+      <span class="label">{{ isDark ? "Modo Claro" : "Modo Oscuro" }}</span>
     </button>
-    <a routerLink="/dashboard" class="nav-item" (click)="closeMenu()" style="cursor: pointer; margin-bottom: 5px;">
-      <span class="icon"><app-lucide-icon name="layout-dashboard" [size]="20"></app-lucide-icon></span>
+    <a
+      routerLink="/dashboard"
+      class="nav-item"
+      (click)="closeMenu()"
+      style="cursor: pointer; margin-bottom: 5px"
+    >
+      <span class="icon"
+        ><app-lucide-icon name="layout-dashboard" [size]="20"></app-lucide-icon
+      ></span>
       <span class="label">Ir a la App</span>
     </a>
     <button type="button" (click)="logout()" class="nav-item logout">
-      <span class="icon"><app-lucide-icon name="log-out" [size]="20"></app-lucide-icon></span>
+      <span class="icon"
+        ><app-lucide-icon name="log-out" [size]="20"></app-lucide-icon
+      ></span>
       <span class="label">Cerrar Sesión</span>
     </button>
   </div>
-
 </aside>
