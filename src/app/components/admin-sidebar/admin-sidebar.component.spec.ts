@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AdminSidebarComponent } from './admin-sidebar.component';
+import { provideAppTestDependencies } from '../../../testing/app-test-providers';
 
 describe('AdminSidebarComponent', () => {
   let component: AdminSidebarComponent;
@@ -8,9 +9,9 @@ describe('AdminSidebarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AdminSidebarComponent]
-    })
-    .compileComponents();
+      imports: [AdminSidebarComponent],
+      providers: provideAppTestDependencies(),
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AdminSidebarComponent);
     component = fixture.componentInstance;
