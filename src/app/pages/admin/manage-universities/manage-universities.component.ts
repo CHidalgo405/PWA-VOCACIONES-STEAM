@@ -5,7 +5,6 @@ import { RouterModule } from '@angular/router';
 import { AdminService, AdminUniversity } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
-import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 
 type CostTier = 'public' | 'affordable' | 'private-premium';
@@ -44,7 +43,7 @@ const EMPTY_FORM: UniversityFormModel = {
 @Component({
   selector: 'app-manage-universities',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent, LucideIconComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LucideIconComponent],
   templateUrl: './manage-universities.component.html',
   styleUrls: ['./manage-universities.component.scss'],
 })

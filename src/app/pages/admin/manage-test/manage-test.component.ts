@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { AdminService, AdminTestQuestion } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -12,7 +11,7 @@ import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon
 @Component({
   selector: 'app-manage-test',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminSidebarComponent, LucideIconComponent],
+  imports: [CommonModule, FormsModule, LucideIconComponent],
   templateUrl: './manage-test.component.html',
   styleUrls: ['./manage-test.component.scss']
 })

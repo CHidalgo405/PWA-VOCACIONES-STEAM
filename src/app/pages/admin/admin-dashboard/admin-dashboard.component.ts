@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { BaseChartDirective } from 'ng2-charts'; // Importante para la gráfica
 import { ChartConfiguration } from 'chart.js';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
@@ -18,7 +17,7 @@ interface Alert { type: 'warning' | 'success' | 'info'; text: string; }
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, AdminSidebarComponent, BaseChartDirective, LucideIconComponent, AdminReportTemplateComponent],
+  imports: [CommonModule, RouterModule, BaseChartDirective, LucideIconComponent, AdminReportTemplateComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })

@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 import {
   AdminService,
@@ -13,7 +12,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, AdminSidebarComponent, LucideIconComponent],
+  imports: [CommonModule, LucideIconComponent],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss'],
 })

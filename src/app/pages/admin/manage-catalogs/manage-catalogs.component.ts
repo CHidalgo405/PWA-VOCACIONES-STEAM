@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 import {
   AdminService,
@@ -18,7 +17,7 @@ type CatalogTab = 'vocations' | 'careers' | 'axes';
 @Component({
   selector: 'app-manage-catalogs',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminSidebarComponent, LucideIconComponent],
+  imports: [CommonModule, FormsModule, LucideIconComponent],
   templateUrl: './manage-catalogs.component.html',
   styleUrls: ['./manage-catalogs.component.scss'],
 })

@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
-import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 import {
   SupportService,
@@ -20,7 +19,6 @@ import {
   imports: [
     CommonModule,
     FormsModule,
-    AdminSidebarComponent,
     LucideIconComponent,
   ],
   templateUrl: './communications.component.html',

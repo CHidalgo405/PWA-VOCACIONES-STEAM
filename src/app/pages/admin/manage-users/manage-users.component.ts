@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // Necesario para ngModel
-import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { AdminService, AdminUser, SuspensionAction } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -12,7 +11,7 @@ import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon
 @Component({
   selector: 'app-manage-users',
   standalone: true,
-  imports: [CommonModule, AdminSidebarComponent, FormsModule, LucideIconComponent],
+  imports: [CommonModule, FormsModule, LucideIconComponent],
   templateUrl: './manage-users.component.html',
   styleUrls: ['./manage-users.component.scss']
 })

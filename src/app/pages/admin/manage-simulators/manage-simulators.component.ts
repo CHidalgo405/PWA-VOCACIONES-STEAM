@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-sidebar.component';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 import {
   AdminService,
@@ -38,7 +37,7 @@ const STEAM_AREAS: Array<{ value: SteamAxis; label: string; emoji: string }> = [
 @Component({
   selector: 'app-manage-simulators',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminSidebarComponent, LucideIconComponent],
+  imports: [CommonModule, FormsModule, LucideIconComponent],
   templateUrl: './manage-simulators.component.html',
   styleUrls: ['./manage-simulators.component.scss'],
 })

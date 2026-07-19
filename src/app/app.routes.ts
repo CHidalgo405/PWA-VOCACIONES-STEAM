@@ -206,86 +206,87 @@ export const routes: Routes = [
         (m) => m.TermsComponent,
       ),
   },
-  { path: 'admin', redirectTo: '/admin/dashboard', pathMatch: 'full' },
   {
-    path: 'admin/dashboard',
+    path: 'admin',
     loadComponent: () =>
-      import('./pages/admin/admin-dashboard/admin-dashboard.component').then(
-        (m) => m.AdminDashboardComponent,
+      import('./components/admin-layout/admin-layout.component').then(
+        (m) => m.AdminLayoutComponent,
       ),
     canActivate: [authGuard, adminGuard],
-  },
-  {
-    path: 'admin/users',
-    loadComponent: () =>
-      import('./pages/admin/manage-users/manage-users.component').then(
-        (m) => m.ManageUsersComponent,
-      ),
-    canActivate: [authGuard, adminGuard],
-  },
-  {
-    path: 'admin/test',
-    loadComponent: () =>
-      import('./pages/admin/manage-test/manage-test.component').then(
-        (m) => m.ManageTestComponent,
-      ),
-    canActivate: [authGuard, adminGuard],
-  },
-  {
-    path: 'admin/simulators',
-    loadComponent: () =>
-      import('./pages/admin/manage-simulators/manage-simulators.component').then(
-        (m) => m.ManageSimulatorsComponent,
-      ),
-    canActivate: [authGuard, adminGuard],
-  },
-  {
-    path: 'admin/calibration',
-    loadComponent: () =>
-      import('./pages/admin/manage-calibration/manage-calibration.component').then(
-        (m) => m.ManageCalibrationComponent,
-      ),
-    canActivate: [authGuard, adminGuard],
-  },
-  {
-    path: 'admin/catalogs',
-    loadComponent: () =>
-      import('./pages/admin/manage-catalogs/manage-catalogs.component').then(
-        (m) => m.ManageCatalogsComponent,
-      ),
-    canActivate: [authGuard, adminGuard],
-  },
-  {
-    path: 'admin/universities',
-    loadComponent: () =>
-      import('./pages/admin/manage-universities/manage-universities.component').then(
-        (m) => m.ManageUniversitiesComponent,
-      ),
-    canActivate: [authGuard, adminGuard],
-  },
-  {
-    path: 'admin/ai-logs',
-    loadComponent: () =>
-      import('./pages/admin/ai-logs/ai-logs.component').then(
-        (m) => m.AiLogsComponent,
-      ),
-    canActivate: [authGuard, adminGuard],
-  },
-  {
-    path: 'admin/communications',
-    loadComponent: () =>
-      import('./pages/admin/communications/communications.component').then(
-        (m) => m.CommunicationsComponent,
-      ),
-    canActivate: [authGuard, adminGuard],
-  },
-  {
-    path: 'admin/settings',
-    loadComponent: () =>
-      import('./pages/admin/settings/settings.component').then(
-        (m) => m.SettingsComponent,
-      ),
-    canActivate: [authGuard, adminGuard],
+    canActivateChild: [authGuard, adminGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./pages/admin/admin-dashboard/admin-dashboard.component').then(
+            (m) => m.AdminDashboardComponent,
+          ),
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./pages/admin/manage-users/manage-users.component').then(
+            (m) => m.ManageUsersComponent,
+          ),
+      },
+      {
+        path: 'test',
+        loadComponent: () =>
+          import('./pages/admin/manage-test/manage-test.component').then(
+            (m) => m.ManageTestComponent,
+          ),
+      },
+      {
+        path: 'simulators',
+        loadComponent: () =>
+          import('./pages/admin/manage-simulators/manage-simulators.component').then(
+            (m) => m.ManageSimulatorsComponent,
+          ),
+      },
+      {
+        path: 'calibration',
+        loadComponent: () =>
+          import('./pages/admin/manage-calibration/manage-calibration.component').then(
+            (m) => m.ManageCalibrationComponent,
+          ),
+      },
+      {
+        path: 'catalogs',
+        loadComponent: () =>
+          import('./pages/admin/manage-catalogs/manage-catalogs.component').then(
+            (m) => m.ManageCatalogsComponent,
+          ),
+      },
+      {
+        path: 'universities',
+        loadComponent: () =>
+          import('./pages/admin/manage-universities/manage-universities.component').then(
+            (m) => m.ManageUniversitiesComponent,
+          ),
+      },
+      {
+        path: 'ai-logs',
+        loadComponent: () =>
+          import('./pages/admin/ai-logs/ai-logs.component').then(
+            (m) => m.AiLogsComponent,
+          ),
+      },
+      {
+        path: 'communications',
+        loadComponent: () =>
+          import('./pages/admin/communications/communications.component').then(
+            (m) => m.CommunicationsComponent,
+          ),
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./pages/admin/settings/settings.component').then(
+            (m) => m.SettingsComponent,
+          ),
+      },
+    ],
   },
   {
     path: '**',
