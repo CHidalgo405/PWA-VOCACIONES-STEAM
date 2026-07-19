@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
+import { OfflineSyncService } from './offline-sync.service';
 import {
   SteamAxis,
   SteamVector,
@@ -61,7 +62,13 @@ export interface SimulatorSubmitResponse {
  *   - ALGORITMO 2 (carreras): del perfil → planes de estudio / carreras afines.
  */
 
-const AXES: SteamAxis[] = ['ciencia', 'tecnologia', 'ingenieria', 'artes', 'matematicas'];
+const AXES: SteamAxis[] = [
+  'ciencia',
+  'tecnologia',
+  'ingenieria',
+  'artes',
+  'matematicas',
+];
 
 interface AxisMeta {
   label: string;
@@ -82,8 +89,13 @@ const AXIS_META: Record<SteamAxis, AxisMeta> = {
     icon: 'flask-conical',
     archetype: 'Investigador',
     strengthTitle: 'Pensamiento científico',
-    strengthDesc: 'Formulas hipótesis y buscas evidencia antes de concluir. Te mueve entender el porqué de las cosas.',
-    workStyle: ['Curiosidad metódica', 'Razonamiento basado en evidencia', 'Atención al detalle'],
+    strengthDesc:
+      'Formulas hipótesis y buscas evidencia antes de concluir. Te mueve entender el porqué de las cosas.',
+    workStyle: [
+      'Curiosidad metódica',
+      'Razonamiento basado en evidencia',
+      'Atención al detalle',
+    ],
   },
   tecnologia: {
     label: 'Tecnología',
@@ -91,8 +103,13 @@ const AXIS_META: Record<SteamAxis, AxisMeta> = {
     icon: 'cpu',
     archetype: 'Creador Digital',
     strengthTitle: 'Mentalidad tecnológica',
-    strengthDesc: 'Aprendes herramientas nuevas con facilidad y disfrutas automatizar y construir soluciones digitales.',
-    workStyle: ['Aprendizaje autodidacta', 'Lógica computacional', 'Iteración rápida'],
+    strengthDesc:
+      'Aprendes herramientas nuevas con facilidad y disfrutas automatizar y construir soluciones digitales.',
+    workStyle: [
+      'Aprendizaje autodidacta',
+      'Lógica computacional',
+      'Iteración rápida',
+    ],
   },
   ingenieria: {
     label: 'Ingeniería',
@@ -100,8 +117,13 @@ const AXIS_META: Record<SteamAxis, AxisMeta> = {
     icon: 'wrench',
     archetype: 'Constructor',
     strengthTitle: 'Resolución práctica',
-    strengthDesc: 'Te orientas a soluciones tangibles: diseñas, pruebas y optimizas sistemas que funcionan en el mundo real.',
-    workStyle: ['Orientación a resultados', 'Optimización de recursos', 'Pensamiento sistémico'],
+    strengthDesc:
+      'Te orientas a soluciones tangibles: diseñas, pruebas y optimizas sistemas que funcionan en el mundo real.',
+    workStyle: [
+      'Orientación a resultados',
+      'Optimización de recursos',
+      'Pensamiento sistémico',
+    ],
   },
   artes: {
     label: 'Artes',
@@ -109,8 +131,13 @@ const AXIS_META: Record<SteamAxis, AxisMeta> = {
     icon: 'palette',
     archetype: 'Visionario Creativo',
     strengthTitle: 'Sensibilidad creativa',
-    strengthDesc: 'Comunicas ideas con impacto visual y emocional. Equilibras estética, propósito y experiencia humana.',
-    workStyle: ['Pensamiento divergente', 'Empatía con el usuario', 'Comunicación visual'],
+    strengthDesc:
+      'Comunicas ideas con impacto visual y emocional. Equilibras estética, propósito y experiencia humana.',
+    workStyle: [
+      'Pensamiento divergente',
+      'Empatía con el usuario',
+      'Comunicación visual',
+    ],
   },
   matematicas: {
     label: 'Matemáticas',
@@ -118,56 +145,255 @@ const AXIS_META: Record<SteamAxis, AxisMeta> = {
     icon: 'sigma',
     archetype: 'Analista',
     strengthTitle: 'Razonamiento abstracto',
-    strengthDesc: 'Modelas problemas complejos con patrones y números. Te sientes cómodo con la abstracción y la lógica formal.',
-    workStyle: ['Pensamiento abstracto', 'Análisis cuantitativo', 'Rigor lógico'],
+    strengthDesc:
+      'Modelas problemas complejos con patrones y números. Te sientes cómodo con la abstracción y la lógica formal.',
+    workStyle: [
+      'Pensamiento abstracto',
+      'Análisis cuantitativo',
+      'Rigor lógico',
+    ],
   },
 };
 
 /** ALGORITMO 1 — catálogo de vocaciones por eje (datos de ejemplo). */
-const VOCATION_CATALOG: Record<SteamAxis, Omit<VocationRecommendation, 'affinity'>[]> = {
+const VOCATION_CATALOG: Record<
+  SteamAxis,
+  Omit<VocationRecommendation, 'affinity'>[]
+> = {
   ciencia: [
-    { name: 'Investigación biomédica', axis: 'ciencia', description: 'Estudiar el cuerpo humano y enfermedades para desarrollar tratamientos y diagnósticos.', skills: ['Método científico', 'Análisis de datos', 'Laboratorio'], icon: 'microscope' },
-    { name: 'Ciencias ambientales', axis: 'ciencia', description: 'Analizar ecosistemas y proponer soluciones sostenibles a problemas ambientales.', skills: ['Observación', 'Modelado', 'Trabajo de campo'], icon: 'leaf' },
+    {
+      name: 'Investigación biomédica',
+      axis: 'ciencia',
+      description:
+        'Estudiar el cuerpo humano y enfermedades para desarrollar tratamientos y diagnósticos.',
+      skills: ['Método científico', 'Análisis de datos', 'Laboratorio'],
+      icon: 'microscope',
+    },
+    {
+      name: 'Ciencias ambientales',
+      axis: 'ciencia',
+      description:
+        'Analizar ecosistemas y proponer soluciones sostenibles a problemas ambientales.',
+      skills: ['Observación', 'Modelado', 'Trabajo de campo'],
+      icon: 'leaf',
+    },
   ],
   tecnologia: [
-    { name: 'Desarrollo de software', axis: 'tecnologia', description: 'Diseñar y construir aplicaciones y sistemas que resuelven problemas reales.', skills: ['Programación', 'Lógica', 'Arquitectura de sistemas'], icon: 'code-2' },
-    { name: 'Ciberseguridad', axis: 'tecnologia', description: 'Proteger sistemas e información frente a amenazas digitales.', skills: ['Análisis de riesgos', 'Redes', 'Pensamiento adversario'], icon: 'shield' },
+    {
+      name: 'Desarrollo de software',
+      axis: 'tecnologia',
+      description:
+        'Diseñar y construir aplicaciones y sistemas que resuelven problemas reales.',
+      skills: ['Programación', 'Lógica', 'Arquitectura de sistemas'],
+      icon: 'code-2',
+    },
+    {
+      name: 'Ciberseguridad',
+      axis: 'tecnologia',
+      description:
+        'Proteger sistemas e información frente a amenazas digitales.',
+      skills: ['Análisis de riesgos', 'Redes', 'Pensamiento adversario'],
+      icon: 'shield',
+    },
   ],
   ingenieria: [
-    { name: 'Ingeniería mecatrónica', axis: 'ingenieria', description: 'Integrar mecánica, electrónica y software para crear sistemas automatizados.', skills: ['Diseño', 'Control', 'Prototipado'], icon: 'cpu' },
-    { name: 'Ingeniería civil', axis: 'ingenieria', description: 'Planear y construir infraestructura segura y funcional.', skills: ['Cálculo estructural', 'Gestión de proyectos', 'Materiales'], icon: 'building-2' },
+    {
+      name: 'Ingeniería mecatrónica',
+      axis: 'ingenieria',
+      description:
+        'Integrar mecánica, electrónica y software para crear sistemas automatizados.',
+      skills: ['Diseño', 'Control', 'Prototipado'],
+      icon: 'cpu',
+    },
+    {
+      name: 'Ingeniería civil',
+      axis: 'ingenieria',
+      description: 'Planear y construir infraestructura segura y funcional.',
+      skills: ['Cálculo estructural', 'Gestión de proyectos', 'Materiales'],
+      icon: 'building-2',
+    },
   ],
   artes: [
-    { name: 'Diseño de experiencia (UX/UI)', axis: 'artes', description: 'Crear productos digitales útiles, usables y atractivos centrados en las personas.', skills: ['Investigación de usuarios', 'Prototipado', 'Diseño visual'], icon: 'palette' },
-    { name: 'Producción audiovisual', axis: 'artes', description: 'Contar historias con imagen, sonido y movimiento.', skills: ['Narrativa', 'Composición', 'Edición'], icon: 'clapperboard' },
+    {
+      name: 'Diseño de experiencia (UX/UI)',
+      axis: 'artes',
+      description:
+        'Crear productos digitales útiles, usables y atractivos centrados en las personas.',
+      skills: ['Investigación de usuarios', 'Prototipado', 'Diseño visual'],
+      icon: 'palette',
+    },
+    {
+      name: 'Producción audiovisual',
+      axis: 'artes',
+      description: 'Contar historias con imagen, sonido y movimiento.',
+      skills: ['Narrativa', 'Composición', 'Edición'],
+      icon: 'clapperboard',
+    },
   ],
   matematicas: [
-    { name: 'Ciencia de datos', axis: 'matematicas', description: 'Extraer conocimiento de grandes volúmenes de datos para tomar mejores decisiones.', skills: ['Estadística', 'Programación', 'Modelado'], icon: 'bar-chart-3' },
-    { name: 'Actuaría / finanzas cuantitativas', axis: 'matematicas', description: 'Modelar riesgo e incertidumbre para el sector financiero y asegurador.', skills: ['Probabilidad', 'Modelos financieros', 'Análisis'], icon: 'trending-up' },
+    {
+      name: 'Ciencia de datos',
+      axis: 'matematicas',
+      description:
+        'Extraer conocimiento de grandes volúmenes de datos para tomar mejores decisiones.',
+      skills: ['Estadística', 'Programación', 'Modelado'],
+      icon: 'bar-chart-3',
+    },
+    {
+      name: 'Actuaría / finanzas cuantitativas',
+      axis: 'matematicas',
+      description:
+        'Modelar riesgo e incertidumbre para el sector financiero y asegurador.',
+      skills: ['Probabilidad', 'Modelos financieros', 'Análisis'],
+      icon: 'trending-up',
+    },
   ],
 };
 
 /** ALGORITMO 2 — catálogo de carreras / planes de estudio por eje (ejemplo). */
-const CAREER_CATALOG: Record<SteamAxis, Omit<CareerRecommendation, 'affinity' | 'rationale'>[]> = {
+const CAREER_CATALOG: Record<
+  SteamAxis,
+  Omit<CareerRecommendation, 'affinity' | 'rationale'>[]
+> = {
   ciencia: [
-    { careerName: 'Médico Cirujano', axis: 'ciencia', studyPlanHighlights: ['Anatomía', 'Fisiología', 'Bioquímica', 'Farmacología'], careerFields: ['Hospitales', 'Investigación clínica', 'Salud pública'], relatedSimulatorSlug: 'medicina', icon: 'stethoscope' },
-    { careerName: 'Biotecnología', axis: 'ciencia', studyPlanHighlights: ['Biología molecular', 'Genética', 'Microbiología', 'Bioprocesos'], careerFields: ['Farmacéutica', 'Agroindustria', 'I+D'], relatedSimulatorSlug: 'biotecnologia', icon: 'dna' },
+    {
+      careerName: 'Médico Cirujano',
+      axis: 'ciencia',
+      studyPlanHighlights: [
+        'Anatomía',
+        'Fisiología',
+        'Bioquímica',
+        'Farmacología',
+      ],
+      careerFields: ['Hospitales', 'Investigación clínica', 'Salud pública'],
+      relatedSimulatorSlug: 'medicina',
+      icon: 'stethoscope',
+    },
+    {
+      careerName: 'Biotecnología',
+      axis: 'ciencia',
+      studyPlanHighlights: [
+        'Biología molecular',
+        'Genética',
+        'Microbiología',
+        'Bioprocesos',
+      ],
+      careerFields: ['Farmacéutica', 'Agroindustria', 'I+D'],
+      relatedSimulatorSlug: 'biotecnologia',
+      icon: 'dna',
+    },
   ],
   tecnologia: [
-    { careerName: 'Ingeniería en Software', axis: 'tecnologia', studyPlanHighlights: ['Algoritmos', 'Estructuras de datos', 'Bases de datos', 'Ingeniería de software'], careerFields: ['Desarrollo web/móvil', 'Startups', 'Cloud'], relatedSimulatorSlug: 'software', icon: 'code-2' },
-    { careerName: 'Ingeniería en Inteligencia Artificial', axis: 'tecnologia', studyPlanHighlights: ['Machine Learning', 'Álgebra lineal', 'Procesamiento de datos', 'Redes neuronales'], careerFields: ['IA aplicada', 'Robótica', 'Análisis predictivo'], relatedSimulatorSlug: 'inteligencia-artificial-ml', icon: 'bot' },
+    {
+      careerName: 'Ingeniería en Software',
+      axis: 'tecnologia',
+      studyPlanHighlights: [
+        'Algoritmos',
+        'Estructuras de datos',
+        'Bases de datos',
+        'Ingeniería de software',
+      ],
+      careerFields: ['Desarrollo web/móvil', 'Startups', 'Cloud'],
+      relatedSimulatorSlug: 'software',
+      icon: 'code-2',
+    },
+    {
+      careerName: 'Ingeniería en Inteligencia Artificial',
+      axis: 'tecnologia',
+      studyPlanHighlights: [
+        'Machine Learning',
+        'Álgebra lineal',
+        'Procesamiento de datos',
+        'Redes neuronales',
+      ],
+      careerFields: ['IA aplicada', 'Robótica', 'Análisis predictivo'],
+      relatedSimulatorSlug: 'inteligencia-artificial-ml',
+      icon: 'bot',
+    },
   ],
   ingenieria: [
-    { careerName: 'Ingeniería Mecatrónica', axis: 'ingenieria', studyPlanHighlights: ['Mecánica', 'Electrónica', 'Control', 'Programación'], careerFields: ['Automatización industrial', 'Robótica', 'Manufactura'], relatedSimulatorSlug: 'mecatronica', icon: 'cpu' },
-    { careerName: 'Ingeniería Civil', axis: 'ingenieria', studyPlanHighlights: ['Estática', 'Resistencia de materiales', 'Hidráulica', 'Construcción'], careerFields: ['Construcción', 'Infraestructura', 'Consultoría'], relatedSimulatorSlug: 'ingenieria-civil', icon: 'building-2' },
+    {
+      careerName: 'Ingeniería Mecatrónica',
+      axis: 'ingenieria',
+      studyPlanHighlights: [
+        'Mecánica',
+        'Electrónica',
+        'Control',
+        'Programación',
+      ],
+      careerFields: ['Automatización industrial', 'Robótica', 'Manufactura'],
+      relatedSimulatorSlug: 'mecatronica',
+      icon: 'cpu',
+    },
+    {
+      careerName: 'Ingeniería Civil',
+      axis: 'ingenieria',
+      studyPlanHighlights: [
+        'Estática',
+        'Resistencia de materiales',
+        'Hidráulica',
+        'Construcción',
+      ],
+      careerFields: ['Construcción', 'Infraestructura', 'Consultoría'],
+      relatedSimulatorSlug: 'ingenieria-civil',
+      icon: 'building-2',
+    },
   ],
   artes: [
-    { careerName: 'Diseño Digital / UX', axis: 'artes', studyPlanHighlights: ['Fundamentos de diseño', 'Investigación UX', 'Interacción', 'Prototipado'], careerFields: ['Producto digital', 'Agencias', 'Freelance'], relatedSimulatorSlug: 'uxui-design', icon: 'palette' },
-    { careerName: 'Animación y Medios Digitales', axis: 'artes', studyPlanHighlights: ['Dibujo', 'Modelado 3D', 'Narrativa', 'Postproducción'], careerFields: ['Cine', 'Videojuegos', 'Publicidad'], relatedSimulatorSlug: 'animacion-digital', icon: 'clapperboard' },
+    {
+      careerName: 'Diseño Digital / UX',
+      axis: 'artes',
+      studyPlanHighlights: [
+        'Fundamentos de diseño',
+        'Investigación UX',
+        'Interacción',
+        'Prototipado',
+      ],
+      careerFields: ['Producto digital', 'Agencias', 'Freelance'],
+      relatedSimulatorSlug: 'uxui-design',
+      icon: 'palette',
+    },
+    {
+      careerName: 'Animación y Medios Digitales',
+      axis: 'artes',
+      studyPlanHighlights: [
+        'Dibujo',
+        'Modelado 3D',
+        'Narrativa',
+        'Postproducción',
+      ],
+      careerFields: ['Cine', 'Videojuegos', 'Publicidad'],
+      relatedSimulatorSlug: 'animacion-digital',
+      icon: 'clapperboard',
+    },
   ],
   matematicas: [
-    { careerName: 'Ciencia de Datos', axis: 'matematicas', studyPlanHighlights: ['Estadística', 'Programación', 'Minería de datos', 'Visualización'], careerFields: ['Analítica', 'Banca', 'Tecnología'], relatedSimulatorSlug: 'ciencia-de-datos', icon: 'bar-chart-3' },
-    { careerName: 'Actuaría', axis: 'matematicas', studyPlanHighlights: ['Probabilidad', 'Estadística', 'Modelos de riesgo', 'Finanzas'], careerFields: ['Seguros', 'Banca', 'Consultoría'], relatedSimulatorSlug: 'actuaria', icon: 'trending-up' },
+    {
+      careerName: 'Ciencia de Datos',
+      axis: 'matematicas',
+      studyPlanHighlights: [
+        'Estadística',
+        'Programación',
+        'Minería de datos',
+        'Visualización',
+      ],
+      careerFields: ['Analítica', 'Banca', 'Tecnología'],
+      relatedSimulatorSlug: 'ciencia-de-datos',
+      icon: 'bar-chart-3',
+    },
+    {
+      careerName: 'Actuaría',
+      axis: 'matematicas',
+      studyPlanHighlights: [
+        'Probabilidad',
+        'Estadística',
+        'Modelos de riesgo',
+        'Finanzas',
+      ],
+      careerFields: ['Seguros', 'Banca', 'Consultoría'],
+      relatedSimulatorSlug: 'actuaria',
+      icon: 'trending-up',
+    },
   ],
 };
 
@@ -175,9 +401,19 @@ const CAREER_CATALOG: Record<SteamAxis, Omit<CareerRecommendation, 'affinity' | 
 export class VocationalProfileService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
+  private offlineSync = inject(OfflineSyncService);
 
   /** Perfil vigente (reactivo) para dashboard/resultados. */
   readonly currentProfile = signal<VocationalProfile | null>(null);
+
+  constructor() {
+    this.offlineSync.synced$.subscribe(({ response }) => {
+      const candidate = (response as any)?.profile ?? response;
+      if (candidate?.steamScores && candidate?.profileVersion) {
+        this.cacheProfile(candidate as VocationalProfile);
+      }
+    });
+  }
 
   // ===========================================================================
   //  CAPA API — el motor determinista ahora vive en el backend (A1-A8).
@@ -194,8 +430,8 @@ export class VocationalProfileService {
   ): Observable<VocationalProfile> {
     const body: any = { theoreticalAnswers };
     if (locationInput?.trim()) body.locationInput = locationInput.trim();
-    return this.http
-      .post<VocationalProfile>(`${environment.apiUrl}/profile/compute`, body)
+    return this.offlineSync
+      .submit<VocationalProfile>('profile', '/profile/compute', body)
       .pipe(tap((profile) => this.cacheProfile(profile)));
   }
 
@@ -203,12 +439,17 @@ export class VocationalProfileService {
   submitCalibrationModule(
     result: CalibrationModuleResult,
   ): Observable<CalibrationSubmitResponse> {
-    return this.http
-      .post<CalibrationSubmitResponse>(
-        `${environment.apiUrl}/calibration/submit`,
-        result,
+    return this.offlineSync
+      .submit<CalibrationSubmitResponse>(
+        'calibration',
+        '/calibration/submit',
+        result as any,
       )
-      .pipe(tap((res) => { if (res.profile) this.cacheProfile(res.profile); }));
+      .pipe(
+        tap((res) => {
+          if (res.profile) this.cacheProfile(res.profile);
+        }),
+      );
   }
 
   /**
@@ -225,12 +466,17 @@ export class VocationalProfileService {
     }>;
     biasFlags?: { too_fast: boolean; linear_pattern_detected: boolean };
   }): Observable<SimulatorSubmitResponse> {
-    return this.http
-      .post<SimulatorSubmitResponse>(
-        `${environment.apiUrl}/simulator/submit`,
-        payload,
+    return this.offlineSync
+      .submit<SimulatorSubmitResponse>(
+        'simulator',
+        '/simulator/submit',
+        payload as any,
       )
-      .pipe(tap((res) => { if (res.profile) this.cacheProfile(res.profile); }));
+      .pipe(
+        tap((res) => {
+          if (res.profile) this.cacheProfile(res.profile);
+        }),
+      );
   }
 
   /**
@@ -250,7 +496,9 @@ export class VocationalProfileService {
   fetchLatestProfile(): Observable<VocationalProfile | null> {
     return this.http.get<any>(`${environment.apiUrl}/tests/latest`).pipe(
       map((res) => (res?.profile as VocationalProfile) ?? null),
-      tap((profile) => { if (profile) this.cacheProfile(profile); }),
+      tap((profile) => {
+        if (profile) this.cacheProfile(profile);
+      }),
       catchError(() => of(null)),
     );
   }
@@ -262,7 +510,9 @@ export class VocationalProfileService {
     const userId = this.authService.getCurrentUser()?.id || 'guest';
     try {
       localStorage.setItem(`test_profile_${userId}`, JSON.stringify(profile));
-    } catch { /* storage lleno o bloqueado: ignorar */ }
+    } catch {
+      /* storage lleno o bloqueado: ignorar */
+    }
   }
 
   getCachedProfile(): VocationalProfile | null {
@@ -292,7 +542,7 @@ export class VocationalProfileService {
   computeProfile(
     theoreticalScores: Record<string, number>,
     calibrationResults: CalibrationModuleResult[] = [],
-    simulatorResults: SimulatorAffinityResult[] = []
+    simulatorResults: SimulatorAffinityResult[] = [],
   ): VocationalProfile {
     const contributions: ProfileContribution[] = [];
 
@@ -332,14 +582,26 @@ export class VocationalProfileService {
     const steamScores = this.blend(baseVector, calibVector, simVector);
 
     // ── 5. Derivados ─────────────────────────────────────────────────────
-    const dominantAxes = [...AXES].sort((a, b) => steamScores[b] - steamScores[a]);
-    const calibration = this.buildCalibration(calibrationResults.length, simulatorResults.length);
-    const { profileName, profileArchetype, profileSummary } = this.buildNarrative(dominantAxes, steamScores, calibration);
+    const dominantAxes = [...AXES].sort(
+      (a, b) => steamScores[b] - steamScores[a],
+    );
+    const calibration = this.buildCalibration(
+      calibrationResults.length,
+      simulatorResults.length,
+    );
+    const { profileName, profileArchetype, profileSummary } =
+      this.buildNarrative(dominantAxes, steamScores, calibration);
     const strengths = this.buildStrengths(dominantAxes);
     const workStyle = this.buildWorkStyle(dominantAxes);
-    const recommendedVocations = this.recommendVocations(dominantAxes, steamScores);
+    const recommendedVocations = this.recommendVocations(
+      dominantAxes,
+      steamScores,
+    );
     const recommendedCareers = this.recommendCareers(dominantAxes, steamScores);
-    const nextSteps = this.buildNextSteps(calibrationResults.length, simulatorResults.length);
+    const nextSteps = this.buildNextSteps(
+      calibrationResults.length,
+      simulatorResults.length,
+    );
 
     return {
       steamScores,
@@ -365,7 +627,7 @@ export class VocationalProfileService {
   /** Convierte conteos crudos del test teórico a un vector 0-100. */
   private normalizeTheoretical(scores: Record<string, number>): SteamVector {
     const vector = this.emptyVector();
-    const max = Math.max(1, ...AXES.map(a => scores[a] || 0));
+    const max = Math.max(1, ...AXES.map((a) => scores[a] || 0));
     for (const axis of AXES) {
       vector[axis] = Math.round(((scores[axis] || 0) / max) * 100);
     }
@@ -377,7 +639,9 @@ export class VocationalProfileService {
    * liked = evidencia de experiencia real (+15); disliked = desinterés (-8).
    * Parte de un neutral de 50 y se acota a 0-100. Devuelve null si no hay señal.
    */
-  private buildCalibrationVector(results: CalibrationModuleResult[]): Partial<SteamVector> | null {
+  private buildCalibrationVector(
+    results: CalibrationModuleResult[],
+  ): Partial<SteamVector> | null {
     if (!results.length) return null;
     const counts: Record<SteamAxis, { liked: number; disliked: number }> = {
       ciencia: { liked: 0, disliked: 0 },
@@ -402,7 +666,9 @@ export class VocationalProfileService {
   }
 
   /** Promedia las afinidades de simuladores por eje. */
-  private buildSimulatorVector(results: SimulatorAffinityResult[]): Partial<SteamVector> | null {
+  private buildSimulatorVector(
+    results: SimulatorAffinityResult[],
+  ): Partial<SteamVector> | null {
     if (!results.length) return null;
     const acc: Partial<Record<SteamAxis, number[]>> = {};
     for (const r of results) {
@@ -412,7 +678,8 @@ export class VocationalProfileService {
     const vector: Partial<SteamVector> = {};
     for (const axis of AXES) {
       const arr = acc[axis];
-      if (arr && arr.length) vector[axis] = Math.round(arr.reduce((s, v) => s + v, 0) / arr.length);
+      if (arr && arr.length)
+        vector[axis] = Math.round(arr.reduce((s, v) => s + v, 0) / arr.length);
     }
     return Object.keys(vector).length ? vector : null;
   }
@@ -424,15 +691,17 @@ export class VocationalProfileService {
   private blend(
     base: SteamVector,
     calib: Partial<SteamVector> | null,
-    sim: Partial<SteamVector> | null
+    sim: Partial<SteamVector> | null,
   ): SteamVector {
     const out = this.emptyVector();
     for (const axis of AXES) {
       const parts: Array<{ w: number; v: number }> = [
         { w: SOURCE_WEIGHTS.theoretical, v: base[axis] },
       ];
-      if (calib && calib[axis] !== undefined) parts.push({ w: SOURCE_WEIGHTS.calibration, v: calib[axis]! });
-      if (sim && sim[axis] !== undefined) parts.push({ w: SOURCE_WEIGHTS.simulator, v: sim[axis]! });
+      if (calib && calib[axis] !== undefined)
+        parts.push({ w: SOURCE_WEIGHTS.calibration, v: calib[axis]! });
+      if (sim && sim[axis] !== undefined)
+        parts.push({ w: SOURCE_WEIGHTS.simulator, v: sim[axis]! });
 
       const totalW = parts.reduce((s, p) => s + p.w, 0);
       out[axis] = Math.round(parts.reduce((s, p) => s + p.w * p.v, 0) / totalW);
@@ -444,36 +713,53 @@ export class VocationalProfileService {
   //  Calibración / confianza
   // ===========================================================================
 
-  private buildCalibration(modulesDone: number, simsDone: number): CalibrationState {
+  private buildCalibration(
+    modulesDone: number,
+    simsDone: number,
+  ): CalibrationState {
     const level = this.clamp(
       CALIBRATION_GAINS.theoreticalBase +
         modulesDone * CALIBRATION_GAINS.perCalibrationModule +
-        simsDone * CALIBRATION_GAINS.perSimulator
+        simsDone * CALIBRATION_GAINS.perSimulator,
     );
 
     let confidence: ConfidenceLevel;
     let explanation: string;
     if (level >= 90) {
       confidence = 'altamente_calibrado';
-      explanation = 'Tu perfil tiene una base sólida de evidencia. Las recomendaciones son altamente confiables.';
+      explanation =
+        'Tu perfil tiene una base sólida de evidencia. Las recomendaciones son altamente confiables.';
     } else if (level >= 75) {
       confidence = 'calibrado';
-      explanation = 'Buen nivel de calibración. Completa algún simulador más para afinar al máximo tu perfil.';
+      explanation =
+        'Buen nivel de calibración. Completa algún simulador más para afinar al máximo tu perfil.';
     } else if (level >= 60) {
       confidence = 'en_calibracion';
-      explanation = 'Tu perfil ya tiene forma, pero aún puede refinarse con más tests de calibración y simuladores.';
+      explanation =
+        'Tu perfil ya tiene forma, pero aún puede refinarse con más tests de calibración y simuladores.';
     } else {
       confidence = 'inicial';
-      explanation = 'Este es tu perfil base. Calíbralo con las experiencias de gaming, hobbies y simuladores para mayor precisión.';
+      explanation =
+        'Este es tu perfil base. Calíbralo con las experiencias de gaming, hobbies y simuladores para mayor precisión.';
     }
-    return { level, confidence, calibrationModulesCompleted: modulesDone, simulatorsCompleted: simsDone, explanation };
+    return {
+      level,
+      confidence,
+      calibrationModulesCompleted: modulesDone,
+      simulatorsCompleted: simsDone,
+      explanation,
+    };
   }
 
   // ===========================================================================
   //  Narrativa, fortalezas, estilo
   // ===========================================================================
 
-  private buildNarrative(dominant: SteamAxis[], scores: SteamVector, cal: CalibrationState) {
+  private buildNarrative(
+    dominant: SteamAxis[],
+    scores: SteamVector,
+    cal: CalibrationState,
+  ) {
     const a1 = dominant[0];
     const a2 = dominant[1];
     const meta1 = AXIS_META[a1];
@@ -484,7 +770,9 @@ export class VocationalProfileService {
     const profileName = hybrid
       ? `Perfil ${meta1.adjective}–${meta2.adjective}`
       : `Perfil ${meta1.adjective}`;
-    const profileArchetype = hybrid ? `${meta1.archetype} ${meta2.archetype}` : meta1.archetype;
+    const profileArchetype = hybrid
+      ? `${meta1.archetype} ${meta2.archetype}`
+      : meta1.archetype;
 
     const summary = hybrid
       ? `Tu perfil combina fuertemente ${meta1.label} y ${meta2.label}. Eres alguien que ${this.lower(meta1.strengthDesc)} y, a la vez, ${this.lower(meta2.strengthDesc)} Esta combinación te abre puertas en campos donde se cruzan ambas áreas. ${cal.explanation}`
@@ -494,9 +782,14 @@ export class VocationalProfileService {
   }
 
   private buildStrengths(dominant: SteamAxis[]): ProfileStrength[] {
-    return dominant.slice(0, 3).map(axis => {
+    return dominant.slice(0, 3).map((axis) => {
       const m = AXIS_META[axis];
-      return { title: m.strengthTitle, description: m.strengthDesc, axis, icon: m.icon };
+      return {
+        title: m.strengthTitle,
+        description: m.strengthDesc,
+        axis,
+        icon: m.icon,
+      };
     });
   }
 
@@ -513,7 +806,10 @@ export class VocationalProfileService {
   // ===========================================================================
 
   /** ALGORITMO 1: vocaciones predominantes, ordenadas por afinidad. */
-  private recommendVocations(dominant: SteamAxis[], scores: SteamVector): VocationRecommendation[] {
+  private recommendVocations(
+    dominant: SteamAxis[],
+    scores: SteamVector,
+  ): VocationRecommendation[] {
     const out: VocationRecommendation[] = [];
     for (const axis of dominant.slice(0, 3)) {
       for (const v of VOCATION_CATALOG[axis]) {
@@ -524,7 +820,10 @@ export class VocationalProfileService {
   }
 
   /** ALGORITMO 2: carreras / planes de estudio afines. */
-  private recommendCareers(dominant: SteamAxis[], scores: SteamVector): CareerRecommendation[] {
+  private recommendCareers(
+    dominant: SteamAxis[],
+    scores: SteamVector,
+  ): CareerRecommendation[] {
     const out: CareerRecommendation[] = [];
     for (const axis of dominant.slice(0, 3)) {
       const m = AXIS_META[axis];
@@ -563,7 +862,8 @@ export class VocationalProfileService {
     steps.push({
       type: 'simulator',
       title: 'Vive un simulador de carrera',
-      description: 'Date un "baño de realidad": experimenta decisiones reales de una carrera y comprueba si encaja contigo.',
+      description:
+        'Date un "baño de realidad": experimenta decisiones reales de una carrera y comprueba si encaja contigo.',
       actionLabel: 'Explorar simuladores',
       route: '/career-simulator',
       calibrationGain: CALIBRATION_GAINS.perSimulator,
@@ -576,7 +876,13 @@ export class VocationalProfileService {
   // ===========================================================================
 
   private emptyVector(): SteamVector {
-    return { ciencia: 0, tecnologia: 0, ingenieria: 0, artes: 0, matematicas: 0 };
+    return {
+      ciencia: 0,
+      tecnologia: 0,
+      ingenieria: 0,
+      artes: 0,
+      matematicas: 0,
+    };
   }
 
   private clamp(n: number): number {

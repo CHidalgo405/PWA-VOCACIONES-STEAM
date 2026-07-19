@@ -1,4 +1,13 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy, signal, computed, inject, effect } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+  inject,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { CareerSimulatorService } from '../../../core/services/career-simulator.service';
@@ -9,7 +18,8 @@ import { SteamVector } from '../../../core/models/vocational-profile.models';
 import { LucideIconComponent } from '../../../components/lucide-icon/lucide-icon.component';
 import gsap from 'gsap';
 
-type SteamAreaFilter = 'Todas' | 'Ciencia' | 'Tecnología' | 'Ingeniería' | 'Artes' | 'Matemáticas';
+type SteamAreaFilter =
+  'Todas' | 'Ciencia' | 'Tecnología' | 'Ingeniería' | 'Artes' | 'Matemáticas';
 
 @Component({
   selector: 'app-career-simulator-catalog',
@@ -17,7 +27,7 @@ type SteamAreaFilter = 'Todas' | 'Ciencia' | 'Tecnología' | 'Ingeniería' | 'Ar
   imports: [CommonModule, RouterModule, LucideIconComponent],
   templateUrl: './career-simulator-catalog.component.html',
   styleUrls: ['./career-simulator-catalog.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
   private simulatorService = inject(CareerSimulatorService);
@@ -26,8 +36,17 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
   private router = inject(Router);
 
   public viewState = signal<'intro' | 'catalog'>('intro');
-  public filters: SteamAreaFilter[] = ['Todas', 'Ciencia', 'Tecnología', 'Ingeniería', 'Artes', 'Matemáticas'];
+  public filters: SteamAreaFilter[] = [
+    'Todas',
+    'Ciencia',
+    'Tecnología',
+    'Ingeniería',
+    'Artes',
+    'Matemáticas',
+  ];
   public currentFilter = signal<SteamAreaFilter>('Todas');
+  public showCompletedOnly = signal(false);
+  public loadState = signal<'loading' | 'success' | 'error'>('loading');
 
   public completedSimulators = signal<string[]>([]);
   /** Vector STEAM del perfil vocacional (para ordenar por afinidad). */
@@ -43,18 +62,22 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
     // 1. Aplicar Filtro Visual
     const filter = this.currentFilter();
     if (filter !== 'Todas') {
-      sims = sims.filter(sim => this.getSteamArea(sim) === filter);
+      sims = sims.filter((sim) => this.getSteamArea(sim) === filter);
+    }
+    if (this.showCompletedOnly()) {
+      const completed = new Set(this.completedSimulators());
+      sims = sims.filter((sim) => completed.has(sim.careerId));
     }
 
     // 2. Ordenamiento inteligente por afinidad del perfil vocacional
     const scores = this.userSteamScores();
     if (scores) {
       const AXIS_BY_AREA: Record<string, keyof SteamVector> = {
-        'Ciencia': 'ciencia',
-        'Tecnología': 'tecnologia',
-        'Ingeniería': 'ingenieria',
-        'Artes': 'artes',
-        'Matemáticas': 'matematicas',
+        Ciencia: 'ciencia',
+        Tecnología: 'tecnologia',
+        Ingeniería: 'ingenieria',
+        Artes: 'artes',
+        Matemáticas: 'matematicas',
       };
       sims.sort((a, b) => {
         const scoreA = scores[AXIS_BY_AREA[this.getSteamArea(a)]] ?? 0;
@@ -82,32 +105,22 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
   private apiScores = new Map<string, number>();
 
   ngOnInit() {
-    this.completedSimulators.set(this.simulatorService.getCompletedSimulators());
+    this.completedSimulators.set(
+      this.simulatorService.getCompletedSimulators(),
+    );
 
     // Fuente de verdad cross-device: resultados guardados en la API.
-    this.simulatorService.getMyResults().subscribe(results => {
+    this.simulatorService.getMyResults().subscribe((results) => {
       if (!results.length) return;
-      this.apiScores = new Map(results.map(r => [r.careerSlug, r.affinity]));
+      this.apiScores = new Map(results.map((r) => [r.careerSlug, r.affinity]));
       const merged = new Set([
         ...this.simulatorService.getCompletedSimulators(),
-        ...results.map(r => r.careerSlug),
+        ...results.map((r) => r.careerSlug),
       ]);
       this.completedSimulators.set([...merged]);
     });
 
-    // Carga exclusiva desde la API (JSONB)
-    this.simulatorService.getSimulators().subscribe({
-      next: (sims) => {
-        if (sims && sims.length > 0) {
-          this.allSimulators.set(sims);
-        } else {
-          console.warn('La API no devolvió simuladores activos.');
-        }
-      },
-      error: (err) => {
-        console.error('Failed to load simulators from API:', err);
-      }
-    });
+    this.loadSimulators();
 
     // Perfil vocacional para ordenar el catálogo por afinidad
     // (caché instantánea; si no existe, se pide a la API).
@@ -115,10 +128,25 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
     if (cached) {
       this.userSteamScores.set(cached.steamScores);
     } else {
-      this.profileService.fetchLatestProfile().subscribe(profile => {
+      this.profileService.fetchLatestProfile().subscribe((profile) => {
         if (profile) this.userSteamScores.set(profile.steamScores);
       });
     }
+  }
+
+  public loadSimulators() {
+    this.loadState.set('loading');
+    this.simulatorService.getSimulators().subscribe({
+      next: (sims) => {
+        this.allSimulators.set(sims || []);
+        this.loadState.set('success');
+      },
+      error: (err) => {
+        console.error('Failed to load simulators from API:', err);
+        this.allSimulators.set([]);
+        this.loadState.set('error');
+      },
+    });
   }
 
   ngAfterViewInit() {
@@ -128,7 +156,7 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
         opacity: 0,
         duration: 0.6,
         stagger: 0.1,
-        ease: 'power3.out'
+        ease: 'power3.out',
       });
     } else {
       this.playCatalogEntryAnimations();
@@ -141,7 +169,7 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
       opacity: 0,
       duration: 0.8,
       stagger: 0.15,
-      ease: 'power3.out'
+      ease: 'power3.out',
     });
 
     gsap.from('.filters-container', {
@@ -149,7 +177,7 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
       opacity: 0,
       duration: 0.8,
       delay: 0.3,
-      ease: 'power3.out'
+      ease: 'power3.out',
     });
   }
 
@@ -163,8 +191,9 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
   }
 
   private animateCardsEntry() {
-    gsap.killTweensOf('.sim-card'); // Cancelar animaciones en curso si cambia rápido el filtro
-    gsap.fromTo('.sim-card', 
+    gsap.killTweensOf('.sim-card-premium'); // Cancelar animaciones en curso si cambia rápido el filtro
+    gsap.fromTo(
+      '.sim-card-premium',
       { y: 40, opacity: 0, scale: 0.95 },
       {
         y: 0,
@@ -173,14 +202,14 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
         duration: 0.6,
         stagger: 0.1,
         ease: 'back.out(1.2)',
-        clearProps: 'all' // Limpiar para que el hover por CSS funcione bien
-      }
+        clearProps: 'all', // Limpiar para que el hover por CSS funcione bien
+      },
     );
   }
 
   public setFilter(filter: SteamAreaFilter) {
     // Animación de salida rápida antes de cambiar el filtro
-    const cards = document.querySelectorAll('.sim-card');
+    const cards = document.querySelectorAll('.sim-card-premium');
     if (cards.length > 0) {
       gsap.to(cards, {
         y: 20,
@@ -192,11 +221,15 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
         onComplete: () => {
           // Cambiar filtro una vez que desaparecen
           this.currentFilter.set(filter);
-        }
+        },
       });
     } else {
       this.currentFilter.set(filter);
     }
+  }
+
+  public toggleCompletedOnly() {
+    this.showCompletedOnly.update((value) => !value);
   }
 
   public goToSimulator(careerId: string) {
@@ -219,32 +252,47 @@ export class CareerSimulatorCatalogComponent implements OnInit, AfterViewInit {
   public getSteamArea(sim: CareerSimulatorData): string {
     const area = (sim.steamAreaName || 'Tecnología').toLowerCase();
     if (area.includes('ciencia')) return 'Ciencia';
-    if (area.includes('tecnologia') || area.includes('tecnología')) return 'Tecnología';
-    if (area.includes('ingenieria') || area.includes('ingeniería')) return 'Ingeniería';
+    if (area.includes('tecnologia') || area.includes('tecnología'))
+      return 'Tecnología';
+    if (area.includes('ingenieria') || area.includes('ingeniería'))
+      return 'Ingeniería';
     if (area.includes('arte')) return 'Artes';
-    if (area.includes('matematica') || area.includes('matemática')) return 'Matemáticas';
+    if (area.includes('matematica') || area.includes('matemática'))
+      return 'Matemáticas';
     return 'Tecnología';
   }
 
   public getAreaIcon(area: SteamAreaFilter | string): string {
     switch (area) {
-      case 'Ciencia': return 'microscope';
-      case 'Tecnología': return 'code-2';
-      case 'Ingeniería': return 'settings';
-      case 'Artes': return 'palette';
-      case 'Matemáticas': return 'sigma';
-      default: return '';
+      case 'Ciencia':
+        return 'microscope';
+      case 'Tecnología':
+        return 'code-2';
+      case 'Ingeniería':
+        return 'settings';
+      case 'Artes':
+        return 'palette';
+      case 'Matemáticas':
+        return 'sigma';
+      default:
+        return '';
     }
   }
 
   public getSteamLetter(area: string): string {
     switch (area) {
-      case 'Ciencia': return 'S';
-      case 'Tecnología': return 'T';
-      case 'Ingeniería': return 'E';
-      case 'Artes': return 'A';
-      case 'Matemáticas': return 'M';
-      default: return 'S';
+      case 'Ciencia':
+        return 'S';
+      case 'Tecnología':
+        return 'T';
+      case 'Ingeniería':
+        return 'E';
+      case 'Artes':
+        return 'A';
+      case 'Matemáticas':
+        return 'M';
+      default:
+        return 'S';
     }
   }
 }

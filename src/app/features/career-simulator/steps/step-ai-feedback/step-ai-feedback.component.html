@@ -1,24 +1,39 @@
-<div class="step-container ai-step slide-in-bottom">
+<div class="step-container reality-step slide-in-bottom">
   <div class="step-header">
     <div class="icon-blob bg-green-light">
-      <app-lucide-icon name="bar-chart-3" [size]="28" color="var(--steam-green, #10b981)"></app-lucide-icon>
+      <app-lucide-icon
+        name="bar-chart-3"
+        [size]="28"
+        color="var(--steam-green, #10b981)"
+      ></app-lucide-icon>
     </div>
-    <span class="step-badge ai-badge">Análisis de Perfil</span>
+    <span class="step-badge reality-badge">Cálculo explicable</span>
   </div>
 
-  <h2 class="step-title">{{ step().title || 'Procesando tu perfil' }}</h2>
+  <h2 class="step-title">{{ step().title || "Procesando tu perfil" }}</h2>
 
-  <div class="ai-processing-card">
+  <div class="reality-processing-card">
     <div class="scanner-line"></div>
     <div class="content-wrapper">
-      <app-lucide-icon name="zap" [size]="32" class="pulse-icon" color="var(--steam-green, #10b981)"></app-lucide-icon>
-      <p class="step-content">{{ step().content || 'El algoritmo analizará tus decisiones para calcular tu afinidad con esta carrera.' }}</p>
+      <app-lucide-icon
+        name="zap"
+        [size]="32"
+        class="pulse-icon"
+        color="var(--steam-green, #10b981)"
+      ></app-lucide-icon>
+      <p class="step-content">
+        {{
+          step().content ||
+            "El algoritmo A3 analizará tus decisiones, tiempos y posibles sesgos para calcular tu afinidad con esta carrera."
+        }}
+      </p>
     </div>
   </div>
 
   <div class="action-footer mt-4">
     <button class="primary-btn outline" (click)="continue()">
-      Ver mi resultado <app-lucide-icon name="chevron-right" [size]="16"></app-lucide-icon>
+      Ver mi resultado
+      <app-lucide-icon name="chevron-right" [size]="16"></app-lucide-icon>
     </button>
   </div>
 </div>

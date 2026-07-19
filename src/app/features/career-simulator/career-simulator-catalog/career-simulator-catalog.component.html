@@ -4,11 +4,21 @@
     <!-- Left Column: Content -->
     <div class="intro-text">
       <div class="badge-pill">EXPERIENCIAS INMERSIVAS</div>
-      <h2 class="hero-title">Simuladores<br>de Carrera</h2>
-      
+      <h2 class="hero-title">Simuladores<br />de Carrera</h2>
+
       <div class="explanation-text">
-        <p>Los simuladores te brindan una <strong>pequeña muestra de la realidad</strong> de diversas carreras y profesiones.</p>
-        <p>Su propósito es darte mejor contexto sobre las decisiones y retos que enfrentarías en estas áreas. Además, tus respuestas finales nos ayudarán a obtener una <span class="highlight">mayor precisión</span> en la calibración de tu perfil vocacional STEAM.</p>
+        <p>
+          Los simuladores te brindan una
+          <strong>pequeña muestra de la realidad</strong> de diversas carreras y
+          profesiones.
+        </p>
+        <p>
+          Su propósito es darte mejor contexto sobre las decisiones y retos que
+          enfrentarías en estas áreas. Además, tus respuestas finales nos
+          ayudarán a obtener una
+          <span class="highlight">mayor precisión</span> en la calibración de tu
+          perfil vocacional STEAM.
+        </p>
       </div>
 
       <button class="btn-ver-simuladores" (click)="startCatalog()">
@@ -20,7 +30,10 @@
     <!-- Right Column: Illustration -->
     <div class="intro-image">
       <div class="image-blob-bg"></div>
-      <img src="assets/simulators-hero.png" alt="Estudiantes STEAM Simuladores">
+      <img
+        src="assets/simulators-hero.png"
+        alt="Estudiantes STEAM Simuladores"
+      />
     </div>
   </div>
 </div>
@@ -30,101 +43,169 @@
   <header class="catalog-header-flex">
     <div class="header-texts">
       <h1>Simuladores de carrera</h1>
-      <p>Descubre cómo piensas enfrentando problemas reales en distintas profesiones STEAM.</p>
+      <p>
+        Descubre cómo piensas enfrentando problemas reales en distintas
+        profesiones STEAM.
+      </p>
     </div>
-    <button class="btn-mis-simulaciones">
+    <button
+      class="btn-mis-simulaciones"
+      (click)="toggleCompletedOnly()"
+      [class.active]="showCompletedOnly()"
+      [attr.aria-pressed]="showCompletedOnly()"
+    >
       <app-lucide-icon name="star" [size]="18"></app-lucide-icon>
-      Mis simulaciones
+      {{ showCompletedOnly() ? "Ver todas" : "Mis simulaciones" }}
     </button>
   </header>
 
   <div class="filters-container">
     <div class="filters-scroll">
       @for (filter of filters; track filter) {
-        <button 
+        <button
           class="filter-chip"
           [class.active]="currentFilter() === filter"
           (click)="setFilter(filter)"
         >
-          <app-lucide-icon *ngIf="getAreaIcon(filter)" [name]="getAreaIcon(filter)" [size]="16" class="filter-icon"></app-lucide-icon>
+          <app-lucide-icon
+            *ngIf="getAreaIcon(filter)"
+            [name]="getAreaIcon(filter)"
+            [size]="16"
+            class="filter-icon"
+          ></app-lucide-icon>
           {{ filter }}
         </button>
       }
     </div>
   </div>
 
-  <main class="simulators-grid">
+  @if (loadState() === "loading") {
+    <div class="catalog-state" aria-live="polite">
+      <span class="state-spinner" aria-hidden="true"></span>
+      <h3>Cargando simuladores…</h3>
+      <p>Estamos preparando las experiencias disponibles.</p>
+    </div>
+  } @else if (loadState() === "error") {
+    <div class="catalog-state error-state" role="alert">
+      <app-lucide-icon name="wifi-off" [size]="42"></app-lucide-icon>
+      <h3>No pudimos cargar los simuladores</h3>
+      <p>Comprueba tu conexión e inténtalo nuevamente.</p>
+      <button type="button" (click)="loadSimulators()">Reintentar</button>
+    </div>
+  }
+
+  <main class="simulators-grid" *ngIf="loadState() === 'success'">
     @for (sim of filteredSimulators(); track sim.careerId) {
-      <div class="sim-card-premium" [style.--card-color]="sim.colorToken || '#07B1C9'">
-        
+      <div
+        class="sim-card-premium"
+        [style.--card-color]="sim.colorToken || '#07B1C9'"
+      >
         <div class="card-hero-bg">
           <div class="hero-bg-decoration" aria-hidden="true">
-            <svg class="deco-svg" viewBox="0 0 340 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="310" cy="-30" r="150" fill="white" opacity="0.07"/>
-              <circle cx="330" cy="210" r="110" fill="white" opacity="0.05"/>
-              <circle cx="-20" cy="170" r="80" fill="white" opacity="0.04"/>
-              <circle cx="16" cy="16" r="1.5" fill="white" opacity="0.35"/>
-              <circle cx="32" cy="16" r="1.5" fill="white" opacity="0.35"/>
-              <circle cx="48" cy="16" r="1.5" fill="white" opacity="0.35"/>
-              <circle cx="64" cy="16" r="1.5" fill="white" opacity="0.2"/>
-              <circle cx="16" cy="32" r="1.5" fill="white" opacity="0.35"/>
-              <circle cx="32" cy="32" r="1.5" fill="white" opacity="0.25"/>
-              <circle cx="48" cy="32" r="1.5" fill="white" opacity="0.2"/>
-              <circle cx="16" cy="48" r="1.5" fill="white" opacity="0.2"/>
-              <circle cx="32" cy="48" r="1.5" fill="white" opacity="0.15"/>
+            <svg
+              class="deco-svg"
+              viewBox="0 0 340 180"
+              preserveAspectRatio="xMidYMid slice"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="310" cy="-30" r="150" fill="white" opacity="0.07" />
+              <circle cx="330" cy="210" r="110" fill="white" opacity="0.05" />
+              <circle cx="-20" cy="170" r="80" fill="white" opacity="0.04" />
+              <circle cx="16" cy="16" r="1.5" fill="white" opacity="0.35" />
+              <circle cx="32" cy="16" r="1.5" fill="white" opacity="0.35" />
+              <circle cx="48" cy="16" r="1.5" fill="white" opacity="0.35" />
+              <circle cx="64" cy="16" r="1.5" fill="white" opacity="0.2" />
+              <circle cx="16" cy="32" r="1.5" fill="white" opacity="0.35" />
+              <circle cx="32" cy="32" r="1.5" fill="white" opacity="0.25" />
+              <circle cx="48" cy="32" r="1.5" fill="white" opacity="0.2" />
+              <circle cx="16" cy="48" r="1.5" fill="white" opacity="0.2" />
+              <circle cx="32" cy="48" r="1.5" fill="white" opacity="0.15" />
             </svg>
-            <span class="steam-letter-mark">{{ getSteamLetter(getSteamArea(sim)) }}</span>
+            <span class="steam-letter-mark">{{
+              getSteamLetter(getSteamArea(sim))
+            }}</span>
           </div>
 
           <div class="hero-top-row">
             <div class="icon-box-glass">
-              <app-lucide-icon *ngIf="getAreaIcon(getSteamArea(sim))" [name]="getAreaIcon(getSteamArea(sim))" [size]="30"></app-lucide-icon>
-              <span *ngIf="!getAreaIcon(getSteamArea(sim))">{{ sim.areaEmoji || '🧪' }}</span>
+              <app-lucide-icon
+                *ngIf="getAreaIcon(getSteamArea(sim))"
+                [name]="getAreaIcon(getSteamArea(sim))"
+                [size]="30"
+              ></app-lucide-icon>
+              <span *ngIf="!getAreaIcon(getSteamArea(sim))">{{
+                sim.areaEmoji || "🧪"
+              }}</span>
             </div>
             <span class="area-badge">{{ getSteamArea(sim) }}</span>
           </div>
         </div>
-        
+
         <div class="card-content-wrapper">
           <div class="card-mid">
             <h3>{{ sim.careerName }}</h3>
-            <p>{{ sim.description || 'Descubre si tu forma de pensar encaja con el trabajo real en esta área.' }}</p>
+            <p>
+              {{
+                sim.description ||
+                  "Descubre si tu forma de pensar encaja con el trabajo real en esta área."
+              }}
+            </p>
           </div>
-          
+
           <div class="tags-container" *ngIf="sim.tags && sim.tags.length">
-            @for (tag of (sim.tags.length > 3 ? (sim.tags | slice:0:3) : sim.tags); track tag) {
+            @for (
+              tag of sim.tags.length > 3 ? (sim.tags | slice: 0 : 3) : sim.tags;
+              track tag
+            ) {
               <span class="modern-tag">#{{ tag }}</span>
             }
           </div>
-          
+
           <div class="card-bottom">
             @if (completedSimulators().includes(sim.careerId)) {
               <div class="status-row">
                 <div class="affinity-indicator">
                   <div class="progress-ring-container">
                     <svg viewBox="0 0 36 36" class="circular-chart">
-                      <path class="circle-bg"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                      <path class="circle"
-                        [attr.stroke-dasharray]="(getAffinityScore(sim.careerId) || 0) + ', 100'"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                      <path
+                        class="circle-bg"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                      <path
+                        class="circle"
+                        [attr.stroke-dasharray]="
+                          (getAffinityScore(sim.careerId) || 0) + ', 100'
+                        "
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
                     </svg>
-                    <span class="percentage">{{ getAffinityScore(sim.careerId) || 0 }}%</span>
+                    <span class="percentage"
+                      >{{ getAffinityScore(sim.careerId) || 0 }}%</span
+                    >
                   </div>
                   <span class="affinity-label">Afinidad</span>
                 </div>
 
                 <span class="badge-completed">
-                  <app-lucide-icon name="check-circle" [size]="16"></app-lucide-icon> 
+                  <app-lucide-icon
+                    name="check-circle"
+                    [size]="16"
+                  ></app-lucide-icon>
                   Completado
                 </span>
               </div>
-              <button class="action-btn outline" (click)="goToSimulator(sim.careerId)">
+              <button
+                class="action-btn outline"
+                (click)="goToSimulator(sim.careerId)"
+              >
                 <app-lucide-icon name="play" [size]="16"></app-lucide-icon>
                 Repetir simulación
               </button>
             } @else {
-              <button class="action-btn outline" (click)="goToSimulator(sim.careerId)">
+              <button
+                class="action-btn outline"
+                (click)="goToSimulator(sim.careerId)"
+              >
                 <app-lucide-icon name="play" [size]="16"></app-lucide-icon>
                 Iniciar simulación
               </button>
@@ -136,9 +217,35 @@
 
     @if (filteredSimulators().length === 0) {
       <div class="empty-state">
-        <app-lucide-icon name="inbox" [size]="48" color="var(--text-muted)"></app-lucide-icon>
-        <h3>Próximamente más simuladores</h3>
-        <p>Estamos trabajando para traer más experiencias inmersivas para el área de {{ currentFilter() }}.</p>
+        <app-lucide-icon
+          name="inbox"
+          [size]="48"
+          color="var(--text-muted)"
+        ></app-lucide-icon>
+        <h3>
+          {{
+            showCompletedOnly()
+              ? "Aún no has completado simulaciones"
+              : "No hay simuladores disponibles"
+          }}
+        </h3>
+        <p>
+          {{
+            showCompletedOnly()
+              ? "Completa una experiencia y aparecerá aquí junto con tu afinidad."
+              : "No encontramos experiencias para el filtro " +
+                currentFilter() +
+                "."
+          }}
+        </p>
+        <button
+          *ngIf="showCompletedOnly()"
+          type="button"
+          class="action-btn outline"
+          (click)="toggleCompletedOnly()"
+        >
+          Explorar simuladores
+        </button>
       </div>
     }
   </main>

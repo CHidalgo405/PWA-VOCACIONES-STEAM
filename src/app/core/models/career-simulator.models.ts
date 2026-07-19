@@ -6,7 +6,6 @@
  * - TRADEOFF_DECISION: El usuario debe elegir entre opciones con restricciones reales.
  * - SURPRISE_REVEAL: Se revela un dato o evento inesperado propio de la carrera.
  * - REALITY_CHECK: Procesamiento algorítmico de afinidad (reemplaza AI_FEEDBACK).
- * - AI_FEEDBACK: Alias legacy para compatibilidad con la API actual; se normaliza a REALITY_CHECK al cargar.
  * - EMOTIONAL_REFLECTION: El usuario evalúa cómo se sintió ante el reto.
  */
 export type SimulatorStepType =
@@ -15,7 +14,6 @@ export type SimulatorStepType =
   | 'TRADEOFF_DECISION'
   | 'SURPRISE_REVEAL'
   | 'REALITY_CHECK'
-  | 'AI_FEEDBACK'
   | 'EMOTIONAL_REFLECTION';
 
 /**
@@ -31,7 +29,10 @@ export interface SimulatorStepOption {
   /** Área STEAM principal a la que aporta esta opción (para cálculo de afinidad) */
   steamArea?: 'S' | 'T' | 'E' | 'A' | 'M';
   /** Pesos específicos que esta opción suma a cada área STEAM según la elección */
-  steamTraitWeight?: Record<'ciencia' | 'tecnologia' | 'ingenieria' | 'artes' | 'matematicas', number>;
+  steamTraitWeight?: Record<
+    'ciencia' | 'tecnologia' | 'ingenieria' | 'artes' | 'matematicas',
+    number
+  >;
   /** Datos adicionales específicos de la opción (ej. consecuencias_positivas, consecuencias_negativas) */
   metadata?: Record<string, any>;
 }
@@ -104,34 +105,6 @@ export interface UserStepDecision {
 }
 
 /**
- * Payload o estructura de datos que se enviará al backend (POST /simulator/submit)
- * para generar el feedback personalizado en el paso AI_FEEDBACK.
- */
-export interface SimulatorStepResponse {
-  /** Identificador de la carrera que se está simulando actualmente */
-  careerId: string;
-  /** Nombre de la carrera para proveer contexto al prompt de IA */
-  careerName: string;
-  /** Historial de decisiones que ha tomado el usuario hasta el momento previo al feedback */
-  decisions: UserStepDecision[];
-  /** (Opcional) Identificador del usuario autenticado */
-  userId?: string;
-}
-
-/**
- * Estructura de la respuesta esperada del endpoint de IA 
- * al procesar un SimulatorStepResponse.
- */
-export interface SimulatorAIFeedback {
-  /** Mensaje principal generado por la IA analizando el desempeño y razonamiento del usuario */
-  feedbackMessage: string;
-  /** Puntos fuertes identificados en las decisiones tomadas */
-  strengths: string[];
-  /** Áreas de mejora, reflexiones adicionales o consecuencias en el mundo real señaladas por la IA */
-  areasForImprovement: string[];
-}
-
-/**
  * Estado interno de la sesión del simulador que debe manejar el componente.
  */
 export interface SimulatorSessionState {
@@ -145,10 +118,12 @@ export interface SimulatorSessionState {
   isCompleted: boolean;
   /** Timestamp de cuándo inició el paso actual (usado para medir la duración) */
   currentStepStartTime: number;
-  /** Bandera que indica si el componente está esperando respuesta de la IA */
-  isLoadingAIFeedback: boolean;
-  /** Almacena temporalmente el feedback de la IA una vez recibido */
-  aiFeedbackData: SimulatorFeedbackResponse | null;
+  /** Estado explícito de carga para evitar skeletons infinitos. */
+  isLoadingSimulator: boolean;
+  loadError: string | null;
+  /** Resultado determinista A3a, local o sincronizado con la API. */
+  isLoadingFeedback: boolean;
+  feedbackData: SimulatorFeedbackResponse | null;
   /** Banderas de detección de sesgos en el comportamiento del usuario */
   biasFlags: {
     too_fast: boolean;

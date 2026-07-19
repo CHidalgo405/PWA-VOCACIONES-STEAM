@@ -1,8 +1,11 @@
 <div class="simulator-shell" [ngClass]="steamAreaClass()">
-  
   <header class="simulator-header">
     <div class="header-actions">
-      <button class="exit-btn" (click)="closeSimulator()" aria-label="Abandonar simulador">
+      <button
+        class="exit-btn"
+        (click)="closeSimulator()"
+        aria-label="Abandonar simulador"
+      >
         <app-lucide-icon name="x" [size]="24"></app-lucide-icon>
       </button>
     </div>
@@ -16,37 +19,91 @@
         <span class="shimmer sk-career-badge" aria-hidden="true"></span>
       }
     </div>
-    
+
     <!-- Timer versión mobile (se reubica vía css) -->
-    <div class="timer-display mobile-timer" *ngIf="!isCompleted()">
-      <span class="time">{{ timerSeconds() | number:'2.0' }}s</span>
+    <div
+      class="timer-display mobile-timer"
+      *ngIf="!isCompleted() && careerData()"
+    >
+      <span class="time">{{ timerSeconds() | number: "2.0" }}s</span>
     </div>
   </header>
 
   <div class="progress-container" *ngIf="!isCompleted() && careerData()">
     <div class="progress-bar">
       <!-- Mapeo de iconos: 📋 Contexto → 🔍 Análisis → ⚖️ Tradeoff → ⚡ Sorpresa → 📊 Perfil → 💭 Reflexión -->
-      <div class="step-icon" [class.active]="currentStepIndex() === 0" [class.completed]="currentStepIndex() > 0">📋</div>
-      <div class="progress-line" [class.completed]="currentStepIndex() > 0"></div>
+      <div
+        class="step-icon"
+        [class.active]="currentStepIndex() === 0"
+        [class.completed]="currentStepIndex() > 0"
+      >
+        📋
+      </div>
+      <div
+        class="progress-line"
+        [class.completed]="currentStepIndex() > 0"
+      ></div>
 
-      <div class="step-icon" [class.active]="currentStepIndex() === 1" [class.completed]="currentStepIndex() > 1">🔍</div>
-      <div class="progress-line" [class.completed]="currentStepIndex() > 1"></div>
+      <div
+        class="step-icon"
+        [class.active]="currentStepIndex() === 1"
+        [class.completed]="currentStepIndex() > 1"
+      >
+        🔍
+      </div>
+      <div
+        class="progress-line"
+        [class.completed]="currentStepIndex() > 1"
+      ></div>
 
-      <div class="step-icon" [class.active]="currentStepIndex() === 2" [class.completed]="currentStepIndex() > 2">⚖️</div>
-      <div class="progress-line" [class.completed]="currentStepIndex() > 2"></div>
+      <div
+        class="step-icon"
+        [class.active]="currentStepIndex() === 2"
+        [class.completed]="currentStepIndex() > 2"
+      >
+        ⚖️
+      </div>
+      <div
+        class="progress-line"
+        [class.completed]="currentStepIndex() > 2"
+      ></div>
 
-      <div class="step-icon" [class.active]="currentStepIndex() === 3" [class.completed]="currentStepIndex() > 3">⚡</div>
-      <div class="progress-line" [class.completed]="currentStepIndex() > 3"></div>
+      <div
+        class="step-icon"
+        [class.active]="currentStepIndex() === 3"
+        [class.completed]="currentStepIndex() > 3"
+      >
+        ⚡
+      </div>
+      <div
+        class="progress-line"
+        [class.completed]="currentStepIndex() > 3"
+      ></div>
 
-      <div class="step-icon" [class.active]="currentStepIndex() === 4" [class.completed]="currentStepIndex() > 4">📊</div>
-      <div class="progress-line" [class.completed]="currentStepIndex() > 4"></div>
+      <div
+        class="step-icon"
+        [class.active]="currentStepIndex() === 4"
+        [class.completed]="currentStepIndex() > 4"
+      >
+        📊
+      </div>
+      <div
+        class="progress-line"
+        [class.completed]="currentStepIndex() > 4"
+      ></div>
 
-      <div class="step-icon" [class.active]="currentStepIndex() === 5" [class.completed]="currentStepIndex() > 5">💭</div>
+      <div
+        class="step-icon"
+        [class.active]="currentStepIndex() === 5"
+        [class.completed]="currentStepIndex() > 5"
+      >
+        💭
+      </div>
     </div>
   </div>
 
   <!-- Skeleton (shimmer) mientras carga la data del simulador: replica la barra de progreso y la tarjeta del paso -->
-  @if (!careerData() && !isCompleted()) {
+  @if (isLoadingSimulator() && !careerData() && !isCompleted()) {
     <div class="simulator-skeleton" aria-hidden="true">
       <div class="progress-container">
         <div class="progress-bar">
@@ -75,9 +132,28 @@
     </div>
   }
 
+  @if (loadError() && !isLoadingSimulator()) {
+    <div class="simulator-load-error" role="alert">
+      <app-lucide-icon name="wifi-off" [size]="44"></app-lucide-icon>
+      <h2>No se pudo abrir el simulador</h2>
+      <p>{{ loadError() }}</p>
+      <div class="load-error-actions">
+        <button type="button" class="retry-btn" (click)="retryLoad()">
+          Reintentar
+        </button>
+        <button type="button" class="back-btn" (click)="closeSimulator()">
+          Volver al catálogo
+        </button>
+      </div>
+    </div>
+  }
+
   @if (showBiasBanner()) {
     <div class="bias-banner" @fadeIn>
-      <p>Notamos que tus respuestas son muy similares. ¿Estás leyendo cada opción con calma?</p>
+      <p>
+        Notamos que tus respuestas son muy similares. ¿Estás leyendo cada opción
+        con calma?
+      </p>
       <button (click)="dismissBiasBanner()">Continuar de todas formas</button>
     </div>
   }
@@ -86,68 +162,66 @@
     <!-- Wrapper para contener la animación direccional -->
     <div class="step-wrapper" [@stepTransition]="currentStepIndex()">
       @switch (currentStepType()) {
-        @case ('CONTEXT') {
+        @case ("CONTEXT") {
           @if (currentStepData(); as stepData) {
-            <app-step-context 
+            <app-step-context
               [step]="$any(stepData)"
-              (stepCompleted)="onStepCompleted($event)">
+              (stepCompleted)="onStepCompleted($event)"
+            >
             </app-step-context>
           }
         }
-        @case ('DATA_ANALYSIS') {
+        @case ("DATA_ANALYSIS") {
           @if (currentStepData(); as stepData) {
-            <app-step-data-analysis 
+            <app-step-data-analysis
               [step]="$any(stepData)"
-              (stepCompleted)="onStepCompleted($event)">
+              (stepCompleted)="onStepCompleted($event)"
+            >
             </app-step-data-analysis>
           }
         }
-        @case ('TRADEOFF_DECISION') {
+        @case ("TRADEOFF_DECISION") {
           @if (currentStepData(); as stepData) {
-            <app-step-tradeoff-decision 
+            <app-step-tradeoff-decision
               [step]="$any(stepData)"
-              (stepCompleted)="onStepCompleted($event)">
+              (stepCompleted)="onStepCompleted($event)"
+            >
             </app-step-tradeoff-decision>
           }
         }
-        @case ('SURPRISE_REVEAL') {
+        @case ("SURPRISE_REVEAL") {
           @if (currentStepData(); as stepData) {
-            <app-step-surprise-reveal 
+            <app-step-surprise-reveal
               [step]="$any(stepData)"
-              (stepCompleted)="onStepCompleted($event)">
+              (stepCompleted)="onStepCompleted($event)"
+            >
             </app-step-surprise-reveal>
           }
         }
-        @case ('REALITY_CHECK') {
+        @case ("REALITY_CHECK") {
           @if (currentStepData(); as stepData) {
-            <app-step-ai-feedback
+            <app-step-reality-check
               [step]="$any(stepData)"
-              (stepCompleted)="onStepCompleted($event)">
-            </app-step-ai-feedback>
+              (stepCompleted)="onStepCompleted($event)"
+            >
+            </app-step-reality-check>
           }
         }
-        @case ('AI_FEEDBACK') {
+        @case ("EMOTIONAL_REFLECTION") {
           @if (currentStepData(); as stepData) {
-            <app-step-ai-feedback
+            <app-step-emotional-reflection
               [step]="$any(stepData)"
-              (stepCompleted)="onStepCompleted($event)">
-            </app-step-ai-feedback>
-          }
-        }
-        @case ('EMOTIONAL_REFLECTION') {
-          @if (currentStepData(); as stepData) {
-            <app-step-emotional-reflection 
-              [step]="$any(stepData)"
-              (stepCompleted)="onStepCompleted($event)">
+              (stepCompleted)="onStepCompleted($event)"
+            >
             </app-step-emotional-reflection>
           }
         }
       }
     </div>
-    
+
     <!-- Timer versión desktop -->
     <div class="timer-display desktop-timer">
-      <span class="time">{{ timerSeconds() | number:'2.0' }}s</span>
+      <span class="time">{{ timerSeconds() | number: "2.0" }}s</span>
     </div>
   </main>
 </div>

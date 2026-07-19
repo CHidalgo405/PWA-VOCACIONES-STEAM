@@ -1,18 +1,34 @@
 <div class="hobbies-wrapper fade-in">
-
   <!-- INTRO STATE -->
-  <div class="state-container intro-state fade-in" *ngIf="viewState === 'intro'">
+  <div
+    class="state-container intro-state fade-in"
+    *ngIf="viewState === 'intro'"
+  >
     <div class="icon-wrap">
-      <app-lucide-icon name="target" [size]="48" color="var(--primary)"></app-lucide-icon>
+      <app-lucide-icon
+        name="target"
+        [size]="48"
+        color="var(--primary)"
+      ></app-lucide-icon>
     </div>
     <div class="badge">Calibración</div>
     <h2>{{ moduleTitle }}</h2>
     <p class="subtitle">{{ moduleSubtitle }}</p>
 
     <div class="explanation-card">
-      <p>Los módulos de calibración están diseñados para complementar tu test teórico principal.</p>
-      <p>Al indicarnos qué situaciones, dinámicas o actividades prefieres o has experimentado, el sistema logra una <strong>mayor precisión</strong> en tu perfil STEAM.</p>
-      <p class="highlight">Por favor, responde con total sinceridad. No hay respuestas correctas o incorrectas.</p>
+      <p>
+        Los módulos de calibración están diseñados para complementar tu test
+        teórico principal.
+      </p>
+      <p>
+        Al indicarnos qué situaciones, dinámicas o actividades prefieres o has
+        experimentado, el sistema logra una <strong>mayor precisión</strong> en
+        tu perfil STEAM.
+      </p>
+      <p class="highlight">
+        Por favor, responde con total sinceridad. No hay respuestas correctas o
+        incorrectas.
+      </p>
     </div>
 
     <button class="btn-primary-block start-btn" (click)="startModule()">
@@ -22,7 +38,10 @@
   </div>
 
   <!-- SWIPING STATE -->
-  <div class="state-container swiping-state fade-in" *ngIf="viewState === 'swiping'">
+  <div
+    class="state-container swiping-state fade-in"
+    *ngIf="viewState === 'swiping'"
+  >
     <div class="mission-header">
       <div class="badge">Calibración</div>
       <h2>{{ moduleTitle }}</h2>
@@ -30,7 +49,13 @@
     </div>
 
     <div class="card-stack-container" *ngIf="currentCard">
-      <div class="tinder-card" [ngClass]="{'swipe-left': animatingOut === 'left', 'swipe-right': animatingOut === 'right'}">
+      <div
+        class="tinder-card"
+        [ngClass]="{
+          'swipe-left': animatingOut === 'left',
+          'swipe-right': animatingOut === 'right',
+        }"
+      >
         <div class="card-content">
           <h3>{{ currentCard.text }}</h3>
         </div>
@@ -38,29 +63,62 @@
     </div>
 
     <div class="controls" *ngIf="currentCard">
-      <button class="btn-swipe btn-nope" (click)="swipe('left')" aria-label="No me interesa">
+      <button
+        class="btn-swipe btn-nope"
+        (click)="swipe('left')"
+        aria-label="No me interesa"
+      >
         <app-lucide-icon name="x" [size]="32" color="#EF4444"></app-lucide-icon>
       </button>
-      <button class="btn-swipe btn-like" (click)="swipe('right')" aria-label="Me interesa">
-        <app-lucide-icon name="heart" [size]="32" color="#10B981"></app-lucide-icon>
+      <button
+        class="btn-swipe btn-like"
+        (click)="swipe('right')"
+        aria-label="Me interesa"
+      >
+        <app-lucide-icon
+          name="heart"
+          [size]="32"
+          color="#10B981"
+        ></app-lucide-icon>
       </button>
     </div>
 
     <div class="progress-bar" *ngIf="currentCard">
-      <div class="fill" [style.width]="(currentIndex / cards.length) * 100 + '%'"></div>
+      <div
+        class="fill"
+        [style.width]="(currentIndex / cards.length) * 100 + '%'"
+      ></div>
     </div>
   </div>
 
   <!-- OUTRO STATE -->
-  <div class="state-container outro-state fade-in" *ngIf="viewState === 'outro'">
+  <div
+    class="state-container outro-state fade-in"
+    *ngIf="viewState === 'outro'"
+  >
     <div class="icon-wrap success">
-      <app-lucide-icon name="check-circle" [size]="56" color="#10B981"></app-lucide-icon>
+      <app-lucide-icon
+        name="check-circle"
+        [size]="56"
+        color="#10B981"
+      ></app-lucide-icon>
     </div>
     <h2>¡Módulo Completado!</h2>
 
     <div class="explanation-card">
-      <p>Tus respuestas han sido registradas y tu perfil vocacional ha sido <strong>recalibrado</strong>.</p>
-      <p>El sistema ahora tiene más evidencia real sobre tus preferencias para afinar las recomendaciones de carreras.</p>
+      <p *ngIf="!isSyncPending">
+        Tus respuestas han sido registradas y tu perfil vocacional ha sido
+        <strong>recalibrado</strong>.
+      </p>
+      <p *ngIf="isSyncPending">
+        <strong>Guardado en este dispositivo.</strong> Tu perfil local ya fue
+        recalibrado y sincronizaremos el resultado automáticamente cuando vuelva
+        la conexión.
+      </p>
+      <p>
+        El sistema ahora tiene más evidencia real sobre tus preferencias para
+        afinar las recomendaciones de carreras.
+      </p>
     </div>
 
     <!-- Resumen de contribución por eje -->
@@ -92,10 +150,13 @@
       </div>
     }
 
-    <button class="btn-primary-block start-btn" (click)="exitModule()" [disabled]="isSubmitting">
+    <button
+      class="btn-primary-block start-btn"
+      (click)="exitModule()"
+      [disabled]="isSubmitting"
+    >
       <span *ngIf="!isSubmitting">Volver al Inicio</span>
       <span *ngIf="isSubmitting" class="spinner-mini"></span>
     </button>
   </div>
-
 </div>

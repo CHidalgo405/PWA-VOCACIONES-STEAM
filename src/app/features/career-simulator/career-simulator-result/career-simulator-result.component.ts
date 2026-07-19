@@ -1,4 +1,12 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, signal, computed, NgZone } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+  computed,
+  NgZone,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -7,6 +15,7 @@ import { SimulatorFeedbackResponse } from '../../../core/models/career-simulator
 import { AuthService } from '../../../core/services/auth.service';
 import { VocationalProfile } from '../../../core/models/vocational-profile.models';
 import { withMinDuration } from '../../../core/utils/with-min-duration';
+import { OfflineSyncService } from '../../../core/services/offline-sync.service';
 
 @Component({
   selector: 'app-career-simulator-result',
@@ -14,7 +23,7 @@ import { withMinDuration } from '../../../core/utils/with-min-duration';
   imports: [CommonModule, RouterModule],
   templateUrl: './career-simulator-result.component.html',
   styleUrls: ['./career-simulator-result.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CareerSimulatorResultComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -22,6 +31,7 @@ export class CareerSimulatorResultComponent implements OnInit {
   private simulatorService = inject(CareerSimulatorService);
   private authService = inject(AuthService);
   private ngZone = inject(NgZone);
+  private offlineSync = inject(OfflineSyncService);
 
   public slug = signal<string | null>(null);
   public status = signal<'LOADING' | 'SUCCESS' | 'ERROR'>('LOADING');
@@ -29,15 +39,20 @@ export class CareerSimulatorResultComponent implements OnInit {
 
   public animatedScore = signal<number>(0);
   public discrepancyMessage = signal<string | null>(null);
+  public pendingSyncCount = this.offlineSync.pendingCount;
 
   public session = toSignal(this.simulatorService.currentSession$);
   public careerData = computed(() => this.session()?.currentCareerData);
 
-  public steamAreaClass = computed(() => this.careerData()?.areaClass ?? 'steam-tecnologia');
-  public steamAreaName = computed(() => this.careerData()?.steamAreaName ?? 'STEAM');
+  public steamAreaClass = computed(
+    () => this.careerData()?.areaClass ?? 'steam-tecnologia',
+  );
+  public steamAreaName = computed(
+    () => this.careerData()?.steamAreaName ?? 'STEAM',
+  );
 
   ngOnInit() {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       this.slug.set(params.get('slug'));
       this.fetchFeedback();
     });
@@ -61,8 +76,14 @@ export class CareerSimulatorResultComponent implements OnInit {
           const s = this.slug();
           const userId = this.authService.getCurrentUser()?.id;
           // userId al final: el barrido de limpieza en logout borra por sufijo `_<userId>`.
-          if (s && userId) localStorage.setItem(`sim_score_${s}_${userId}`, response.affinity_score.toString());
-        } catch { /* ignore */ }
+          if (s && userId)
+            localStorage.setItem(
+              `sim_score_${s}_${userId}`,
+              response.affinity_score.toString(),
+            );
+        } catch {
+          /* ignore */
+        }
         this.animateScore(response.affinity_score);
         this.checkVocationalDiscrepancy(response.affinity_score);
       },
@@ -77,7 +98,9 @@ export class CareerSimulatorResultComponent implements OnInit {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
       const easeOut = 1 - Math.pow(1 - progress, 3);
-      this.ngZone.run(() => this.animatedScore.set(Math.floor(easeOut * targetScore)));
+      this.ngZone.run(() =>
+        this.animatedScore.set(Math.floor(easeOut * targetScore)),
+      );
       if (progress < 1) window.requestAnimationFrame(step);
     };
     this.ngZone.runOutsideAngular(() => window.requestAnimationFrame(step));
@@ -92,24 +115,37 @@ export class CareerSimulatorResultComponent implements OnInit {
       if (!raw) return;
       const profile: VocationalProfile = JSON.parse(raw);
       const areaKey = (this.careerData()?.steamAreaName || '')
-        .toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-      const profileScore: number | undefined = (profile.steamScores as any)[areaKey];
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '');
+      const profileScore: number | undefined = (profile.steamScores as any)[
+        areaKey
+      ];
       if (typeof profileScore !== 'number') return;
       const diff = Math.abs(simulatorScore - profileScore);
       if (diff > 30) {
-        const statusTerm = simulatorScore > profileScore ? 'emergente' : 'consolidado';
+        const statusTerm =
+          simulatorScore > profileScore ? 'emergente' : 'consolidado';
         this.discrepancyMessage.set(
-          `Interesante: tu test vocacional indicó ${profileScore}% de afinidad con ${this.steamAreaName()}, pero tu comportamiento en este simulador muestra ${simulatorScore}%. Esto puede significar que tu interés por esta área es más ${statusTerm} de lo que pensabas.`
+          `Interesante: tu test vocacional indicó ${profileScore}% de afinidad con ${this.steamAreaName()}, pero tu comportamiento en este simulador muestra ${simulatorScore}%. Esto puede significar que tu interés por esta área es más ${statusTerm} de lo que pensabas.`,
         );
       }
-    } catch { /* silently ignore */ }
+    } catch {
+      /* silently ignore */
+    }
   }
 
-  public goToProfile() { this.router.navigate(['/profile']); }
-  public goToCatalog() { this.router.navigate(['/career-simulator']); }
+  public goToProfile() {
+    this.router.navigate(['/profile']);
+  }
+  public goToCatalog() {
+    this.router.navigate(['/career-simulator']);
+  }
   public retrySimulator() {
     this.simulatorService.resetSession();
     this.router.navigate(['/career-simulator', this.slug()]);
   }
-  public goToHome() { this.router.navigate(['/dashboard']); }
+  public goToHome() {
+    this.router.navigate(['/dashboard']);
+  }
 }

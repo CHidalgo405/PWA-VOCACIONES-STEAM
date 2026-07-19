@@ -1,6 +1,5 @@
 <div class="result-shell" [ngClass]="steamAreaClass()">
-  
-  @if (status() === 'LOADING') {
+  @if (status() === "LOADING") {
     <div class="skeleton-container">
       <div class="skeleton-header skeleton-pulse"></div>
       <div class="skeleton-score skeleton-pulse"></div>
@@ -13,24 +12,43 @@
     </div>
   }
 
-  @if (status() === 'ERROR') {
+  @if (status() === "ERROR") {
     <div class="error-container">
       <div class="error-icon">⚠️</div>
       <h2>No pudimos obtener tu evaluación</h2>
-      <p>Ocurrió un error al calcular tu perfil de afinidad. Intenta de nuevo.</p>
-      <button class="primary-btn retry-btn" (click)="fetchFeedback()">Reintentar</button>
+      <p>
+        Ocurrió un error al calcular tu perfil de afinidad. Intenta de nuevo.
+      </p>
+      <button class="primary-btn retry-btn" (click)="fetchFeedback()">
+        Reintentar
+      </button>
     </div>
   }
 
-  @if (status() === 'SUCCESS' && feedback()) {
+  @if (status() === "SUCCESS" && feedback()) {
     <div class="result-content">
-      
+      @if (pendingSyncCount() > 0) {
+        <div class="dev-warning-banner stagger-item-1" role="status">
+          <span class="icon">☁️</span>
+          <div class="text">
+            <strong>Resultado guardado localmente</strong>
+            <p>
+              Se sincronizará automáticamente con tu cuenta cuando vuelva la
+              conexión.
+            </p>
+          </div>
+        </div>
+      }
+
       <!-- Mensaje de Desarrollo -->
       <div class="dev-warning-banner stagger-item-1">
         <span class="icon">🧪</span>
         <div class="text">
           <strong>Etapa de Desarrollo</strong>
-          <p>Esta experiencia de simulación es solo una demostración conceptual y se encuentra en fase de pruebas.</p>
+          <p>
+            Esta experiencia de simulación es solo una demostración conceptual y
+            se encuentra en fase de pruebas.
+          </p>
         </div>
       </div>
 
@@ -40,7 +58,7 @@
           <span class="steam-badge">{{ steamAreaName() }}</span>
           <h1>{{ careerData()?.careerName }}</h1>
         </div>
-        
+
         <div class="score-container">
           <div class="score-circle">
             <span class="score-value">{{ animatedScore() }}%</span>
@@ -61,13 +79,22 @@
       <div class="confidence-container stagger-item-4">
         <div class="confidence-chip" [ngClass]="feedback()!.confidence_level">
           <span class="indicator-dot"></span>
-          <span>Confianza del Análisis: {{ feedback()!.confidence_level | uppercase }}</span>
+          <span
+            >Confianza del Análisis:
+            {{ feedback()!.confidence_level | uppercase }}</span
+          >
         </div>
-        
-        @if (feedback()!.confidence_level === 'low') {
+
+        @if (feedback()!.confidence_level === "low") {
           <div class="low-confidence-explanation">
             <span class="icon">⚠️</span>
-            <p><strong>Nivel de confianza bajo:</strong> Hemos detectado un patrón de respuestas extremadamente rápido o automatizado. Esto nos indica una posible falta de sinceridad o análisis al tomar decisiones en el simulador. Te recomendamos repetirlo tomando el tiempo necesario para leer cada escenario.</p>
+            <p>
+              <strong>Nivel de confianza bajo:</strong> Hemos detectado un
+              patrón de respuestas extremadamente rápido o automatizado. Esto
+              nos indica una posible falta de sinceridad o análisis al tomar
+              decisiones en el simulador. Te recomendamos repetirlo tomando el
+              tiempo necesario para leer cada escenario.
+            </p>
           </div>
         }
       </div>
@@ -104,14 +131,25 @@
       </section>
 
       <!-- Carreras similares sugeridas -->
-      @if (feedback()!.suggested_next_simulators && feedback()!.suggested_next_simulators.length > 0) {
+      @if (
+        feedback()!.suggested_next_simulators &&
+        feedback()!.suggested_next_simulators.length > 0
+      ) {
         <section class="result-section stagger-item-8">
           <h3><span class="icon">🧭</span> Carreras similares para explorar</h3>
           <div class="simulators-grid">
-            @for (simSlug of feedback()!.suggested_next_simulators; track simSlug) {
+            @for (
+              simSlug of feedback()!.suggested_next_simulators;
+              track simSlug
+            ) {
               <!-- routerLink recarga el componente si navega a otro simulator -->
-              <a [routerLink]="['/career-simulator', simSlug]" class="simulator-card">
-                <span class="sim-name">Simulador de {{ simSlug | titlecase }}</span>
+              <a
+                [routerLink]="['/career-simulator', simSlug]"
+                class="simulator-card"
+              >
+                <span class="sim-name"
+                  >Simulador de {{ simSlug | titlecase }}</span
+                >
                 <span class="arrow">→</span>
               </a>
             }
@@ -121,11 +159,20 @@
 
       <!-- Acciones Finales -->
       <footer class="action-footer stagger-item-9">
-        <button class="primary-btn" (click)="goToCatalog()">Volver al catálogo</button>
-        <button class="secondary-btn" (click)="retrySimulator()">Repetir simulador</button>
-        <button class="primary-btn outline" (click)="goToHome()" style="margin-top: 1rem;">Ir al inicio</button>
+        <button class="primary-btn" (click)="goToCatalog()">
+          Volver al catálogo
+        </button>
+        <button class="secondary-btn" (click)="retrySimulator()">
+          Repetir simulador
+        </button>
+        <button
+          class="primary-btn outline"
+          (click)="goToHome()"
+          style="margin-top: 1rem"
+        >
+          Ir al inicio
+        </button>
       </footer>
-      
     </div>
   }
 </div>

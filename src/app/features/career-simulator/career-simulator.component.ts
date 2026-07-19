@@ -1,12 +1,12 @@
-import { 
-  Component, 
-  OnInit, 
-  OnDestroy, 
-  inject, 
-  signal, 
-  computed, 
-  ChangeDetectionStrategy, 
-  effect 
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,7 +19,7 @@ import { StepDataAnalysisComponent } from './steps/step-data-analysis/step-data-
 import { StepTradeoffDecisionComponent } from './steps/step-tradeoff-decision/step-tradeoff-decision.component';
 import { StepContextComponent } from './steps/step-context/step-context.component';
 import { StepSurpriseRevealComponent } from './steps/step-surprise-reveal/step-surprise-reveal.component';
-import { StepAIFeedbackComponent } from './steps/step-ai-feedback/step-ai-feedback.component';
+import { StepRealityCheckComponent } from './steps/step-ai-feedback/step-ai-feedback.component';
 import { StepEmotionalReflectionComponent } from './steps/step-emotional-reflection/step-emotional-reflection.component';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 
@@ -32,31 +32,37 @@ import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.co
     StepDataAnalysisComponent,
     StepTradeoffDecisionComponent,
     StepSurpriseRevealComponent,
-    StepAIFeedbackComponent,
+    StepRealityCheckComponent,
     StepEmotionalReflectionComponent,
-    LucideIconComponent
+    LucideIconComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('stepTransition', [
       transition(':increment', [
         style({ transform: 'translateX(100%)', opacity: 0 }),
-        animate('400ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateX(0)', opacity: 1 }))
+        animate(
+          '400ms cubic-bezier(0.25, 0.8, 0.25, 1)',
+          style({ transform: 'translateX(0)', opacity: 1 }),
+        ),
       ]),
       transition(':enter', [
         style({ opacity: 0 }),
-        animate('300ms ease-out', style({ opacity: 1 }))
-      ])
+        animate('300ms ease-out', style({ opacity: 1 })),
+      ]),
     ]),
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(-10px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ])
-    ])
+        animate(
+          '300ms ease-out',
+          style({ opacity: 1, transform: 'translateY(0)' }),
+        ),
+      ]),
+    ]),
   ],
   templateUrl: './career-simulator.component.html',
-  styleUrls: ['./career-simulator.component.scss']
+  styleUrls: ['./career-simulator.component.scss'],
 })
 export class CareerSimulatorComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
@@ -65,9 +71,10 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
 
   // Estado reactivo basado en el servicio
   public session = toSignal(this.simulatorService.currentSession$);
-  
+
   // Timer gestionado con signals localmente en el componente
   public timerSeconds = signal<number>(0);
+  public careerSlug = signal<string | null>(null);
   private timerInterval: any;
 
   // Signal para ocultar el banner localmente sin afectar el estado interno del servicio
@@ -80,19 +87,28 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
     return s.currentCareerData.steps[s.currentStepIndex].type;
   });
 
-  public currentStepIndex = computed(() => this.session()?.currentStepIndex ?? 0);
+  public currentStepIndex = computed(
+    () => this.session()?.currentStepIndex ?? 0,
+  );
   public careerData = computed(() => this.session()?.currentCareerData);
   public isCompleted = computed(() => this.session()?.isCompleted ?? false);
-  
+  public isLoadingSimulator = computed(
+    () => this.session()?.isLoadingSimulator ?? true,
+  );
+  public loadError = computed(() => this.session()?.loadError ?? null);
+
   public currentStepData = computed<SimulatorStep | null>(() => {
     const data = this.careerData();
     if (!data) return null;
     return data.steps[this.currentStepIndex()] ?? null;
   });
-  
+
   public showBiasBanner = computed(() => {
     const s = this.session();
-    return (s?.biasFlags.linear_pattern_detected ?? false) && !this.userDismissedBanner();
+    return (
+      (s?.biasFlags.linear_pattern_detected ?? false) &&
+      !this.userDismissedBanner()
+    );
   });
 
   // Clases CSS dinámicas para pintar el entorno según el área STEAM principal
@@ -119,8 +135,9 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Leer el parámetro slug e inicializar sesión y timer
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const slug = params.get('slug');
+      this.careerSlug.set(slug);
       if (slug) {
         this.simulatorService.startSession(slug);
         this.startTimer();
@@ -157,5 +174,10 @@ export class CareerSimulatorComponent implements OnInit, OnDestroy {
 
   public closeSimulator() {
     this.router.navigate(['/career-simulator']);
+  }
+
+  public retryLoad() {
+    const slug = this.careerSlug();
+    if (slug) this.simulatorService.startSession(slug);
   }
 }

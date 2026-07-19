@@ -10,28 +10,45 @@
     <div class="onboarding-card">
       <div class="onboarding-icon">
         <div class="icon-ring">
-          <app-lucide-icon name="rocket" [size]="48" color="#07B1C9"></app-lucide-icon>
+          <app-lucide-icon
+            name="rocket"
+            [size]="48"
+            color="#07B1C9"
+          ></app-lucide-icon>
         </div>
       </div>
 
       <h1 class="onboarding-title">¡Descubre tu camino STEAM!</h1>
       <p class="onboarding-desc">
-        Te presentaremos situaciones de la vida real. No hay respuestas correctas o incorrectas, solo elige la opción que mejor te describa.
+        Te presentaremos situaciones de la vida real. No hay respuestas
+        correctas o incorrectas, solo elige la opción que mejor te describa.
       </p>
 
       <div class="onboarding-features" *ngIf="questions.length > 0">
         <div class="feature-item">
-          <app-lucide-icon name="help-circle" [size]="18" color="#07B1C9"></app-lucide-icon>
+          <app-lucide-icon
+            name="help-circle"
+            [size]="18"
+            color="#07B1C9"
+          ></app-lucide-icon>
           <span>{{ questions.length }} preguntas de opción múltiple</span>
         </div>
         <div class="feature-item">
-          <app-lucide-icon name="clock" [size]="18" color="#07B1C9"></app-lucide-icon>
+          <app-lucide-icon
+            name="clock"
+            [size]="18"
+            color="#07B1C9"
+          ></app-lucide-icon>
           <span>Duración aproximada: ~5 minutos</span>
         </div>
       </div>
 
       <!-- Skeleton mientras cargan las preguntas (misma estructura que los feature-items reales) -->
-      <div class="onboarding-features" *ngIf="isLoadingQuestions" aria-hidden="true">
+      <div
+        class="onboarding-features"
+        *ngIf="isLoadingQuestions"
+        aria-hidden="true"
+      >
         <div class="feature-item sk-feature">
           <span class="shimmer sk-feature-icon"></span>
           <span class="shimmer sk-feature-text"></span>
@@ -42,21 +59,36 @@
         </div>
       </div>
 
-      <button class="btn-start pulse-anim" (click)="startTest()" [disabled]="isLoadingQuestions">
+      <div
+        class="load-error"
+        *ngIf="loadingError && !isLoadingQuestions"
+        role="alert"
+      >
+        <app-lucide-icon name="wifi-off" [size]="22"></app-lucide-icon>
+        <div>
+          <strong>No se pudo preparar el test</strong>
+          <p>{{ loadingError }}</p>
+        </div>
+        <button type="button" (click)="loadQuestions()">Reintentar</button>
+      </div>
+
+      <button
+        class="btn-start pulse-anim"
+        (click)="startTest()"
+        [disabled]="
+          isLoadingQuestions || !!loadingError || questions.length === 0
+        "
+      >
         <span>¡Comenzar Test!</span>
       </button>
     </div>
   </div>
 </div>
 
-
-
-
 <!-- =============================================
      VIEW 2: QUESTIONNAIRE
      ============================================= -->
 <div class="vt-wrapper" *ngIf="viewState === 'questionnaire'">
-
   <!-- ── STICKY HEADER ── -->
   <header class="vt-header slide-down">
     <div class="header-top-row">
@@ -69,35 +101,49 @@
 
       <!-- Progress label (centre) -->
       <span class="progress-label">
-        {{ progressPercentage | number:'1.0-0' }}% completado
+        {{ progressPercentage | number: "1.0-0" }}% completado
       </span>
 
       <!-- Exit button -->
-      <button class="btn-exit" (click)="promptExit()" aria-label="Salir del test">
+      <button
+        class="btn-exit"
+        (click)="promptExit()"
+        aria-label="Salir del test"
+      >
         <app-lucide-icon name="x" [size]="20"></app-lucide-icon>
       </button>
     </div>
 
     <!-- Thin elegant progress bar -->
     <div class="progress-track">
-      <div class="progress-fill"
-           [style.width]="progressPercentage + '%'"
-           [class.progress-complete]="progressPercentage >= 100">
-      </div>
+      <div
+        class="progress-fill"
+        [style.width]="progressPercentage + '%'"
+        [class.progress-complete]="progressPercentage >= 100"
+      ></div>
       <!-- Glowing dot at the tip -->
-      <div class="progress-dot"
-           [style.left]="progressPercentage + '%'"
-           *ngIf="progressPercentage > 2 && progressPercentage < 100">
-      </div>
+      <div
+        class="progress-dot"
+        [style.left]="progressPercentage + '%'"
+        *ngIf="progressPercentage > 2 && progressPercentage < 100"
+      ></div>
     </div>
   </header>
 
   <!-- ── QUESTION CONTENT AREA ── -->
-  <div class="vt-content" [class.slide-in]="isAnimating" [class.transitioning]="isTransitioningQuestion">
-
+  <div
+    class="vt-content"
+    [class.slide-in]="isAnimating"
+    [class.transitioning]="isTransitioningQuestion"
+  >
     <!-- STEAM area badge -->
     <div class="steam-area-badge">
-      <app-lucide-icon name="zap" [size]="14" color="#07B1C9" style="margin-right:4px;"></app-lucide-icon>
+      <app-lucide-icon
+        name="zap"
+        [size]="14"
+        color="#07B1C9"
+        style="margin-right: 4px"
+      ></app-lucide-icon>
       Pregunta {{ currentQuestionIndex + 1 }}
     </div>
 
@@ -117,10 +163,10 @@
         [class.option-c]="i === 2"
         [class.option-d]="i === 3"
         (click)="selectOption(option.id)"
-        type="button">
-
+        type="button"
+      >
         <!-- Letter chip -->
-        <span class="option-letter">{{ option.letter || ('ABCD'[i]) }}</span>
+        <span class="option-letter">{{ option.letter || "ABCD"[i] }}</span>
 
         <!-- Text content -->
         <span class="option-body">
@@ -134,7 +180,11 @@
 
         <!-- Selection checkmark -->
         <span class="option-check" *ngIf="selectedOptionId === option.id">
-          <app-lucide-icon name="check" [size]="16" color="white"></app-lucide-icon>
+          <app-lucide-icon
+            name="check"
+            [size]="16"
+            color="white"
+          ></app-lucide-icon>
         </span>
       </button>
     </div>
@@ -142,7 +192,12 @@
 
   <!-- ── VALIDATION ALERT ── -->
   <div class="inline-alert" [class.show]="showAlert">
-    <app-lucide-icon name="alert-circle" [size]="16" color="white" style="margin-right:6px;"></app-lucide-icon>
+    <app-lucide-icon
+      name="alert-circle"
+      [size]="16"
+      color="white"
+      style="margin-right: 6px"
+    ></app-lucide-icon>
     Elige una opción para continuar.
   </div>
 
@@ -151,40 +206,52 @@
     <div class="footer-inner">
       <!-- Progress hint -->
       <span class="footer-hint">
-        {{ questions.length - currentQuestionIndex - 1 > 0
-          ? (questions.length - currentQuestionIndex - 1) + ' preguntas restantes'
-          : '¡Última pregunta!' }}
+        {{
+          questions.length - currentQuestionIndex - 1 > 0
+            ? questions.length -
+              currentQuestionIndex -
+              1 +
+              " preguntas restantes"
+            : "¡Última pregunta!"
+        }}
       </span>
 
       <!-- Next / Finish button -->
-      <button class="btn-next"
+      <button
+        class="btn-next"
         [class.btn-next--inactive]="!selectedOptionId"
-        (click)="nextQuestion()">
-        <span>{{ currentQuestionIndex === questions.length - 1 ? 'Finalizar' : 'Siguiente' }}</span>
+        (click)="nextQuestion()"
+      >
+        <span>{{
+          currentQuestionIndex === questions.length - 1
+            ? "Finalizar"
+            : "Siguiente"
+        }}</span>
         <app-lucide-icon
-          [name]="currentQuestionIndex === questions.length - 1 ? 'check-circle' : 'arrow-right'"
+          [name]="
+            currentQuestionIndex === questions.length - 1
+              ? 'check-circle'
+              : 'arrow-right'
+          "
           [size]="18"
           color="white"
-          style="margin-left:8px;margin-bottom:-2px;">
+          style="margin-left: 8px; margin-bottom: -2px"
+        >
         </app-lucide-icon>
       </button>
     </div>
   </footer>
-
 </div>
-
-
-
-
 
 <!-- =============================================
      VIEW 4: ANALYZING (AI splash)
      ============================================= -->
 <app-splash-screen
   *ngIf="viewState === 'analyzing'"
-  loadingText="Analizando tus respuestas con Inteligencia Artificial..."
+  loadingText="Calculando tu perfil vocacional..."
   [controlExternally]="true"
-  [isVisible]="true">
+  [isVisible]="true"
+>
 </app-splash-screen>
 
 <!-- =============================================
@@ -193,13 +260,23 @@
 <div class="modal-overlay" *ngIf="showExitModal" (click)="cancelExit()">
   <div class="modal-card scale-in" (click)="$event.stopPropagation()">
     <div class="modal-icon-wrap">
-      <app-lucide-icon name="alert-triangle" [size]="36" color="#F59E0B"></app-lucide-icon>
+      <app-lucide-icon
+        name="alert-triangle"
+        [size]="36"
+        color="#F59E0B"
+      ></app-lucide-icon>
     </div>
     <h3 class="modal-title">¿Salir del test?</h3>
-    <p class="modal-body-text">Tu progreso no se guardará y tendrás que comenzar de nuevo.</p>
+    <p class="modal-body-text">
+      Tu progreso no se guardará y tendrás que comenzar de nuevo.
+    </p>
     <div class="modal-actions">
-      <button class="btn-modal-cancel" (click)="cancelExit()">Continuar test</button>
-      <button class="btn-modal-danger" (click)="confirmExit()">Sí, salir</button>
+      <button class="btn-modal-cancel" (click)="cancelExit()">
+        Continuar test
+      </button>
+      <button class="btn-modal-danger" (click)="confirmExit()">
+        Sí, salir
+      </button>
     </div>
   </div>
 </div>
