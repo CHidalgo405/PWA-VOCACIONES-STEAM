@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { ThemeService } from '../../core/services/theme.service';
@@ -10,6 +9,16 @@ import { VocationTestService } from '../../core/services/test.service';
 import { LucideIconComponent } from '../../components/lucide-icon/lucide-icon.component';
 import { Subscription } from 'rxjs';
 import { HeaderComponent } from '../../components/header/header.component';
+
+interface ProfileSetting {
+  icon: string;
+  title: string;
+  action?: string;
+  isToggle?: boolean;
+  toggleState?: boolean;
+  isStatic?: boolean;
+  value?: string;
+}
 
 @Component({
   selector: 'app-profile',
@@ -106,19 +115,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
 
   // --- SECCIONES PREMIUM DE AJUSTES ---
-  accountSettings = [
+  accountSettings: ProfileSetting[] = [
     { icon: 'clock', title: 'Historial de Tests', action: '/history' },
     { icon: 'lock', title: 'Contraseña y Seguridad', action: '/profile/security' },
     { icon: 'bell', title: 'Notificaciones', action: '/profile/notifications' },
     { icon: 'user', title: 'Administrar Perfil', action: '/profile/manage' }
   ];
 
-  preferencesSettings = [
+  preferencesSettings: ProfileSetting[] = [
     { icon: 'moon', title: 'Tema (Modo Oscuro)', action: 'theme', isToggle: true, toggleState: false },
-    { icon: 'globe', title: 'Idioma', action: 'language', value: 'Español' }
+    { icon: 'globe', title: 'Idioma de la interfaz', value: 'Español', isStatic: true }
   ];
 
-  supportSettings = [
+  supportSettings: ProfileSetting[] = [
     { icon: 'help-circle', title: 'Centro de ayuda', action: '/profile/help' },
     { icon: 'headphones', title: 'Contactar soporte', action: '/profile/contact' },
     { icon: 'shield-check', title: 'Aviso de Privacidad', action: '/legal/privacidad' },
@@ -134,15 +143,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   activeModal: 'logout' | null = null;
 
-  handleAction(action: string) {
-    if (action.startsWith('/')) {
-      this.router.navigate([action]);
-    } else {
-      console.log(`Función no soportada por el momento: ${action}`);
-    }
+  handleAction(route?: string) {
+    if (route?.startsWith('/')) this.router.navigateByUrl(route);
   }
 
-  togglePreference(setting: any) {
+  togglePreference(setting: ProfileSetting) {
     if (setting.action === 'theme') {
       if (this.isSavingTheme) return; // anti-spam: no encadenar toggles
       const isDark = !this.themeService.isDark;

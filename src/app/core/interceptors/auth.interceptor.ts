@@ -93,7 +93,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // ── Lógica principal ─────────────────────────────────────────────────────
 
-  const accessToken = localStorage.getItem('steam_pwa_token');
+  const accessToken = authSvc.getAccessToken();
 
   /**
    * VERIFICACIÓN PROACTIVA: si el access token ya expiró antes de enviar,

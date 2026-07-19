@@ -16,7 +16,12 @@
       <!-- ENLACES -->
       <div class="form-section mt-4">
         <div class="ios-form-group">
-          <div class="ios-toggle-row border-bottom" (click)="openLink('#')">
+          <a
+            class="ios-toggle-row border-bottom"
+            href="https://vocaciones-steam-landing.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <div class="row-left-content">
               <div class="row-icon-box bg-blue-light"><app-lucide-icon name="globe" [size]="18" color="var(--steam-blue)"></app-lucide-icon></div>
               <div class="row-text">
@@ -24,8 +29,8 @@
               </div>
             </div>
             <app-lucide-icon name="external-link" [size]="16" color="var(--text-muted)"></app-lucide-icon>
-          </div>
-          <div class="ios-toggle-row border-bottom" (click)="openLink('#')">
+          </a>
+          <a class="ios-toggle-row border-bottom" routerLink="/legal/terminos">
             <div class="row-left-content">
               <div class="row-icon-box bg-orange-light"><app-lucide-icon name="file-text" [size]="18" color="var(--steam-orange)"></app-lucide-icon></div>
               <div class="row-text">
@@ -33,8 +38,8 @@
               </div>
             </div>
             <app-lucide-icon name="chevron-right" [size]="16" color="var(--text-muted)"></app-lucide-icon>
-          </div>
-          <div class="ios-toggle-row border-bottom" (click)="openLink('#')">
+          </a>
+          <a class="ios-toggle-row border-bottom" routerLink="/legal/privacidad">
             <div class="row-left-content">
               <div class="row-icon-box" style="background: rgba(139, 92, 246, 0.15)"><app-lucide-icon name="shield" [size]="18" color="#8B5CF6"></app-lucide-icon></div>
               <div class="row-text">
@@ -42,8 +47,13 @@
               </div>
             </div>
             <app-lucide-icon name="chevron-right" [size]="16" color="var(--text-muted)"></app-lucide-icon>
-          </div>
-          <div class="ios-toggle-row" (click)="openLink('https://github.com/CHidalgo405/PWA-VOCACIONES-STEAM')">
+          </a>
+          <a
+            class="ios-toggle-row"
+            href="https://github.com/CHidalgo405/PWA-VOCACIONES-STEAM"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <div class="row-left-content">
               <div class="row-icon-box" style="background: rgba(107, 114, 128, 0.15)"><app-lucide-icon name="github" [size]="18" color="#6B7280"></app-lucide-icon></div>
               <div class="row-text">
@@ -51,7 +61,7 @@
               </div>
             </div>
             <app-lucide-icon name="external-link" [size]="16" color="var(--text-muted)"></app-lucide-icon>
-          </div>
+          </a>
         </div>
       </div>
 

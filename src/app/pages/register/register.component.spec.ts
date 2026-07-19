@@ -54,4 +54,20 @@ describe('RegisterComponent', () => {
     tick(1000);
     expect(component.resendCooldown).toBe(0);
   }));
+
+  it('passes the remember me choice when the registration OTP is verified', () => {
+    authService.verifyOtp.and.returnValue(of({ accessToken: 'token' }));
+    component.email = 'student@example.com';
+    component.verificationCode = '123456';
+    component.rememberMe = true;
+
+    component.onVerifyOTP();
+
+    expect(authService.verifyOtp).toHaveBeenCalledWith(
+      'student@example.com',
+      '123456',
+      'register',
+      true
+    );
+  });
 });

@@ -52,7 +52,7 @@ export class RegisterComponent implements OnDestroy {
       this.toastService.showToast('Debes aceptar el Aviso de Privacidad y los Términos para continuar.', 'warning');
       return;
     }
-    this.authService.loginWithGoogle();
+    this.authService.loginWithGoogle(this.rememberMe);
   }
 
   onSubmit() {
@@ -113,7 +113,12 @@ export class RegisterComponent implements OnDestroy {
     this.isVerifying = true;
 
     this.authService
-      .verifyOtp(this.email, this.verificationCode, 'register')
+      .verifyOtp(
+        this.email,
+        this.verificationCode,
+        'register',
+        this.rememberMe
+      )
       .pipe(
         catchError(err => {
           this.isVerifying = false;

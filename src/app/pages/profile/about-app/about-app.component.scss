@@ -90,6 +90,8 @@
   cursor: pointer;
   background: var(--bg-surface);
   transition: background 0.2s;
+  color: inherit;
+  text-decoration: none;
 
   &:active {
     background: var(--bg-canvas);

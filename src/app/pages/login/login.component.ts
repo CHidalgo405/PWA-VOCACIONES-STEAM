@@ -49,7 +49,7 @@ export class LoginComponent {
 
     this.isLoading = true;
 
-    this.authService.login(this.email, this.password).pipe(
+    this.authService.login(this.email, this.password, this.rememberMe).pipe(
       catchError(err => {
         this.isLoading = false;
 
@@ -131,7 +131,11 @@ export class LoginComponent {
 
     this.isVerifying = true;
 
-    this.authService.verifyLogin(this.email, this.verificationCode).pipe(
+    this.authService.verifyLogin(
+      this.email,
+      this.verificationCode,
+      this.rememberMe
+    ).pipe(
       catchError(err => {
         this.isVerifying = false;
         
@@ -202,7 +206,7 @@ export class LoginComponent {
 
   simularLoginGoogle(event: Event) {
     event.preventDefault();
-    this.authService.loginWithGoogle();
+    this.authService.loginWithGoogle(this.rememberMe);
   }
 
 }

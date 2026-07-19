@@ -41,6 +41,7 @@ export class AuthService {
   private readonly USER_KEY = 'steam_pwa_user';
   private readonly TOKEN_KEY = 'steam_pwa_token';
   private readonly REFRESH_TOKEN_KEY = 'steam_pwa_refresh_token';
+  private readonly OAUTH_REMEMBER_KEY = 'steam_pwa_oauth_remember';
 
   private http = inject(HttpClient);
   private router = inject(Router);
@@ -78,26 +79,31 @@ export class AuthService {
     return this.http.post(`${environment.apiUrl}/auth/resend-registration-otp`, { email });
   }
 
-  verifyOtp(email: string, code: string, purpose: 'register' | 'recovery'): Observable<any> {
+  verifyOtp(
+    email: string,
+    code: string,
+    purpose: 'register' | 'recovery',
+    rememberMe = false
+  ): Observable<any> {
     return this.http.post(`${environment.apiUrl}/auth/verify-otp`, { email, code, purpose }).pipe(
       tap((res: any) => {
-        if (res.accessToken) this.setSession(res.accessToken, res.user, res.refreshToken);
+        if (res.accessToken) this.setSession(res.accessToken, res.user, res.refreshToken, rememberMe);
       })
     );
   }
 
-  login(email: string, password: string): Observable<any> {
+  login(email: string, password: string, rememberMe = false): Observable<any> {
     return this.http.post(`${environment.apiUrl}/auth/login`, { email, password }).pipe(
       tap((res: any) => {
-        if (res.accessToken) this.setSession(res.accessToken, res.user, res.refreshToken);
+        if (res.accessToken) this.setSession(res.accessToken, res.user, res.refreshToken, rememberMe);
       })
     );
   }
 
-  verifyLogin(email: string, code: string): Observable<any> {
+  verifyLogin(email: string, code: string, rememberMe = false): Observable<any> {
     return this.http.post(`${environment.apiUrl}/auth/verify-login`, { email, code }).pipe(
       tap((res: any) => {
-        if (res.accessToken) this.setSession(res.accessToken, res.user, res.refreshToken);
+        if (res.accessToken) this.setSession(res.accessToken, res.user, res.refreshToken, rememberMe);
       })
     );
   }
@@ -118,7 +124,10 @@ export class AuthService {
     });
   }
 
-  loginWithGoogle() {
+  loginWithGoogle(rememberMe = false) {
+    // El redirect de OAuth conserva sessionStorage en la misma pestaña. Así
+    // el callback conoce la elección sin exponerla en la URL.
+    sessionStorage.setItem(this.OAUTH_REMEMBER_KEY, String(rememberMe));
     window.location.href = `${environment.apiUrl}/auth/google`;
   }
 
@@ -127,9 +136,17 @@ export class AuthService {
    * El perfil de usuario aún no se conoce en este punto: se obtiene justo
    * después con obtenerPerfil(), que ya se encarga de guardarlo.
    */
-  persistOAuthTokens(accessToken: string, refreshToken?: string): void {
-    localStorage.setItem(this.TOKEN_KEY, accessToken);
-    if (refreshToken) localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
+  persistOAuthTokens(
+    accessToken: string,
+    refreshToken?: string,
+    rememberMe?: boolean
+  ): void {
+    const shouldRemember =
+      rememberMe ?? sessionStorage.getItem(this.OAUTH_REMEMBER_KEY) === 'true';
+    sessionStorage.removeItem(this.OAUTH_REMEMBER_KEY);
+    const storage = this.prepareSessionStorage(shouldRemember);
+    storage.setItem(this.TOKEN_KEY, accessToken);
+    if (refreshToken) storage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
   }
 
   obtenerPerfil(): Observable<Usuario> {
@@ -150,12 +167,18 @@ export class AuthService {
   // SESSION MANAGEMENT
   // ---------------------------------------------------------
 
-  private setSession(accessToken: string, user: any, refreshToken?: string) {
+  private setSession(
+    accessToken: string,
+    user: any,
+    refreshToken?: string,
+    rememberMe = false
+  ) {
     const usuario = this.mapServerUser(user);
+    const storage = this.prepareSessionStorage(rememberMe);
 
-    localStorage.setItem(this.TOKEN_KEY, accessToken);
-    if (refreshToken) localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+    storage.setItem(this.TOKEN_KEY, accessToken);
+    if (refreshToken) storage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
+    storage.setItem(this.USER_KEY, JSON.stringify(usuario));
 
     this.currentUserSubject.next(usuario);
     this.currentUserSig.set(usuario);
@@ -167,13 +190,18 @@ export class AuthService {
   // ---------------------------------------------------------
 
   getRefreshToken(): string | null {
-    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    return this.getStoredItem(this.REFRESH_TOKEN_KEY);
+  }
+
+  getAccessToken(): string | null {
+    return this.getStoredItem(this.TOKEN_KEY);
   }
 
   /**
    * Solicita un nuevo par de tokens usando el refreshToken almacenado.
    * El interceptor llama a este método cuando detecta un 401 o un access
-   * token expirado. Actualiza ambos tokens en localStorage automáticamente.
+   * token expirado. Conserva el mismo alcance elegido al iniciar sesión:
+   * persistente (localStorage) o solo esta pestaña (sessionStorage).
    */
   refreshAccessToken(): Observable<{
     accessToken: string;
@@ -203,8 +231,9 @@ export class AuthService {
           }
         }),
         tap((res: any) => {
-          if (res.accessToken) localStorage.setItem(this.TOKEN_KEY, res.accessToken);
-          if (res.refreshToken) localStorage.setItem(this.REFRESH_TOKEN_KEY, res.refreshToken);
+          const storage = this.getActiveSessionStorage();
+          if (res.accessToken) storage.setItem(this.TOKEN_KEY, res.accessToken);
+          if (res.refreshToken) storage.setItem(this.REFRESH_TOKEN_KEY, res.refreshToken);
           if (res.user) this.setCurrentUser(this.mapServerUser(res.user));
         }),
         map((res: any) => ({
@@ -262,7 +291,10 @@ export class AuthService {
   }
 
   private setCurrentUser(usuario: Usuario) {
-    localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+    const storage = this.getActiveSessionStorage();
+    const otherStorage = storage === localStorage ? sessionStorage : localStorage;
+    storage.setItem(this.USER_KEY, JSON.stringify(usuario));
+    otherStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(usuario);
     this.currentUserSig.set(usuario); // Update signal
     if (usuario.darkMode !== undefined) {
@@ -303,6 +335,9 @@ export class AuthService {
     const outgoingUserId = this.getCurrentUser()?.id;
 
     sessionStorage.removeItem(this.USER_KEY);
+    sessionStorage.removeItem(this.TOKEN_KEY);
+    sessionStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    sessionStorage.removeItem(this.OAUTH_REMEMBER_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
@@ -331,7 +366,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    const accessToken = localStorage.getItem(this.TOKEN_KEY);
+    const accessToken = this.getAccessToken();
     const refreshToken = this.getRefreshToken();
 
     // Sin ningún token → no autenticado
@@ -358,7 +393,7 @@ export class AuthService {
    * como sesión válida.
    */
   isTokenExpired(token?: string | null): boolean {
-    const t = token ?? localStorage.getItem(this.TOKEN_KEY);
+    const t = token ?? this.getAccessToken();
     if (!t) return true;
 
     const payload = this.decodeToken(t);
@@ -393,12 +428,33 @@ export class AuthService {
   }
 
   getCurrentUser(): Usuario | null {
-    const userStr = sessionStorage.getItem(this.USER_KEY) || localStorage.getItem(this.USER_KEY);
+    const userStr = this.getStoredItem(this.USER_KEY);
     if (!userStr) return null;
     try {
       return JSON.parse(userStr);
     } catch {
       return null;
     }
+  }
+
+  private getStoredItem(key: string): string | null {
+    return sessionStorage.getItem(key) ?? localStorage.getItem(key);
+  }
+
+  private getActiveSessionStorage(): Storage {
+    const hasSessionScopedData =
+      sessionStorage.getItem(this.TOKEN_KEY) !== null ||
+      sessionStorage.getItem(this.REFRESH_TOKEN_KEY) !== null ||
+      sessionStorage.getItem(this.USER_KEY) !== null;
+    return hasSessionScopedData ? sessionStorage : localStorage;
+  }
+
+  private prepareSessionStorage(rememberMe: boolean): Storage {
+    for (const storage of [localStorage, sessionStorage]) {
+      storage.removeItem(this.USER_KEY);
+      storage.removeItem(this.TOKEN_KEY);
+      storage.removeItem(this.REFRESH_TOKEN_KEY);
+    }
+    return rememberMe ? localStorage : sessionStorage;
   }
 }

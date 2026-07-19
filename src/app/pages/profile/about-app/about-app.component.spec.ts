@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { AboutAppComponent } from './about-app.component';
 
@@ -8,7 +9,8 @@ describe('AboutAppComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AboutAppComponent]
+      imports: [AboutAppComponent],
+      providers: [provideRouter([])]
     })
     .compileComponents();
 
@@ -19,5 +21,16 @@ describe('AboutAppComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('exposes real official and legal destinations', () => {
+    const links = Array.from(
+      fixture.nativeElement.querySelectorAll('.ios-toggle-row')
+    ) as HTMLAnchorElement[];
+
+    expect(links[0].href).toBe('https://vocaciones-steam-landing.vercel.app/');
+    expect(links[1].getAttribute('href')).toBe('/legal/terminos');
+    expect(links[2].getAttribute('href')).toBe('/legal/privacidad');
+    expect(links.every(link => link.getAttribute('href') !== '#')).toBeTrue();
   });
 });

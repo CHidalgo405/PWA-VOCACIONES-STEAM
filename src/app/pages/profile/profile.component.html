@@ -32,7 +32,7 @@
       <div class="stats-bento-grid">
         
         <!-- Tests Completed Bento Card -->
-        <div class="bento-card stat-completed-card" (click)="handleAction('viewHistory')">
+        <div class="bento-card stat-completed-card" (click)="handleAction('/history')">
           <div class="bento-bg-gradient"></div>
           <span class="stat-number">{{ testCount }}</span>
           <span class="stat-label">Tests Realizados</span>
@@ -43,7 +43,7 @@
         </div>
         
         <!-- Account Status Bento Card -->
-        <div class="bento-card account-shortcut-card" (click)="handleAction('manage')">
+        <div class="bento-card account-shortcut-card" (click)="handleAction('/profile/manage')">
           <div class="bento-icon-wrap">
             <app-lucide-icon name="user" [size]="28" color="var(--steam-blue)"></app-lucide-icon>
           </div>
@@ -80,7 +80,7 @@
         <div class="settings-card-group group-preferencias">
           <h3 class="settings-group-header">Preferencias</h3>
           <div class="settings-list">
-            <div class="setting-row-item" *ngFor="let item of preferencesSettings" [class.no-click]="item.isToggle" (click)="!item.isToggle && handleAction(item.action)">
+            <div class="setting-row-item" *ngFor="let item of preferencesSettings" [class.no-click]="item.isToggle || item.isStatic" (click)="item.action && !item.isToggle && !item.isStatic && handleAction(item.action)">
               <div class="row-left">
                 <div class="row-icon-container">
                   <app-lucide-icon [name]="item.icon" [size]="18"></app-lucide-icon>
