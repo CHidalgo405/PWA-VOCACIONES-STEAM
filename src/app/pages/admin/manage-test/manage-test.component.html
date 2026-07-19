@@ -317,7 +317,7 @@
             </div>
 
             <!-- Toggle Estado -->
-            <div class="input-group full-width" style="flex-direction: row; align-items: center; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <div class="input-group full-width status-setting">
               <label class="switch">
                 <input type="checkbox" name="status"
                   [checked]="questionForm.status === 'activo'"
@@ -326,10 +326,10 @@
                 <span class="slider round"></span>
               </label>
               <div>
-                <span style="font-weight: 600; color: #1e293b; font-size: 0.95rem;">
+                <span class="status-setting-title">
                   {{ questionForm.status === 'activo' ? 'Pregunta Activa' : 'Pregunta Inactiva' }}
                 </span>
-                <p style="margin: 2px 0 0; color: #64748b; font-size: 0.8rem;">
+                <p class="status-setting-description">
                   {{ questionForm.status === 'activo' ? 'Visible en el test vocacional' : 'Oculta del test vocacional' }}
                 </p>
               </div>

@@ -21,4 +21,15 @@ describe('AdminSidebarComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('renders the catalog icon registered by the local icon set', () => {
+    const catalogLink = fixture.nativeElement.querySelector(
+      'a[href="/admin/catalogs"]',
+    ) as HTMLAnchorElement;
+    const icon = catalogLink?.querySelector('.lucide-icon-wrapper svg');
+
+    expect(catalogLink).toBeTruthy();
+    expect(icon).toBeTruthy();
+    expect(icon?.classList.contains('lucide-library')).toBeTrue();
+  });
 });

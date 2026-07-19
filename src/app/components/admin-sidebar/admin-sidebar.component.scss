@@ -59,7 +59,7 @@ $sidebar-width-mobile: 280px;
   top: 0;
   left: 0;
   height: 100vh;
-  background-color: var(--white, #ffffff);
+  background-color: var(--bg-surface, #ffffff);
   width: $sidebar-width-mobile;
   z-index: 999;
   display: flex;
@@ -78,7 +78,7 @@ $sidebar-width-mobile: 280px;
   @media (min-width: 1024px) {
     transform: translateX(0);
     width: $sidebar-width-pc;
-    border-right: 1px solid rgba(0,0,0,0.05);
+    border-right: 1px solid var(--border-light, rgba(0,0,0,0.05));
     box-shadow: none;
   }
 }
@@ -89,7 +89,7 @@ $sidebar-width-mobile: 280px;
   display: flex;
   align-items: center;
   gap: 15px;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid var(--border-light, rgba(0,0,0,0.05));
 
   .admin-brand-logo {
     width: 32px;
@@ -97,7 +97,7 @@ $sidebar-width-mobile: 280px;
     object-fit: contain;
   }
 
-  h2 { margin: 0; font-size: 1.1rem; color: var(--text-dark); flex: 1; }
+  h2 { margin: 0; font-size: 1.1rem; color: var(--text-primary); flex: 1; }
 
   .close-btn {
     background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted);
@@ -132,7 +132,15 @@ $sidebar-width-mobile: 280px;
   cursor: pointer;
   transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
 
-  .icon { font-size: 1.2rem; transition: transform 0.2s; }
+  .icon {
+    display: grid;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    place-items: center;
+    font-size: 1.2rem;
+    transition: transform 0.2s ease;
+  }
 
   &:hover {
     background: rgba(7, 177, 201, 0.05); /* Azul muy suave */
@@ -166,7 +174,7 @@ $sidebar-width-mobile: 280px;
 
 .sidebar-footer {
   padding: 20px 15px;
-  border-top: 1px solid rgba(0,0,0,0.05);
+  border-top: 1px solid var(--border-light, rgba(0,0,0,0.05));
 }
 
 /* El toggle de tema es un <button>: reseteamos su apariencia para que
